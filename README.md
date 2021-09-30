@@ -1,4 +1,6 @@
-# CP/M-86 Cross Development Environment
+# CP/M-86/MS-DOS Cross Development Environment
+
+This project regroups a simple method to create a cross development environment for CP/M-86. It happens that all DOS based tools can also be used for building DOS programs.
 
 ## Key tools for CP/M-86 development
 - aztec c compiler version 3.4
@@ -8,6 +10,32 @@
 
 - The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair.
 - We also need to run some cp/m-80 programs, for that, the tinylpo emulator is used. It works very well with asm86.com and gencmd.com programs
+
+## Script Mapping
+
+All the tools are wrapped in the bin directory for direct usage:
+
+| scipt name    | program     | quick description                 |
+|---------------|-------------|-----------------------------------|
+| cpm_asm86     | asm86.cmd   | DR assembler (CP/M-80 tool)       | 
+| cpm_gencmd    | gencmd.cmd  | DR H86 converter (CP/M-80 tool)   |
+| pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                |
+| pcdev_linkcmd | linkcmd.exe | DR linker for CP/M-86             |
+| pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                  |
+| pcdev_linkexe | linkexe.exe | DR linker for DOS                 |
+| pcdev_lib86   | lib86.exe   | DR librarian                      |
+| pcdev_masm    | masm.exe    | Microsoft assembler               |
+| pcdev_link    | link.exe    | Microsoft linker                  |
+| pcdev_exe2bin | exe2bin.exe | Microsoft EXE converter           |
+| pcdev_hex2bin | hex2bin.com | Microsoft HEX converter           |
+| pcdev_asm     | asm.com     | Microsoft/86-DOS assembler        |
+| pcdev_cmdinfo | cmdinfo.com | CMD info tool                     |
+| pcdev_bin2cmd | bin2cmd.com | CMD converter                     |
+| aztec34_cc    | cc.exe      | Aztec C compiler                  |
+| aztec34_sqz   | sqz.exe     | Aztec C object optimizer          |
+| aztec34_link  | ln.exe      | Aztec C linker                    |
+| aztec34_lib   | lb.exe      | Aztec C lib                       |
+| aztec34_hex86 | hex86.exe   | Aztec C H86 generator             |
 
 ## Fetching the tools
 The development environment can be assembled by using the following steps:
@@ -23,4 +51,14 @@ it pulls the following:
 - cmdtools (https://github.com/tsupplis/cpm86-cmdtools)
 - emu2 (https://github.com/dmsc/emu2)
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
+
+Clearing the directory is achieved by:
+```
+./clear_tools
+```
+
+Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for asm86 is provided:
+```
+./build_demo
+```
 
