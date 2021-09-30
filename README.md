@@ -100,4 +100,4 @@ pcdev_bin2cmd hellod.bin hellod.cmd
 nasm hellon.asm -fbin -o hellon.bin 
 pcdev_bin2cmd hellon.bin hellon.cmd
 ```
-* you can build a native unix/dos version of bin2cmd/cmdinfo from (https://github.com/tsupplis/cpm86-cmdtools)
+You can build a native unix/dos version of bin2cmd/cmdinfo from (https://github.com/tsupplis/cpm86-cmdtools)
