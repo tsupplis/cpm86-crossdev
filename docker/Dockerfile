@@ -4,13 +4,10 @@ RUN apk update && \
     apk  add \
         iputils \
         make \
-        texinfo \
         file \
         gettext \
         wget \
         ncurses \
-        autoconf \
-        automake \
         bash \
         bison \
         gcc \
@@ -18,19 +15,13 @@ RUN apk update && \
         git \
         curl \
         unzip \
-        flex \
-        gdb \
         ncurses-dev \
         shadow \
-        sqlite-dev \
         sudo \
-        sysstat \
-        tcpdump \
         vim
 COPY arch /usr/bin/arch
 RUN (cd /opt;git clone https://github.com/tsupplis/cpm86-crossdev crossdev)
 RUN (cd /opt/crossdev;./fetch_tools)
-RUN groupmod -n staffosx dialout
 ARG USER_ID=8855
 ARG USER=cpm86
 ARG HOME=/home

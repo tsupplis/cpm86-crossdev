@@ -68,6 +68,7 @@ to user the created image, just ensure that the local path where the compilation
 
 ```
 docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 pcdev_rasm86 helloa.a86
+docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 aztec34_cc helloc.c
 ```
 The only difference on the command line happens with \;
 ```
