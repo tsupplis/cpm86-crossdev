@@ -1,0 +1,15 @@
+            title   'Hello'
+
+
+            cseg  
+            mov     cx,ds
+            mov     es,cx
+            mov     cx,09h
+            mov     dx,offset msg
+            int     0E0h
+            xor     cx,cx
+            int     0E0h
+
+            dseg    
+msg         db      'Hello$'
+            end

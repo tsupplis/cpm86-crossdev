@@ -10,7 +10,7 @@
 ## Fetching the tools
 The development environment can be assembled by using the following steps:
 ```
-./fetch
+./fetch_tools
 export PATH=`pwd`/bin
 ```
 it pulls the following:

@@ -1,0 +1,2 @@
+#!/bin/bash
+rm -rf bin/emu2 share/pcdev share/aztec34 emu2
