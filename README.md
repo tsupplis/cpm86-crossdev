@@ -15,7 +15,7 @@ This project regroups a simple method to create a cross development environment 
 
 All the tools are wrapped in the bin directory for direct usage:
 
-| scipt name    | program     | quick description                 |
+| script name   | program     | quick description                 |
 |---------------|-------------|-----------------------------------|
 | cpm_asm86     | asm86.cmd   | DR assembler (CP/M-80 tool)       | 
 | cpm_gencmd    | gencmd.cmd  | DR H86 converter (CP/M-80 tool)   |
@@ -87,10 +87,16 @@ pcdev_gencmd hellob.h86
 pcdev_cmdinfo hellob.cmd
 ```
 
-### Assembler Programs with masm (to be completed)
+### Assembler Programs with masm 
 ```
-pcdev_masm hellod\;
-pcdev_link hellod\;
+pcdev_masm hellod \;
+pcdev_link hellod \;
 pcdev_exe2bin hellod.exe
-pcdev_bin2cmd hellod.bin
+pcdev_bin2cmd hellod.bin hellod.cmd
+```
+
+### Assembler Programs with nasm
+```
+nasm hellon.asm -fbin -o hellon.bin 
+pcdev_bin2cmd hellon.bin hellon.cmd
 ```

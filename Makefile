@@ -22,6 +22,9 @@ all: binaries
 binaries: $(TOOLS) 
 
 hellod.cmd: hellod.exe
+	$(EXE2BIN) $< hellod.bin
+	$(BIN2CMD) hellod.bin $@
+	pcdev_cmdinfo $@
 
 hellod.exe: hellod.obj
 	$(LINK) hellod \;
@@ -46,12 +49,6 @@ helloc.cmd: helloc.o
 
 %.h86: %.a86
 	$(ASM86) $<
-
-%.cmd: %.bin
-	$(BIN2CMD) $< $@
-
-%.bin: %.exe
-	$(EXE2BIN) $< $@
 
 %.obj: %.a86
 	$(RASM86) $< $$ pz sz
