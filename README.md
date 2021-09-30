@@ -83,7 +83,7 @@ pcdev_cmdinfo helloa.cmd
 ### Assembler Programs with asm86
 ```
 cpm_asm86 hellob.a86
-pcdev_gencmd hellob.h86
+cpm_gencmd hellob.h86
 pcdev_cmdinfo hellob.cmd
 ```
 
