@@ -11,7 +11,19 @@ if [ ! -d aztec34 ];then
     mv az8634b aztec34
     rm az8634b.zip
 fi
-echo Checking DR tools ...
+echo Checking CP/M DR tools ...
+if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
+    mkdir -p cpm
+    mkdir -p tools
+    cd tools
+    wget "http://cpmarchives.classiccmp.org/cpm/Software/rlee/D/DIGITAL%20RESEARCH/CPM_86/V1-1R/DISK2/ASM86.COM"
+    wget "http://cpmarchives.classiccmp.org/cpm/Software/rlee/D/DIGITAL%20RESEARCH/CPM_86/V1-1R/DISK2/GENCMD.COM"
+    cp ASM86.COM ../cpm/asm86.com
+    cp GENCMD.COM ../cpm/gencmd.com
+    chmod 644 ../cpm/*.*
+    cd ..;rm -rf tools
+fi
+echo Checking DOS DR tools ...
 if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
    -o ! -f pcdev/lib86.exe ]; then
     mkdir -p pcdev
@@ -23,16 +35,19 @@ if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
     cp linkcmd.exe rasm86.exe ../pcdev
     cp linkexe.exe ../pcdev
     cp lib86.exe ../pcdev
+    chmod 644 ../pcdev/*.*
     cd ..;rm -rf tools
 fi
 echo Checking Microsoft tools ...
 if [ ! -f pcdev/masm.exe -o ! -f pcdev/exe2bin.exe -o ! -f pcdev/link.exe ]; then
 	mkdir -p pcdev
     cp ../sources/microsoft/*.exe pcdev
+    chmod 644 pcdev/*.*
 fi
 if [ ! -f pcdev/asm.com -o ! -f pcdev/hex2bin.com ]; then
 	mkdir -p pcdev
     cp ../sources/microsoft/*.com pcdev
+    chmod 644 pcdev/*.*
 fi
 echo Checking CMD tools ...
 if [ ! -f pcdev/cmdnfo.com -o ! -f pcdev/bin2com.com ]; then
@@ -40,6 +55,13 @@ if [ ! -f pcdev/cmdnfo.com -o ! -f pcdev/bin2com.com ]; then
     cp ../sources/cmdtools/*.com pcdev
 fi
 cd ..
+echo Checking TNYLPO ...
+if [ ! -d tnylpo ];then
+    git clone https://gitlab.com/gbrein/tnylpo.git
+fi
+if [ ! -f bin/tnylpo ];then
+    (cd tnylpo;make;cp tnylpo ../bin)
+fi
 echo Checking EMU2 ...
 if [ ! -d emu2 ];then
     git clone https://github.com/dmsc/emu2

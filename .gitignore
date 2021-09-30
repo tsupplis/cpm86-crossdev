@@ -1,7 +1,8 @@
-
 share
+tnylpo
 emu2
 bin/emu2
+bin/tnylpo
 **/*.lock
 **/*.lha
 **/*.zip
@@ -23,6 +24,5 @@ bin/emu2
 **/*.lst
 **/*.map
 .vscode
-**/push
 **/push
 
