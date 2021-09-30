@@ -57,14 +57,26 @@ Clearing the directory is achieved by:
 ./clear_tools
 ```
 
-## Docker version
+## Docker image
 
 A Dockerfile is provided for this environment. To build the image from the docker directory, jusr run make, alternatively:
 ```
 docker build --rm=true -t cpm86:latest -f Dockerfile .
 ```
 
-to user the created image
+to user the created image, just ensure that the local path where the compilation happense ismounted properly:
+
+```
+docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 pcdev_rasm86 helloa.a86
+```
+The only difference on the command line happens with \;
+```
+pcdev_masm hellod \; 
+```
+... becomes ...
+```
+docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 pcdev_masm hellod '\\;' 
+```
 
 ## Using the tools
 
