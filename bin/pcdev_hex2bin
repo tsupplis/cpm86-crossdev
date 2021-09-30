@@ -1,0 +1,10 @@
+#!/bin/sh
+prog=`basename $0|sed -e s'/pcdev_//g'`.com
+EMU2_DRIVE_D="`dirname $0`/../share/pcdev"
+export EMU2_DRIVE_D
+EMU2_PROGNAME="d:\\$prog"
+export EMU2_PROGNAME
+emu2 "$EMU2_DRIVE_D/$prog" "$@" -- PATH=D:\\ LIB=D:\\
+if [ -z "$*" ];then 
+    echo ""
+fi
