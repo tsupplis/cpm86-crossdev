@@ -10,12 +10,24 @@ LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
 ASM86=cpm_asm86
 GENCMD=cpm_gencmd
+BIN2CMD=pcdev_bin2cmd
+EXE2BIN=pcdev_exe2bin
+MASM=pcdev_masm
+LINK=pcdev_link
 
-TOOLS=helloa.cmd hellob.cmd helloc.cmd
+TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd
 
 all: binaries
 
 binaries: $(TOOLS) 
+
+hellod.cmd: hellod.exe
+
+hellod.exe: hellod.obj
+	$(LINK) hello \;
+
+hellod.obj: hellod.asm
+	$(MASM) hello \;
 
 hellob.cmd: hellob.h86
 	$(GENCMD) $^
@@ -35,6 +47,12 @@ helloc.cmd: helloc.o
 %.h86: %.a86
 	$(ASM86) $<
 
+%.cmd: %.bin
+	$(BIN2CMD) $< $@
+
+%.bin: %.exe
+	$(EXE2BIN) $< $@
+
 %.obj: %.a86
 	$(RASM86) $< $$ pz sz
 
@@ -43,5 +61,5 @@ helloc.cmd: helloc.o
 	$(STRIP) $@
 
 clean:
-	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj $(TOOLS) 
+	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *exe $(TOOLS) 
 

@@ -57,8 +57,40 @@ Clearing the directory is achieved by:
 ./clear_tools
 ```
 
+## Using the tools
+
 Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for asm86 is provided:
 ```
 ./build_demo
 ```
 
+### C Programs
+
+```
+aztec34_cc helloc.c
+aztec34_sqz helloc.o
+aztec34_link -o helloc.cmd helloc.o -lc86
+pcdev_cmdinfo helloc.cmd
+```
+
+### Assembler Programs with rasm86
+```
+pcdev_rasm86 helloa.a86 '$' pz sz
+pcdev_linkcmd helloa '[$sz]'
+pcdev_cmdinfo helloa.cmd
+```
+
+### Assembler Programs with asm86
+```
+cpm_asm86 hellob.a86
+pcdev_gencmd hellob.h86
+pcdev_cmdinfo hellob.cmd
+```
+
+### Assembler Programs with masm (to be completed)
+```
+pcdev_masm hellod\;
+pcdev_link hellod\;
+pcdev_exe2bin hellod.exe
+pcdev_bin2cmd hellod.bin
+```
