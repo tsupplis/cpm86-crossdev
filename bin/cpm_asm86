@@ -1,0 +1,3 @@
+#!/bin/sh
+prog=`basename $0|sed -e s'/cpm_//g'`.com
+tnylpo "`dirname $0`/../share/cpm/$prog" "$@"
