@@ -57,6 +57,15 @@ Clearing the directory is achieved by:
 ./clear_tools
 ```
 
+## Docker version
+
+A Dockerfile is provided for this environment. To build the image from the docker directory, jusr run make, alternatively:
+```
+docker build --rm=true -t cpm86:latest -f Dockerfile .
+```
+
+to user the created image
+
 ## Using the tools
 
 Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for asm86 is provided:
@@ -101,3 +110,4 @@ nasm hellon.asm -fbin -o hellon.bin
 pcdev_bin2cmd hellon.bin hellon.cmd
 ```
 You can build a native unix/dos version of bin2cmd/cmdinfo from (https://github.com/tsupplis/cpm86-cmdtools)
+

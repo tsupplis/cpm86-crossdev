@@ -8,8 +8,9 @@ echo Checking Aztec tools ...
 if [ ! -d aztec34 ];then
     wget https://www.aztecmuseum.ca/az8634b.zip
     unzip -L az8634b.zip
-    mv az8634b aztec34
-    rm az8634b.zip
+    mkdir -p aztec34
+    cp -R az8634b/* aztec34
+    rm -rf az8634b.zip az8634b
 fi
 echo Checking CP/M DR tools ...
 if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
