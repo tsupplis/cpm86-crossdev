@@ -24,10 +24,10 @@ binaries: $(TOOLS)
 hellod.cmd: hellod.exe
 
 hellod.exe: hellod.obj
-	$(LINK) hello \;
+	$(LINK) hellod \;
 
 hellod.obj: hellod.asm
-	$(MASM) hello \;
+	$(MASM) hellod \;
 
 hellob.cmd: hellob.h86
 	$(GENCMD) $^
