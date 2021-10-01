@@ -6,10 +6,19 @@ This project regroups a simple method to create a cross development environment 
 - aztec c compiler version 3.4
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
-- masm, link, asm, exe2bin, hex2bin from Microsoft
+- masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
 
 - The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair.
 - We also need to run some cp/m-80 programs, for that, the tinylpo emulator is used. It works very well with asm86.com and gencmd.com programs
+
+## License Considerations
+
+- Microsoft MS-DOS tools are under MITS license (https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md)
+The following tools are not included and downloaded by the fetch tool but require you to understand the conditions of usage:
+- The Aztec C use coniditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
+- The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- EMU2 and Tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE)
+- I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
 
 ## Script Mapping
 
