@@ -78,6 +78,10 @@ The cpm86 tool is a cpm86 emulator for dos pulled with Aztec C. It works-ish. I 
 DOS/CP/M-80 emulations and DOS/CP/M-80 cross compilations are far better and ore options. In fine, proper emulation and CP/M-86 is the best option for testing. 
 PCE is a very good choice (http://www.hampa.ch/pce/).
 
+This may be a next step: 
+- automating pce, cpmtools
+- bootable/up-to-date CP/M-86 floppy ... 
+
 ## Docker image
 
 A Dockerfile is provided for this environment. To build the image from the docker directory, jusr run make, alternatively:
