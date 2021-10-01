@@ -17,6 +17,7 @@ hello*.exe
 **/.*.swp
 **/*.obj
 **/*.o
+**/*.h86
 **/hack*.img
 **/cpmtest.img
 **/cdostest.img
