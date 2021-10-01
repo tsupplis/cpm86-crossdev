@@ -7,7 +7,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 - aztec c compiler version 3.4
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
-- nasm assembler
+- nasm Netwide assembler
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
 
 - The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair.
@@ -27,29 +27,31 @@ The following tools are not included and downloaded by the fetch tool but requir
 
 All the tools are wrapped in the bin directory for direct usage:
 
-| script name   | program     | quick description                 |
-|---------------|-------------|-----------------------------------|
-| cpm_asm86     | asm86.cmd   | DR assembler (CP/M-80 tool)       | 
-| cpm_gencmd    | gencmd.cmd  | DR H86 converter (CP/M-80 tool)   |
-| pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                |
-| pcdev_linkcmd | linkcmd.exe | DR linker for CP/M-86             |
-| pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                  |
-| pcdev_linkexe | linkexe.exe | DR linker for DOS                 |
-| pcdev_lib86   | lib86.exe   | DR librarian                      |
-| pcdev_masm    | masm.exe    | Microsoft assembler               |
-| pcdev_link    | link.exe    | Microsoft linker                  |
-| pcdev_exe2bin | exe2bin.exe | Microsoft EXE converter           |
-| pcdev_hex2bin | hex2bin.com | Microsoft HEX converter           |
-| pcdev_asm     | asm.com     | Microsoft/86-DOS assembler        |
-| pcdev_cmdinfo | cmdinfo.com | CMD info tool                     |
-| pcdev_bin2cmd | bin2cmd.com | CMD converter                     |
-| aztec34_cc    | cc.exe      | Aztec C compiler                  |
-| aztec34_sqz   | sqz.exe     | Aztec C object optimizer          |
-| aztec34_link  | ln.exe      | Aztec C linker                    |
-| aztec34_lib   | lb.exe      | Aztec C lib                       |
-| aztec34_hex86 | hex86.exe   | Aztec C H86 generator             |
+| script name   | program     | quick description                  |
+|---------------|-------------|------------------------------------|
+| cpm_asm86     | asm86.cmd   | DR assembler (CP/M-80 tool)        | 
+| cpm_gencmd    | gencmd.cmd  | DR H86 converter (CP/M-80 tool)    |
+| pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                 |
+| pcdev_linkcmd | linkcmd.exe | DR linker for CP/M-86              |
+| pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                   |
+| pcdev_linkexe | linkexe.exe | DR linker for DOS                  |
+| pcdev_lib86   | lib86.exe   | DR librarian                       |
+| pcdev_masm    | masm.exe    | Microsoft assembler                |
+| pcdev_link    | link.exe    | Microsoft linker                   |
+| pcdev_exe2bin | exe2bin.exe | Microsoft EXE converter            |
+| pcdev_hex2bin | hex2bin.com | Microsoft HEX converter            |
+| pcdev_asm     | asm.com     | Microsoft/86-DOS assembler         |
+| pcdev_cmdinfo | cmdinfo.com | CMD info tool                      |
+| pcdev_bin2cmd | bin2cmd.com | CMD converter                      |
+| aztec34_cc    | cc.exe      | Aztec C compiler                   |
+| aztec34_sqz   | sqz.exe     | Aztec C object optimizer           |
+| aztec34_link  | ln.exe      | Aztec C linker                     |
+| aztec34_lib   | lb.exe      | Aztec C lib                        |
+| aztec34_hex86 | hex86.exe   | Aztec C H86 generator              |
+| cpm86         | cpm.exe     | CPM86 Emulator coming with Aztec C |
 
 ## Fetching the tools
+
 The development environment can be assembled by using the following steps:
 ```
 ./fetch_tools
@@ -69,6 +71,12 @@ Clearing the directory is achieved by:
 ```
 ./clear_tools
 ```
+
+## Testing
+
+The cpm86 tool is a cpm86 emulator for dos pulled with Aztec C. It works-ish. I do not rely on it for build tools but it can be experimented with. 
+DOS/CP/M-80 emulations and DOS/CP/M-80 cross compilations are far better and ore options. In fine, proper emulation and CP/M-86 is the best option for testing. 
+PCE is a very good choice (http://www.hampa.ch/pce/).
 
 ## Docker image
 
