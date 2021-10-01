@@ -1,0 +1,3 @@
+#!/bin/bash
+echo Testing ...
+(PATH=`pwd`/../bin:$PATH;make clean all)

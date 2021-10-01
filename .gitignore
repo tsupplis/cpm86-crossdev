@@ -2,6 +2,8 @@ share
 tnylpo
 nasm
 emu2
+aztecc.tar.gz
+pcdev.tar.gz
 bin/emu2
 bin/tnylpo
 **/*.lock

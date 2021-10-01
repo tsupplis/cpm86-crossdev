@@ -11,6 +11,9 @@ if [ ! -d aztec34 ];then
     mkdir -p aztec34
     cp -R az8634b/* aztec34
     rm -rf az8634b.zip az8634b
+    rm -f aztec34/*.lnk
+    rm -f aztec34/emu/z80*
+    rm -f aztec34/emu/qtibm.mac
 fi
 echo Checking CP/M DR tools ...
 if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
