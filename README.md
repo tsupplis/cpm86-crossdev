@@ -1,11 +1,13 @@
 # CP/M-86/MS-DOS Cross Development Environment
 
 This project regroups a simple method to create a cross development environment for CP/M-86. It happens that all DOS based tools can also be used for building DOS programs.
+This project was developed for myself in a nerdy spirit and for a lot of fun. Just sharing without any guarantees.
 
 ## Key tools for CP/M-86 development
 - aztec c compiler version 3.4
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
+- nasm assembler
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
 
 - The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair.
@@ -17,7 +19,8 @@ This project regroups a simple method to create a cross development environment 
 The following tools are not included and downloaded by the fetch tool but require you to understand the conditions of usage:
 - The Aztec C use coniditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
 - The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- EMU2 and Tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE)
+- emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE)
+- nasm license terms can be found at (https://www.nasm.us)
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
 
 ## Script Mapping
@@ -58,6 +61,7 @@ it pulls the following:
 - asm86 and gencmd (ttp://cpmarchives.classiccmp.org/cpm/Software/rlee)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
 - cmdtools (https://github.com/tsupplis/cpm86-cmdtools)
+- nasm (https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz)
 - emu2 (https://github.com/dmsc/emu2)
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
 
@@ -126,7 +130,7 @@ pcdev_exe2bin hellod.exe
 pcdev_bin2cmd hellod.bin hellod.cmd
 ```
 
-### Assembler Programs with nasm
+### Assembler Programs with nasm 
 ```
 nasm hellon.asm -fbin -o hellon.bin 
 pcdev_bin2cmd hellon.bin hellon.cmd

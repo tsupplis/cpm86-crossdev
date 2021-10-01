@@ -63,6 +63,19 @@ fi
 if [ ! -f bin/tnylpo ];then
     (cd tnylpo;make;cp tnylpo ../bin)
 fi
+echo Checking NASM ...
+if [ ! -d nasm ];then
+    wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz
+    tar zxf nasm-2.15.05.tar.gz 
+    mv nasm-2.15.05 nasm
+    rm -f nasm-2.15.05.tar.gz
+fi
+if [ ! -f bin/nasm ];then
+    (cd nasm;./configure;make;cp nasm ../bin)
+fi
+if [ ! -f bin/nasm ];then
+    (cd nasm;make;cp emu2 ../bin)
+fi
 echo Checking EMU2 ...
 if [ ! -d emu2 ];then
     git clone https://github.com/dmsc/emu2

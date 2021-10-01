@@ -1,2 +1,4 @@
 #!/bin/bash
-rm -rf bin/emu2 share/pcdev share/aztec34 share/cpm emu2 tnylpo
+rm -rf bin/emu2 bin/tnylpo bin/nasm
+rm -rf share/pcdev share/aztec34 share/cpm
+rm -rf emu2 tnylpo nasm
