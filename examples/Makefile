@@ -13,11 +13,13 @@ GENCMD=cpm_gencmd
 BIN2CMD=pcdev_bin2cmd
 EXE2BIN=pcdev_exe2bin
 CMDINFO=pcdev_cmdinfo
+CBLINK=drcbcpm_link
+BC=drcbcpm_bc
 NASM=nasm
 MASM=pcdev_masm
 LINK=pcdev_link
 
-TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd
+TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd
 
 all: binaries
 
@@ -31,6 +33,10 @@ hellod.cmd: hellod.exe
 	$(EXE2BIN) $< hellod.bin
 	$(BIN2CMD) hellod.bin $@
 	$(CMDINFO) $@
+
+hellor.cmd: hellor.bas
+	$(BC) hellor
+	$(CBLINK) hellor 
 
 hellod.exe: hellod.obj
 	$(LINK) hellod \;
@@ -50,6 +56,7 @@ helloc.cmd: helloc.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 	ls -l $@
 	$(CMDINFO) $@
+
 
 %.cmd: %.obj
 	$(LINK86) $* '[$$sz]'

@@ -1,0 +1,12 @@
+#!/bin/sh
+prog=cb86.exe
+EMU2_APPEND=D:\\
+export EMU2_APPEND
+EMU2_DRIVE_D="`dirname $0`/../share/cb86cpm"
+export EMU2_DRIVE_D
+EMU2_PROGNAME="d:\\$prog"
+export EMU2_PROGNAME
+emu2 "$EMU2_DRIVE_D/$prog" "$@" -- PATH=D:\\ LIB=D:\\
+if [ -z "$*" ];then 
+    echo ""
+fi

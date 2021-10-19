@@ -4,45 +4,81 @@ cd "$root"
 root=`pwd`
 mkdir -p share/pcdev
 cd share
-echo Checking Aztec tools ...
+echo INF: Checking Aztec tools ...
 if [ ! -d aztec34 ];then
-    wget https://www.aztecmuseum.ca/az8634b.zip
+    wget "https://www.aztecmuseum.ca/az8634b.zip"
     unzip -L az8634b.zip
     mkdir -p aztec34
-    cp -R az8634b/* aztec34
+    cp -R az8634b/bin aztec34
+    cp -R az8634b/lib aztec34
+    cp -R az8634b/emu aztec34
+    cp -R az8634b/obj aztec34
+    cp -R az8634b/include aztec34
     rm -rf az8634b.zip az8634b
-    rm -f aztec34/*.lnk
-    rm -f aztec34/emu/z80*
-    rm -f aztec34/emu/qtibm.mac
 fi
-echo Checking CP/M DR tools ...
+echo INF: Checking CP/M DR tools ...
 if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
+    rm -rf temp-tools
     mkdir -p cpm
-    mkdir -p tools
-    cd tools
-    wget "http://cpmarchives.classiccmp.org/cpm/Software/rlee/D/DIGITAL%20RESEARCH/CPM_86/V1-1R/DISK2/ASM86.COM"
-    wget "http://cpmarchives.classiccmp.org/cpm/Software/rlee/D/DIGITAL%20RESEARCH/CPM_86/V1-1R/DISK2/GENCMD.COM"
-    cp ASM86.COM ../cpm/asm86.com
-    cp GENCMD.COM ../cpm/gencmd.com
+    mkdir -p temp-tools
+    cd temp-tools
+    wget "http://www.cpm.z80.de/download/mpm862sr.zip"
+    unzip -L mpm862sr.zip
+    cp 03/a86.cpm ../cpm/asm86.com
+    cp 03/gencmd.cpm ../cpm/gencmd.com
     chmod 644 ../cpm/*.*
-    cd ..;rm -rf tools
+    cd ..;rm -rf temp-tools
 fi
-echo Checking DOS DR tools ...
+echo INF: Checking DOS DR tools ...
 if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
    -o ! -f pcdev/lib86.exe ]; then
+    rm -rf temp-tools
     mkdir -p pcdev
-    mkdir -p tools
-    cd tools
-    wget http://www.cpm.z80.de/download/tools86.zip
+    mkdir -p temp-tools
+    cd temp-tools
+    wget "http://www.cpm.z80.de/download/tools86.zip"
     unzip -L tools86.zip
     unzip -L dos86pr2.zip
     cp linkcmd.exe rasm86.exe ../pcdev
     cp linkexe.exe ../pcdev
     cp lib86.exe ../pcdev
     chmod 644 ../pcdev/*.*
-    cd ..;rm -rf tools
+    cd ..;rm -rf temp-tools
 fi
-echo Checking Microsoft tools ...
+echo INF: Checking CB86  ...
+if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
+    -o ! -f cb86cpm/cb86.l86 -o ! -f cb86dos/cb86.l86 ]; then
+    rm -rf temp-tools
+    mkdir -p cb86cpm
+    mkdir -p cb86dos
+    mkdir -p temp-tools
+    cd temp-tools
+    wget "http://www.cpm.z80.de/download/cbasic86.zip"
+    unzip -L cbasic86.zip
+    cp cb86.l86 ../cb86cpm
+    cp ../pcdev/linkcmd.exe ../cb86cpm/link86.exe
+    cp ../pcdev/link86.exe ../cb86cpm/lib86.exe
+    cp ../pcdev/rasm86.exe ../cb86cpm/rasm86.exe
+    rm ../temp-tools/*.*
+    wget "http://www.cpm.z80.de/download/cb86toys.zip"
+    unzip -L cb86toys.zip
+    cp cb86.exe ../cb86dos
+    cp cb86.or1 ../cb86dos
+    cp cb86.or2 ../cb86dos
+    cp cb86.or3 ../cb86dos
+    cp cb86.l86 ../cb86dos
+    cp ../cb86dos/cb86.exe ../cb86cpm/cb86.exe
+    cp ../cb86dos/cb86.or1 ../cb86cpm/cb86.or1
+    cp ../cb86dos/cb86.or2 ../cb86cpm/cb86.or2
+    cp ../cb86dos/cb86.or3 ../cb86cpm/cb86.or3
+    cp ../pcdev/linkexe.exe ../cb86dos/link86.exe
+    cp ../pcdev/link86.exe ../cb86dos/lib86.exe
+    cp ../pcdev/rasm86.exe ../cb86dos/rasm86.exe
+    chmod 644 ../cb86cpm/*.*
+    chmod 644 ../cb86dos/*.*
+    cd ..;rm -rf temp-tools
+fi
+echo INF: Checking Microsoft tools ...
 if [ ! -f pcdev/masm.exe -o ! -f pcdev/exe2bin.exe -o ! -f pcdev/link.exe ]; then
 	mkdir -p pcdev
     cp ../sources/microsoft/*.exe pcdev
@@ -53,22 +89,22 @@ if [ ! -f pcdev/asm.com -o ! -f pcdev/hex2bin.com ]; then
     cp ../sources/microsoft/*.com pcdev
     chmod 644 pcdev/*.*
 fi
-echo Checking CMD tools ...
+echo INF: Checking CMD tools ...
 if [ ! -f pcdev/cmdnfo.com -o ! -f pcdev/bin2com.com ]; then
 	mkdir -p pcdev
     cp ../sources/cmdtools/*.com pcdev
 fi
 cd ..
-echo Checking TNYLPO ...
+echo INF: Checking TNYLPO ...
 if [ ! -d tnylpo ];then
-    git clone https://gitlab.com/gbrein/tnylpo.git
+    git clone "https://gitlab.com/gbrein/tnylpo.git"
 fi
 if [ ! -f bin/tnylpo ];then
     (cd tnylpo;make;cp tnylpo ../bin)
 fi
-echo Checking NASM ...
+echo INF: Checking NASM ...
 if [ ! -d nasm ];then
-    wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz
+    wget "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz"
     tar zxf nasm-2.15.05.tar.gz 
     mv nasm-2.15.05 nasm
     rm -f nasm-2.15.05.tar.gz
@@ -79,9 +115,9 @@ fi
 if [ ! -f bin/nasm ];then
     (cd nasm;make;cp emu2 ../bin)
 fi
-echo Checking EMU2 ...
+echo INF: Checking EMU2 ...
 if [ ! -d emu2 ];then
-    git clone https://github.com/dmsc/emu2
+    git clone "https://github.com/dmsc/emu2"
 fi
 if [ ! -f bin/emu2 ];then
     (cd emu2;make;cp emu2 ../bin)

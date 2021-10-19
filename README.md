@@ -7,6 +7,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 - aztec c compiler version 3.4
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
+- cb86.exe and libraries from Digital Reasearch
 - nasm Netwide assembler
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
 
@@ -19,6 +20,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 The following tools are not included and downloaded by the fetch tool but require you to understand the conditions of usage:
 - The Aztec C use coniditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
 - The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE)
 - nasm license terms can be found at (https://www.nasm.us)
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
@@ -48,6 +50,10 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec34_link  | ln.exe      | Aztec C linker                     |
 | aztec34_lib   | lb.exe      | Aztec C lib                        |
 | aztec34_hex86 | hex86.exe   | Aztec C H86 generator              |
+| drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M-86     |
+| drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
+| drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
+| drcbdos_link  | linkexe.exe | DR cbasic linker for DOS           |
 | cpm86         | cpm.exe     | CPM86 Emulator coming with Aztec C |
 
 ## Fetching the tools
@@ -60,7 +66,8 @@ export PATH=`pwd`/bin
 it pulls the following:
 - aztec 3.4 c compiler  (https://www.aztecmuseum.ca/az8634b.zip)
 - link86, lib86 and rasm86 (http://www.cpm.z80.de/download/tools86.zip)
-- asm86 and gencmd (ttp://cpmarchives.classiccmp.org/cpm/Software/rlee)
+- asm86 and gencmd (http://www.cpm.z80.de/download/mpm862sr.zip)
+- cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
 - cmdtools (https://github.com/tsupplis/cpm86-cmdtools)
 - nasm (https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz)
@@ -109,6 +116,14 @@ docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 pcdev_masm hellod '\\
 Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for asm86 is provided:
 ```
 ./build_demo
+```
+
+### Basic Programs
+
+```
+drcbcpm_bc hellor.bas
+drcbcpm_link hellor.cmd=hellor.o
+pcdev_cmdinfo hellor.cmd
 ```
 
 ### C Programs
