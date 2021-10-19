@@ -117,7 +117,7 @@ if [ ! -f bin/nasm ];then
 fi
 echo INF: Checking EMU2 ...
 if [ ! -d emu2 ];then
-    git clone "https://github.com/dmsc/emu2"
+    git clone "https://github.com/tsupplis/emu2"
 fi
 if [ ! -f bin/emu2 ];then
     (cd emu2;make;cp emu2 ../bin)
