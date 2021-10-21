@@ -143,7 +143,7 @@ if [ ! -d emu2 ];then
     git clone "https://github.com/dmsc/emu2"
 fi
 if [ ! -f "$root/bin/emu2" ];then
-    (cd "$root/emu2";make;cp "$root/binemu2" "$root/bin")
+    (cd "$root/emu2";make;cp "$root/emu2/bin/emu2" "$root/bin")
 fi
 find "$root/share" -type d -exec chmod 755 {} \;
 find "$root/share" -type f -exec chmod 644 {} \;

@@ -9,12 +9,12 @@ Languages supported are:
 - Basic 
 
 ## Key tools for CP/M-86 development
-- aztec c compiler version 3.4/3.40a (K&R)
-- aztec c compiler version 4.2/4.10d (Almost ANSI, the library is recompiled and patched from 3.4 sourcs)
+- aztec c compiler version 3.4/3.40a (K&R, the CP/M-86 library is provided as c86.lib)
+- aztec c compiler version 4.2/4.10d (Almost ANSI, the code for the CP/M-86 library (c86.lib) is patched and recompiled from 3.4 sources, as it is not part of the default compiler package. a dos 1.1 library (d11.lib) is also provided in the same manner)
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
 - cb86.exe and libraries from Digital Reasearch
-- nasm Netwide assembler
+- nasm netwide assembler
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
 
 - The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair.
