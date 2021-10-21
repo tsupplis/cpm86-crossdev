@@ -9,12 +9,12 @@ bin/tnylpo
 **/*.lock
 **/*.lha
 **/*.zip
-.D*
+**/./.D*
 **/*.log
 **/*.bin
-hello*.cmd
-hello*.com
-hello*.exe
+**/hello*.cmd
+**/hello*.com
+**/hello*.exe
 **/*.lib
 **/.*.swp
 **/*.obj
@@ -30,6 +30,5 @@ hello*.exe
 **/*.sym
 **/*.lst
 **/*.map
-.vscode
+**/.vscode
 **/push
-
