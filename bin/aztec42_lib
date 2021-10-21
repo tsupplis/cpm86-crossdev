@@ -1,0 +1,14 @@
+#!/bin/sh
+prog=lb.exe
+EMU2_DRIVE_D="`dirname $0`/../share/aztec42"
+export EMU2_DRIVE_D
+if [ -z "$TMPDIR" ]; then
+    TMPDIR="/tmp/emu2-`id -u`"
+fi
+mkdir -p "$TMPDIR/AZTEC/TEMP"
+EMU2_DRIVE_E="$TMPDIR/AZTEC"
+export EMU2_DRIVE_E
+EMU2_PROGNAME="d:\\bin\\$prog"
+export EMU2_PROGNAME
+emu2 "$EMU2_DRIVE_D/bin/$prog" "$@" -- PATH=D:\\BIN CLIB=D:\\LIB\\ INCLUDE=D:\\INCLUDE \
+  CCTEMP="E:\\TEMP\\"

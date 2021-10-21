@@ -1,14 +1,7 @@
 #!/bin/sh
-prog=cpm.exe
-EMU2_DRIVE_D="`dirname $0`/../share/aztec34"
+prog=cpm86.exe
+EMU2_DRIVE_D="`dirname $0`/../share/emu"
 export EMU2_DRIVE_D
-if [ -z "$TMPDIR" ]; then
-    TMPDIR="/tmp/emu2-`id -u`"
-fi
-mkdir -p "$TMPDIR/AZTEC/TEMP"
-EMU2_DRIVE_E="$TMPDIR/AZTEC"
-export EMU2_DRIVE_E
-EMU2_PROGNAME="d:\\emu\\$prog"
+EMU2_PROGNAME="d:\\$prog"
 export EMU2_PROGNAME
-emu2 "$EMU2_DRIVE_D/emu/$prog" "$@" 
-  CCTEMP="E:\\TEMP"
+emu2 "$EMU2_DRIVE_D/$prog" "$@" 
