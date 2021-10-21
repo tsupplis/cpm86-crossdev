@@ -10,7 +10,7 @@ Languages supported are:
 
 ## Key tools for CP/M-86 development
 - aztec c compiler version 3.4/3.40a (K&R, the CP/M-86 library is provided as c86.lib)
-- aztec c compiler version 4.2/4.10d (Almost ANSI, the code for the CP/M-86 library (c86.lib) is patched and recompiled from 3.4 sources, as it is not part of the default compiler package. a dos 1.1 library (d11.lib) is also provided in the same manner)
+- aztec c compiler version 4.2/4.10d (Almost ANSI, the code for the CP/M-86 library (c86.lib) is patched and recompiled from 3.4 sources, as it is not part of the default compiler package. a dos 1.1 library (d11.lib) is also provided in the same manner), the documentation can be found at (https://www.aztecmuseum.ca/docs/Aztec_C_MSDOS_4.10C_Commercial_Apr88.pdf)
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
 - cb86.exe and libraries from Digital Reasearch
@@ -143,6 +143,13 @@ pcdev_cmdinfo hellor.cmd
 aztec34_cc helloc.c
 aztec34_sqz helloc.o
 aztec34_link -o helloc.cmd helloc.o -lc86
+pcdev_cmdinfo helloc.cmd
+```
+if the code is using ANSI syntax ...
+```
+aztec42_cc helloc.c
+aztec42_sqz helloc.o
+aztec42_link -o helloc.cmd helloc.o -lc86
 pcdev_cmdinfo helloc.cmd
 ```
 
