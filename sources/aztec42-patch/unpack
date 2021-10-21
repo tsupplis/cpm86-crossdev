@@ -8,7 +8,7 @@ for i in *.arc;do
     r=`echo $i|sed -e 's/.arc$//g'`
     mkdir -p $r
     cp $i $r/$i
-    (cd $r;emu2 ../../bin/arcv.com $i; rm $i) 
+    (cd $r;../../../../bin/emu2 ../../bin/arcv.com $i; rm $i) 
 done
 mv build/* .
 mv s screen
