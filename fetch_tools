@@ -32,7 +32,7 @@ if [ ! -d aztec42/bin ];then
     cp -R aztecc86/obj aztec42
     cp -R aztecc86/arc/* aztec42/src
     cp -R aztecc86/include aztec42
-    rm -rf aztecc86.zip aztecc86
+    rm -rf AztecC86.zip aztecc86
 fi
 echo INF: Checking CP/M DR tools ...
 cd "$root/share"
