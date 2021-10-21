@@ -15,6 +15,9 @@ RUN apk update && \
         git \
         curl \
         unzip \
+        patch \
+        diffutils \
+        dos2unix \
         ncurses-dev \
         shadow \
         sudo \

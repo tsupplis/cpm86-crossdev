@@ -1,0 +1,57 @@
+#!/bin/sh
+ref=../../../aztec42
+
+rm -rf patches
+mkdir -p patches
+for i in include/*.h src/*.bld src/*/*.c src/*/*.h src/*/*.asm src/makefile src/*/makefile \
+    src/*.bat;do
+    if [ -f "$i" ]; then
+        mkdir -p patches/`dirname $i`
+        diff -uN "$i" "$ref/$i" > "patches/$i"
+        if [ $? = "0" ]; then
+            rm  "patches/$i"
+        fi
+    fi
+    if [ -d "$i" ]; then
+        mkdir -p "patches/$i"
+    fi
+done
+
+obsolete_diff() {
+    patch="patches/obsolete/$1"
+    mkdir -p `dirname "$patch"`
+    touch "$patch"
+}
+
+new_diff() {
+    patch="patches/new/$1"
+    mkdir -p `dirname "$patch"`
+    diff -uN "$1" "$ref/$1" > "$patch"
+}
+
+new_diff src/d11.bld
+new_diff src/build
+new_diff src/simple.c
+new_diff src/hello.c
+new_diff src/hello.mak
+new_diff src/screen/scr_getc.c
+new_diff src/screen/scr_getk.asm
+new_diff src/dos11/os.c
+new_diff src/dos11/fdops.c
+new_diff src/dos11/fcbinit.asm
+new_diff src/dos11/makefile
+new_diff src/dos11/errno.c
+new_diff src/dos11/access.c
+new_diff src/dos20/os.c
+new_diff src/cpm86/os.c
+new_diff src/cpm86/fdops.c
+new_diff src/cpm86/errno.c
+new_diff src/dos11/fcbinit.asm
+new_diff src/qbuild.bat
+obsolete_diff src/screen/scr_getc.asm
+
+new_diff include/cpm.h
+new_diff include/dos.h
+new_diff include/screen.h
+new_diff include/stdint.h
+

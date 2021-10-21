@@ -3,9 +3,10 @@ CC=aztec34_cc
 AR=aztec34_lib
 CFLAGS=-I. +F -B +0 -D__CPM86__ 
 STRIP=aztec34_sqz
-#LDFLAGS=-lm -lc86
 LDFLAGS=-lc86
 LD=aztec34_link
+ACC=aztec42_cc
+ALD=aztec42_link
 LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
 ASM86=cpm_asm86
@@ -19,7 +20,7 @@ NASM=nasm
 MASM=pcdev_masm
 LINK=pcdev_link
 
-TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd
+TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd
 
 all: binaries
 
@@ -52,11 +53,16 @@ hellob.cmd: hellob.h86
 	ls -l $@
 	$(CMDINFO) $@
 
+helloans.cmd: helloans.c
+	$(ACC) $(CFLAGS) $<
+	$(ALD) -o $@ helloans.o $(LDFLAGS)
+	ls -l $@
+	$(CMDINFO) $@
+
 helloc.cmd: helloc.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 	ls -l $@
 	$(CMDINFO) $@
-
 
 %.cmd: %.obj
 	$(LINK86) $* '[$$sz]'

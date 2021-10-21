@@ -1,0 +1,37 @@
+#!/bin/sh
+
+for i in patches/include/*;do
+    if [ -f "$i" ]; then
+        patch -s -p0 < $i
+    fi
+done
+
+for i in patches/src/* patches/src/*/*;do
+    if [ -f "$i" ]; then
+        patch -s -p0 < $i
+    fi
+done
+
+for i in patches/new/include/* patches/new/include/*/*;do
+    if [ -f "$i" ]; then
+        n=`echo $i|sed -e 's/^patches\/new\///g'`
+        touch "$n"
+        patch -s -p0 < $i
+    fi
+done
+
+for i in patches/new/src/* patches/new/src/*/*;do
+    if [ -f "$i" ]; then
+        n=`echo $i|sed -e 's/^patches\/new\///g'`
+        touch "$n"
+        patch -s -p0 < $i
+    fi
+done
+
+for i in patches/obsolete/src/* patches/obsolete/src/*/*;do
+    if [ -f "$i" ]; then
+        n=`echo $i|sed -e 's/^patches\/obsolete\///g'`
+        rm -f "$n"
+    fi
+done
+touch patched

@@ -2,15 +2,15 @@
 root=`dirname $0`
 cd "$root"
 root=`pwd`
-mkdir -p share/pcdev
-cd share
+mkdir -p "$root/share/pcdev"
+cd "$root/share"
 echo INF: Checking Aztec 3.4 tools ...
-if [ ! -d aztec34/bin -o ! -d emu/cpm86.exe ];then
+if [ ! -d aztec34/bin -o ! -f emu/cpm86.exe ];then
     wget "https://www.aztecmuseum.ca/az8634b.zip"
     unzip -L az8634b.zip
-    mkdir -p aztec34
-    mkdir -p emu
-    mkdir -p aztec42/src
+    mkdir -p "$root/share/aztec34"
+    mkdir -p "$root/share/emu"
+    mkdir -p "$root/share/aztec42/src"
     cp -R az8634b/bin aztec34
     cp -R az8634b/lib aztec34
     cp -R az8634b/emu/cpm.exe emu/cpm86.exe
@@ -22,10 +22,11 @@ if [ ! -d aztec34/bin -o ! -d emu/cpm86.exe ];then
     rm -rf az8634b.zip az8634b
 fi
 echo INF: Checking Aztec 4.2 tools ...
+cd "$root/share"
 if [ ! -d aztec42/bin ];then
     wget "https://www.aztecmuseum.ca/AztecC86.zip"
     unzip -L AztecC86.zip
-    mkdir -p aztec42
+    mkdir -p "$root/share/aztec42"
     cp -R aztecc86/bin aztec42
     cp -R aztecc86/lib aztec42
     cp -R aztecc86/obj aztec42
@@ -34,25 +35,27 @@ if [ ! -d aztec42/bin ];then
     rm -rf aztecc86.zip aztecc86
 fi
 echo INF: Checking CP/M DR tools ...
+cd "$root/share"
 if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
-    rm -rf temp-tools
-    mkdir -p cpm
-    mkdir -p temp-tools
-    cd temp-tools
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/cpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
     wget "http://www.cpm.z80.de/download/mpm862sr.zip"
     unzip -L mpm862sr.zip
     cp 03/a86.cpm ../cpm/asm86.com
     cp 03/gencmd.cpm ../cpm/gencmd.com
     chmod 644 ../cpm/*.*
-    cd ..;rm -rf temp-tools
+    rm -rf "$root/share/temp-tools"
 fi
 echo INF: Checking DOS DR tools ...
+cd "$root/share"
 if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
    -o ! -f pcdev/lib86.exe ]; then
-    rm -rf temp-tools
-    mkdir -p pcdev
-    mkdir -p temp-tools
-    cd temp-tools
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/pcdev"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
     wget "http://www.cpm.z80.de/download/tools86.zip"
     unzip -L tools86.zip
     unzip -L dos86pr2.zip
@@ -60,16 +63,17 @@ if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
     cp linkexe.exe ../pcdev
     cp lib86.exe ../pcdev
     chmod 644 ../pcdev/*.*
-    cd ..;rm -rf temp-tools
+    rm -rf "$root/share/temp-tools"
 fi
 echo INF: Checking CB86  ...
+cd "$root/share"
 if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
     -o ! -f cb86cpm/cb86.l86 -o ! -f cb86dos/cb86.l86 ]; then
-    rm -rf temp-tools
-    mkdir -p cb86cpm
-    mkdir -p cb86dos
-    mkdir -p temp-tools
-    cd temp-tools
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/cb86cpm"
+    mkdir -p "$root/share/cb86dos"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
     wget "http://www.cpm.z80.de/download/cbasic86.zip"
     unzip -L cbasic86.zip
     cp cb86.l86 ../cb86cpm
@@ -93,26 +97,29 @@ if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
     cp ../pcdev/rasm86.exe ../cb86dos/rasm86.exe
     chmod 644 ../cb86cpm/*.*
     chmod 644 ../cb86dos/*.*
-    cd ..;rm -rf temp-tools
+    rm -rf "$root/share/temp-tools"
 fi
 echo INF: Checking Microsoft tools ...
 if [ ! -f pcdev/masm.exe -o ! -f pcdev/exe2bin.exe -o ! -f pcdev/link.exe ]; then
-	mkdir -p pcdev
+    cd "$root/share"
+    mkdir -p "$root/share/pcdev"
     cp ../sources/microsoft/*.exe pcdev
     chmod 644 pcdev/*.*
 fi
 if [ ! -f pcdev/asm.com -o ! -f pcdev/hex2bin.com ]; then
-	mkdir -p pcdev
-    cp ../sources/microsoft/*.com pcdev
+    cd "$root/share"
+    mkdir -p "$root/share/pcdev"
+    cp "$root/sources/microsoft"/*.com pcdev
     chmod 644 pcdev/*.*
 fi
 echo INF: Checking CMD tools ...
 if [ ! -f pcdev/cmdnfo.com -o ! -f pcdev/bin2com.com ]; then
-	mkdir -p pcdev
-    cp ../sources/cmdtools/*.com pcdev
+    cd "$root/share"
+    mkdir -p "$root/share/pcdev"
+    cp "$root/sources/cmdtools"/*.com pcdev
 fi
-cd ..
 echo INF: Checking TNYLPO ...
+cd "$root"
 if [ ! -d tnylpo ];then
     git clone "https://gitlab.com/gbrein/tnylpo.git"
 fi
@@ -120,6 +127,7 @@ if [ ! -f bin/tnylpo ];then
     (cd tnylpo;make;cp tnylpo ../bin)
 fi
 echo INF: Checking NASM ...
+cd "$root"
 if [ ! -d nasm ];then
     wget "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz"
     tar zxf nasm-2.15.05.tar.gz 
@@ -129,15 +137,34 @@ fi
 if [ ! -f bin/nasm ];then
     (cd nasm;./configure;make;cp nasm ../bin)
 fi
-if [ ! -f bin/nasm ];then
-    (cd nasm;make;cp emu2 ../bin)
-fi
 echo INF: Checking EMU2 ...
+cd "$root"
 if [ ! -d emu2 ];then
     git clone "https://github.com/dmsc/emu2"
 fi
-if [ ! -f bin/emu2 ];then
-    (cd emu2;make;cp emu2 ../bin)
+if [ ! -f "$root/bin/emu2" ];then
+    (cd "$root/emu2";make;cp "$root/binemu2" "$root/bin")
 fi
-find share -type d -exec chmod 755 {} \;
-find share -type f -exec chmod 644 {} \;
+find "$root/share" -type d -exec chmod 755 {} \;
+find "$root/share" -type f -exec chmod 644 {} \;
+echo INF: Unpacking Aztec 4.2 ...
+cd "$root"
+if [ ! -f "$root/share/aztec42/unpacked" ];then
+    (cd "$root/share/aztec42"; "$root/sources/aztec42-patch/unpack")
+fi
+echo INF: Patching Aztec 4.2 ...
+cd "$root"
+if [ ! -f "$root/share/aztec42/patched" ];then
+    (cd "$root/share/aztec42"; tar zxvf "$root/sources/aztec42-patch/patches.tar.gz")
+    (cd "$root/share/aztec42"; "$root/sources/aztec42-patch/apply_patches")
+fi
+echo INF: Building Aztec 4.2 ...
+cd "$root"
+if [ ! -f "$root/share/aztec42/built" ];then
+    chmod 755 "$root/share/aztec42/src/build"
+    (cd "$root/share/aztec42/src"; PATH="$root/bin":$PATH ./build)
+	rm -rf "$root/share/aztec42/lib"/*
+	mv "$root/share/aztec42/src/libs"/* "$root/share/aztec42/lib"
+    touch "$root/share/aztec42/built"
+fi
+exit 0

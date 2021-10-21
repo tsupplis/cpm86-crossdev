@@ -3,9 +3,14 @@
 This project regroups a simple method to create a cross development environment for CP/M-86. It happens that all DOS based tools can also be used for building DOS programs.
 This project was developed for myself in a nerdy spirit and for a lot of fun. Just sharing without any guarantees.
 
+Languages supported are:
+- C (K&R and almost ANSI)
+- Assembler
+- Basic 
+
 ## Key tools for CP/M-86 development
-- aztec c compiler version 3.4/3.40a (k&R)
-- aztec c compiler version 4.2/4.10d (Almost ANSI, DOS only right now)
+- aztec c compiler version 3.4/3.40a (K&R)
+- aztec c compiler version 4.2/4.10d (Almost ANSI, the library is recompiled and patched from 3.4 sourcs)
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
 - cb86.exe and libraries from Digital Reasearch
@@ -46,12 +51,12 @@ All the tools are wrapped in the bin directory for direct usage:
 | pcdev_asm     | asm.com     | Microsoft/86-DOS assembler         |
 | pcdev_cmdinfo | cmdinfo.com | CMD info tool                      |
 | pcdev_bin2cmd | bin2cmd.com | CMD converter                      |
-| aztec34_cc    | cc.exe      | Aztec C compiler                   |
+| aztec34_cc    | cc.exe      | Aztec K&R C compiler               |
 | aztec34_sqz   | sqz.exe     | Aztec C object optimizer           |
 | aztec34_link  | ln.exe      | Aztec C linker                     |
 | aztec34_lib   | lb.exe      | Aztec C lib                        |
 | aztec34_hex86 | hex86.exe   | Aztec C H86 generator              |
-| aztec42_cc    | cc.exe      | Aztec C compiler                   |
+| aztec42_cc    | cc.exe      | Aztec ANSI C compiler              |
 | aztec42_sqz   | sqz.exe     | Aztec C object optimizer           |
 | aztec42_link  | ln.exe      | Aztec C linker                     |
 | aztec42_lib   | lb.exe      | Aztec C lib                        |
