@@ -124,7 +124,7 @@ if [ ! -d tnylpo ];then
     git clone "https://gitlab.com/gbrein/tnylpo.git"
 fi
 if [ ! -f bin/tnylpo ];then
-    (cd tnylpo;make;cp tnylpo ../bin)
+    (cd tnylpo;make -j4;cp tnylpo ../bin)
 fi
 echo INF: Checking NASM ...
 cd "$root"
@@ -135,7 +135,7 @@ if [ ! -d nasm ];then
     rm -f nasm-2.15.05.tar.gz
 fi
 if [ ! -f bin/nasm ];then
-    (cd nasm;./configure;make;cp nasm ../bin)
+    (cd nasm;./configure;make -j4;cp nasm ../bin)
 fi
 echo INF: Checking EMU2 ...
 cd "$root"
@@ -143,7 +143,7 @@ if [ ! -d emu2 ];then
     git clone "https://github.com/dmsc/emu2"
 fi
 if [ ! -f "$root/bin/emu2" ];then
-    (cd "$root/emu2";make;cp "$root/emu2/emu2" "$root/bin")
+    (cd "$root/emu2";make -j4;cp "$root/emu2/emu2" "$root/bin")
 fi
 find "$root/share" -type d -exec chmod 755 {} \;
 find "$root/share" -type f -exec chmod 644 {} \;
