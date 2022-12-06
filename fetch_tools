@@ -165,6 +165,7 @@ if [ ! -f "$root/share/aztec42/built" ];then
     (cd "$root/share/aztec42/src"; PATH="$root/bin":$PATH ./build)
 	rm -rf "$root/share/aztec42/lib"/*
 	mv "$root/share/aztec42/src/libs"/* "$root/share/aztec42/lib"
+	mv "$root/share/aztec42/src/screen"/*.lib "$root/share/aztec42/lib"
     touch "$root/share/aztec42/built"
 fi
 exit 0
