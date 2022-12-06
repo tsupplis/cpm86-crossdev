@@ -93,7 +93,7 @@ if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
     cp ../cb86dos/cb86.or2 ../cb86cpm/cb86.or2
     cp ../cb86dos/cb86.or3 ../cb86cpm/cb86.or3
     cp ../pcdev/linkexe.exe ../cb86dos/link86.exe
-    cp ../pcdev/link86.exe ../cb86dos/lib86.exe
+    cp ../pcdev/lib86.exe ../cb86dos/lib86.exe
     cp ../pcdev/rasm86.exe ../cb86dos/rasm86.exe
     chmod 644 ../cb86cpm/*.*
     chmod 644 ../cb86dos/*.*
