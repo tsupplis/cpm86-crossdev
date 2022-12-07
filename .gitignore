@@ -6,6 +6,7 @@ aztecc.tar.gz
 pcdev.tar.gz
 bin/emu2
 bin/tnylpo
+syncaz
 **/*.lock
 **/*.lha
 **/*.zip
