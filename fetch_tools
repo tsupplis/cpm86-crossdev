@@ -103,20 +103,20 @@ echo INF: Checking Microsoft tools ...
 if [ ! -f pcdev/masm.exe -o ! -f pcdev/exe2bin.exe -o ! -f pcdev/link.exe ]; then
     cd "$root/share"
     mkdir -p "$root/share/pcdev"
-    cp ../sources/microsoft/*.exe pcdev
+    cp ../src/microsoft/*.exe pcdev
     chmod 644 pcdev/*.*
 fi
 if [ ! -f pcdev/asm.com -o ! -f pcdev/hex2bin.com ]; then
     cd "$root/share"
     mkdir -p "$root/share/pcdev"
-    cp "$root/sources/microsoft"/*.com pcdev
+    cp "$root/src/microsoft"/*.com pcdev
     chmod 644 pcdev/*.*
 fi
 echo INF: Checking CMD tools ...
 if [ ! -f pcdev/cmdnfo.com -o ! -f pcdev/bin2com.com ]; then
     cd "$root/share"
     mkdir -p "$root/share/pcdev"
-    cp "$root/sources/cmdtools"/*.com pcdev
+    cp "$root/src/cmdtools"/*.com pcdev
 fi
 echo INF: Checking TNYLPO ...
 cd "$root"
@@ -150,13 +150,13 @@ find "$root/share" -type f -exec chmod 644 {} \;
 echo INF: Unpacking Aztec 4.2 ...
 cd "$root"
 if [ ! -f "$root/share/aztec42/unpacked" ];then
-    (cd "$root/share/aztec42"; "$root/sources/aztec42-patch/unpack")
+    (cd "$root/share/aztec42"; "$root/src/aztec42-patch/unpack")
 fi
 echo INF: Patching Aztec 4.2 ...
 cd "$root"
 if [ ! -f "$root/share/aztec42/patched" ];then
-    (cd "$root/share/aztec42"; tar zxvf "$root/sources/aztec42-patch/patches.tar.gz")
-    (cd "$root/share/aztec42"; "$root/sources/aztec42-patch/apply_patches")
+    (cd "$root/share/aztec42"; tar zxvf "$root/src/aztec42-patch/patches.tar.gz")
+    (cd "$root/share/aztec42"; "$root/src/aztec42-patch/apply_patches")
 fi
 echo INF: Building Aztec 4.2 ...
 cd "$root"
@@ -168,4 +168,5 @@ if [ ! -f "$root/share/aztec42/built" ];then
 	mv "$root/share/aztec42/src/screen"/*.lib "$root/share/aztec42/lib"
     touch "$root/share/aztec42/built"
 fi
+(cd src/tools;make)
 exit 0
