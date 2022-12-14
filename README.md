@@ -24,7 +24,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
 
 - The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair.
-- We also need to run some cp/m-80 programs, for that, the tinylpo emulator is used. It works very well with asm86.com and gencmd.com programs
+- We also need to run some cp/m-80 programs, for that, the tinylpo emulator is used (https://gitlab.com/gbrein/tnylpo). It works very well with asm86.com and gencmd.com programs
 
 ## License Considerations
 
