@@ -57,21 +57,30 @@ All the tools are wrapped in the bin directory for direct usage:
 | pcdev_asm     | asm.com     | Microsoft/86-DOS assembler         |
 | pcdev_cmdinfo | cmdinfo.com | CMD info tool                      |
 | pcdev_bin2cmd | bin2cmd.com | CMD converter                      |
+| aztec34_as    | as.exe      | Aztec Assembler.                   |
 | aztec34_cc    | cc.exe      | Aztec K&R C compiler               |
 | aztec34_sqz   | sqz.exe     | Aztec C object optimizer           |
 | aztec34_link  | ln.exe      | Aztec C linker                     |
 | aztec34_lib   | lb.exe      | Aztec C lib                        |
+| aztec34_ord   | ord.exe     | Aztec C library ordering helper    |
+| aztec34_obd   | obd.exe     | Aztec C object dump                |
 | aztec34_hex86 | hex86.exe   | Aztec C H86 generator              |
+| aztec42_as    | as.exe      | Aztec Assembler.                   |
 | aztec42_cc    | cc.exe      | Aztec ANSI C compiler              |
 | aztec42_sqz   | sqz.exe     | Aztec C object optimizer           |
 | aztec42_link  | ln.exe      | Aztec C linker                     |
 | aztec42_lib   | lb.exe      | Aztec C lib                        |
+| aztec42_ord   | ord.exe     | Aztec C library ordering helper    |
+| aztec42_obd   | obd.exe     | Aztec C object dump                |
 | aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
 | drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M-86     |
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
 | drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
 | drcbdos_link  | linkexe.exe | DR cbasic linker for DOS           |
-| cpm86         | cpm.exe     | CPM86 Emulator coming with Aztec C |
+| cpm86         | -           | CP/M-86 emulator                   |
+| hexcom        | -           | HEX to binary translation          |
+| doscat        | -           | Truncate files beyond ^Z           |
+| nasm          | -           | Netwise assembler                  |
 
 ## Fetching the tools
 
