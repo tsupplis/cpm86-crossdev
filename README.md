@@ -80,7 +80,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm86         | -           | CP/M-86 emulator                   |
 | hexcom        | -           | HEX to binary translation          |
 | doscat        | -           | Truncate files beyond ^Z           |
-| nasm          | -           | Netwise assembler                  |
+| nasm          | -           | Netwide assembler                  |
 
 ## Fetching the tools
 
