@@ -33,3 +33,5 @@ syncaz
 **/*.map
 **/.vscode
 **/push
+bin/doscat
+bin/hexcom
