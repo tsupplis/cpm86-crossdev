@@ -1,0 +1,7 @@
+#!/bin/bash
+echo INF: Checking CMD tools ...
+if [ ! -f pcdev/cmdinfo.com -o ! -f pcdev/bin2com.com ]; then
+    cd "$root/share"
+    mkdir -p "$root/share/pcdev"
+    cp "$root/src/cmdtools"/*.com pcdev
+fi

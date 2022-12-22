@@ -1,0 +1,14 @@
+#!/bin/bash
+echo INF: Checking Aztec 4.2 tools ...
+cd "$root/share"
+if [ ! -d aztec42/bin ];then
+    wget "https://www.aztecmuseum.ca/AztecC86.zip"
+    unzip -L AztecC86.zip
+    mkdir -p "$root/share/aztec42"
+    cp -R aztecc86/bin aztec42
+    cp -R aztecc86/lib aztec42
+    cp -R aztecc86/obj aztec42
+    cp -R aztecc86/arc/* aztec42/src
+    cp -R aztecc86/include aztec42
+    rm -rf AztecC86.zip aztecc86
+fi

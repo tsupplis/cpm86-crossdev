@@ -1,0 +1,9 @@
+#!/bin/bash
+echo INF: Checking TNYLPO ...
+cd "$root"
+if [ ! -d tnylpo ];then
+    git clone "https://gitlab.com/gbrein/tnylpo.git"
+fi
+if [ ! -f bin/tnylpo ];then
+    (cd tnylpo;make -j4;cp tnylpo ../bin)
+fi

@@ -1,0 +1,12 @@
+#!/bin/bash
+echo INF: Checking NASM ...
+cd "$root"
+if [ ! -d nasm ];then
+    wget "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz"
+    tar zxf nasm-2.15.05.tar.gz 
+    mv nasm-2.15.05 nasm
+    rm -f nasm-2.15.05.tar.gz
+fi
+if [ ! -f bin/nasm ];then
+    (cd nasm;./configure;make -j4;cp nasm ../bin)
+fi

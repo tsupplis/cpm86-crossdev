@@ -1,0 +1,23 @@
+#!/bin/bash
+echo INF: Unpacking Aztec 4.2 ...
+cd "$root"
+if [ ! -f "$root/share/aztec42/unpacked" ];then
+    (cd "$root/share/aztec42"; "$root/src/aztec42-patch/unpack")
+fi
+echo INF: Patching Aztec 4.2 ...
+cd "$root"
+if [ ! -f "$root/share/aztec42/patched" ];then
+    (cd "$root/share/aztec42"; tar zxvf "$root/src/aztec42-patch/patches.tar.gz")
+    (cd "$root/share/aztec42"; "$root/src/aztec42-patch/apply_patches")
+fi
+echo INF: Building Aztec 4.2 ...
+cd "$root"
+if [ ! -f "$root/share/aztec42/built" ];then
+    chmod 755 "$root/share/aztec42/src/build"
+    (cd "$root/share/aztec42/src"; PATH="$root/bin":$PATH ./build)
+	rm -rf "$root/share/aztec42/lib"/*
+	mv "$root/share/aztec42/src/libs"/* "$root/share/aztec42/lib"
+	mv "$root/share/aztec42/src/screen"/*.lib "$root/share/aztec42/lib"
+    touch "$root/share/aztec42/built"
+fi
+(cd src/tools;make)

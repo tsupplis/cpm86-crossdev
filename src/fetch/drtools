@@ -1,0 +1,32 @@
+#!/bin/bash
+echo INF: Checking CP/M DR tools ...
+cd "$root/share"
+if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/cpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    wget "http://www.cpm.z80.de/download/mpm862sr.zip"
+    unzip -L mpm862sr.zip
+    cp 03/a86.cpm ../cpm/asm86.com
+    cp 03/gencmd.cpm ../cpm/gencmd.com
+    chmod 644 ../cpm/*.*
+    rm -rf "$root/share/temp-tools"
+fi
+echo INF: Checking DOS DR tools ...
+cd "$root/share"
+if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
+   -o ! -f pcdev/lib86.exe ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/pcdev"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    wget "http://www.cpm.z80.de/download/tools86.zip"
+    unzip -L tools86.zip
+    unzip -L dos86pr2.zip
+    cp linkcmd.exe rasm86.exe ../pcdev
+    cp linkexe.exe ../pcdev
+    cp lib86.exe ../pcdev
+    chmod 644 ../pcdev/*.*
+    rm -rf "$root/share/temp-tools"
+fi

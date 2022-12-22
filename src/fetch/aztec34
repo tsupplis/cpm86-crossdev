@@ -1,0 +1,19 @@
+#!/bin/bash
+echo INF: Checking Aztec 3.4 tools ...
+cd "$root/share"
+if [ ! -d aztec34/bin -o ! -f emu/cpm86.exe ];then
+    wget "https://www.aztecmuseum.ca/az8634b.zip"
+    unzip -L az8634b.zip
+    mkdir -p "$root/share/aztec34"
+    mkdir -p "$root/share/emu"
+    mkdir -p "$root/share/aztec42/src"
+    cp -R az8634b/bin aztec34
+    cp -R az8634b/lib aztec34
+    cp -R az8634b/emu/cpm.exe emu/cpm86.exe
+    cp -R az8634b/obj/* aztec34/lib
+    cp -R az8634b/src aztec34
+    cp -R az8634b/src/dos11.arc aztec42/src
+    cp -R az8634b/src/cpm86.arc aztec42/src
+    cp -R az8634b/include aztec34
+    rm -rf az8634b.zip az8634b
+fi

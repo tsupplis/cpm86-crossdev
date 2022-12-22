@@ -1,0 +1,35 @@
+#!/bin/bash
+echo INF: Checking CB86  ...
+cd "$root/share"
+if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
+    -o ! -f cb86cpm/cb86.l86 -o ! -f cb86dos/cb86.l86 ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/cb86cpm"
+    mkdir -p "$root/share/cb86dos"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    wget "http://www.cpm.z80.de/download/cbasic86.zip"
+    unzip -L cbasic86.zip
+    cp cb86.l86 ../cb86cpm
+    cp ../pcdev/linkcmd.exe ../cb86cpm/link86.exe
+    cp ../pcdev/lib86.exe ../cb86cpm/lib86.exe
+    cp ../pcdev/rasm86.exe ../cb86cpm/rasm86.exe
+    rm ../temp-tools/*.*
+    wget "http://www.cpm.z80.de/download/cb86toys.zip"
+    unzip -L cb86toys.zip
+    cp cb86.exe ../cb86dos
+    cp cb86.or1 ../cb86dos
+    cp cb86.or2 ../cb86dos
+    cp cb86.or3 ../cb86dos
+    cp cb86.l86 ../cb86dos
+    cp ../cb86dos/cb86.exe ../cb86cpm/cb86.exe
+    cp ../cb86dos/cb86.or1 ../cb86cpm/cb86.or1
+    cp ../cb86dos/cb86.or2 ../cb86cpm/cb86.or2
+    cp ../cb86dos/cb86.or3 ../cb86cpm/cb86.or3
+    cp ../pcdev/linkexe.exe ../cb86dos/link86.exe
+    cp ../pcdev/lib86.exe ../cb86dos/lib86.exe
+    cp ../pcdev/rasm86.exe ../cb86dos/rasm86.exe
+    chmod 644 ../cb86cpm/*.*
+    chmod 644 ../cb86dos/*.*
+    rm -rf "$root/share/temp-tools"
+fi

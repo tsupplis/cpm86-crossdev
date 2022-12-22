@@ -1,0 +1,9 @@
+#!/bin/bash
+echo INF: Checking EMU2 ...
+cd "$root"
+if [ ! -d emu2 ];then
+    git clone "https://github.com/dmsc/emu2"
+fi
+if [ ! -f "$root/bin/emu2" ];then
+    (cd "$root/emu2";make -j4;cp "$root/emu2/emu2" "$root/bin")
+fi

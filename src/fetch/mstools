@@ -1,0 +1,15 @@
+#!/bin/bash
+echo INF: Checking Microsoft tools ...
+cd "$root/share"
+if [ ! -f pcdev/masm.exe -o ! -f pcdev/exe2bin.exe -o ! -f pcdev/link.exe ]; then
+    cd "$root/share"
+    mkdir -p "$root/share/pcdev"
+    cp ../src/microsoft/*.exe pcdev
+    chmod 644 pcdev/*.*
+fi
+if [ ! -f pcdev/asm.com -o ! -f pcdev/hex2bin.com ]; then
+    cd "$root/share"
+    mkdir -p "$root/share/pcdev"
+    cp "$root/src/microsoft"/*.com pcdev
+    chmod 644 pcdev/*.*
+fi
