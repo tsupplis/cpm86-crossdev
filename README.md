@@ -1,4 +1,4 @@
-# CP/M-86/MS-DOS Cross Development Environment
+# CP/M-86 & MS-DOS Cross Development Environment
 
 This project regroups a simple method to create a cross development environment for CP/M-86. It happens that all DOS based tools can also be used for building DOS programs.
 This project was developed for myself in a nerdy spirit and for a lot of fun. Just sharing without any guarantees.
