@@ -105,6 +105,22 @@ Clearing the directory is achieved by:
 ./clear_tools
 ```
 
+### Download archive / offline rebuilds
+
+Every file downloaded by `fetch_tools` (the Aztec, DR, CB86 and NASM archives,
+but not the `git` checkouts) is cached under `archive/` instead of being deleted.
+
+This keeps the build environment reproducible even if an upstream disappears:
+
+- If a download fails, `fetch_tools` falls back to the cached copy in `archive/`.
+- Set `ARCHIVE_FIRST=1` to rebuild entirely from `archive/` without touching the
+  network (e.g. offline, or to pin exact versions):
+  ```
+  ARCHIVE_FIRST=1 ./fetch_tools
+  ```
+- `clear_tools` will **not** remove the `archive/`, so a cleared tree can always
+  be rebuilt from the local cache.
+
 ## Testing
 
 The cpm86 tool is a cpm86 emulator for dos pulled with Aztec C. It works-ish. I do not rely on it for build tools but it can be experimented with. 

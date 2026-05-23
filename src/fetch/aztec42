@@ -2,13 +2,15 @@
 echo INF: Checking Aztec 4.2 tools ...
 cd "$root/share"
 if [ ! -d aztec42/bin ];then
-    wget "https://www.aztecmuseum.ca/AztecC86.zip"
-    unzip -L AztecC86.zip
+    fetch_get "https://www.aztecmuseum.ca/AztecC86.zip"
+    unzip -L "$ARCHIVED_FILE"
     mkdir -p "$root/share/aztec42"
     cp -R aztecc86/bin aztec42
     cp -R aztecc86/lib aztec42
-    cp -R aztecc86/obj aztec42
+    # current AztecC86.zip doesn't have obj/, so
+    # lets only copy it if actually present.
+    [ -d aztecc86/obj ] && cp -R aztecc86/obj aztec42
     cp -R aztecc86/arc/* aztec42/src
     cp -R aztecc86/include aztec42
-    rm -rf AztecC86.zip aztecc86
+    rm -rf aztecc86
 fi

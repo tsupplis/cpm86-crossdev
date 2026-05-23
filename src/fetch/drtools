@@ -6,8 +6,8 @@ if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
     mkdir -p "$root/share/cpm"
     mkdir -p "$root/share/temp-tools"
     cd "$root/share/temp-tools"
-    wget "http://www.cpm.z80.de/download/mpm862sr.zip"
-    unzip -L mpm862sr.zip
+    fetch_get "http://www.cpm.z80.de/download/mpm862sr.zip"
+    unzip -L "$ARCHIVED_FILE"
     cp 03/a86.cpm ../cpm/asm86.com
     cp 03/gencmd.cpm ../cpm/gencmd.com
     chmod 644 ../cpm/*.*
@@ -21,8 +21,8 @@ if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
     mkdir -p "$root/share/pcdev"
     mkdir -p "$root/share/temp-tools"
     cd "$root/share/temp-tools"
-    wget "http://www.cpm.z80.de/download/tools86.zip"
-    unzip -L tools86.zip
+    fetch_get "http://www.cpm.z80.de/download/tools86.zip"
+    unzip -L "$ARCHIVED_FILE"
     unzip -L dos86pr2.zip
     cp linkcmd.exe rasm86.exe ../pcdev
     cp linkexe.exe ../pcdev

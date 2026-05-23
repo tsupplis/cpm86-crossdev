@@ -1,0 +1,33 @@
+#!/bin/bash
+# download-cache helper, sourced by fetch_tools
+
+# Set ARCHIVE_FIRST=1 and if archive/NAME is cached, just use it,
+# for no network / offline rebuilds; otherwise we try to download.
+
+archive_dir="$root/archive"
+
+fetch_get() {
+    local url="$1"
+    local name="${2:-$(basename "$url")}"
+    ARCHIVED_FILE="$archive_dir/$name"
+    mkdir -p "$archive_dir"
+
+    if [ -n "$ARCHIVE_FIRST" ] && [ -f "$ARCHIVED_FILE" ]; then
+        echo "INF: archive: using cached $name (ARCHIVE_FIRST)"
+        return 0
+    fi
+
+    echo "INF: archive: downloading $name ..."
+    if wget -O "$ARCHIVED_FILE.part" "$url"; then
+        mv -f "$ARCHIVED_FILE.part" "$ARCHIVED_FILE"
+        return 0
+    fi
+    rm -f "$ARCHIVED_FILE.part"
+
+    if [ -f "$ARCHIVED_FILE" ]; then
+        echo "WRN: archive: download of $name failed; using cached copy"
+        return 0
+    fi
+    echo "ERR: archive: $name unavailable (download failed and not cached)"
+    return 1
+}
