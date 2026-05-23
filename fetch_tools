@@ -16,4 +16,5 @@ cd "$root"; . src/fetch/buildemu2
 find "$root/share" -type d -exec chmod 755 {} \;
 find "$root/share" -type f -exec chmod 644 {} \;
 cd "$root"; . src/fetch/buildaztec42
+cd "$root"; . src/fetch/buildstartups
 exit 0

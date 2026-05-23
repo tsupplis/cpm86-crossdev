@@ -1,0 +1,29 @@
+#!/bin/bash
+# Extract standalone C-runtime startup objects from the Aztec libraries.
+#
+# Aztec's ln only pulls library members on demand, so a program that references
+# no libc symbol (e.g. `int main(void){ return 0; }`) links with NO startup and
+# falls off the end of main into garbage -> crash.  The *_link wrappers fix this
+# by prepending the matching startup object (always kept, being a command-line
+# object), which also sidesteps ln's single-pass backward-reference problem
+# between the begin/croot modules.  Those objects are produced here by pulling
+# the startup module out of each C library:
+#
+#     begin   (CP/M-86, small)   -> begin86.o     (linked for -lc86)
+#     sbegin  (MS-DOS,  small)   -> sbegin.o       (linked for -lc  / -lclc)
+#     lbegin  (MS-DOS,  large)   -> lbegin.o       (linked for -lcl / -lcld)
+#
+# lb -x is non-destructive, so we extract in place in lib/.
+echo INF: Building Aztec C runtime startup objects ...
+for az in aztec34 aztec42; do
+    lib="$root/share/$az/lib"
+    [ -d "$lib" ] || continue
+    (
+        cd "$lib" || exit 0
+        if [ -f c86.lib ]; then
+            "$root/bin/${az}_lib" c86.lib -x begin  >/dev/null 2>&1 && mv -f begin.o begin86.o
+        fi
+        [ -f c.lib  ] && "$root/bin/${az}_lib" c.lib  -x sbegin >/dev/null 2>&1
+        [ -f cl.lib ] && "$root/bin/${az}_lib" cl.lib -x lbegin >/dev/null 2>&1
+    )
+done
