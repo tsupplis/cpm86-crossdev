@@ -1,6 +1,9 @@
 #!/bin/sh
 prog=cpm86.exe
 EMU2_DRIVE_D="`dirname $0`/../share/emu"
+if [ -n "${CPM86_EOF:-}" ] && [ -f "$EMU2_DRIVE_D/cpm86-EOF.exe" ]; then
+    prog=cpm86-EOF.exe
+fi
 export EMU2_DRIVE_D
 EMU2_PROGNAME="d:\\$prog"
 export EMU2_PROGNAME

@@ -1,0 +1,78 @@
+#!/bin/sh
+# Copyright (c) 2026 Jeffrey H. Johnson <johnsonjh.dev@gmail.com>
+# SPDX-License-Identifier: MIT-0
+# CP/M-86 Patcher v2.0
+
+set -eu
+
+if [ "$#" -ne 1 ]; then
+  printf '%s\n' "Usage: ${0} cpm86.exe" >&2
+  exit 1
+fi
+
+infile="${1}"
+if [ ! -f "${infile}" ]; then
+  printf '%s\n' "FATAL: '${infile}' not found" >&2
+  exit 1
+fi
+
+size=$(wc -c < "${infile}" | tr -d ' ')
+if [ "${size}" != "11264" ]; then
+  printf '%s\n' \
+    "FATAL: '${infile}' is ${size} bytes; expected 11264, aborting!" >&2
+  exit 1
+fi
+
+backup="${infile}.bak"
+outfile="${infile}"
+
+case "${infile}" in
+*.*) eof_outfile="${infile%.*}-EOF.${infile##*.}" ;;
+*) eof_outfile="${infile}-EOF" ;;
+esac
+
+if [ -e "${backup}" ]; then
+  printf '%s\n' "FATAL: '${backup}' already exists, aborting!" >&2
+  exit 1
+fi
+
+if [ -e "${eof_outfile}" ]; then
+  printf '%s\n' "FATAL: '${eof_outfile}' already exists, aborting!" >&2
+  exit 1
+fi
+
+mv -f "${infile}" "${backup}"
+cp -f "${backup}" "${outfile}"
+cp -f "${backup}" "${eof_outfile}"
+
+patch_file()
+{
+  file="${1}"
+  offset="${2}"
+  data="${3}"
+  printf '%b' "${data}" \
+    | dd of="${file}" bs=1 seek="${offset}" conv=notrunc 2> /dev/null
+}
+
+for target in "${outfile}" "${eof_outfile}"; do
+  patch_file "${target}" 1850 '\xF4\x22\xEB\x57'
+  patch_file "${target}" 1884 '\x34'
+  patch_file "${target}" 1888 '\x30\x35'
+  patch_file "${target}" 1891 '\x32\x33'
+  patch_file "${target}" 1894 '\x32\x36'
+  patch_file "${target}" 4962 '\x00'
+  patch_file "${target}" 5062 '\xE8\x5B\x0E\x90'
+  patch_file "${target}" 5089 '\x83\xC2\x7F\xB1\x07\xD3\xEA'
+  patch_file "${target}" 8740 '\x8A\x47\x10\x24\x7F\x88\x47\x0D\xC3'
+  patch_file "${target}" 10800 '\xE8\x9D\xE4\x43\x50\x2F\x4D\x2D\x38\x36\x20\x65\x6D\x75\x6C\x61\x74\x6F\x72\x20\x66\x6F\x72\x20\x44\x4F\x53\x20\x76\x65\x72\x73\x20\x31\x2E\x34\x20\x2D\x20\x30\x35\x2F\x32\x33\x2F\x32\x36\x0D\x0A\x43\x6F\x70\x79\x72\x69\x67\x68\x74\x20\x28\x63\x29\x20\x31\x39\x38\x35\x2C\x20\x31\x39\x39\x37\x20\x4A\x69\x6D\x20\x4C\x6F\x70\x75\x73\x68\x69\x6E\x73\x6B\x79\x0D\x0A'
+  patch_file "${target}" 10892 '\xE8\x41\xE4\x43\x6F\x70\x79\x72\x69\x67\x68\x74\x20\x28\x63\x29\x20\x32\x30\x32\x36\x20\x4A\x65\x66\x66\x72\x65\x79\x20\x48\x2E\x20\x4A\x6F\x68\x6E\x73\x6F\x6E\x20\x3C\x6A\x6F\x68\x6E\x73\x6F\x6E\x6A\x68\x2E\x64\x65\x76\x40\x67\x6D\x61\x69\x6C\x2E\x63\x6F\x6D\x3E\x0D\x0A'
+  patch_file "${target}" 10961 '\xC3'
+done
+
+patch_file "${eof_outfile}" 1880 '\x20\x31\x2E\x34\x5A'
+patch_file "${eof_outfile}" 10831 '\x20\x31\x2E\x34\x5A'
+patch_file "${eof_outfile}" 4989 '\xE8\x52\x17\x90\x90\x90'
+patch_file "${eof_outfile}" 10962 '\x3C\x03\x75\x2C\x53\x51\x57\x06\x2E\x8B\x1E\x2B\x0A\x8A\x47\x10\x24\x7F\x74\x16\x50\xB4\x2F\xCD\x21\x58\x8B\xFB\x32\xE4\x03\xF8\xB9\x80\x00\x2A\xC8\xB0\x1A\xFC\xF3\xAA\x07\x5F\x59\x5B\x32\xC0\xC3'
+
+printf '%s\n' "Patched '${outfile}'; original saved as '${backup}'"
+printf '%s\n' "Patched '${eof_outfile}' (^Z padding variant)"

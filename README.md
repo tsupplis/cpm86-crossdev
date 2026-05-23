@@ -107,9 +107,16 @@ Clearing the directory is achieved by:
 
 ## Testing
 
-The cpm86 tool is a cpm86 emulator for dos pulled with Aztec C. It works-ish. I do not rely on it for build tools but it can be experimented with. 
-DOS/CP/M-80 emulations and DOS/CP/M-80 cross compilations are far better and ore options. In fine, proper emulation and CP/M-86 is the best option for testing. 
-PCE is a very good choice (http://www.hampa.ch/pce/).
+The cpm86 tool is a cpm86 emulator for dos pulled with Aztec C.  We have reverse engineered it and patch it to fix a few bugs and add some new
+features.  It should not be relied on fully as some bugs surely remain, but it can be experimented with and works for many programs.  For build
+tools DOS/CP/M-80 emulations and DOS/CP/M-80 cross compilations are far better options and proper emulation of CP/M-86 is the best option for
+testing; PCE is a very good choice (http://www.hampa.ch/pce/).
+
+Note that the enhanced cpm86 emulator supports padding records with `EOF` instead of `NULL` which may make working with text files easier, but
+because this behavior does not match real CP/M-86, it's disabled by default and only enabled if you set `CPM86_EOF=1`, for example:
+```
+env CPM86_EOF=1 cpm86 program.cmd
+```
 
 This may be a next step: 
 - automating pce, cpmtools

@@ -1,0 +1,7 @@
+#!/bin/sh
+# Patch the fetched CP/M-86 emulator (cpm86.exe)
+echo INF: Patching the cpm86 emulator ...
+cpm86="$root/share/emu/cpm86.exe"
+if [ -f "$cpm86" ] && [ ! -f "$cpm86.bak" ]; then
+    sh "$root/src/patch/patch_cpm86" "$cpm86"
+fi
