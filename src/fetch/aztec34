@@ -2,8 +2,8 @@
 echo INF: Checking Aztec 3.4 tools ...
 cd "$root/share"
 if [ ! -d aztec34/bin -o ! -f emu/cpm86.exe ];then
-    wget "https://www.aztecmuseum.ca/az8634b.zip"
-    unzip -L az8634b.zip
+    fetch_get "https://www.aztecmuseum.ca/az8634b.zip"
+    unzip -L "$ARCHIVED_FILE"
     mkdir -p "$root/share/aztec34"
     mkdir -p "$root/share/emu"
     mkdir -p "$root/share/aztec42/src"
@@ -15,5 +15,5 @@ if [ ! -d aztec34/bin -o ! -f emu/cpm86.exe ];then
     cp -R az8634b/src/dos11.arc aztec42/src
     cp -R az8634b/src/cpm86.arc aztec42/src
     cp -R az8634b/include aztec34
-    rm -rf az8634b.zip az8634b
+    rm -rf az8634b
 fi
