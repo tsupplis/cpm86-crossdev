@@ -10,5 +10,37 @@ EMU2_DRIVE_E="$TMPDIR/AZTEC"
 export EMU2_DRIVE_E
 EMU2_PROGNAME="d:\\bin\\$prog"
 export EMU2_PROGNAME
-emu2 "$EMU2_DRIVE_D/bin/$prog" "$@" -- PATH=D:\\BIN CLIB=D:\\LIB\\ INCLUDE=D:\\INCLUDE \
+
+# Force the matching C runtime startup ($begin -> Croot_ -> main -> exit) into
+# every link.  Aztec's ln only pulls library members on demand, so a program
+# that does not reference libc (e.g. `int main(void){ return 0; }`) gets NO
+# startup and falls off the end of main into garbage -> crash.  Prepending the
+# startup object guarantees it is linked (command-line objects are always kept),
+# makes $begin the entry point, and sidesteps the single-pass backward-reference
+# problem between the begin/croot library modules.
+#
+# The right startup depends on target + memory model, which is implied by the C
+# library being linked, so we select it from the -l<lib> argument:
+#     -lc86         CP/M-86       begin86.o   (small; the only CP/M-86 model)
+#     -lc  / -lclc  MS-DOS small  sbegin.o
+#     -lcl / -lcld  MS-DOS large  lbegin.o
+# Overrides: AZTEC_STARTUP=<obj-in-lib> forces a specific startup;
+#            AZTEC_NOSTARTUP=1 restores the old raw-ln behaviour.
+startup=
+for a in "$@"; do
+    case "$a" in
+        -lc86)       startup=begin86.o ;;
+        -lcl|-lcld)  startup=lbegin.o  ;;
+        -lc|-lclc)   startup=sbegin.o  ;;
+    esac
+done
+[ -n "$AZTEC_STARTUP" ] && startup=$AZTEC_STARTUP
+[ -n "$AZTEC_NOSTARTUP" ] && startup=
+
+startobj=
+if [ -n "$startup" ] && [ -f "$EMU2_DRIVE_D/lib/$startup" ]; then
+    startobj="d:\\lib\\$startup"
+fi
+
+emu2 "$EMU2_DRIVE_D/bin/$prog" $startobj "$@" -- PATH=D:\\BIN CLIB=D:\\LIB\\ INCLUDE=D:\\INCLUDE \
   CCTEMP="E:\\TEMP\\"

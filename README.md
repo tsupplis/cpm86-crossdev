@@ -168,6 +168,29 @@ aztec42_link -o helloc.cmd helloc.o -lc86
 pcdev_cmdinfo helloc.cmd
 ```
 
+#### C runtime startup
+
+`aztec34_link`/`aztec42_link` automatically prepend the matching C runtime
+startup object, so the `$begin -> Croot_ -> main -> exit` entry/exit code is
+always present. The startup is selected from the C library you link against:
+
+| library            | target / model | startup     |
+|--------------------|----------------|-------------|
+| `-lc86`            | CP/M-86 small  | `begin86.o` |
+| `-lc`   / `-lclc`  | MS-DOS small   | `sbegin.o`  |
+| `-lcl`  / `-lcld`  | MS-DOS large   | `lbegin.o`  |
+
+These startup objects are produced from the C libraries by `fetch_tools`
+(`src/fetch/buildstartups`). Without this, Aztec's single-pass `ln` only pulls
+the startup from the library on demand, so a program that references no libc
+symbol — e.g. `int main(void){ return 0; }` — would link with **no** startup and
+crash on exit, and a program that references the startup indirectly (e.g.
+`exit()`) could fail to link (`Undefined symbol: _exit_`) unless the library was
+ordered with `ord` or passed twice (`-lc86 -lc86`). Prepending the startup as a
+command-line object fixes all of these cases, so neither `ord` nor a doubled
+library is needed. To restore the old behaviour set `AZTEC_NOSTARTUP=1`, or force
+a specific startup with `AZTEC_STARTUP=<obj-in-lib>`.
+
 ### Assembler Programs with rasm86
 ```
 pcdev_rasm86 helloa.a86 '$' pz sz
