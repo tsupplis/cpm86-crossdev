@@ -2,9 +2,9 @@
 echo INF: Checking NASM ...
 cd "$root"
 if [ ! -d nasm ];then
-    fetch_get "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz"
+    fetch_get "https://www.nasm.us/pub/nasm/releasebuilds/3.01/nasm-3.01.tar.gz"
     tar zxf "$ARCHIVED_FILE"
-    mv nasm-2.15.05 nasm
+    mv nasm-3.01 nasm
 fi
 if [ ! -f bin/nasm ];then
     (cd nasm;./configure;make -j4;cp nasm ../bin)
