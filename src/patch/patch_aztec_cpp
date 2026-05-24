@@ -1,0 +1,57 @@
+#!/bin/sh
+# Copyright (c) 2026 Jeffrey H. Johnson <johnsonjh.dev@gmail.com>
+# SPDX-License-Identifier: MIT-0
+# Aztec C 3.4 preprocessor patch v1.0
+
+set -eu
+
+patch_file()
+{
+  file="${1}"
+  offset="${2}"
+  data="${3}"
+  printf '%b' "${data}" \
+    | dd of="${file}" bs=1 seek="${offset}" conv=notrunc 2> /dev/null
+}
+
+patch_one()
+{
+  infile="${1}"
+  backup="${infile}.bak"
+  base=${infile##*/}
+
+  if [ ! -f "${infile}" ]; then
+    printf '%s\n' "FATAL: '${infile}' not found" >&2
+    exit 1
+  fi
+
+  if [ -e "${backup}" ]; then
+    printf '%s\n' "FATAL: '${backup}' already exists, aborting!" >&2
+    exit 1
+  fi
+
+  mv -f "${infile}" "${backup}"
+  cp -f "${backup}" "${infile}"
+
+  case ${base} in
+  cc.exe)
+    patch_file "${infile}" 86223 '\x00\x00\x00\x00\x00'
+    patch_file "${infile}" 86380 '\x00\x00\x00\x00'
+    patch_file "${infile}" 86385 '\x00\x00\x00\x00\x00\x00\x00\x00'
+    ;;
+  ccb.exe)
+    patch_file "${infile}" 43903 '\x00\x00\x00\x00\x00'
+    patch_file "${infile}" 44060 '\x00\x00\x00\x00'
+    patch_file "${infile}" 44065 '\x00\x00\x00\x00\x00\x00\x00\x00'
+    ;;
+  *)
+    printf '%s\n' "FATAL: unknown file '${infile}'" >&2
+    exit 1
+    ;;
+  esac
+
+  printf '%s\n' "Patched '${infile}'; original saved as '${backup}'"
+}
+
+patch_one "./aztec34/bin/cc.exe"
+patch_one "./aztec34/bin/ccb.exe"

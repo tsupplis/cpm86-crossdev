@@ -17,3 +17,11 @@ if [ ! -d aztec34/bin -o ! -f emu/cpm86.exe ];then
     cp -R az8634b/include aztec34
     rm -rf az8634b
 fi
+
+echo INF: Patching the Aztec 3.4 preprocessor ...
+ccb34="$root/share/aztec34/bin/ccb.exe"
+cc34="$root/share/aztec34/bin/cc.exe"
+if [ -f "$cc34" ] && [ ! -f "$cc34.bak" ] && \
+   [ -f "$ccb34" ] && [ ! -f "$ccb34.bak" ]; then
+    sh "$root/src/patch/patch_aztec_cpp"
+fi
