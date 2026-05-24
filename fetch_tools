@@ -5,6 +5,7 @@ root=`pwd`
 . src/fetch/_archive
 mkdir -p "$root/share/pcdev"
 cd "$root"; . src/fetch/aztec34
+cd "$root"; . src/fetch/buildcpm86
 cd "$root"; . src/fetch/aztec42
 cd "$root"; . src/fetch/drtools
 cd "$root"; . src/fetch/cb86
