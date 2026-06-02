@@ -1,16 +1,27 @@
 #!/bin/sh
 # Copyright (c) 2026 Jeffrey H. Johnson <johnsonjh.dev@gmail.com>
 # SPDX-License-Identifier: MIT-0
-# Aztec C 3.4 preprocessor patch v1.0
+# Aztec C 3.4 preprocessor patch v2.0
 
 set -eu
 
-patch_file()
+patch_byte()
 {
   file="${1}"
   offset="${2}"
-  data="${3}"
-  printf '%b' "${data}" \
+  expect="${3}"
+  new="${4}"
+
+  cur=$(dd if="${file}" bs=1 skip="${offset}" count=1 2> /dev/null \
+    | od -A n -t x1 | tr -d ' \n')
+  if [ "${cur}" != "${expect}" ]; then
+    printf '%s\n' \
+      "FATAL: '${file}' at ${offset}: expected 0x${expect}, got 0x${cur}" >&2
+    printf '%s\n' \
+      "       (wrong file, wrong version, or already patched); aborting!" >&2
+    exit 1
+  fi
+  printf "\\$(printf '%03o' "0x${new}")" \
     | dd of="${file}" bs=1 seek="${offset}" conv=notrunc 2> /dev/null
 }
 
@@ -35,14 +46,10 @@ patch_one()
 
   case ${base} in
   cc.exe)
-    patch_file "${infile}" 86223 '\x00\x00\x00\x00\x00'
-    patch_file "${infile}" 86380 '\x00\x00\x00\x00'
-    patch_file "${infile}" 86385 '\x00\x00\x00\x00\x00\x00\x00\x00'
+    patch_byte "${infile}" 31043 '4b' 'e2'
     ;;
   ccb.exe)
-    patch_file "${infile}" 43903 '\x00\x00\x00\x00\x00'
-    patch_file "${infile}" 44060 '\x00\x00\x00\x00'
-    patch_file "${infile}" 44065 '\x00\x00\x00\x00\x00\x00\x00\x00'
+    patch_byte "${infile}" 20558 '24' 'af'
     ;;
   *)
     printf '%s\n' "FATAL: unknown file '${infile}'" >&2
