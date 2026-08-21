@@ -96,7 +96,7 @@ it pulls the following:
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
 - cmdtools (https://github.com/tsupplis/cpm86-cmdtools)
-- nasm (https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz)
+- nasm (https://www.nasm.us/pub/nasm/releasebuilds/3.02/nasm-3.02.tar.gz)
 - emu2 (https://github.com/dmsc/emu2)
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
 
