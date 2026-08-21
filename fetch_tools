@@ -13,6 +13,7 @@ cd "$root"; . src/fetch/mstools
 cd "$root"; . src/fetch/cmdtools
 cd "$root"; . src/fetch/buildtnylpo
 cd "$root"; . src/fetch/buildnasm
+cd "$root"; . src/fetch/buildupx
 cd "$root"; . src/fetch/buildemu2
 find "$root/share" -type d -exec chmod 755 {} \;
 find "$root/share" -type f -exec chmod 644 {} \;
