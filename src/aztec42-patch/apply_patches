@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 for i in patches/include/*;do
     if [ -f "$i" ]; then
         patch -s -p0 < $i

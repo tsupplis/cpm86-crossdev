@@ -3,10 +3,12 @@ archive
 tnylpo
 nasm
 emu2
+upx
 aztecc.tar.gz
 pcdev.tar.gz
 bin/emu2
 bin/tnylpo
+bin/upx
 syncaz
 **/*.lock
 **/*.lha

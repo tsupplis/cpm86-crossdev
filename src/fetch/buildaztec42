@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 echo INF: Unpacking Aztec 4.2 ...
 cd "$root"
 if [ ! -f "$root/share/aztec42/unpacked" ];then

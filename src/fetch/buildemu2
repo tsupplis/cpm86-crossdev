@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 echo INF: Checking EMU2 ...
 cd "$root"
 if [ ! -d emu2 ];then
