@@ -2,7 +2,7 @@
 
 set -e
 
-echo INF: Checking NASM ...
+echo INF: Checking UPX ...
 cd "$root"
 if [ ! -d upx ];then
     fetch_get "https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-src.tar.xz"
