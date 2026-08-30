@@ -5,9 +5,9 @@ set -e
 echo INF: Checking UPX ...
 cd "$root"
 if [ ! -d upx ];then
-    fetch_get "https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-src.tar.xz"
+    fetch_get "https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz"
     tar zxf "$ARCHIVED_FILE" || tar axf "$ARCHIVED_FILE"
-    mv upx-5.2.0-src upx
+    mv upx-5.2.1-src upx
 fi
 if [ ! -f build/release/upx ];then
     (cd upx;make -j4;cp ./build/release/upx ../bin)
