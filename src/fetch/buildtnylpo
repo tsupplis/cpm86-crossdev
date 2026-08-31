@@ -8,5 +8,6 @@ if [ ! -d tnylpo ];then
     git clone "https://gitlab.com/gbrein/tnylpo.git"
 fi
 if [ ! -f bin/tnylpo ];then
-    (cd tnylpo;make -j4;cp tnylpo ../bin)
+    ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
+    (cd tnylpo;make -j"$ncpus";cp tnylpo ../bin)
 fi
