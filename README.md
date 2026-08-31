@@ -8,6 +8,11 @@ Languages supported are:
 - Assembler
 - Basic 
 
+## Thanks
+
+- dmsc (https://github.com/dmsc) for the emu2 emulator, without which this project would not be nearly as pleasant to use.
+- johnsonjh (https://github.com/johnsonjh) for the emu2-cpm86 fork, the hexcom rewrite, and portability/build fixes contributed to this project.
+
 ## Where to find CP/M-86?
 
 The source for CP/M-86 doc, sources and binaries is http://www.cpm.z80.de.
@@ -23,7 +28,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - nasm netwide assembler
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
 
-- The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair.
+- The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair. We use the emu2-cpm86 fork (https://github.com/johnsonjh/emu2-cpm86), which adds and keeps improving CP/M-86 support on top of upstream emu2.
 - We also need to run some cp/m-80 programs, for that, the tinylpo emulator is used (https://gitlab.com/gbrein/tnylpo). It works very well with asm86.com and gencmd.com programs
 
 ## License Considerations
@@ -33,7 +38,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - The Aztec C use coniditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
 - The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE)
+- emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
 - nasm license terms can be found at (https://www.nasm.us)
 - `src/tools/hexcom.c` is a DRI HEXCOM 3.00 compatible reimplementation by Jeffrey H. Johnson, imported from https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c under the MIT-0 license
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
@@ -99,7 +104,7 @@ it pulls the following:
 - cmdtools (https://github.com/tsupplis/cpm86-cmdtools)
 - nasm (https://www.nasm.us/pub/nasm/releasebuilds/3.02/nasm-3.02.tar.gz)
 - upx (https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-src.tar.xz)
-- emu2 (https://github.com/dmsc/emu2)
+- emu2-cpm86, a CP/M-86 enabled fork of emu2 (https://github.com/johnsonjh/emu2-cpm86), based on the upstream emu2 project (https://github.com/dmsc/emu2)
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
 
 Clearing the directory is achieved by:
