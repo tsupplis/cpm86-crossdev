@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 echo INF: Checking Aztec 3.4 tools ...
 cd "$root/share"
 if [ ! -d aztec34/bin -o ! -f emu/cpm86.exe ];then

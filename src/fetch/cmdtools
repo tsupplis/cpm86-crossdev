@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 echo INF: Checking CMD tools ...
 if [ ! -f pcdev/cmdinfo.com -o ! -f pcdev/bin2com.com ]; then
     cd "$root/share"

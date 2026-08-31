@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # download-cache helper, sourced by fetch_tools
 
 # Set ARCHIVE_FIRST=1 and if archive/NAME is cached, just use it,
@@ -7,8 +7,8 @@
 archive_dir="$root/archive"
 
 fetch_get() {
-    local url="$1"
-    local name="${2:-$(basename "$url")}"
+    url="$1"
+    name="${2:-$(basename "$url")}"
     ARCHIVED_FILE="$archive_dir/$name"
     mkdir -p "$archive_dir"
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 root=`dirname $0`
 cd "$root"

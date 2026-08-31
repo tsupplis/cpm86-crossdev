@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Extract standalone C-runtime startup objects from the Aztec libraries.
 #
 # Aztec's ln only pulls library members on demand, so a program that references

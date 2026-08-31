@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 echo INF: Checking CP/M DR tools ...
 cd "$root/share"
 if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
