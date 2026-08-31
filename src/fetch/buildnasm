@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 echo INF: Checking NASM ...
 cd "$root"
 if [ ! -d nasm ];then

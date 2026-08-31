@@ -14,6 +14,9 @@
 #     lbegin  (MS-DOS,  large)   -> lbegin.o       (linked for -lcl / -lcld)
 #
 # lb -x is non-destructive, so we extract in place in lib/.
+
+set -e
+
 echo INF: Building Aztec C runtime startup objects ...
 for az in aztec34 aztec42; do
     lib="$root/share/$az/lib"

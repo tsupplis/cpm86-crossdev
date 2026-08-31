@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 root=`dirname $0`
 cd "$root"
 root=`pwd`
@@ -19,4 +20,5 @@ find "$root/share" -type d -exec chmod 755 {} \;
 find "$root/share" -type f -exec chmod 644 {} \;
 cd "$root"; . src/fetch/buildaztec42
 cd "$root"; . src/fetch/buildstartups
+printf 'INF: %s\n' "Fetch and build completed"
 exit 0
