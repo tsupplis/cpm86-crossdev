@@ -1,0 +1,24 @@
+#!/bin/sh
+echo INF: Checking PL/M-86 3.30 tools ...
+cd "$root/share"
+if [ ! -f intel/plm86.exe -o ! -f intel/asm86.exe -o ! -f intel/link.exe \
+    -o ! -f intel/lib86.exe -o ! -f intel/loc86.exe ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/intel"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.retroarchive.org/dos/lang/PLM8086Tools.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp 8086tools/plm86.exe   ../intel
+    cp 8086tools/asm86.exe   ../intel
+    cp 8086tools/link.exe    ../intel
+    cp 8086tools/lib86.exe   ../intel
+    cp 8086tools/loc86.exe   ../intel
+    cp 8086tools/*.plm       ../intel
+    cp 8086tools/*.inc       ../intel
+    cp 8086tools/*.asm       ../intel
+    cp 8086tools/*.obj       ../intel
+    cp 8086tools/*.lib       ../intel
+    chmod 644 ../intel/*
+    rm -rf "$root/share/temp-tools"
+fi

@@ -6,7 +6,8 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 Languages supported are:
 - C (K&R and almost ANSI)
 - Assembler
-- Basic 
+- Basic
+- PL/M-86
 
 ## Thanks
 
@@ -87,6 +88,11 @@ All the tools are wrapped in the bin directory for direct usage:
 | hexcom        | -           | HEX to COM translation (HEXCOM 3.00 compatible) |
 | doscat        | -           | Truncate files beyond ^Z           |
 | nasm          | -           | Netwide assembler                  |
+| intel_plm86   | plm86.exe   | Intel PL/M-86 3.30 compiler        |
+| intel_asm86   | asm86.exe   | Intel ASM-86 assembler             |
+| intel_link    | link.exe    | Intel linker                       |
+| intel_lib86   | lib86.exe   | Intel librarian                    |
+| intel_loc86   | loc86.exe   | Intel locator                      |
 
 ## Fetching the tools
 
@@ -106,6 +112,7 @@ it pulls the following:
 - upx (https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-src.tar.xz)
 - emu2-cpm86, a CP/M-86 enabled fork of emu2 (https://github.com/johnsonjh/emu2-cpm86), based on the upstream emu2 project (https://github.com/dmsc/emu2)
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
+- PL/M-86 3.30 tools (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)
 
 Clearing the directory is achieved by:
 ```

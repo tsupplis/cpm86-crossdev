@@ -10,6 +10,7 @@ cd "$root"; . src/fetch/buildcpm86
 cd "$root"; . src/fetch/aztec42
 cd "$root"; . src/fetch/drtools
 cd "$root"; . src/fetch/cb86
+cd "$root"; . src/fetch/plm86
 cd "$root"; . src/fetch/mstools
 cd "$root"; . src/fetch/cmdtools
 cd "$root"; . src/fetch/buildtnylpo
