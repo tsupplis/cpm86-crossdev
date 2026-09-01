@@ -18,3 +18,8 @@ if [ ! -f cpm/mbasic86.cmd ]; then
     cp "$root/src/microsoft/mbasic86.cmd" cpm
     chmod 644 cpm/mbasic86.cmd
 fi
+if [ ! -f pcdev/mbasic86.com ]; then
+    mkdir -p "$root/share/pcdev"
+    cp "$root/src/microsoft/mbasic86.com" pcdev
+    chmod 644 pcdev/mbasic86.com
+fi

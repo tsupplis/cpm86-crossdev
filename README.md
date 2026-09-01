@@ -29,7 +29,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - DR Personal Basic 1.0 for CP/M-86
 - nasm netwide assembler version 3.02
 - masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
-- Microsoft Basic 5.22 for CP/M-86 (mbasic86.cmd), included in the repository; patch notes at [src/microsoft/msbasic-patch.md](src/microsoft/msbasic-patch.md)
+- Microsoft Basic 5.22 for CP/M-86 (`mbasic86.cmd`) and 5.28 for DOS (`mbasic86.com`), both included in the repository as patched binaries (unpatched originals kept as `mbasic86.org` / `mbasorig.com`); patch notes at [src/microsoft/msbasic-patch.md](src/microsoft/msbasic-patch.md)
 - Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 2.1 assembler (asm86.exe), Intel linker 2.30 (link.exe) and librarian 2.1 (lib86.exe) and locator 2.5(loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
 - The Super Cool emu2 DOS/CP/M-86 emulator version 2021.01 (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair. We use the emu2-cpm86 fork (https://github.com/johnsonjh/emu2-cpm86), which adds and keeps improving CP/M-86 support on top of upstream emu2.
@@ -71,7 +71,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2)   |
 | cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2) |
 | cpm86_basic   | basic.cmd   | DR Personal Basic 1.0 (via cpm86)  |
-| cpm86_mbasic  | mbasic86.cmd | Microsoft Basic 5.22 (via cpm86)  |
+| cpm86_mbasic  | mbasic86.cmd | Microsoft Basic 5.22 (CP/M-86, via emu2) |
+| pcdev_mbasic  | mbasic86.com | Microsoft Basic 5.28 (DOS, via emu2)     |
 | pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                 |
 | pcdev_linkcmd | linkcmd.exe | DR linker for CP/M-86              |
 | pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                   |
@@ -221,9 +222,14 @@ drcbcpm_link hellor.cmd=hellor.o
 cmdinfo hellor.cmd
 ```
 
-Microsoft Basic 5.22 — interpreted, run directly:
+Microsoft Basic 5.22 — interpreted, run directly (CP/M-86 version):
 ```
 cpm86_mbasic hellomsb.bas
+```
+
+Microsoft Basic 5.28 — interpreted, run directly (DOS version):
+```
+pcdev_mbasic hellomsb.bas
 ```
 
 DR Personal Basic 1.0 — interactive interpreter:
