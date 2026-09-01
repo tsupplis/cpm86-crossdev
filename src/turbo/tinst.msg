@@ -123,7 +123,4 @@
 202 Default display mode
 203 Monochrome display
 204 Color display 80x25
-205 Color display 40x25
-206 b/w   display 80x25
-207 b/w   display 40x25
-
+205

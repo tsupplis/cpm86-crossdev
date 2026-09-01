@@ -100,6 +100,4 @@
 92Unable to create overlay
 93 compiler directive
 96Nested include
-97Too many nested WITH's
-98Memory
-99Compiler
+97Too ma

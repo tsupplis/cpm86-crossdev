@@ -7,7 +7,7 @@ Languages supported are:
 - C (K&R and almost ANSI)
 - Assembler
 - Basic (DR CBASIC, DR Personal Basic, Microsoft Basic)
-- Pascal (Pascal MT+ 3.3)
+- Pascal (Pascal MT+, Turbo Pascal)
 - Fortran-77
 - PL/M-86
 
@@ -30,6 +30,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - DR C 1.11 for CP/M-86 (http://www.cpm.z80.de/download/drc_86.zip) — compiler passes (`drc860.cmd`–`drc862.cmd`), preprocessor (`drcrpp.cmd`), runtime (`startup.a86`, `clearl.l86`, `clears.l86`) and standard headers (`ctype.h`, `errno.h`, `portab.h`, `setjmp.h`, `stdio.h`); extended with extra headers from (http://www.cpm.z80.de/download/drc86111.zip): `alloc.h`, `dos.h`, `bios.h`, `float.h`, `conio.h` and PC BIOS glue source `pcbios.a86` (needs assembling with `cpm86_asm86` before use)
 - DR Fortran-77 4.0 for CP/M-86 (http://www.cpm.z80.de/download/f77-86.zip) — compiler (`f77.cmd`, `codegen.cmd`), runtime (`clears.l86`, `clearl.l86`, `f32s.obj`, `f32l.obj`, `8087.sim`), Fortran/assembly interface example (`pkmemras.a86`, assembled to `pkmemras.obj`)
 - Pascal MT+ 3.3 for CP/M-86 (http://www.cpm.z80.de/download/mt8633cp.zip) — compiler (`mt+86.cmd`), linker (`linkmt.cmd`), assembler (`asmt86.cmd`), runtime (`paslib.r86`, floating point modules, I/O modules), utilities (`strip.cmd`, `sz.cmd`, `nm.cmd`, `dis86.cmd`)
+- Turbo Pascal 3.02 for CP/M-86 — the last CP/M-86 release from Borland; stored in `src/turbo`, extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2); includes the compiler (`turbo.cmd`), installer (`tinst.cmd`) and message/data files
 - CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
 - DR Personal Basic 1.2 for CP/M-86 (recovered from https://datamuseum.dk/wiki/Bits:30002879, stored in `src/dr/basic.cmd`; the original 1.1 release is also available at http://www.cpm.z80.de/download/pbasic86.zip)
 - nasm netwide assembler version 3.02
@@ -50,6 +51,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - The DR C 1.11 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR Fortran-77 4.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - Pascal MT+ 3.3 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- Turbo Pascal 3.02 for CP/M-86 is a Borland product. It is freely usable but not open source. The files are stored in this repository as extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2).
 - The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR Personal Basic 1.2 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
@@ -117,6 +119,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec42_obd   | obd.exe     | Aztec C object dump                |
 | aztec42_obj   | obj.exe     | Aztec C object lister              |
 | aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
+| turbo         | turbo.cmd      | Turbo Pascal 3.02 (CP/M-86)             |
 | drpmt_pc      | mt+86.cmd      | Pascal MT+ 3.3 compiler (CP/M-86)       |
 | drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker (CP/M-86)         |
 | drpmt_asm     | asmt86.cmd     | Pascal MT+ 3.3 assembler (CP/M-86)      |
@@ -155,6 +158,7 @@ it pulls the following:
 - asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
 - DR C 1.11 (http://www.cpm.z80.de/download/drc_86.zip) + extra headers (http://www.cpm.z80.de/download/drc86111.zip)
 - DR Fortran-77 4.0 (http://www.cpm.z80.de/download/f77-86.zip)
+- Turbo Pascal 3.02 for CP/M-86 (stored in `src/turbo`, extracted from https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2)
 - Pascal MT+ 3.3 (http://www.cpm.z80.de/download/mt8633cp.zip)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - DR Personal Basic 1.2 (stored in `src/dr/basic.cmd`, recovered from https://datamuseum.dk/wiki/Bits:30002879; original 1.0 at http://www.cpm.z80.de/download/pbasic86.zip)
