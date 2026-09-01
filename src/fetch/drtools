@@ -56,6 +56,20 @@ if [ ! -f drc86cpm/drc860.cmd ]; then
     chmod 644 ../drc86cpm/*
     rm -rf "$root/share/temp-tools"
 fi
+echo INF: Checking DR C 86 1.11 extra headers ...
+cd "$root/share"
+if [ ! -f drc86cpm/alloc.h ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/drc86111.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp alloc.h dos.h bios.h float.h conio.h ../drc86cpm
+    cp pcbios.a86 ../drc86cpm
+    chmod 644 ../drc86cpm/alloc.h ../drc86cpm/dos.h ../drc86cpm/bios.h \
+              ../drc86cpm/float.h ../drc86cpm/conio.h ../drc86cpm/pcbios.a86
+    rm -rf "$root/share/temp-tools"
+fi
 echo INF: Checking DOS DR tools ...
 cd "$root/share"
 if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
@@ -72,4 +86,10 @@ if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
     cp lib86.exe ../pcdev
     chmod 644 ../pcdev/*.*
     rm -rf "$root/share/temp-tools"
+fi
+echo INF: Assembling DR C 86 1.11 pcbios ...
+if [ ! -f "$root/share/drc86cpm/pcbios.obj" ]; then
+    cd "$root/share/drc86cpm"
+    "$root/bin/pcdev_rasm86" pcbios.a86 '$' nc
+    cd "$root/share"
 fi

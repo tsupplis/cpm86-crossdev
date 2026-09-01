@@ -25,7 +25,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - aztec c compiler version 3.4/3.40a (K&R legacy; the CP/M-86 library is provided as c86.lib, patched but otherwise left as-is)
 - rasm86 1.4a / link86 2.02 / lib86 1.3 DOS versions from Digital Research
 - asm86 1.1 and gencmd from Digital Research (CP/M-80 and CP/M-86 versions)
-- DR C 1.11 for CP/M-86 (http://www.cpm.z80.de/download/drc_86.zip) — compiler passes (`drc860.cmd`–`drc862.cmd`), preprocessor (`drcrpp.cmd`), runtime (`startup.a86`, `clearl.l86`, `clears.l86`) and standard headers
+- DR C 1.11 for CP/M-86 (http://www.cpm.z80.de/download/drc_86.zip) — compiler passes (`drc860.cmd`–`drc862.cmd`), preprocessor (`drcrpp.cmd`), runtime (`startup.a86`, `clearl.l86`, `clears.l86`) and standard headers (`ctype.h`, `errno.h`, `portab.h`, `setjmp.h`, `stdio.h`); extended with extra headers from (http://www.cpm.z80.de/download/drc86111.zip): `alloc.h`, `dos.h`, `bios.h`, `float.h`, `conio.h` and PC BIOS glue source `pcbios.a86` (needs assembling with `cpm86_asm86` before use)
 - CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
 - DR Personal Basic 1.0 for CP/M-86
 - nasm netwide assembler version 3.02
@@ -140,7 +140,7 @@ it pulls the following:
 - link86, lib86 and rasm86 (http://www.cpm.z80.de/download/tools86.zip)
 - asm86 and gencmd CP/M-80 versions (http://www.cpm.z80.de/download/mpm862sr.zip)
 - asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
-- DR C 1.11 (http://www.cpm.z80.de/download/drc_86.zip)
+- DR C 1.11 (http://www.cpm.z80.de/download/drc_86.zip) + extra headers (http://www.cpm.z80.de/download/drc86111.zip)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - DR Personal Basic 1.0 (http://www.cpm.z80.de/download/pbasic86.zip)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
