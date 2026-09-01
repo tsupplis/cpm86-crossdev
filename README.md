@@ -21,7 +21,7 @@ The source for CP/M-86 doc, sources and binaries is http://www.cpm.z80.de.
 A cleaned-up distribution and kernel is available at https://github.com/tsupplis/cpm86-kernel. This distribution is working well in virtual environments, patched with all known patches, 'y2k' friendly (it contains the version of tod which sources are in this project) and AT friendly.
 
 ## Key tools for CP/M-86 development
-- aztec c compiler version 4.2/4.10d (**preferred**, almost ANSI; the CP/M-86 library (c86.lib) is patched and recompiled from 3.4 sources and actively improved, a DOS 1.1 library (d11.lib) is also provided), documentation at (https://www.aztecmuseum.ca/docs/Aztec_C_MSDOS_4.10C_Commercial_Apr88.pdf)
+- aztec c compiler version 4.2/4.10d (**preferred**, almost ANSI; the CP/M-86 library (c86.lib) is patched and recompiled from sources and actively improved, a DOS 1.1 library (d11.lib) is also provided), documentation at (https://www.aztecmuseum.ca/docs/Aztec_C_MSDOS_4.10C_Commercial_Apr88.pdf)
 - aztec c compiler version 3.4/3.40a (K&R legacy; the CP/M-86 library is provided as c86.lib, patched but otherwise left as-is)
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
