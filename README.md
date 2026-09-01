@@ -50,8 +50,10 @@ All the tools are wrapped in the bin directory for direct usage:
 
 | script name   | program     | quick description                  |
 |---------------|-------------|------------------------------------|
-| cpm_asm86     | asm86.cmd   | DR assembler (CP/M-80 tool)        | 
-| cpm_gencmd    | gencmd.cmd  | DR H86 converter (CP/M-80 tool)    |
+| cpm_asm86     | asm86.com   | DR assembler (CP/M-80 tool)        |
+| cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M-80 tool)    |
+| cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2)   |
+| cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2) |
 | pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                 |
 | pcdev_linkcmd | linkcmd.exe | DR linker for CP/M-86              |
 | pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                   |
@@ -85,6 +87,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
 | drcbdos_link  | linkexe.exe | DR cbasic linker for DOS           |
 | cpm86         | -           | CP/M-86 emulator                   |
+| emu2          | -           | x86 DOS/CP/M-86 emulator           |
 | hexcom        | -           | HEX to COM translation (HEXCOM 3.00 compatible) |
 | doscat        | -           | Truncate files beyond ^Z           |
 | nasm          | -           | Netwide assembler                  |
@@ -104,7 +107,8 @@ export PATH=`pwd`/bin
 it pulls the following:
 - aztec 3.4 c compiler  (https://www.aztecmuseum.ca/az8634b.zip)
 - link86, lib86 and rasm86 (http://www.cpm.z80.de/download/tools86.zip)
-- asm86 and gencmd (http://www.cpm.z80.de/download/mpm862sr.zip)
+- asm86 and gencmd CP/M-80 versions (http://www.cpm.z80.de/download/mpm862sr.zip)
+- asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
 - cmdtools (https://github.com/tsupplis/cpm86-cmdtools)
@@ -239,6 +243,12 @@ pcdev_cmdinfo helloa.cmd
 ```
 cpm_asm86 hellob.a86
 cpm_gencmd hellob.h86
+pcdev_cmdinfo hellob.cmd
+```
+or using the native CP/M-86 binaries via emu2:
+```
+cpm86_asm86 hellob.a86
+cpm86_gencmd hellob.h86
 pcdev_cmdinfo hellob.cmd
 ```
 

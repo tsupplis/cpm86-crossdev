@@ -13,6 +13,16 @@ if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
     chmod 644 ../cpm/*.*
     rm -rf "$root/share/temp-tools"
 fi
+echo INF: Checking CP/M-86 DR tools ...
+cd "$root/share"
+if [ ! -f cpm/asm86.cmd -o ! -f cpm/gencmd.cmd ]; then
+    mkdir -p "$root/share/cpm"
+    fetch_get "https://github.com/tsupplis/cpm86-kernel/raw/refs/heads/main/base/asm86.cmd" "asm86.cmd"
+    cp "$ARCHIVED_FILE" "$root/share/cpm/asm86.cmd"
+    fetch_get "https://github.com/tsupplis/cpm86-kernel/raw/refs/heads/main/base/gencmd.cmd" "gencmd.cmd"
+    cp "$ARCHIVED_FILE" "$root/share/cpm/gencmd.cmd"
+    chmod 644 "$root/share/cpm/asm86.cmd" "$root/share/cpm/gencmd.cmd"
+fi
 echo INF: Checking DOS DR tools ...
 cd "$root/share"
 if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
