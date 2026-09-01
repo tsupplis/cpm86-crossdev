@@ -23,7 +23,8 @@ PLM86=intel_plm86
 IASM86=intel_asm86
 MBASIC=cpm86_mbasic
 EMU2=emu2
-TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd hellop.cmd
+DRCCC=drccpm_cc
+TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd hellop.cmd hellodrc.cmd
 
 all: binaries
 
@@ -82,6 +83,14 @@ helloc.cmd: helloc.o
 	$(CC) $(CFLAGS) $<
 	$(STRIP) $@
 
+hellodrc.obj: hellodrc.c
+	$(DRCCC) -o$@ hellodrc.c
+
+hellodrc.cmd: hellodrc.obj
+	drccpm_link hellodrc.cmd=hellodrc.obj
+	ls -l $@
+	$(CMDINFO) $@
+
 scd.obj: scd.a86
 	$(IASM86) scd.a86
 
@@ -101,5 +110,7 @@ test: binaries
 	$(MBASIC) hellomsb.bas
 
 clean:
-	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *.lin *.mp2 *exe $(TOOLS)
+	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *.lin *.mp2 *exe \
+       ctemp.tok hellod.a \
+       $(TOOLS)
 

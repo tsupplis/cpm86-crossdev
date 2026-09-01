@@ -25,6 +25,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - aztec c compiler version 3.4/3.40a (K&R legacy; the CP/M-86 library is provided as c86.lib, patched but otherwise left as-is)
 - rasm86 1.4a / link86 2.02 / lib86 1.3 DOS versions from Digital Research
 - asm86 1.1 and gencmd from Digital Research (CP/M-80 and CP/M-86 versions)
+- DR C 1.11 for CP/M-86 (http://www.cpm.z80.de/download/drc_86.zip) — compiler passes (`drc860.cmd`–`drc862.cmd`), preprocessor (`drcrpp.cmd`), runtime (`startup.a86`, `clearl.l86`, `clears.l86`) and standard headers
 - CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
 - DR Personal Basic 1.0 for CP/M-86
 - nasm netwide assembler version 3.02
@@ -42,6 +43,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 The following tools are not included and downloaded by the fetch tool but require you to understand the conditions of usage:
 - The Aztec C use conditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
 - The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- The DR C 1.11 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR Personal Basic 1.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The Intel PL/M-86 3.30 tools licensing is unclear; their usage is left to the discretion of the end user.
@@ -107,6 +109,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec42_obd   | obd.exe     | Aztec C object dump                |
 | aztec42_obj   | obj.exe     | Aztec C object lister              |
 | aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
+| drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (CP/M-86, two-pass) |
+| drccpm_link   | link86.cmd  | DR C 1.11 linker (CP/M-86)              |
 | drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M-86     |
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
 | drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
@@ -136,6 +140,7 @@ it pulls the following:
 - link86, lib86 and rasm86 (http://www.cpm.z80.de/download/tools86.zip)
 - asm86 and gencmd CP/M-80 versions (http://www.cpm.z80.de/download/mpm862sr.zip)
 - asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
+- DR C 1.11 (http://www.cpm.z80.de/download/drc_86.zip)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - DR Personal Basic 1.0 (http://www.cpm.z80.de/download/pbasic86.zip)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
@@ -243,6 +248,14 @@ cpm86_basic
 runtime and CP/M-86 library are actively improved. Use `aztec34` only when
 strict K&R compatibility is required or for legacy builds.
 
+`drccpm_cc` is the DR C 1.11 compiler for CP/M-86. It runs the two passes
+internally: `drc860.cmd` (preprocessor) produces `ctemp.tok`, then
+`drc861.cmd` (code generator) consumes it. The `ctemp.tok` file is cleaned up
+via a trap regardless of success or failure. The DR C runtime libraries
+(`clearl.l86`, `clears.l86`) and `link86.cmd` are all staged in
+`share/drc86cpm/`. The redundant DISK3 tools (`rasm86.cmd`, `lib86.cmd`,
+`xref86.cmd`) are not staged.
+
 ```
 aztec42_cc helloc.c
 aztec42_sqz helloc.o
@@ -255,6 +268,12 @@ aztec34_cc helloc.c
 aztec34_sqz helloc.o
 aztec34_link -o helloc.cmd helloc.o -lc86
 cmdinfo helloc.cmd
+```
+or with DR C 1.11 ...
+```
+drccpm_cc -ohellodrc.obj hellodrc.c
+drccpm_link hellodrc.cmd=hellodrc.obj
+cmdinfo hellodrc.cmd
 ```
 
 #### C runtime startup

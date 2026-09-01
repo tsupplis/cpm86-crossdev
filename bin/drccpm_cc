@@ -1,0 +1,31 @@
+#!/bin/sh
+drcdir="`dirname $0`/../share/drc86cpm"
+export EMU2_APPEND="D:\\"
+export EMU2_DRIVE_D="$drcdir"
+
+trap 'rm -f ctemp.tok' EXIT INT TERM
+
+# split args: drc860 gets flags+source (no -o), drc861 gets flags+output (no source)
+cpp_args=""
+cc_args=""
+for arg in "$@"; do
+    case "$arg" in
+        -o*) cc_args="$cc_args $arg" ;;
+        *.c) cpp_args="$cpp_args $arg" ;;
+        *)   cpp_args="$cpp_args $arg"; cc_args="$cc_args $arg" ;;
+    esac
+done
+
+EMU2_PROGNAME="d:\\drc860.cmd"
+export EMU2_PROGNAME
+emu2 "$drcdir/drc860.cmd" -v1 $cpp_args -- PATH=D:\\
+rc=$?
+
+if [ $rc -eq 0 ] && [ -f ctemp.tok ]; then
+    EMU2_PROGNAME="d:\\drc861.cmd"
+    export EMU2_PROGNAME
+    emu2 "$drcdir/drc861.cmd" -v1 $cc_args -- PATH=D:\\
+    rc=$?
+fi
+
+exit $rc

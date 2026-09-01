@@ -26,6 +26,7 @@ syncaz
 **/.*.swp
 **/*.obj
 **/*.o
+**/*.lin
 **/*.h86
 **/hack*.img
 **/cpmtest.img
@@ -41,3 +42,5 @@ syncaz
 **/push
 bin/doscat
 bin/hexcom
+examples/hellod.a
+examples/ctemp.tok
