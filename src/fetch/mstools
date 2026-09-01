@@ -13,3 +13,8 @@ if [ ! -f pcdev/asm.com -o ! -f pcdev/hex2bin.com ]; then
     cp "$root/src/microsoft"/*.com pcdev
     chmod 644 pcdev/*.*
 fi
+if [ ! -f cpm/mbasic86.cmd ]; then
+    mkdir -p "$root/share/cpm"
+    cp "$root/src/microsoft/mbasic86.cmd" cpm
+    chmod 644 cpm/mbasic86.cmd
+fi

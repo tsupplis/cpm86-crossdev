@@ -6,7 +6,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 Languages supported are:
 - C (K&R and almost ANSI)
 - Assembler
-- Basic (DR CBASIC, DR Personal Basic)
+- Basic (DR CBASIC, DR Personal Basic, Microsoft Basic)
 - PL/M-86
 
 ## Thanks
@@ -28,6 +28,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - cb86.exe and libraries from Digital Research
 - nasm netwide assembler
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
+- Microsoft Basic 5.22 for CP/M-86 (mbasic86.cmd), included in the repository
 - Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 assembler (asm86.exe), Intel linker (link.exe) and librarian (lib86.exe) and locator (loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
 - The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair. We use the emu2-cpm86 fork (https://github.com/johnsonjh/emu2-cpm86), which adds and keeps improving CP/M-86 support on top of upstream emu2.
@@ -65,7 +66,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M-80 tool)    |
 | cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2)   |
 | cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2) |
-| cpm86_basic   | basic.cmd   | DR Personal Basic 1.0 (CP/M-86)    |
+| cpm86_basic   | basic.cmd   | DR Personal Basic 1.0 (via cpm86)  |
+| cpm86_mbasic  | mbasic86.cmd | Microsoft Basic 5.22 (via cpm86)  |
 | pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                 |
 | pcdev_linkcmd | linkcmd.exe | DR linker for CP/M-86              |
 | pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                   |
@@ -208,10 +210,21 @@ Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for 
 
 ### Basic Programs
 
+DR CBASIC — compiled to a CP/M-86 binary:
 ```
 drcbcpm_bc hellor.bas
 drcbcpm_link hellor.cmd=hellor.o
 cmdinfo hellor.cmd
+```
+
+Microsoft Basic 5.22 — interpreted, run directly:
+```
+cpm86_mbasic hellomsb.bas
+```
+
+DR Personal Basic 1.0 — interactive interpreter:
+```
+cpm86_basic
 ```
 
 ### C Programs

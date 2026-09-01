@@ -21,6 +21,7 @@ MASM=pcdev_masm
 LINK=pcdev_link
 PLM86=intel_plm86
 IASM86=intel_asm86
+MBASIC=cpm86_mbasic
 EMU2=emu2
 TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd hellop.cmd
 
@@ -96,6 +97,8 @@ test: binaries
 	    echo "test: $$cmd"; \
 	    EMU2_DRIVE_C=. $(EMU2) ./$$cmd; \
 	done
+	@echo "test: hellomsb.bas"
+	$(MBASIC) hellomsb.bas
 
 clean:
 	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *.lin *.mp2 *exe $(TOOLS)
