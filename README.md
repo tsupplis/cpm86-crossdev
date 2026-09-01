@@ -64,8 +64,12 @@ All the tools are wrapped in the bin directory for direct usage:
 | pcdev_exe2bin | exe2bin.exe | Microsoft EXE converter            |
 | pcdev_hex2bin | hex2bin.com | Microsoft HEX converter            |
 | pcdev_asm     | asm.com     | Microsoft/86-DOS assembler         |
-| pcdev_cmdinfo | cmdinfo.com | CMD info tool                      |
-| pcdev_bin2cmd | bin2cmd.com | CMD converter                      |
+| cmdinfo       | -           | CMD info tool (native)             |
+| bin2cmd       | -           | CMD converter (native)             |
+| exe2cmd       | -           | EXE to CMD converter (native)      |
+| pcdev_cmdinfo | -           | obsolete alias for cmdinfo         |
+| pcdev_bin2cmd | -           | obsolete alias for bin2cmd         |
+| pcdev_exe2cmd | -           | obsolete alias for exe2cmd         |
 | aztec34_as    | as.exe      | Aztec Assembler.                   |
 | aztec34_cc    | cc.exe      | Aztec K&R C compiler               |
 | aztec34_sqz   | sqz.exe     | Aztec C object optimizer           |
@@ -73,6 +77,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec34_lib   | lb.exe      | Aztec C lib                        |
 | aztec34_ord   | ord.exe     | Aztec C library ordering helper    |
 | aztec34_obd   | obd.exe     | Aztec C object dump                |
+| aztec34_obj   | obj.exe     | Aztec C object lister              |
 | aztec34_hex86 | hex86.exe   | Aztec C H86 generator              |
 | aztec42_as    | as.exe      | Aztec Assembler.                   |
 | aztec42_cc    | cc.exe      | Aztec ANSI C compiler              |
@@ -81,6 +86,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec42_lib   | lb.exe      | Aztec C lib                        |
 | aztec42_ord   | ord.exe     | Aztec C library ordering helper    |
 | aztec42_obd   | obd.exe     | Aztec C object dump                |
+| aztec42_obj   | obj.exe     | Aztec C object lister              |
 | aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
 | drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M-86     |
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
@@ -88,9 +94,11 @@ All the tools are wrapped in the bin directory for direct usage:
 | drcbdos_link  | linkexe.exe | DR cbasic linker for DOS           |
 | cpm86         | -           | CP/M-86 emulator                   |
 | emu2          | -           | x86 DOS/CP/M-86 emulator           |
+| tnylpo        | -           | CP/M-80 emulator                   |
 | hexcom        | -           | HEX to COM translation (HEXCOM 3.00 compatible) |
 | doscat        | -           | Truncate files beyond ^Z           |
 | nasm          | -           | Netwide assembler                  |
+| upx           | -           | executable packer                  |
 | intel_plm86   | plm86.exe   | Intel PL/M-86 3.30 compiler        |
 | intel_asm86   | asm86.exe   | Intel ASM-86 assembler             |
 | intel_link    | link.exe    | Intel linker                       |
@@ -111,7 +119,7 @@ it pulls the following:
 - asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
-- cmdtools (https://github.com/tsupplis/cpm86-cmdtools)
+- cmdtools — cmdinfo, bin2cmd, exe2cmd built natively from (https://github.com/tsupplis/cpm86-cmdtools)
 - nasm (https://www.nasm.us/pub/nasm/releasebuilds/3.02/nasm-3.02.tar.gz)
 - upx (https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-src.tar.xz)
 - emu2-cpm86, a CP/M-86 enabled fork of emu2 (https://github.com/johnsonjh/emu2-cpm86), based on the upstream emu2 project (https://github.com/dmsc/emu2)
@@ -190,7 +198,7 @@ Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for 
 ```
 drcbcpm_bc hellor.bas
 drcbcpm_link hellor.cmd=hellor.o
-pcdev_cmdinfo hellor.cmd
+cmdinfo hellor.cmd
 ```
 
 ### C Programs
@@ -199,14 +207,14 @@ pcdev_cmdinfo hellor.cmd
 aztec34_cc helloc.c
 aztec34_sqz helloc.o
 aztec34_link -o helloc.cmd helloc.o -lc86
-pcdev_cmdinfo helloc.cmd
+cmdinfo helloc.cmd
 ```
 if the code is using ANSI syntax ...
 ```
 aztec42_cc helloc.c
 aztec42_sqz helloc.o
 aztec42_link -o helloc.cmd helloc.o -lc86
-pcdev_cmdinfo helloc.cmd
+cmdinfo helloc.cmd
 ```
 
 #### C runtime startup
@@ -236,20 +244,20 @@ a specific startup with `AZTEC_STARTUP=<obj-in-lib>`.
 ```
 pcdev_rasm86 helloa.a86 '$' pz sz
 pcdev_linkcmd helloa '[$sz]'
-pcdev_cmdinfo helloa.cmd
+cmdinfo helloa.cmd
 ```
 
 ### Assembler Programs with asm86
 ```
-cpm_asm86 hellob.a86
-cpm_gencmd hellob.h86
-pcdev_cmdinfo hellob.cmd
-```
-or using the native CP/M-86 binaries via emu2:
-```
 cpm86_asm86 hellob.a86
 cpm86_gencmd hellob.h86
-pcdev_cmdinfo hellob.cmd
+cmdinfo hellob.cmd
+```
+or using the legacy CP/M-80 binaries via tnylpo:
+```
+cpm_asm86 hellob.a86
+cpm_gencmd hellob.h86
+cmdinfo hellob.cmd
 ```
 
 ### Assembler Programs with masm 
@@ -257,13 +265,12 @@ pcdev_cmdinfo hellob.cmd
 pcdev_masm hellod \;
 pcdev_link hellod \;
 pcdev_exe2bin hellod.exe
-pcdev_bin2cmd hellod.bin hellod.cmd
+bin2cmd hellod.bin hellod.cmd
 ```
 
 ### Assembler Programs with nasm 
 ```
 nasm hellon.asm -fbin -o hellon.bin 
-pcdev_bin2cmd hellon.bin hellon.cmd
+bin2cmd hellon.bin hellon.cmd
 ```
-You can build a native unix/dos version of bin2cmd/cmdinfo from (https://github.com/tsupplis/cpm86-cmdtools)
 
