@@ -21,13 +21,14 @@ The source for CP/M-86 doc, sources and binaries is http://www.cpm.z80.de.
 A cleaned-up distribution and kernel is available at https://github.com/tsupplis/cpm86-kernel. This distribution is working well in virtual environments, patched with all known patches, 'y2k' friendly (it contains the version of tod which sources are in this project) and AT friendly.
 
 ## Key tools for CP/M-86 development
-- aztec c compiler version 3.4/3.40a (K&R, the CP/M-86 library is provided as c86.lib), patched
-- aztec c compiler version 4.2/4.10d (Almost ANSI, the code for the CP/M-86 library (c86.lib) is patched and recompiled from 3.4 sources, as it is not part of the default compiler package. a dos 1.1 library (d11.lib) is also provided in the same manner), the documentation can be found at (https://www.aztecmuseum.ca/docs/Aztec_C_MSDOS_4.10C_Commercial_Apr88.pdf)
+- aztec c compiler version 4.2/4.10d (**preferred**, almost ANSI; the CP/M-86 library (c86.lib) is patched and recompiled from 3.4 sources and actively improved, a DOS 1.1 library (d11.lib) is also provided), documentation at (https://www.aztecmuseum.ca/docs/Aztec_C_MSDOS_4.10C_Commercial_Apr88.pdf)
+- aztec c compiler version 3.4/3.40a (K&R legacy; the CP/M-86 library is provided as c86.lib, patched but otherwise left as-is)
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
 - cb86.exe and libraries from Digital Reasearch
 - nasm netwide assembler
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
+- Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 assembler (asm86.exe), Intel linker (link.exe) and librarian (lib86.exe) and locator (loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
 - The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair. We use the emu2-cpm86 fork (https://github.com/johnsonjh/emu2-cpm86), which adds and keeps improving CP/M-86 support on top of upstream emu2.
 - We also need to run some cp/m-80 programs, for that, the tinylpo emulator is used (https://gitlab.com/gbrein/tnylpo). It works very well with asm86.com and gencmd.com programs
@@ -46,9 +47,25 @@ The following tools are not included and downloaded by the fetch tool but requir
 
 ## Script Mapping
 
+When several tools can perform the same job, use the highest tier available:
+
+```mermaid
+flowchart TD
+    A([Tool needed]) --> B{Native\nbinary?}
+    B -- yes --> N[Use native host binary]
+    B -- no  --> C{DOS .exe/.com\navailable?}
+    C -- yes --> D[Run via emu2]
+    C -- no  --> E{CP/M-86 .cmd\navailable?}
+    E -- yes --> F[Run via emu2]
+    E -- no  --> G[Run via tnylpo\nlegacy fallback]
+```
+
+For example, `cpm86_asm86` (CP/M-86) is preferred over `cpm_asm86` (CP/M-80),
+and `cmdinfo` (native) is preferred over any DOS wrapper.
+
 All the tools are wrapped in the bin directory for direct usage:
 
-| script name   | program     | quick description                  |
+| tool          | program     | quick description                  |
 |---------------|-------------|------------------------------------|
 | cpm_asm86     | asm86.com   | DR assembler (CP/M-80 tool)        |
 | cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M-80 tool)    |
@@ -64,9 +81,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | pcdev_exe2bin | exe2bin.exe | Microsoft EXE converter            |
 | pcdev_hex2bin | hex2bin.com | Microsoft HEX converter            |
 | pcdev_asm     | asm.com     | Microsoft/86-DOS assembler         |
-| cmdinfo       | -           | CMD info tool (native)             |
-| bin2cmd       | -           | CMD converter (native)             |
-| exe2cmd       | -           | EXE to CMD converter (native)      |
+| cmdinfo       | (native)    | CMD info tool (native)             |
+| bin2cmd       | (native)    | CMD converter (native)             |
+| exe2cmd       | (native)    | EXE to CMD converter (native)      |
 | pcdev_cmdinfo | -           | obsolete alias for cmdinfo         |
 | pcdev_bin2cmd | -           | obsolete alias for bin2cmd         |
 | pcdev_exe2cmd | -           | obsolete alias for exe2cmd         |
@@ -92,13 +109,13 @@ All the tools are wrapped in the bin directory for direct usage:
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
 | drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
 | drcbdos_link  | linkexe.exe | DR cbasic linker for DOS           |
-| cpm86         | -           | CP/M-86 emulator                   |
-| emu2          | -           | x86 DOS/CP/M-86 emulator           |
-| tnylpo        | -           | CP/M-80 emulator                   |
-| hexcom        | -           | HEX to COM translation (HEXCOM 3.00 compatible) |
-| doscat        | -           | Truncate files beyond ^Z           |
-| nasm          | -           | Netwide assembler                  |
-| upx           | -           | executable packer                  |
+| cpm86         | cpm86.exe   | CP/M-86 emulator (via emu2)        |
+| emu2          | (native)    | x86 DOS/CP/M-86 emulator           |
+| tnylpo        | (native)    | CP/M-80 emulator                   |
+| hexcom        | (native)    | HEX to COM translation (HEXCOM 3.00 compatible) |
+| doscat        | (native)    | Truncate files beyond ^Z           |
+| nasm          | (native)    | Netwide assembler                  |
+| upx           | (native)    | executable packer                  |
 | intel_plm86   | plm86.exe   | Intel PL/M-86 3.30 compiler        |
 | intel_asm86   | asm86.exe   | Intel ASM-86 assembler             |
 | intel_link    | link.exe    | Intel linker                       |
@@ -203,17 +220,21 @@ cmdinfo hellor.cmd
 
 ### C Programs
 
-```
-aztec34_cc helloc.c
-aztec34_sqz helloc.o
-aztec34_link -o helloc.cmd helloc.o -lc86
-cmdinfo helloc.cmd
-```
-if the code is using ANSI syntax ...
+`aztec42` is the preferred compiler — it supports almost-ANSI syntax and its
+runtime and CP/M-86 library are actively improved. Use `aztec34` only when
+strict K&R compatibility is required or for legacy builds.
+
 ```
 aztec42_cc helloc.c
 aztec42_sqz helloc.o
 aztec42_link -o helloc.cmd helloc.o -lc86
+cmdinfo helloc.cmd
+```
+or with the legacy K&R compiler ...
+```
+aztec34_cc helloc.c
+aztec34_sqz helloc.o
+aztec34_link -o helloc.cmd helloc.o -lc86
 cmdinfo helloc.cmd
 ```
 
@@ -260,18 +281,20 @@ cpm_gencmd hellob.h86
 cmdinfo hellob.cmd
 ```
 
-### Assembler Programs with masm 
+### Assembler Programs with masm
 ```
 pcdev_masm hellod \;
 pcdev_link hellod \;
 pcdev_exe2bin hellod.exe
 bin2cmd hellod.bin hellod.cmd
+cmdinfo hellod.cmd
 ```
 
 ### Assembler Programs with nasm
 ```
 nasm hellon.asm -fbin -o hellon.bin
 bin2cmd hellon.bin hellon.cmd
+cmdinfo hellon.cmd
 ```
 
 ### PL/M-86 Programs
