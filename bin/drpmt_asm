@@ -1,0 +1,9 @@
+#!/bin/sh
+prog=asmt86.cmd
+export EMU2_APPEND="D:\\"
+export EMU2_DRIVE_D="`dirname $0`/../share/drpmtcpm"
+export EMU2_PROGNAME="d:\\$prog"
+emu2 "$EMU2_DRIVE_D/$prog" "$@" -- PATH=D:\\
+if [ -z "$*" ];then
+    echo ""
+fi

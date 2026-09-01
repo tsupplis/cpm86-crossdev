@@ -7,6 +7,7 @@ Languages supported are:
 - C (K&R and almost ANSI)
 - Assembler
 - Basic (DR CBASIC, DR Personal Basic, Microsoft Basic)
+- Pascal (Pascal MT+ 3.3)
 - FORTRAN-77
 - PL/M-86
 
@@ -28,8 +29,9 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - asm86 1.1 and gencmd from Digital Research (CP/M-80 and CP/M-86 versions)
 - DR C 1.11 for CP/M-86 (http://www.cpm.z80.de/download/drc_86.zip) — compiler passes (`drc860.cmd`–`drc862.cmd`), preprocessor (`drcrpp.cmd`), runtime (`startup.a86`, `clearl.l86`, `clears.l86`) and standard headers (`ctype.h`, `errno.h`, `portab.h`, `setjmp.h`, `stdio.h`); extended with extra headers from (http://www.cpm.z80.de/download/drc86111.zip): `alloc.h`, `dos.h`, `bios.h`, `float.h`, `conio.h` and PC BIOS glue source `pcbios.a86` (needs assembling with `cpm86_asm86` before use)
 - DR FORTRAN-77 4.0 for CP/M-86 (http://www.cpm.z80.de/download/f77-86.zip) — compiler (`f77.cmd`, `codegen.cmd`), runtime (`clears.l86`, `clearl.l86`, `f32s.obj`, `f32l.obj`, `8087.sim`), FORTRAN/assembly interface example (`pkmemras.a86`, assembled to `pkmemras.obj`)
+- Pascal MT+ 3.3 for CP/M-86 (http://www.cpm.z80.de/download/mt8633cp.zip) — compiler (`mt+86.cmd`), linker (`linkmt.cmd`), assembler (`asmt86.cmd`), runtime (`paslib.r86`, floating point modules, I/O modules), utilities (`strip.cmd`, `sz.cmd`, `nm.cmd`, `dis86.cmd`)
 - CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
-- DR Personal Basic 1.0 for CP/M-86
+- DR Personal Basic 1.2 for CP/M-86 (recovered from https://datamuseum.dk/wiki/Bits:30002879, stored in `src/dr/basic.cmd`; the original 1.1 release is also available at http://www.cpm.z80.de/download/pbasic86.zip)
 - nasm netwide assembler version 3.02
 - masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
 - Microsoft Basic 5.22 for CP/M-86 (`mbasic86.cmd`) and 5.28 for DOS (`mbasic86.com`), both included in the repository as patched binaries (unpatched originals kept as `mbasic86.org` / `mbasorig.com`); patch notes at [src/microsoft/msbasic-patch.md](src/microsoft/msbasic-patch.md)
@@ -47,8 +49,9 @@ The following tools are not included and downloaded by the fetch tool but requir
 - The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR C 1.11 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR FORTRAN-77 4.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- Pascal MT+ 3.3 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- The DR Personal Basic 1.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- The DR Personal Basic 1.2 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
 - nasm license terms can be found at (https://www.nasm.us)
 - src/tools/hexcom.c is a DRI HEXCOM 3.00 compatible reimplementation by Jeffrey H. Johnson, imported from https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c under the MIT-0 license
@@ -77,7 +80,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M-80 tool)    |
 | cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2)   |
 | cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2) |
-| cpm86_basic   | basic.cmd   | DR Personal Basic 1.0 (via cpm86)  |
+| cpm86_basic   | basic.cmd   | DR Personal Basic 1.2 (via cpm86)  |
 | cpm86_mbasic  | mbasic86.cmd | Microsoft Basic 5.22 (CP/M-86, via emu2) |
 | pcdev_mbasic  | mbasic86.com | Microsoft Basic 5.28 (DOS, via emu2)     |
 | pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                 |
@@ -114,6 +117,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec42_obd   | obd.exe     | Aztec C object dump                |
 | aztec42_obj   | obj.exe     | Aztec C object lister              |
 | aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
+| drpmt_pc      | mt+86.cmd      | Pascal MT+ 3.3 compiler (CP/M-86)       |
+| drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker (CP/M-86)         |
+| drpmt_asm     | asmt86.cmd     | Pascal MT+ 3.3 assembler (CP/M-86)      |
 | drfcpm_f77    | f77.cmd        | DR FORTRAN-77 4.0 compiler (CP/M-86)    |
 | drfcpm_link   | link86.cmd     | DR FORTRAN-77 4.0 linker (CP/M-86)      |
 | drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (CP/M-86, two-pass)  |
@@ -149,8 +155,9 @@ it pulls the following:
 - asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
 - DR C 1.11 (http://www.cpm.z80.de/download/drc_86.zip) + extra headers (http://www.cpm.z80.de/download/drc86111.zip)
 - DR FORTRAN-77 4.0 (http://www.cpm.z80.de/download/f77-86.zip)
+- Pascal MT+ 3.3 (http://www.cpm.z80.de/download/mt8633cp.zip)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
-- DR Personal Basic 1.0 (http://www.cpm.z80.de/download/pbasic86.zip)
+- DR Personal Basic 1.2 (stored in `src/dr/basic.cmd`, recovered from https://datamuseum.dk/wiki/Bits:30002879; original 1.0 at http://www.cpm.z80.de/download/pbasic86.zip)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
 - cmdtools — cmdinfo, bin2cmd, exe2cmd built natively from (https://github.com/tsupplis/cpm86-cmdtools)
 - nasm (https://www.nasm.us/pub/nasm/releasebuilds/3.02/nasm-3.02.tar.gz)
@@ -245,7 +252,7 @@ Microsoft Basic 5.28 — interpreted, run directly (DOS version):
 pcdev_mbasic hellomsb.bas
 ```
 
-DR Personal Basic 1.0 — interactive interpreter:
+DR Personal Basic 1.2 — interactive interpreter:
 ```
 cpm86_basic
 ```
@@ -347,6 +354,15 @@ pcdev_link hellod \;
 pcdev_exe2bin hellod.exe
 bin2cmd hellod.bin hellod.cmd
 cmdinfo hellod.cmd
+```
+
+### Pascal Programs
+
+Pascal MT+ 3.3 — compiled to a CP/M-86 binary:
+```
+drpmt_pc hellomt
+drpmt_link hellomt.cmd=hellomt,p:paslib/s
+cmdinfo hellomt.cmd
 ```
 
 ### FORTRAN-77 Programs

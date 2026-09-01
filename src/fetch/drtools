@@ -23,18 +23,12 @@ if [ ! -f cpm/asm86.cmd -o ! -f cpm/gencmd.cmd ]; then
     cp "$ARCHIVED_FILE" "$root/share/cpm/gencmd.cmd"
     chmod 644 "$root/share/cpm/asm86.cmd" "$root/share/cpm/gencmd.cmd"
 fi
-echo INF: Checking Personal Basic 86 1.0 ...
+echo INF: Checking Personal Basic 86 1.2 ...
 cd "$root/share"
 if [ ! -f cpm/basic.cmd ]; then
-    rm -rf "$root/share/temp-tools"
     mkdir -p "$root/share/cpm"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/pbasic86.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp basic.cmd ../cpm
-    chmod 644 ../cpm/basic.cmd
-    rm -rf "$root/share/temp-tools"
+    cp "$root/src/dr/basic.cmd" cpm/basic.cmd
+    chmod 644 cpm/basic.cmd
 fi
 echo INF: Checking DR C 86 1.11 ...
 cd "$root/share"
@@ -100,6 +94,27 @@ if [ ! -f f7786cpm/f77.cmd ]; then
     cp clears.l86 clearl.l86 f32s.obj f32l.obj 8087.sim ../f7786cpm
     cp pkmemras.a86 ../f7786cpm
     chmod 644 ../f7786cpm/*
+    rm -rf "$root/share/temp-tools"
+fi
+echo INF: Checking Pascal MT+ 3.3 for CP/M-86 ...
+cd "$root/share"
+if [ ! -f drpmtcpm/mt-86.cmd ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/drpmtcpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/mt8633cp.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp mt-86.cmd mt-86.000 mt-86.001 mt-86.002 mt-86.003 mt-86.004 mt-86.005 ../drpmtcpm
+    cp linkmt.cmd linkmt.001 linkmt.002 ../drpmtcpm
+    cp asmt86.cmd asmt86.001 asmt86.002 asmt86.003 asmt86.004 ../drpmtcpm
+    cp libmt.cmd mt2int.cmd strip.cmd sz.cmd nm.cmd dis86.cmd ../drpmtcpm
+    cp paslib.r86 fpreals.r86 bcdreals.r86 87reals.r86 87trans.r86 ../drpmtcpm
+    cp fullheap.r86 debugger.r86 randomio.r86 trancend.r86 ../drpmtcpm
+    cp halt.r86 pasint.r86 ioerrors.r86 iomod4.r86 ovlmgr4.r86 ../drpmtcpm
+    cp mterrs.txt asmers.txt fibdef.lib ../drpmtcpm
+    chmod 644 ../drpmtcpm/*
+    cd "$root/share"
     rm -rf "$root/share/temp-tools"
 fi
 echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...

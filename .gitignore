@@ -28,6 +28,7 @@ syncaz
 **/*.o
 **/*.lin
 **/*.h86
+**/*.r86
 **/hack*.img
 **/cpmtest.img
 **/cdostest.img
@@ -44,4 +45,6 @@ bin/doscat
 bin/hexcom
 examples/hellod.a
 examples/ctemp.tok
+examples/pastemp.tok
+examples/comndata.*
 examples/8087.sim

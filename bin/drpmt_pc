@@ -1,0 +1,11 @@
+#!/bin/sh
+pmtdir="`dirname $0`/../share/drpmtcpm"
+emudir="`dirname $0`/../share/emu"
+export EMU2_DRIVE_D="$pmtdir"
+export EMU2_DRIVE_P="$pmtdir"
+export EMU2_DRIVE_E="$emudir"
+export EMU2_PROGNAME="e:\\cpm86.exe"
+emu2 "$emudir/cpm86.exe" "d:mt-86" "$@"
+if [ -z "$*" ];then
+    echo ""
+fi
