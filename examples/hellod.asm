@@ -12,6 +12,6 @@ _start:
 _exit:
             bdosint 00h 
             
-_message    db "Hello$"
+_message    db "Hello from assembler (masm)$"
 program     ends
             end _start

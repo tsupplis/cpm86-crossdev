@@ -1,4 +1,4 @@
-            title   'Hello'
+            title   'Hello from assembler (rasm86 with data segment)'
 
 
             cseg  
@@ -11,5 +11,5 @@
             int     0E0h
 
             dseg    
-msg         db      'Hello$'
+msg         db      'Hello from assembler (rasm86 with data segment)$'
             end

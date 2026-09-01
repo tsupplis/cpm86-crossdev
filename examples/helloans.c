@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv)
 {
-    printf("Hello");
+    printf("Hello from c (ansi aztec cc)");
     return 0;
 }
 

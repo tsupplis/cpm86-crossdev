@@ -14,7 +14,7 @@ int 20h
 section .data
 ; program data
  
-msg db 'Hello'
+msg db 'Hello from assembler (nasm)'
     db '$'
  
 section .bss

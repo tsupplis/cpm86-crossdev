@@ -4,3 +4,4 @@ set -e
 
 echo Testing ...
 (PATH=`pwd`/../bin:$PATH;make clean all)
+make test

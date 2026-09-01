@@ -8,7 +8,7 @@ int main(argc, argv)
 int main(int argc, char **argv)
 #endif
 {
-    printf("Hello");
+    printf("Hello from c (aztec cc)");
     return 0;
 }
 

@@ -1,2 +1,2 @@
-PRINT "HELLO"
+PRINT "Hello from basic",
 

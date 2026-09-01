@@ -9,17 +9,17 @@ ACC=aztec42_cc
 ALD=aztec42_link
 LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
-ASM86=cpm_asm86
-GENCMD=cpm_gencmd
-BIN2CMD=pcdev_bin2cmd
+ASM86=cpm86_asm86
+GENCMD=cpm86_gencmd
+BIN2CMD=bin2cmd
 EXE2BIN=pcdev_exe2bin
-CMDINFO=pcdev_cmdinfo
+CMDINFO=cmdinfo
 CBLINK=drcbcpm_link
 BC=drcbcpm_bc
 NASM=nasm
 MASM=pcdev_masm
 LINK=pcdev_link
-
+EMU2=emu2
 TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd
 
 all: binaries
@@ -79,6 +79,12 @@ helloc.cmd: helloc.o
 	$(CC) $(CFLAGS) $<
 	$(STRIP) $@
 
+test: binaries
+	@for cmd in $(TOOLS); do \
+	    echo "test: $$cmd"; \
+	    EMU2_DRIVE_C=. $(EMU2) ./$$cmd; \
+	done
+
 clean:
-	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *exe $(TOOLS) 
+	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *exe $(TOOLS)
 
