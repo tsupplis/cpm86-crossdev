@@ -1,0 +1,29 @@
+$title ('Hello World in PL/M-86')
+hellop:
+do;
+
+/* CP/M-86 BDOS interface - provided by hellop_scd startup module */
+mon1: procedure (func, info) external;
+    declare func byte;
+    declare info address;
+end mon1;
+
+mon2: procedure (func, info) byte external;
+    declare func byte;
+    declare info address;
+end mon2;
+
+/* print a '$'-terminated string via BDOS function 9 */
+print: procedure (s);
+    declare s address;
+    call mon1(9, s);
+end print;
+
+/* entry point - must be public and named plm$start */
+plmstart: procedure public;
+    /* call print(. ('Hello from pl/m', 13, 10, '$')); */
+    call print(. ('Hello from pl/m', '$'));
+    call mon1(0, 0);
+end plmstart;
+
+end hellop;

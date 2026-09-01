@@ -1,7 +1,7 @@
 AS=aztec34_as
 CC=aztec34_cc
 AR=aztec34_lib
-CFLAGS=-I. +F -B +0 -D__CPM86__ 
+CFLAGS=-I. +F -B +0 -D__CPM86__
 STRIP=aztec34_sqz
 LDFLAGS=-lc86
 LD=aztec34_link
@@ -19,8 +19,10 @@ BC=drcbcpm_bc
 NASM=nasm
 MASM=pcdev_masm
 LINK=pcdev_link
+PLM86=intel_plm86
+IASM86=intel_asm86
 EMU2=emu2
-TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd
+TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd hellop.cmd
 
 all: binaries
 
@@ -79,6 +81,16 @@ helloc.cmd: helloc.o
 	$(CC) $(CFLAGS) $<
 	$(STRIP) $@
 
+scd.obj: scd.a86
+	$(IASM86) scd.a86
+
+hellop.obj: hellop.plm
+	$(PLM86) hellop.plm debug 'optimize(3)'
+
+hellop.cmd: hellop.obj scd.obj
+	$(LINK86) hellop=scd,hellop '[data[ori[0]]'
+	$(CMDINFO) $@
+
 test: binaries
 	@for cmd in $(TOOLS); do \
 	    echo "test: $$cmd"; \
@@ -86,5 +98,5 @@ test: binaries
 	done
 
 clean:
-	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *exe $(TOOLS)
+	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *.lin *.mp2 *exe $(TOOLS)
 

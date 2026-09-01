@@ -268,9 +268,17 @@ pcdev_exe2bin hellod.exe
 bin2cmd hellod.bin hellod.cmd
 ```
 
-### Assembler Programs with nasm 
+### Assembler Programs with nasm
 ```
-nasm hellon.asm -fbin -o hellon.bin 
+nasm hellon.asm -fbin -o hellon.bin
 bin2cmd hellon.bin hellon.cmd
+```
+
+### PL/M-86 Programs
+```
+pcdev_rasm86 hellop_scd.a86 '$' pz sz
+intel_plm86 hellop.plm debug 'optimize(3)'
+pcdev_linkcmd hellop=hellop_scd,hellop '[data[ori[0]]'
+cmdinfo hellop.cmd
 ```
 

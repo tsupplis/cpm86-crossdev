@@ -1,0 +1,104 @@
+;
+;	Concurrent CP/M-86 v2.0 with BDOS version 3.1
+;	Interface for PLM-86 with separate code and data
+;	Code org'd at 0
+;	Created:
+;		October 5, 1981 by Danny Horovitz
+;	Revised:
+;		28 Mar 83 by Bill Fitler
+
+name	scd
+
+dgroup	group	dats,stack
+cgroup	group	code
+
+assume	cs:cgroup, ds:dgroup, ss:dgroup
+
+stack		segment	word stack 'STACK'
+stack_base	label byte
+stack		ends
+
+dats     segment para public 'DATA'	;CP/M page 0 - LOC86'd at 0H
+
+	org	4
+bdisk	db	?
+	org	6
+maxb	dw	?
+	org	50h
+cmdrv	db	?
+pass0	dw	?
+len0	db	?
+pass1	dw	?
+len1	db	?
+	org	5ch
+fcb	db	16 dup (?)
+fcb16	db	16 dup (?)
+cr	db	?
+rr	dw	?
+ro	db	?
+buff	db	128 dup (?)
+tbuff	equ	buff
+buffa	equ	buff
+fcba	equ	fcb
+
+	org	100h		;past CPM data space
+saveax	dw 0			;save registers for mon functions
+savebx	dw 0
+savecx	dw 0
+savedx	dw 0
+	public	bdisk,maxb,cmdrv,pass0,len0
+	public	pass1,len1,fcb,fcb16,cr,rr
+	public	ro,buff,tbuff,buffa,fcba
+	public	saveax,savebx,savecx,savedx
+
+dats ends
+
+
+code	segment	public	'CODE'
+public	xdos,mon1,mon2,mon3,mon4
+extrn	plmstart:near
+
+	org	0h		; for separate code and data
+	jmp	pastserial	; skip copyright
+	jmp	patch		; store address of patch routine at start
+	db	'COPYRIGHT (C) 1983, DIGITAL RESEARCH '
+        db	' CONCURRENT CP/M-86 2.0, 03/31/83 ' ; db ' MP/M-86 2.0, 10/5/81 '
+pastserial:
+	pushf 
+	pop	ax
+	cli
+	mov	cx,ds
+	mov	ss,cx
+	lea	sp,stack_base
+	push	ax
+	popf
+	jmp	plmstart
+
+xdos	proc
+	push	bp
+	mov	bp,sp
+	mov	dx,[bp+4]
+	mov	cx,[bp+6]
+	int	224
+	mov	saveax,ax
+	mov	savebx,bx
+	mov	savecx,cx
+	mov	savedx,dx
+	pop	bp
+	ret	4
+xdos	endp
+
+mon1	equ	xdos		; no returned value
+mon2	equ	xdos		; returns byte in AL
+mon3	equ	xdos		; returns address or word BX
+mon4    equ     xdos		; returns pointer in BX and ES
+
+patch:
+	nop 
+	nop
+	nop
+	nop
+	org 0100h		; leave room for patch area
+
+code	ends
+end
