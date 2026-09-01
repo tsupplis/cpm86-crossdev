@@ -9,6 +9,9 @@ pcdev.tar.gz
 bin/emu2
 bin/tnylpo
 bin/upx
+bin/bin2cmd
+bin/cmdinfo
+bin/exe2cmd
 syncaz
 **/*.lock
 **/*.lha
