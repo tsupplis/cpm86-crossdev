@@ -1,8 +1,9 @@
 #!/bin/sh
 prog=link86.cmd
+export EMU2_DRIVE_A="`pwd`"
 export EMU2_DRIVE_D="`dirname $0`/../share/drc86cpm"
 export EMU2_PROGNAME="d:\\$prog"
-emu2 "$EMU2_DRIVE_D/$prog" "$@" '[$LD]'
+emu2 "$EMU2_DRIVE_D/$prog" "$@"
 if [ -z "$*" ];then
     echo ""
 fi

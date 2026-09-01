@@ -87,6 +87,27 @@ if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
     chmod 644 ../pcdev/*.*
     rm -rf "$root/share/temp-tools"
 fi
+echo INF: Checking DR FORTRAN-77 4.0 ...
+cd "$root/share"
+if [ ! -f f7786cpm/f77.cmd ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/f7786cpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/f77-86.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp f77.cmd codegen.cmd f77.ers f77io.err clear87.cmd link86.cmd ../f7786cpm
+    cp clears.l86 clearl.l86 f32s.obj f32l.obj 8087.sim ../f7786cpm
+    cp pkmemras.a86 ../f7786cpm
+    chmod 644 ../f7786cpm/*
+    rm -rf "$root/share/temp-tools"
+fi
+echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...
+if [ ! -f "$root/share/f7786cpm/pkmemras.obj" ]; then
+    cd "$root/share/f7786cpm"
+    "$root/bin/pcdev_rasm86" pkmemras.a86 '$' nc
+    cd "$root/share"
+fi
 echo INF: Assembling DR C 86 1.11 pcbios ...
 if [ ! -f "$root/share/drc86cpm/pcbios.obj" ]; then
     cd "$root/share/drc86cpm"

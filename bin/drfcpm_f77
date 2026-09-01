@@ -1,0 +1,23 @@
+#!/bin/sh
+f77dir="`dirname $0`/../share/f7786cpm"
+export EMU2_APPEND="D:\\"
+export EMU2_DRIVE_D="$f77dir"
+
+trap 'rm -f *.cil *.cym' EXIT INT TERM
+
+EMU2_PROGNAME="d:\\f77.cmd"
+export EMU2_PROGNAME
+emu2 "$f77dir/f77.cmd" "$@" -- PATH=D:\\
+rc=$?
+
+# if .cil was produced, codegen was not called automatically — run it
+src="${@##* }"
+base="${src%.*}"
+if [ $rc -eq 0 ] && [ -f "${base}.cil" ]; then
+    EMU2_PROGNAME="d:\\codegen.cmd"
+    export EMU2_PROGNAME
+    emu2 "$f77dir/codegen.cmd" "$base" -- PATH=D:\\
+    rc=$?
+fi
+
+exit $rc

@@ -44,3 +44,4 @@ bin/doscat
 bin/hexcom
 examples/hellod.a
 examples/ctemp.tok
+examples/8087.sim

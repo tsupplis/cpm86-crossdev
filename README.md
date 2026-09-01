@@ -7,6 +7,7 @@ Languages supported are:
 - C (K&R and almost ANSI)
 - Assembler
 - Basic (DR CBASIC, DR Personal Basic, Microsoft Basic)
+- FORTRAN-77
 - PL/M-86
 
 ## Thanks
@@ -26,6 +27,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - rasm86 1.4a / link86 2.02 / lib86 1.3 DOS versions from Digital Research
 - asm86 1.1 and gencmd from Digital Research (CP/M-80 and CP/M-86 versions)
 - DR C 1.11 for CP/M-86 (http://www.cpm.z80.de/download/drc_86.zip) — compiler passes (`drc860.cmd`–`drc862.cmd`), preprocessor (`drcrpp.cmd`), runtime (`startup.a86`, `clearl.l86`, `clears.l86`) and standard headers (`ctype.h`, `errno.h`, `portab.h`, `setjmp.h`, `stdio.h`); extended with extra headers from (http://www.cpm.z80.de/download/drc86111.zip): `alloc.h`, `dos.h`, `bios.h`, `float.h`, `conio.h` and PC BIOS glue source `pcbios.a86` (needs assembling with `cpm86_asm86` before use)
+- DR FORTRAN-77 4.0 for CP/M-86 (http://www.cpm.z80.de/download/f77-86.zip) — compiler (`f77.cmd`, `codegen.cmd`), runtime (`clears.l86`, `clearl.l86`, `f32s.obj`, `f32l.obj`, `8087.sim`), FORTRAN/assembly interface example (`pkmemras.a86`, assembled to `pkmemras.obj`)
 - CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
 - DR Personal Basic 1.0 for CP/M-86
 - nasm netwide assembler version 3.02
@@ -44,6 +46,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - The Aztec C use conditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
 - The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR C 1.11 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- The DR FORTRAN-77 4.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR Personal Basic 1.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The Intel PL/M-86 3.30 tools licensing is unclear; their usage is left to the discretion of the end user.
@@ -109,8 +112,10 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec42_obd   | obd.exe     | Aztec C object dump                |
 | aztec42_obj   | obj.exe     | Aztec C object lister              |
 | aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
-| drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (CP/M-86, two-pass) |
-| drccpm_link   | link86.cmd  | DR C 1.11 linker (CP/M-86)              |
+| drfcpm_f77    | f77.cmd        | DR FORTRAN-77 4.0 compiler (CP/M-86)    |
+| drfcpm_link   | link86.cmd     | DR FORTRAN-77 4.0 linker (CP/M-86)      |
+| drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (CP/M-86, two-pass)  |
+| drccpm_link   | link86.cmd     | DR C 1.11 linker (CP/M-86)              |
 | drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M-86     |
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
 | drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
@@ -141,6 +146,7 @@ it pulls the following:
 - asm86 and gencmd CP/M-80 versions (http://www.cpm.z80.de/download/mpm862sr.zip)
 - asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
 - DR C 1.11 (http://www.cpm.z80.de/download/drc_86.zip) + extra headers (http://www.cpm.z80.de/download/drc86111.zip)
+- DR FORTRAN-77 4.0 (http://www.cpm.z80.de/download/f77-86.zip)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - DR Personal Basic 1.0 (http://www.cpm.z80.de/download/pbasic86.zip)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
@@ -256,6 +262,19 @@ via a trap regardless of success or failure. The DR C runtime libraries
 `share/drc86cpm/`. The redundant DISK3 tools (`rasm86.cmd`, `lib86.cmd`,
 `xref86.cmd`) are not staged.
 
+`drccpm_link` and `drfcpm_link` are thin wrappers around `link86.cmd` — they
+set drive A to the current working directory (so `.obj` files are found there)
+and drive D to the tool share directory (so runtime libraries are found there).
+Link options are passed explicitly by the caller using the LINK-86 `[option]`
+syntax. The most common options are:
+
+| Option | Description |
+|---|---|
+| `$LD` | Search drive D for `.l86` runtime libraries |
+
+Drive A is always mapped to the CWD by both wrappers, so `.obj` files in the
+current directory are found automatically without needing `$OA`.
+
 ```
 aztec42_cc helloc.c
 aztec42_sqz helloc.o
@@ -272,7 +291,7 @@ cmdinfo helloc.cmd
 or with DR C 1.11 ...
 ```
 drccpm_cc -ohellodrc.obj hellodrc.c
-drccpm_link hellodrc.cmd=hellodrc.obj
+drccpm_link 'hellodrc.cmd=hellodrc.obj [$LD]'
 cmdinfo hellodrc.cmd
 ```
 
@@ -327,6 +346,28 @@ pcdev_exe2bin hellod.exe
 bin2cmd hellod.bin hellod.cmd
 cmdinfo hellod.cmd
 ```
+
+### FORTRAN-77 Programs
+
+`drfcpm_f77` handles both compiler passes internally (`f77.cmd` then
+`codegen.cmd`), cleaning up the `.cil`/`.cym` intermediates via a trap.
+`drfcpm_link` sets drive A to the CWD and drive D to `share/f7786cpm/`.
+The linker finds `.obj` files on drive A (CWD) and `.l86` runtime libraries
+on drive D via `[$LD]`. The `8087.sim` floating-point simulator must be
+copied into the CWD before linking — the linker picks it up automatically
+from the current directory without needing a special option.
+
+DR FORTRAN-77 4.0 — compiled to a CP/M-86 binary (small model):
+```
+cp $(dirname $(which drfcpm_f77))/../share/f7786cpm/8087.sim .
+drfcpm_f77 hellof.f77
+drfcpm_link 'hellof.cmd=hellof [$LD]'
+cmdinfo hellof.cmd
+```
+
+`8087.sim` must be present in the CWD before linking — the linker picks it
+up automatically. In the examples `Makefile` an `8087.sim` target copies it
+from `share/f7786cpm/` automatically as a dependency of `hellof.cmd`.
 
 ### Assembler Programs with nasm
 ```
