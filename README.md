@@ -49,19 +49,13 @@ The following tools are not included and downloaded by the fetch tool but requir
 
 When several tools can perform the same job, use the highest tier available:
 
-```mermaid
-graph TD
-    A([Tool needed]) --> B{Native binary?}
-    B -->|yes| N[Use native host binary]
-    B -->|no| C{DOS .exe/.com available?}
-    C -->|yes| D[Run via emu2]
-    C -->|no| E{CP/M-86 .cmd available?}
-    E -->|yes| F[Run via emu2]
-    E -->|no| G[Run via tnylpo - legacy fallback]
-```
+1. **Native** `(native)` — compiled for the host OS, no emulation overhead.
+2. **DOS** — `.exe`/`.com` binary run under `emu2`.
+3. **CP/M-86** — `.cmd` binary run under `emu2`.
+4. **CP/M-80** — `.com` binary run under `tnylpo` — legacy fallback only.
 
-For example, `cpm86_asm86` (CP/M-86) is preferred over `cpm_asm86` (CP/M-80),
-and `cmdinfo` (native) is preferred over any DOS wrapper.
+For example, `cpm86_asm86` (CP/M-86, tier 3) is preferred over `cpm_asm86`
+(CP/M-80, tier 4), and `cmdinfo` (native, tier 1) is preferred over any DOS wrapper.
 
 All the tools are wrapped in the bin directory for direct usage:
 
