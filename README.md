@@ -276,9 +276,9 @@ bin2cmd hellon.bin hellon.cmd
 
 ### PL/M-86 Programs
 ```
-pcdev_rasm86 hellop_scd.a86 '$' pz sz
+intel_asm86 scd.a86
 intel_plm86 hellop.plm debug 'optimize(3)'
-pcdev_linkcmd hellop=hellop_scd,hellop '[data[ori[0]]'
+pcdev_linkcmd hellop=scd,hellop '[data[ori[0]]'
 cmdinfo hellop.cmd
 ```
 
