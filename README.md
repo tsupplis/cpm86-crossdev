@@ -51,13 +51,13 @@ When several tools can perform the same job, use the highest tier available:
 
 ```mermaid
 flowchart TD
-    A([Tool needed]) --> B{Native\nbinary?}
+    A([Tool needed]) --> B{"Native binary?"}
     B -- yes --> N[Use native host binary]
-    B -- no  --> C{DOS .exe/.com\navailable?}
+    B -- no  --> C{"DOS .exe/.com available?"}
     C -- yes --> D[Run via emu2]
-    C -- no  --> E{CP/M-86 .cmd\navailable?}
+    C -- no  --> E{"CP/M-86 .cmd available?"}
     E -- yes --> F[Run via emu2]
-    E -- no  --> G[Run via tnylpo\nlegacy fallback]
+    E -- no  --> G[Run via tnylpo - legacy fallback]
 ```
 
 For example, `cpm86_asm86` (CP/M-86) is preferred over `cpm_asm86` (CP/M-80),
