@@ -51,7 +51,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - The DR C 1.11 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR Fortran-77 4.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - Pascal MT+ 3.3 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- Turbo Pascal 3.02 for CP/M-86 is a Borland product. It is freely usable but not open source. The files are stored in this repository as extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2).
+- Turbo Pascal 3.01A for CP/M-86 is a Borland product. It is freely usable but not open source. The files are stored in this repository as extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2).
 - The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR Personal Basic 1.2 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
@@ -85,7 +85,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm86_basic   | basic.cmd   | DR Personal Basic 1.2 (via cpm86)  |
 | cpm86_mbasic  | mbasic86.cmd | Microsoft Basic 5.22 (CP/M-86, via emu2) |
 | pcdev_mbasic  | mbasic86.com | Microsoft Basic 5.28 (DOS, via emu2)     |
-| pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                 |
+| pcdev_rasm86  | rasm86.exe  | DR assembler                      |
 | pcdev_linkcmd | linkcmd.exe | DR linker for CP/M-86              |
 | pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                   |
 | pcdev_linkexe | linkexe.exe | DR linker for DOS                  |
@@ -119,14 +119,14 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec42_obd   | obd.exe     | Aztec C object dump                |
 | aztec42_obj   | obj.exe     | Aztec C object lister              |
 | aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
-| turbo         | turbo.cmd      | Turbo Pascal 3.02 (CP/M-86)             |
-| drpmt_pc      | mt+86.cmd      | Pascal MT+ 3.3 compiler (CP/M-86)       |
-| drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker (CP/M-86)         |
-| drpmt_asm     | asmt86.cmd     | Pascal MT+ 3.3 assembler (CP/M-86)      |
-| drfcpm_f77    | f77.cmd        | DR Fortran-77 4.0 compiler (CP/M-86)    |
-| drfcpm_link   | link86.cmd     | DR Fortran-77 4.0 linker (CP/M-86)      |
-| drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (CP/M-86, two-pass)  |
-| drccpm_link   | link86.cmd     | DR C 1.11 linker (CP/M-86)              |
+| turbo         | turbo.cmd      | Turbo Pascal 3.01 (CP/M-86)             |
+| drpmt_pc      | mt+86.cmd      | Pascal MT+ 3.3 compiler                 |
+| drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker                   |
+| drpmt_asm     | asmt86.cmd     | Pascal MT+ 3.3 assembler                |
+| drfcpm_f77    | f77.cmd        | DR Fortran-77 4.0 compiler              |
+| drfcpm_link   | link86.cmd     | DR Fortran-77 4.0 linker                |
+| drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (two-pass)           |
+| drccpm_link   | link86.cmd     | DR C 1.11 linker                        |
 | drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M-86     |
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
 | drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
@@ -134,7 +134,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm86         | cpm86.exe   | CP/M-86 emulator (via emu2)        |
 | emu2          | (native)    | x86 DOS/CP/M-86 emulator           |
 | tnylpo        | (native)    | CP/M-80 emulator                   |
-| hexcom        | (native)    | HEX to COM translation (HEXCOM 3.00 compatible) |
+| hexcom        | (native)    | HEX to COM translation             |
 | doscat        | (native)    | Truncate files beyond ^Z           |
 | nasm          | (native)    | Netwide assembler                  |
 | upx           | (native)    | executable packer                  |
