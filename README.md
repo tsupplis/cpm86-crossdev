@@ -23,16 +23,18 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 ## Key tools for CP/M-86 development
 - aztec c compiler version 4.2/4.10d (**preferred**, almost ANSI; the CP/M-86 library (c86.lib) is patched and recompiled from sources and actively improved, a DOS 1.1 library (d11.lib) is also provided), documentation at (https://www.aztecmuseum.ca/docs/Aztec_C_MSDOS_4.10C_Commercial_Apr88.pdf)
 - aztec c compiler version 3.4/3.40a (K&R legacy; the CP/M-86 library is provided as c86.lib, patched but otherwise left as-is)
-- rasm86/link86,lib86 DOS version from Digital Research 
-- asm86.com  and gendef.com from Digital Research
-- cb86.exe and libraries from Digital Research
-- nasm netwide assembler
-- masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
-- Microsoft Basic 5.22 for CP/M-86 (mbasic86.cmd), included in the repository
-- Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 assembler (asm86.exe), Intel linker (link.exe) and librarian (lib86.exe) and locator (loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
+- rasm86 1.4a / link86 2.02 / lib86 1.3 DOS versions from Digital Research
+- asm86 1.1 and gencmd from Digital Research (CP/M-80 and CP/M-86 versions)
+- CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
+- DR Personal Basic 1.0 for CP/M-86
+- nasm netwide assembler version 3.02
+- masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
+- Microsoft Basic 5.22 for CP/M-86 (mbasic86.cmd), included in the repository; patch notes at [src/microsoft/msbasic-patch.md](src/microsoft/msbasic-patch.md)
+- Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 2.1 assembler (asm86.exe), Intel linker 2.30 (link.exe) and librarian 2.1 (lib86.exe) and locator 2.5(loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
-- The Super Cool emu2 DOS emulator to run the DR tools on macOS and Linux (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair. We use the emu2-cpm86 fork (https://github.com/johnsonjh/emu2-cpm86), which adds and keeps improving CP/M-86 support on top of upstream emu2.
-- We also need to run some cp/m-80 programs, for that, the tinylpo emulator is used (https://gitlab.com/gbrein/tnylpo). It works very well with asm86.com and gencmd.com programs
+- The Super Cool emu2 DOS/CP/M-86 emulator version 2021.01 (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair. We use the emu2-cpm86 fork (https://github.com/johnsonjh/emu2-cpm86), which adds and keeps improving CP/M-86 support on top of upstream emu2.
+- We also need to run some CP/M-80 programs, for that, the tnylpo emulator is used (https://gitlab.com/gbrein/tnylpo). It works very well with asm86.com and gencmd.com programs.
+- upx executable packer version 5.2.1 (https://github.com/upx/upx)
 
 ## License Considerations
 
