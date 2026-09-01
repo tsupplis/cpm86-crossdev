@@ -23,6 +23,19 @@ if [ ! -f cpm/asm86.cmd -o ! -f cpm/gencmd.cmd ]; then
     cp "$ARCHIVED_FILE" "$root/share/cpm/gencmd.cmd"
     chmod 644 "$root/share/cpm/asm86.cmd" "$root/share/cpm/gencmd.cmd"
 fi
+echo INF: Checking Personal Basic 86 1.0 ...
+cd "$root/share"
+if [ ! -f cpm/basic.cmd ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/cpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/pbasic86.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp basic.cmd ../cpm
+    chmod 644 ../cpm/basic.cmd
+    rm -rf "$root/share/temp-tools"
+fi
 echo INF: Checking DOS DR tools ...
 cd "$root/share"
 if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \

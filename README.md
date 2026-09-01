@@ -6,7 +6,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 Languages supported are:
 - C (K&R and almost ANSI)
 - Assembler
-- Basic
+- Basic (DR CBASIC, DR Personal Basic)
 - PL/M-86
 
 ## Thanks
@@ -25,7 +25,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - aztec c compiler version 3.4/3.40a (K&R legacy; the CP/M-86 library is provided as c86.lib, patched but otherwise left as-is)
 - rasm86/link86,lib86 DOS version from Digital Research 
 - asm86.com  and gendef.com from Digital Research
-- cb86.exe and libraries from Digital Reasearch
+- cb86.exe and libraries from Digital Research
 - nasm netwide assembler
 - masm, link, asm, exe2bin, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt for modified sources at https://github.com/tsupplis/pcdos11-hacking .
 - Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 assembler (asm86.exe), Intel linker (link.exe) and librarian (lib86.exe) and locator (loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
@@ -65,6 +65,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M-80 tool)    |
 | cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2)   |
 | cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2) |
+| cpm86_basic   | basic.cmd   | DR Personal Basic 1.0 (CP/M-86)    |
 | pcdev_rasm86  | rasm86.exe  | DR assembler (OBJ)                 |
 | pcdev_linkcmd | linkcmd.exe | DR linker for CP/M-86              |
 | pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                   |
@@ -129,6 +130,7 @@ it pulls the following:
 - asm86 and gencmd CP/M-80 versions (http://www.cpm.z80.de/download/mpm862sr.zip)
 - asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
+- DR Personal Basic 1.0 (http://www.cpm.z80.de/download/pbasic86.zip)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
 - cmdtools — cmdinfo, bin2cmd, exe2cmd built natively from (https://github.com/tsupplis/cpm86-cmdtools)
 - nasm (https://www.nasm.us/pub/nasm/releasebuilds/3.02/nasm-3.02.tar.gz)
