@@ -24,7 +24,9 @@ IASM86=intel_asm86
 MBASIC=cpm86_mbasic
 EMU2=emu2
 DRCCC=drccpm_cc
-TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd hellop.cmd hellodrc.cmd
+F77=drfcpm_f77
+F77SHARE=$(shell dirname $(shell which drfcpm_f77))/../share/f7786cpm
+TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd helloans.cmd hellop.cmd hellodrc.cmd hellof.cmd
 
 all: binaries
 
@@ -83,11 +85,20 @@ helloc.cmd: helloc.o
 	$(CC) $(CFLAGS) $<
 	$(STRIP) $@
 
+8087.sim:
+	cp $(F77SHARE)/8087.sim .
+
+hellof.cmd: hellof.f77 8087.sim
+	$(F77) hellof.f77
+	drfcpm_link 'hellof.cmd=hellof[$$LD]'
+	ls -l $@
+	$(CMDINFO) $@
+
 hellodrc.obj: hellodrc.c
 	$(DRCCC) -o$@ hellodrc.c
 
 hellodrc.cmd: hellodrc.obj
-	drccpm_link hellodrc.cmd=hellodrc.obj
+	drccpm_link 'hellodrc.cmd=hellodrc.obj [$$LD]'
 	ls -l $@
 	$(CMDINFO) $@
 
@@ -111,6 +122,6 @@ test: binaries
 
 clean:
 	$(RM) *.o *.h86 *.log *.sym *.prn *.lst *.obj *.bin *.lin *.mp2 *exe \
-       ctemp.tok hellod.a \
-       $(TOOLS)
+	      ctemp.tok hellod.a 8087.sim \
+	      $(TOOLS)
 
