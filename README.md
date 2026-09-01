@@ -38,11 +38,13 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 
 ## License Considerations
 
-- Microsoft MS-DOS tools are under MITS license (https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md)
+- Microsoft MS-DOS tools (DOS 1.1 and Basic 86) are under MITS license (https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md)
 The following tools are not included and downloaded by the fetch tool but require you to understand the conditions of usage:
-- The Aztec C use coniditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
+- The Aztec C use conditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
 - The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- The DR Personal Basic 1.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- The Intel PL/M-86 3.30 tools licensing is unclear; their usage is left to the discretion of the end user.
 - emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
 - nasm license terms can be found at (https://www.nasm.us)
 - `src/tools/hexcom.c` is a DRI HEXCOM 3.00 compatible reimplementation by Jeffrey H. Johnson, imported from https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c under the MIT-0 license
