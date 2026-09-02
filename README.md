@@ -32,6 +32,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - Pascal MT+ 3.3 for CP/M-86 (http://www.cpm.z80.de/download/mt8633cp.zip) — compiler (`mt+86.cmd`), linker (`linkmt.cmd`), assembler (`asmt86.cmd`), runtime (`paslib.r86`, floating point modules, I/O modules), utilities (`strip.cmd`, `sz.cmd`, `nm.cmd`, `dis86.cmd`)
 - Turbo Pascal 3.02 for CP/M-86 — the last CP/M-86 release from Borland; stored in `src/turbo`, extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2); includes the compiler (`turbo.cmd`), installer (`tinst.cmd`) and message/data files
 - CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
+- M2CBASIC 1.4 for CP/M-86 (http://www.cpm.z80.de/download/m2cbasic.zip) — Microsoft BASIC to CBASIC source converter; includes the translator (`m2cbasic.cmd` with overlays `m2cb1.ovr`–`m2cb9.ovr`), runtime libraries (`m2cblib.bas`, `m2cbrio.bas`, `m2cbrio.rlo`, `m2cbrio.am`) and companion utility (`m2cbconv.cmd`)
 - DR Personal Basic 1.2 for CP/M-86 (recovered from https://datamuseum.dk/wiki/Bits:30002879, stored in `src/dr/basic.cmd`; the original 1.1 release is also available at http://www.cpm.z80.de/download/pbasic86.zip)
 - nasm netwide assembler version 3.02
 - masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
@@ -53,6 +54,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - Pascal MT+ 3.3 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - Turbo Pascal 3.01A for CP/M-86 is a Borland product. It is freely usable but not open source. The files are stored in this repository as extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2).
 - The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- M2CBASIC 1.4 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR Personal Basic 1.2 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
 - nasm license terms can be found at (https://www.nasm.us)
@@ -127,6 +129,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | drfcpm_link   | link86.cmd     | DR Fortran-77 4.0 linker                |
 | drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (two-pass)           |
 | drccpm_link   | link86.cmd     | DR C 1.11 linker                        |
+| m2cb_cvt      | m2cbasic.cmd | M2CBASIC 1.4 MBASIC to CBASIC converter |
 | drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M-86     |
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
 | drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
@@ -161,6 +164,7 @@ it pulls the following:
 - Turbo Pascal 3.02 for CP/M-86 (stored in `src/turbo`, extracted from https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2)
 - Pascal MT+ 3.3 (http://www.cpm.z80.de/download/mt8633cp.zip)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
+- M2CBASIC 1.4 (http://www.cpm.z80.de/download/m2cbasic.zip)
 - DR Personal Basic 1.2 (stored in `src/dr/basic.cmd`, recovered from https://datamuseum.dk/wiki/Bits:30002879; original 1.0 at http://www.cpm.z80.de/download/pbasic86.zip)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
 - cmdtools — cmdinfo, bin2cmd, exe2cmd built natively from (https://github.com/tsupplis/cpm86-cmdtools)
@@ -244,6 +248,15 @@ DR CBASIC — compiled to a CP/M-86 binary:
 drcbcpm_bc hellor.bas
 drcbcpm_link hellor.cmd=hellor.o
 cmdinfo hellor.cmd
+```
+
+Microsoft BASIC to CBASIC — convert then compile:
+```
+m2cb_cvt hellomsb.bas
+mv hellomsb.cb hellocvt.cb
+drcbcpm_bc hellocvt.cb
+drcbcpm_link hellocvt
+cmdinfo hellocvt.cmd
 ```
 
 Microsoft Basic 5.22 — interpreted, run directly (CP/M-86 version):
@@ -360,6 +373,13 @@ bin2cmd hellod.bin hellod.cmd
 cmdinfo hellod.cmd
 ```
 
+### Assembler Programs with nasm
+```
+nasm hellon.asm -fbin -o hellon.bin
+bin2cmd hellon.bin hellon.cmd
+cmdinfo hellon.cmd
+```
+
 ### Pascal Programs
 
 Pascal MT+ 3.3 — compiled to a CP/M-86 binary:
@@ -390,13 +410,6 @@ cmdinfo hellof.cmd
 `8087.sim` must be present in the CWD before linking — the linker picks it
 up automatically. In the examples `Makefile` an `8087.sim` target copies it
 from `share/f7786cpm/` automatically as a dependency of `hellof.cmd`.
-
-### Assembler Programs with nasm
-```
-nasm hellon.asm -fbin -o hellon.bin
-bin2cmd hellon.bin hellon.cmd
-cmdinfo hellon.cmd
-```
 
 ### PL/M-86 Programs
 ```

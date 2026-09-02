@@ -1,0 +1,22 @@
+#!/bin/sh
+m2cbdir="`dirname $0`/../share/m2cbcpm"
+emudir="`dirname $0`/../share/emu"
+export EMU2_DRIVE_C="$m2cbdir"
+export EMU2_DRIVE_D="`pwd`"
+export EMU2_DRIVE_E="$emudir"
+export EMU2_PROGNAME="e:\\cpm86.exe"
+
+# Prefix bare filenames (no drive letter) with D: so the tool finds them in CWD
+# Overlays are on C: alongside the tool
+args=""
+for arg in "$@"; do
+    case "$arg" in
+        [A-Za-z]:*) args="$args $arg" ;;
+        *)           args="$args D:$arg" ;;
+    esac
+done
+
+emu2 "$emudir/cpm86.exe" "c:m2cbasic" $args
+if [ -z "$*" ]; then
+    echo ""
+fi

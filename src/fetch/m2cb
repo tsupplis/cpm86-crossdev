@@ -1,0 +1,17 @@
+#!/bin/sh
+echo INF: Checking M2CBASIC 1.4 for CP/M-86 ...
+cd "$root/share"
+if [ ! -f m2cbcpm/m2cbasic.cmd ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/m2cbcpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/m2cbasic.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp m2cbasic.cmd m2cb1.ovr m2cb2.ovr m2cb3.ovr m2cb4.ovr m2cb5.ovr \
+       m2cb6.ovr m2cb7.ovr m2cb8.ovr m2cb9.ovr ../m2cbcpm
+    cp m2cbconv.cmd m2cblib.bas m2cbrio.bas m2cbrio.rlo m2cbrio.am ../m2cbcpm
+    cp ws-fix.cmd read.me ../m2cbcpm
+    chmod 644 ../m2cbcpm/*
+    rm -rf "$root/share/temp-tools"
+fi

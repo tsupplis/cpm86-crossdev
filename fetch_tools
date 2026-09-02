@@ -11,6 +11,7 @@ cd "$root"; . src/fetch/aztec42
 cd "$root"; . src/fetch/drtools
 cd "$root"; . src/fetch/turbo
 cd "$root"; . src/fetch/cb86
+cd "$root"; . src/fetch/m2cb
 cd "$root"; . src/fetch/plm86
 cd "$root"; . src/fetch/mstools
 cd "$root"; . src/fetch/cmdtools
