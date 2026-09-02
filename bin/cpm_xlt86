@@ -1,19 +1,54 @@
 #!/bin/sh
-cpmdir="`dirname $0`/../share/cpm"
-conf=`mktemp -t tnylpo`
-tnylpo=`dirname $0`/tnylpo
 
-trap 'rm -f "$conf"' EXIT INT TERM
-cat > "$conf" <<EOF
+cpmdir="$(dirname "$0")/../share/cpm"
+
+: "${TMPDIR:=/tmp}"
+prefix="${TMPDIR}/tnylpo.$$"
+i=0
+
+while [ "$i" -lt 10000 ]; do
+  candidate="${prefix}.${i}"
+
+  if mkdir "$candidate" 2> /dev/null; then
+    if rmdir "$candidate" 2> /dev/null \
+      && : > "$candidate" 2> /dev/null; then
+      tnylpo_conf="$candidate"
+      break
+    fi
+
+    rmdir "$candidate" 2> /dev/null
+    rm -f "$candidate" 2> /dev/null
+    printf '%s\n' "ERROR: Could not create temporary file." >&2
+    exit 1
+  fi
+
+  i=$((i + 1))
+done
+
+if [ "$i" -ge 10000 ]; then
+  printf '%s\n' "ERROR: Could not create temporary file." >&2
+  exit 1
+fi
+
+tnylpo="$(dirname "$0")/tnylpo"
+
+trap 'rm -f "$tnylpo_conf" || : > /dev/null 2>&1' EXIT INT TERM
+
+cat > "$tnylpo_conf" << EOF
 drive a = "$cpmdir"
 drive b = "."
 EOF
+
 # Prefix bare filenames (no drive letter) with B:
 args=""
 for arg in "$@"; do
-    case "$arg" in
-        [A-Za-z]:*) args="$args $arg" ;;
-        *)           args="$args B:$arg" ;;
-    esac
+  case "$arg" in
+  [A-Za-z]:*) args="$args $arg" ;;
+  *) args="$args B:$arg" ;;
+  esac
 done
-exec "$tnylpo" -f "$conf" -d a "$cpmdir/xlt86.com" $args
+
+"$tnylpo" -f "$tnylpo_conf" -d a "$cpmdir/xlt86.com" $args
+status="$?"
+
+exit "$status"
