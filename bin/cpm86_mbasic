@@ -1,5 +1,5 @@
 #!/bin/sh
-prog=`basename $0|sed -e s'/cpm86_//g'`.cmd
+prog=mbasic86.cmd
 emu2=`dirname $0`/emu2
 EMU2_DRIVE_D="`dirname $0`/../share/cpm"
 export EMU2_DRIVE_D
