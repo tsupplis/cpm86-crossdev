@@ -10,7 +10,7 @@ Languages supported are:
 - Pascal (Pascal MT+, Turbo Pascal)
 - Fortran-77
 - PL/M-86
-- PL/I (DR PL/I-86 1.0)
+- PL/I (DR PL/I-86 1.0) (Not yet functional)
 - Lisp (XLISP 1.1)
 
 ## Thanks
