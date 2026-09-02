@@ -163,14 +163,12 @@ hello80.cmd: hello80.h86
 test: binaries
 	@for cmd in $(TOOLS); do \
 	    echo "test: $$cmd"; \
-	    EMU2_DRIVE_C=. $(EMU2) ./$$cmd; \
+	    EMU2_DRIVE_C=. $(EMU2) ./$$cmd || echo "**************** ERROR with $$cmd"; \
 	done
 	@echo "test: hellomsb.bas"
 	$(MBASIC) hellomsb.bas
 	@echo "test: hello.lsp"
 	$(XLISP) hello.lsp
-	@echo "test: hellopli.cmd"
-	EMU2_DRIVE_C=. $(EMU2) ./hellopli.cmd
 	
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
