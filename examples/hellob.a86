@@ -11,5 +11,5 @@
             int     0E0h
             xor     cx,cx
             int     0E0h
-msg         db      'Hello from assembler (rasm86 no data segment)$'
-            end
+msg         db      'Hello from assembler (asm86 no data segment)$'
+            end
