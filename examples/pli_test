@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -e
+
+echo Testing ...
+rm -f hellopli.obj
+rm -f hellopli.cmd
+(PATH=`pwd`/../bin:$PATH;make hellopli.cmd)

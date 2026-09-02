@@ -19,10 +19,10 @@ cd "$root"; . src/fetch/cmdtools
 cd "$root"; . src/fetch/buildtnylpo
 cd "$root"; . src/fetch/buildnasm
 cd "$root"; . src/fetch/buildupx
-find "$root/share" -type d -exec chmod 755 {} \;
-find "$root/share" -type f -exec chmod 644 {} \;
 cd "$root"; . src/fetch/buildaztec42
 cd "$root"; . src/fetch/buildstartups
 cd "$root"; . src/fetch/xlisp
+find "$root/share" -type d -exec chmod 755 {} \;
+find "$root/share" -type f -exec chmod a-w {} \;
 printf 'INF: %s\n' "Fetch and build completed"
 exit 0

@@ -34,7 +34,7 @@ PLI=drpli_pc
 PLILINK=drpli_link
 TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof.cmd hellomt.cmd hellocvt.cmd \
-	hello80.cmd hellopi.cmd
+	hello80.cmd hellopli.cmd
 
 all: binaries
 
@@ -42,16 +42,20 @@ binaries: $(TOOLS)
 
 hellon.cmd: hellon.bin
 	$(BIN2CMD) $< $@
+	ls -l $@
 	$(CMDINFO) $@
 
 hellod.cmd: hellod.exe
 	$(EXE2BIN) $< hellod.bin
 	$(BIN2CMD) hellod.bin $@
+	ls -l $@
 	$(CMDINFO) $@
 
 hellor.cmd: hellor.cb
 	$(BC) hellor.cb
 	$(CBLINK) hellor 
+	ls -l $@
+	$(CMDINFO) $@
 
 hellod.exe: hellod.obj
 	$(LINK) hellod \;
@@ -85,9 +89,11 @@ helloc.cmd: helloc.o
 
 %.h86: %.a86
 	$(ASM86) $<
+	ls -l $@
 
 %.obj: %.a86
 	$(RASM86) $< $$ pz sz
+	ls -l $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) $<
@@ -117,6 +123,7 @@ hellocvt.cb: hellomsb.bas
 
 hellomt.r86: hellomt.pas
 	$(PMT) hellomt
+	ls -l $@
 
 hellomt.cmd: hellomt.r86
 	$(PMTLINK) hellomt.cmd=hellomt,p:paslib/s
@@ -128,22 +135,25 @@ scd.obj: scd.a86
 
 hellop.obj: hellop.plm
 	$(PLM86) hellop.plm debug 'optimize(3)'
+	ls -l $@
 
 hellop.cmd: hellop.obj scd.obj
 	$(LINK86) hellop=scd,hellop '[data[ori[0]]'
+	ls -l $@
 	$(CMDINFO) $@
 
-hellopi.obj: hellopi.pli
-	$(PLI) hellopi
+hellopli.obj: hellopli.pli
+	$(PLI) hellopli
+	ls -l $@
 
-hellopi.cmd: hellopi.obj
-	$(PLILINK) 'hellopi.cmd=hellopi'
+hellopli.cmd: hellopli.obj
+	$(PLILINK) 'hellopli.cmd=hellopli'
 	ls -l $@
 	$(CMDINFO) $@
 
 hello80.a86: hello80.asm
 	$(XLT86) hello80 < /dev/null
-	[ -f hello80.a86 ]
+	ls -l $@
 
 hello80.cmd: hello80.h86
 	$(GENCMD) $<
@@ -159,8 +169,8 @@ test: binaries
 	$(MBASIC) hellomsb.bas
 	@echo "test: hello.lsp"
 	$(XLISP) hello.lsp
-	@echo "test: hellopi.cmd"
-	EMU2_DRIVE_C=. $(EMU2) ./hellopi.cmd
+	@echo "test: hellopli.cmd"
+	EMU2_DRIVE_C=. $(EMU2) ./hellopli.cmd
 	
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
