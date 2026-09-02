@@ -6,6 +6,7 @@ echo INF: Checking CMD tools ...
 cd "$root"
 if [ ! -d cmdtools ]; then
     git clone "https://github.com/tsupplis/cpm86-cmdtools" cmdtools
+    rm -rf cmdtools/.git
 fi
 if [ ! -f "$root/bin/cmdinfo" -o ! -f "$root/bin/bin2cmd" \
     -o ! -f "$root/bin/exe2cmd" ]; then
