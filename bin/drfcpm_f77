@@ -1,5 +1,5 @@
 #!/bin/sh
-share="`dirname $0`/../share/f7786cpm"
+share="`dirname $0`/../share/f77cpm"
 emu2=`dirname $0`/emu2
 EMU2_APPEND="D:\\"
 export EMU2_APPEND

@@ -4,6 +4,23 @@ set -e
 
 echo INF: Checking CP/M DR tools ...
 cd "$root/share"
+echo INF: Checking DOS DR tools ...
+cd "$root/share"
+if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
+   -o ! -f pcdev/lib86.exe ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/pcdev"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/tools86.zip"
+    unzip -L "$ARCHIVED_FILE"
+    unzip -L dos86pr2.zip
+    cp linkcmd.exe rasm86.exe ../pcdev
+    cp linkexe.exe ../pcdev
+    cp lib86.exe ../pcdev
+    chmod 644 ../pcdev/*.*
+    rm -rf "$root/share/temp-tools"
+fi
 if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
     rm -rf "$root/share/temp-tools"
     mkdir -p "$root/share/cpm"
@@ -62,6 +79,7 @@ if [ ! -f drc86cpm/drc860.cmd ]; then
     cp v1-11/disk2/clearl.l86 v1-11/disk2/clears.l86 \
        v1-11/disk2/startup.a86 ../drc86cpm
     cp v1-11/disk3/link86.cmd ../drc86cpm
+    cp "$root/share/pcdev/linkcmd.exe" "$root/share/drc86cpm"
     chmod 644 ../drc86cpm/*
     rm -rf "$root/share/temp-tools"
 fi
@@ -79,37 +97,33 @@ if [ ! -f drc86cpm/alloc.h ]; then
               ../drc86cpm/float.h ../drc86cpm/conio.h ../drc86cpm/pcbios.a86
     rm -rf "$root/share/temp-tools"
 fi
-echo INF: Checking DOS DR tools ...
-cd "$root/share"
-if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
-   -o ! -f pcdev/lib86.exe ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/pcdev"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/tools86.zip"
-    unzip -L "$ARCHIVED_FILE"
-    unzip -L dos86pr2.zip
-    cp linkcmd.exe rasm86.exe ../pcdev
-    cp linkexe.exe ../pcdev
-    cp lib86.exe ../pcdev
-    chmod 644 ../pcdev/*.*
-    rm -rf "$root/share/temp-tools"
+echo INF: Assembling DR C 86 1.11 pcbios ...
+if [ ! -f "$root/share/drc86cpm/pcbios.obj" ]; then
+    cd "$root/share/drc86cpm"
+    "$root/bin/pcdev_rasm86" pcbios.a86 '$' nc
+    cd "$root/share"
 fi
 echo INF: Checking DR FORTRAN-77 4.0 ...
 cd "$root/share"
-if [ ! -f f7786cpm/f77.cmd ]; then
+if [ ! -f f77cpm/f77.cmd ]; then
     rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/f7786cpm"
+    mkdir -p "$root/share/f77cpm"
     mkdir -p "$root/share/temp-tools"
     cd "$root/share/temp-tools"
     fetch_get "http://www.cpm.z80.de/download/f77-86.zip"
     unzip -L "$ARCHIVED_FILE"
-    cp f77.cmd codegen.cmd f77.ers f77io.err clear87.cmd link86.cmd ../f7786cpm
-    cp clears.l86 clearl.l86 f32s.obj f32l.obj 8087.sim ../f7786cpm
-    cp pkmemras.a86 ../f7786cpm
-    chmod 644 ../f7786cpm/*
+    cp f77.cmd codegen.cmd f77.ers f77io.err clear87.cmd link86.cmd ../f77cpm
+    cp clears.l86 clearl.l86 f32s.obj f32l.obj 8087.sim ../f77cpm
+    cp pkmemras.a86 ../f77cpm
+    cp "$root/share/pcdev/linkcmd.exe" "$root/share/f77cpm"
+    chmod 644 ../f77cpm/*
     rm -rf "$root/share/temp-tools"
+fi
+echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...
+if [ ! -f "$root/share/f77cpm/pkmemras.obj" ]; then
+    cd "$root/share/f77cpm"
+    "$root/bin/pcdev_rasm86" pkmemras.a86 '$' nc
+    cd "$root/share"
 fi
 echo INF: Checking Pascal MT+ 3.3 for CP/M-86 ...
 cd "$root/share"
@@ -147,18 +161,7 @@ if [ ! -f plicpm/pli.cmd ]; then
     cp plilib.l86 ../plicpm
     cp dio86.dcl diomod.dcl fcb.dcl record.dcl matsize.lib ../plicpm
     cp cpmdio.a86 div2.a86 fdiv2.a86 ../plicpm
+    cp "$root/share/pcdev/linkcmd.exe" "$root/share/plicpm"
     chmod 644 ../plicpm/*
     rm -rf "$root/share/temp-tools"
-fi
-echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...
-if [ ! -f "$root/share/f7786cpm/pkmemras.obj" ]; then
-    cd "$root/share/f7786cpm"
-    "$root/bin/pcdev_rasm86" pkmemras.a86 '$' nc
-    cd "$root/share"
-fi
-echo INF: Assembling DR C 86 1.11 pcbios ...
-if [ ! -f "$root/share/drc86cpm/pcbios.obj" ]; then
-    cd "$root/share/drc86cpm"
-    "$root/bin/pcdev_rasm86" pcbios.a86 '$' nc
-    cd "$root/share"
 fi

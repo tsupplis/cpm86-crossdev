@@ -134,9 +134,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker                   |
 | drpmt_asm     | asmt86.cmd     | Pascal MT+ 3.3 assembler                |
 | drfcpm_f77    | f77.cmd        | DR Fortran-77 4.0 compiler              |
-| drfcpm_link   | link86.cmd     | DR Fortran-77 4.0 linker                |
+| drfcpm_link   | linkcmd.exe     | DR Fortran-77 4.0 linker                |
 | drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (two-pass)           |
-| drccpm_link   | link86.cmd     | DR C 1.11 linker                        |
+| drccpm_link   | linkcmd.exe     | DR C 1.11 linker                        |
 | m2cb_cvt      | m2cbasic.cmd | M2CBASIC 1.4 MBASIC to CBASIC converter |
 | drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M-86     |
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
@@ -155,7 +155,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | intel_lib86   | lib86.exe   | Intel librarian                    |
 | intel_loc86   | loc86.exe   | Intel locator                      |
 | drpli_pc      | pli.cmd     | DR PL/I-86 1.0 compiler                     |
-| drpli_link    | link86.cmd  | DR PL/I-86 1.0 linker                        |
+| drpli_link    | linkcmd.exe  | DR PL/I-86 1.0 linker                        |
 | cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from src/xlisp) |
 
 ## Fetching the tools
@@ -424,7 +424,7 @@ cmdinfo hellomt.cmd
 
 `drfcpm_f77` handles both compiler passes internally (`f77.cmd` then
 `codegen.cmd`), cleaning up the `.cil`/`.cym` intermediates via a trap.
-`drfcpm_link` automatically accesses `share/f7786cpm/`.
+`drfcpm_link` automatically accesses `share/f77cpm/`.
 
 
 DR Fortran-77 4.0 — compiled to a CP/M-86 binary (small model):
