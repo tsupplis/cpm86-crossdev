@@ -1,6 +1,6 @@
 #!/bin/sh
 emu2=`dirname $0`/emu2
-export EMU2_DRIVE_D="`dirname $0`/../share/emu"
-export EMU2_DRIVE_C="`dirname $0`/../share/cpm"
-export EMU2_PROGNAME="d:\\cpm86.exe"
-"$emu2" "$EMU2_DRIVE_D/cpm86.exe" basic.cmd "$@"
+export EMU2_DRIVE_D="`dirname $0`/../share/cpm"
+export EMU2_DRIVE_E="`dirname $0`/../share/emu"
+export EMU2_PROGNAME="e:\\cpm86.exe"
+"$emu2" "$EMU2_DRIVE_E/cpm86.exe" D:basic.cmd "$@"
