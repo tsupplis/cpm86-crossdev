@@ -1,0 +1,12 @@
+#!/bin/sh
+plidir="`dirname $0`/../share/plicpm"
+emudir="`dirname $0`/../share/emu"
+export EMU2_APPEND="D:"
+export EMU2_DRIVE_D="$plidir"
+export EMU2_DRIVE_P="$plidir"
+export EMU2_DRIVE_E="$emudir"
+export EMU2_PROGNAME="e:\\cpm86.exe"
+emu2 "$emudir/cpm86.exe" "d:pli" "$@"
+if [ -z "$*" ]; then
+    echo ""
+fi

@@ -10,6 +10,7 @@ Languages supported are:
 - Pascal (Pascal MT+, Turbo Pascal)
 - Fortran-77
 - PL/M-86
+- PL/I (DR PL/I-86 1.0)
 - Lisp (XLISP 1.1)
 
 ## Thanks
@@ -39,6 +40,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - nasm netwide assembler version 3.02
 - masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
 - Microsoft Basic 5.22 for CP/M-86 (`mbasic86.cmd`) and 5.28 for DOS (`mbasic86.com`), both included in the repository as patched binaries (unpatched originals kept as `mbasic86.org` / `mbasorig.com`); patch notes at [src/microsoft/msbasic-patch.md](src/microsoft/msbasic-patch.md)
+- DR PL/I-86 1.0 for CP/M-86 (http://www.cpm.z80.de/download/pli86.zip) — compiler (`pli.cmd` + overlays `pli0.ovr`–`pli2.ovr`), linker (`link86.cmd`), runtime library (`plilib.l86`), include files (`dio86.dcl`, `diomod.dcl`, `fcb.dcl`, `record.dcl`), CP/M DIO assembly sources (`cpmdio.a86`, `div2.a86`, `fdiv2.a86`)
 - Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 2.1 assembler (asm86.exe), Intel linker 2.30 (link.exe) and librarian 2.1 (lib86.exe) and locator 2.5(loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
 - The Super Cool emu2 DOS/CP/M-86 emulator version 2021.01 (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair. We use the emu2-cpm86 fork (https://github.com/johnsonjh/emu2-cpm86), which adds and keeps improving CP/M-86 support on top of upstream emu2.
@@ -62,6 +64,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
 - nasm license terms can be found at (https://www.nasm.us)
 - src/tools/hexcom.c is a DRI HEXCOM 3.00 compatible reimplementation by Jeffrey H. Johnson, imported from https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c under the MIT-0 license
+- DR PL/I-86 1.0 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - XLISP 1.1 is public domain software by David Betz; the source is stored in `src/xlisp`
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
 
@@ -151,6 +154,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | intel_link    | link.exe    | Intel linker                       |
 | intel_lib86   | lib86.exe   | Intel librarian                    |
 | intel_loc86   | loc86.exe   | Intel locator                      |
+| drpli_pc      | pli.cmd     | DR PL/I-86 1.0 compiler                     |
+| drpli_link    | link86.cmd  | DR PL/I-86 1.0 linker                        |
 | cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from src/xlisp) |
 
 ## Fetching the tools
@@ -180,6 +185,7 @@ it pulls the following:
 - emu2-cpm86, a CP/M-86 enabled fork of emu2 (https://github.com/johnsonjh/emu2-cpm86), based on the upstream emu2 project (https://github.com/dmsc/emu2)
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
 - PL/M-86 3.30 tools (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)
+- PL/I-86 1.0 (http://www.cpm.z80.de/download/pli86.zip)
 - XLISP 1.1 (stored in `src/xlisp`, compiled from source using aztec42)
 
 Clearing the directory is achieved by:
@@ -306,8 +312,7 @@ syntax. The most common options are:
 |---|---|
 | `$LD` | Search drive D for `.l86` runtime libraries |
 
-Drive A is always mapped to the CWD by both wrappers, so `.obj` files in the
-current directory are found automatically without needing `$OA`.
+This is not necessary with the wrappers.
 
 ```
 aztec42_cc helloc.c
@@ -325,7 +330,7 @@ cmdinfo helloc.cmd
 or with DR C 1.11 ...
 ```
 drccpm_cc -ohellodrc.obj hellodrc.c
-drccpm_link 'hellodrc.cmd=hellodrc.obj [$LD]'
+drccpm_link 'hellodrc.cmd=hellodrc.obj'
 cmdinfo hellodrc.cmd
 ```
 
@@ -425,23 +430,15 @@ cmdinfo hellomt.cmd
 
 `drfcpm_f77` handles both compiler passes internally (`f77.cmd` then
 `codegen.cmd`), cleaning up the `.cil`/`.cym` intermediates via a trap.
-`drfcpm_link` sets drive A to the CWD and drive D to `share/f7786cpm/`.
-The linker finds `.obj` files on drive A (CWD) and `.l86` runtime libraries
-on drive D via `[$LD]`. The `8087.sim` floating-point simulator must be
-copied into the CWD before linking — the linker picks it up automatically
-from the current directory without needing a special option.
+`drfcpm_link` automatically accesses `share/f7786cpm/`.
+
 
 DR Fortran-77 4.0 — compiled to a CP/M-86 binary (small model):
 ```
-cp $(dirname $(which drfcpm_f77))/../share/f7786cpm/8087.sim .
 drfcpm_f77 hellof.f77
-drfcpm_link 'hellof.cmd=hellof [$LD]'
+drfcpm_link 'hellof.cmd=hellof
 cmdinfo hellof.cmd
 ```
-
-`8087.sim` must be present in the CWD before linking — the linker picks it
-up automatically. In the examples `Makefile` an `8087.sim` target copies it
-from `share/f7786cpm/` automatically as a dependency of `hellof.cmd`.
 
 ### PL/M-86 Programs
 ```
@@ -449,6 +446,15 @@ intel_asm86 scd.a86
 intel_plm86 hellop.plm debug 'optimize(3)'
 pcdev_linkcmd hellop=scd,hellop '[data[ori[0]]'
 cmdinfo hellop.cmd
+```
+
+### PL/I-86 Programs
+
+DR PL/I-86 1.0 — compiled to a CP/M-86 binary:
+```
+drpli_pc hellopi
+drpli_link 'hellopi.cmd=hellopi'
+cmdinfo hellopi.cmd
 ```
 
 ### XLISP Programs

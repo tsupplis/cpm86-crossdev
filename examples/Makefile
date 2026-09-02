@@ -27,13 +27,14 @@ XLT86=cpm_xlt86
 EMU2=emu2
 DRCCC=drccpm_cc
 F77=drfcpm_f77
-F77SHARE=$(shell dirname $(shell which drfcpm_f77))/../share/f7786cpm
 PMT=drpmt_pc
 PMTLINK=drpmt_link
 XLISP=cpm86_xlisp
+PLI=drpli_pc
+PLILINK=drpli_link
 TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof.cmd hellomt.cmd hellocvt.cmd \
-	hello80.cmd
+	hello80.cmd hellopi.cmd
 
 all: binaries
 
@@ -92,12 +93,9 @@ helloc.cmd: helloc.o
 	$(CC) $(CFLAGS) $<
 	$(STRIP) $@
 
-8087.sim:
-	cp $(F77SHARE)/8087.sim .
-
-hellof.cmd: hellof.f77 8087.sim
+hellof.cmd: hellof.f77
 	$(F77) hellof.f77
-	drfcpm_link 'hellof.cmd=hellof[$$LD]'
+	drfcpm_link 'hellof.cmd=hellof'
 	ls -l $@
 	$(CMDINFO) $@
 
@@ -105,7 +103,7 @@ hellodrc.obj: hellodrc.c
 	$(DRCCC) -o$@ hellodrc.c
 
 hellodrc.cmd: hellodrc.obj
-	drccpm_link 'hellodrc.cmd=hellodrc.obj [$$LD]'
+	drccpm_link 'hellodrc.cmd=hellodrc.obj'
 	ls -l $@
 	$(CMDINFO) $@
 
@@ -135,6 +133,14 @@ hellop.cmd: hellop.obj scd.obj
 	$(LINK86) hellop=scd,hellop '[data[ori[0]]'
 	$(CMDINFO) $@
 
+hellopi.obj: hellopi.pli
+	$(PLI) hellopi
+
+hellopi.cmd: hellopi.obj
+	$(PLILINK) 'hellopi.cmd=hellopi'
+	ls -l $@
+	$(CMDINFO) $@
+
 hello80.a86: hello80.asm
 	$(XLT86) hello80 < /dev/null
 	[ -f hello80.a86 ]
@@ -153,10 +159,12 @@ test: binaries
 	$(MBASIC) hellomsb.bas
 	@echo "test: hello.lsp"
 	$(XLISP) hello.lsp
+	@echo "test: hellopi.cmd"
+	EMU2_DRIVE_C=. $(EMU2) ./hellopi.cmd
 	
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
-		  *.mp2 *exe \
+		  *.mp2 *exe *.map \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello80.a86 \
 	      $(TOOLS)

@@ -1,5 +1,5 @@
 #!/bin/sh
-share_dir="`dirname $0`/../share/drc86cpm"
+share_dir="`dirname $0`/../share/plicpm"
 prog=link86.cmd
 EMU2_APPEND=D:
 export EMU2_APPEND

@@ -1,9 +1,13 @@
 #!/bin/sh
+share_dir="`dirname $0`/../share/f7786cpm"
 prog=link86.cmd
-f77dir="`dirname $0`/../share/f7786cpm"
-export EMU2_DRIVE_A="`pwd`"
-export EMU2_DRIVE_D="$f77dir"
-export EMU2_PROGNAME="d:\\$prog"
-emu2 "$f77dir/$prog" "$@"
-rc=$?
-exit $rc
+EMU2_APPEND=D:
+export EMU2_APPEND
+EMU2_DRIVE_D="$share_dir"
+export EMU2_DRIVE_D
+EMU2_PROGNAME="D:\\$prog"
+export EMU2_PROGNAME
+emu2 "$EMU2_DRIVE_D/$prog" "$@" -- PATH=D:\\ LIB=D:\\
+if [ -z "$*" ];then 
+    echo ""
+fi

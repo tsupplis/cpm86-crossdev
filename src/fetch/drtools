@@ -129,6 +129,24 @@ if [ ! -f drpmtcpm/mt-86.cmd ]; then
     cd "$root/share"
     rm -rf "$root/share/temp-tools"
 fi
+echo INF: Checking PL/I-86 1.0 for CP/M-86 ...
+cd "$root/share"
+if [ ! -f plicpm/pli.cmd ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/plicpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/pli86.zip"
+    unzip -L "$ARCHIVED_FILE"
+    unzip -L pli86-1.zip
+    cp pli.cmd pli0.ovr pli1.ovr pli2.ovr ../plicpm
+    cp link86.cmd lib86.cmd xref86.cmd ../plicpm
+    cp plilib.l86 ../plicpm
+    cp dio86.dcl diomod.dcl fcb.dcl record.dcl matsize.lib ../plicpm
+    cp cpmdio.a86 div2.a86 fdiv2.a86 ../plicpm
+    chmod 644 ../plicpm/*
+    rm -rf "$root/share/temp-tools"
+fi
 echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...
 if [ ! -f "$root/share/f7786cpm/pkmemras.obj" ]; then
     cd "$root/share/f7786cpm"

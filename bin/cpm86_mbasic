@@ -1,7 +1,9 @@
 #!/bin/sh
-prog=mbasic86.cmd
-export EMU2_DRIVE_D="`dirname $0`/../share/cpm"
-export EMU2_PROGNAME="d:\\$prog"
+prog=`basename $0|sed -e s'/cpm86_//g'`.cmd
+EMU2_DRIVE_D="`dirname $0`/../share/cpm"
+export EMU2_DRIVE_D
+EMU2_PROGNAME="D:\\$prog"
+export EMU2_PROGNAME
 emu2 "$EMU2_DRIVE_D/$prog" "$@"
 if [ -z "$*" ];then
     echo ""

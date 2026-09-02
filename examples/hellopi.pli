@@ -1,0 +1,7 @@
+/* hellop.pli - Hello World in PL/I-86 for CP/M-86 */
+hellop:
+    procedure options(main);
+
+    put skip list('Hello from PL/I-86');
+
+end hellop;
