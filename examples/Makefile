@@ -33,7 +33,7 @@ XLISP=cpm86_xlisp
 PLI=drpli_pc
 PLILINK=drpli_link
 TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
-	helloans.cmd hellop.cmd hellodrc.cmd hellof.cmd hellomt.cmd hellocvt.cmd \
+	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellomt.cmd hellocvt.cmd \
 	hello80.cmd hellopli.cmd
 
 all: binaries
@@ -99,9 +99,9 @@ helloc.cmd: helloc.o
 	$(CC) $(CFLAGS) $<
 	$(STRIP) $@
 
-hellof.cmd: hellof.f77
-	$(F77) hellof.f77
-	drfcpm_link 'hellof.cmd=hellof'
+hellof77.cmd: hellof77.f77
+	$(F77) hellof77.f77
+	drfcpm_link 'hellof77.cmd=hellof77'
 	ls -l $@
 	$(CMDINFO) $@
 
