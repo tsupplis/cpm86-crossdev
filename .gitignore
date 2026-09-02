@@ -47,9 +47,11 @@ syncaz
 bin/doscat
 bin/hexcom
 examples/*.prt
+examples/*.prn
 examples/hellod.a
 examples/ctemp.tok
 examples/pastemp.tok
 examples/comndata.*
 examples/8087.sim
-examples/hellomsb.cb
+examples/hellocvt.cb
+examples/hello80.a86

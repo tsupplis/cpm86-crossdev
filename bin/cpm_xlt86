@@ -1,0 +1,21 @@
+#!/bin/sh
+# XLT86 1.3 CP/M-80 wrapper.
+# Drive A = tool dir (default) — xlt86 loads XLT00.OVL / XLT01.OVL from here.
+# Drive B = CWD — input .asm and output .a86 files live here.
+# Bare filename arguments are prefixed with B: so xlt86 reads/writes to CWD.
+cpmdir="`dirname $0`/../share/cpm"
+conf=`mktemp /tmp/tnylpo_xlt86_XXXXXX.conf`
+trap 'rm -f "$conf"' EXIT INT TERM
+cat > "$conf" <<EOF
+drive a = "$cpmdir"
+drive b = "."
+EOF
+# Prefix bare filenames (no drive letter) with B:
+args=""
+for arg in "$@"; do
+    case "$arg" in
+        [A-Za-z]:*) args="$args $arg" ;;
+        *)           args="$args B:$arg" ;;
+    esac
+done
+tnylpo -f "$conf" -d a "$cpmdir/xlt86.com" $args

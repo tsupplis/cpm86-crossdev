@@ -27,6 +27,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - aztec c compiler version 3.4/3.40a (K&R legacy; the CP/M-86 library is provided as c86.lib, patched but otherwise left as-is)
 - rasm86 1.4a / link86 2.02 / lib86 1.3 DOS versions from Digital Research
 - asm86 1.1 and gencmd from Digital Research (CP/M-80 and CP/M-86 versions)
+- XLT86 1.3 from Digital Research (http://www.cpm.z80.de/download/xlt86.zip) — 8080/8085 assembly language to 8086 assembly language translator (`xlt86.com` + overlays `xlt00.ovl`, `xlt01.ovl`); CP/M-80 version, run via `tnylpo`
 - DR C 1.11 for CP/M-86 (http://www.cpm.z80.de/download/drc_86.zip) — compiler passes (`drc860.cmd`–`drc862.cmd`), preprocessor (`drcrpp.cmd`), runtime (`startup.a86`, `clearl.l86`, `clears.l86`) and standard headers (`ctype.h`, `errno.h`, `portab.h`, `setjmp.h`, `stdio.h`); extended with extra headers from (http://www.cpm.z80.de/download/drc86111.zip): `alloc.h`, `dos.h`, `bios.h`, `float.h`, `conio.h` and PC BIOS glue source `pcbios.a86` (needs assembling with `cpm86_asm86` before use)
 - DR Fortran-77 4.0 for CP/M-86 (http://www.cpm.z80.de/download/f77-86.zip) — compiler (`f77.cmd`, `codegen.cmd`), runtime (`clears.l86`, `clearl.l86`, `f32s.obj`, `f32l.obj`, `8087.sim`), Fortran/assembly interface example (`pkmemras.a86`, assembled to `pkmemras.obj`)
 - Pascal MT+ 3.3 for CP/M-86 (http://www.cpm.z80.de/download/mt8633cp.zip) — compiler (`mt+86.cmd`), linker (`linkmt.cmd`), assembler (`asmt86.cmd`), runtime (`paslib.r86`, floating point modules, I/O modules), utilities (`strip.cmd`, `sz.cmd`, `nm.cmd`, `dis86.cmd`)
@@ -49,6 +50,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 The following tools are not included and downloaded by the fetch tool but require you to understand the conditions of usage:
 - The Aztec C use conditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
 - The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
+- XLT86 1.3 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR C 1.11 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - The DR Fortran-77 4.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - Pascal MT+ 3.3 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
@@ -82,6 +84,7 @@ All the tools are wrapped in the bin directory for direct usage:
 |---------------|-------------|------------------------------------|
 | cpm_asm86     | asm86.com   | DR assembler (CP/M-80 tool)        |
 | cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M-80 tool)    |
+| cpm_xlt86     | xlt86.com   | DR 8080→8086 translator (CP/M-80, via tnylpo) |
 | cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2)   |
 | cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2) |
 | cpm86_basic   | basic.cmd   | DR Personal Basic 1.2 (via cpm86)  |
@@ -158,6 +161,7 @@ it pulls the following:
 - aztec 3.4 c compiler  (https://www.aztecmuseum.ca/az8634b.zip)
 - link86, lib86 and rasm86 (http://www.cpm.z80.de/download/tools86.zip)
 - asm86 and gencmd CP/M-80 versions (http://www.cpm.z80.de/download/mpm862sr.zip)
+- XLT86 1.3 (http://www.cpm.z80.de/download/xlt86.zip)
 - asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
 - DR C 1.11 (http://www.cpm.z80.de/download/drc_86.zip) + extra headers (http://www.cpm.z80.de/download/drc86111.zip)
 - DR Fortran-77 4.0 (http://www.cpm.z80.de/download/f77-86.zip)
@@ -379,6 +383,30 @@ nasm hellon.asm -fbin -o hellon.bin
 bin2cmd hellon.bin hellon.cmd
 cmdinfo hellon.cmd
 ```
+
+### 8080 to 8086 translation with XLT86
+
+`cpm_xlt86` translates an 8080/8085 assembly source file (`.asm`) into an
+8086 assembly source file (`.a86`) ready for `asm86`. It is a CP/M-80 tool
+run via `tnylpo`; the wrapper maps the tool directory (with overlays
+`xlt00.ovl` and `xlt01.ovl`) as the default drive A, and the CWD as drive B
+so translated output lands alongside the source.
+
+Pass the basename without extension — XLT86 appends `.asm` for input and
+writes `.a86` as output. Then assemble and package with the `asm86`/`gencmd`
+pipeline:
+
+```
+cpm_xlt86 hello80
+cpm86_asm86 hello80.a86
+cpm86_gencmd hello80.h86
+cmdinfo hello80.cmd
+```
+
+XLT86 translates `CALL 5` (CP/M BDOS entry) directly to `INT 224` (0E0h),
+so no special handling is needed for standard CP/M calls. XLT86 reports
+"Number of Errors: 1" for an `ORG 100h` directive (which has no 8086
+equivalent); this is expected and the output `.a86` is complete and correct.
 
 ### Pascal Programs
 

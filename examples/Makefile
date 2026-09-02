@@ -23,6 +23,7 @@ PLM86=intel_plm86
 IASM86=intel_asm86
 MBASIC=cpm86_mbasic
 M2CB=m2cb_cvt
+XLT86=cpm_xlt86
 EMU2=emu2
 DRCCC=drccpm_cc
 F77=drfcpm_f77
@@ -30,7 +31,8 @@ F77SHARE=$(shell dirname $(shell which drfcpm_f77))/../share/f7786cpm
 PMT=drpmt_pc
 PMTLINK=drpmt_link
 TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
-	helloans.cmd hellop.cmd hellodrc.cmd hellof.cmd hellomt.cmd hellocvt.cmd
+	helloans.cmd hellop.cmd hellodrc.cmd hellof.cmd hellomt.cmd hellocvt.cmd \
+	hello80.cmd
 
 all: binaries
 
@@ -132,6 +134,15 @@ hellop.cmd: hellop.obj scd.obj
 	$(LINK86) hellop=scd,hellop '[data[ori[0]]'
 	$(CMDINFO) $@
 
+hello80.a86: hello80.asm
+	$(XLT86) hello80 < /dev/null
+	[ -f hello80.a86 ]
+
+hello80.cmd: hello80.h86
+	$(GENCMD) $<
+	ls -l $@
+	$(CMDINFO) $@
+
 test: binaries
 	@for cmd in $(TOOLS); do \
 	    echo "test: $$cmd"; \
@@ -141,7 +152,9 @@ test: binaries
 	$(MBASIC) hellomsb.bas
 	
 clean:
-	$(RM) *.prt *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin *.mp2 *exe \
+	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
+		  *.mp2 *exe \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
+	      hello80.a86 \
 	      $(TOOLS)
 
