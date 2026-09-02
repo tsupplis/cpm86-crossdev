@@ -1,12 +1,19 @@
 #!/bin/sh
-plidir="`dirname $0`/../share/plicpm"
+prog=pli
+share="`dirname $0`/../share/plicpm"
+emu2=`dirname $0`/emu2
 emudir="`dirname $0`/../share/emu"
-export EMU2_APPEND="D:"
-export EMU2_DRIVE_D="$plidir"
-export EMU2_DRIVE_P="$plidir"
-export EMU2_DRIVE_E="$emudir"
-export EMU2_PROGNAME="e:\\cpm86.exe"
-emu2 "$emudir/cpm86.exe" "d:pli" "$@"
+EMU2_APPEND="D:"
+export EMU2_APPEND
+EMU2_DRIVE_D="$share"
+export EMU2_DRIVE_D
+EMU2_DRIVE_P="$share"
+export EMU2_DRIVE_P
+EMU2_DRIVE_E="$emudir"
+export EMU2_DRIVE_E
+EMU2_PROGNAME="E:\\cpm86.exe"
+export EMU2_PROGNAME
+"$emu2" "$emudir/cpm86.exe" "D:$prog" "$@"
 if [ -z "$*" ]; then
     echo ""
 fi

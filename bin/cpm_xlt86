@@ -1,6 +1,8 @@
 #!/bin/sh
 cpmdir="`dirname $0`/../share/cpm"
-conf=`mktemp /tmp/tnylpo_xlt86_XXXXXX.conf`
+conf=`mktemp -t tnylpo`
+tnylpo=`dirname $0`/tnylpo
+
 trap 'rm -f "$conf"' EXIT INT TERM
 cat > "$conf" <<EOF
 drive a = "$cpmdir"
@@ -14,4 +16,4 @@ for arg in "$@"; do
         *)           args="$args B:$arg" ;;
     esac
 done
-tnylpo -f "$conf" -d a "$cpmdir/xlt86.com" $args
+exec "$tnylpo" -f "$conf" -d a "$cpmdir/xlt86.com" $args

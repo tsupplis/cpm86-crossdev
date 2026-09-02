@@ -1,8 +1,13 @@
 #!/bin/sh
-turbodir="`dirname $0`/../share/turbocpm"
-export EMU2_DRIVE_D="$turbodir"
-export EMU2_PROGNAME="d:\\turbo.cmd"
-emu2 "$turbodir/turbo.cmd" "$@"
-if [ -z "$*" ];then
+prog=turbo.cmd
+emu2=`dirname $0`/emu2
+EMU2_APPEND=D:
+export EMU2_APPEND
+EMU2_DRIVE_D="`dirname $0`/../share/turbo"
+export EMU2_DRIVE_D
+EMU2_PROGNAME="D:$prog"
+export EMU2_PROGNAME
+"$emu2" "$EMU2_DRIVE_D/$prog" "$@" -- PATH=D:\\
+if [ -z "$*" ];then 
     echo ""
 fi

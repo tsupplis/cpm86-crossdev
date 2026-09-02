@@ -1,9 +1,19 @@
 #!/bin/sh
-prog=asmt86.cmd
-export EMU2_APPEND="D:\\"
-export EMU2_DRIVE_D="`dirname $0`/../share/drpmtcpm"
-export EMU2_PROGNAME="d:\\$prog"
-emu2 "$EMU2_DRIVE_D/$prog" "$@" -- PATH=D:\\
-if [ -z "$*" ];then
+prog=linkmt
+share="`dirname $0`/../share/drpmtcpm"
+emu2=`dirname $0`/emu2
+emudir="`dirname $0`/../share/emu"
+EMU2_APPEND="D:"
+export EMU2_APPEND
+EMU2_DRIVE_D="$share"
+export EMU2_DRIVE_D
+EMU2_DRIVE_P="$share"
+export EMU2_DRIVE_P
+EMU2_DRIVE_E="$emudir"
+export EMU2_DRIVE_E
+EMU2_PROGNAME="E:\\cpm86.exe"
+export EMU2_PROGNAME
+"$emu2" "$emudir/cpm86.exe" "D:$prog" "$@"
+if [ -z "$*" ]; then
     echo ""
 fi
