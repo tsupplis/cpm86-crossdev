@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -e
+
 echo INF: Checking Aztec 4.2 tools ...
 cd "$root/share"
 if [ ! -d aztec42/bin ];then

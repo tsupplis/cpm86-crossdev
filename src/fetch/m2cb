@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -e
+
 echo INF: Checking M2CBASIC 1.4 for CP/M-86 ...
 cd "$root/share"
 if [ ! -f m2cbcpm/m2cbasic.cmd ]; then

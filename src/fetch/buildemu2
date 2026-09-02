@@ -5,6 +5,7 @@ set -e
 echo INF: Checking EMU2 ...
 cd "$root"
 if [ ! -d emu2 ];then
+    git clone "https://gitlab.com/johnsonjh/emu2-cpm86" emu2 || \
     git clone "https://github.com/johnsonjh/emu2-cpm86" emu2
 fi
 if [ ! -f "$root/bin/emu2" ];then
