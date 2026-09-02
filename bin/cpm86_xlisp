@@ -1,0 +1,7 @@
+#!/bin/sh
+xlispdir="`dirname $0`/../share/xlisp"
+emudir="`dirname $0`/../share/emu"
+export EMU2_DRIVE_D="$xlispdir"
+export EMU2_DRIVE_C="`pwd`"
+export EMU2_PROGNAME="d:xlisp.cmd"
+emu2 "$xlispdir/xlisp.cmd" "$@"

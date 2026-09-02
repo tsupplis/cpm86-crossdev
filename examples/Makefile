@@ -30,6 +30,7 @@ F77=drfcpm_f77
 F77SHARE=$(shell dirname $(shell which drfcpm_f77))/../share/f7786cpm
 PMT=drpmt_pc
 PMTLINK=drpmt_link
+XLISP=cpm86_xlisp
 TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof.cmd hellomt.cmd hellocvt.cmd \
 	hello80.cmd
@@ -150,6 +151,8 @@ test: binaries
 	done
 	@echo "test: hellomsb.bas"
 	$(MBASIC) hellomsb.bas
+	@echo "test: hello.lsp"
+	$(XLISP) hello.lsp
 	
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \

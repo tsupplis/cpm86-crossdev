@@ -52,8 +52,10 @@ struct node *xlclass(name,vcnt)
 
     /* set the instance variable counts */
     if (vcnt > 0) {
-	(xlivar(cls,IVARCNT)->n_listvalue = newnode(INT))->n_int = vcnt;
-	(xlivar(cls,IVARTOTAL)->n_listvalue = newnode(INT))->n_int = vcnt;
+ xlivar(cls,IVARCNT)->n_listvalue = newnode(INT);
+ xlivar(cls,IVARCNT)->n_listvalue->n_int = vcnt;
+ xlivar(cls,IVARTOTAL)->n_listvalue = newnode(INT);
+ xlivar(cls,IVARTOTAL)->n_listvalue->n_int = vcnt;
     }
 
     /* set the superclass to 'Object' */
@@ -199,8 +201,8 @@ static struct node *misnew(args)
 
     /* store the superclass */
     xlivar(obj,SUPERCLASS)->n_listvalue = super.n_ptr;
-    (xlivar(obj,IVARTOTAL)->n_listvalue = newnode(INT))->n_int =
-    	 getivcnt(super.n_ptr,IVARTOTAL);
+    xlivar(obj,IVARTOTAL)->n_listvalue = newnode(INT);
+    xlivar(obj,IVARTOTAL)->n_listvalue->n_int = getivcnt(super.n_ptr,IVARTOTAL);
 
     /* restore the previous stack frame */
     xlstack = oldstk;
@@ -310,8 +312,10 @@ static struct node *mivars(args)
 	scnt = 0;
 
     /* save the number of instance variables */
-    (xlivar(cls,IVARCNT)->n_listvalue = newnode(INT))->n_int = varcnt;
-    (xlivar(cls,IVARTOTAL)->n_listvalue = newnode(INT))->n_int = scnt+varcnt;
+    xlivar(cls,IVARCNT)->n_listvalue = newnode(INT);
+    xlivar(cls,IVARCNT)->n_listvalue->n_int = varcnt;
+    xlivar(cls,IVARTOTAL)->n_listvalue = newnode(INT);
+    xlivar(cls,IVARTOTAL)->n_listvalue->n_int = scnt+varcnt;
 
     /* return the class */
     return (cls);

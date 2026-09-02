@@ -10,6 +10,6 @@ start:
         mvi     c, 0
         call    5
 
-msg:    db      'Hello from 8080!', 0dh, 0ah, '$'
+msg:    db      'Hello from 8080','$'
 
         end     start

@@ -1,0 +1,10 @@
+#!/bin/sh
+echo INF: Building XLISP for CP/M-86 ...
+if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
+    mkdir -p "$root/share/xlisp"
+    cp "$root/src/xlisp"/*.c "$root/src/xlisp"/*.h \
+       "$root/src/xlisp"/*.lnk "$root/src/xlisp"/*.lsp \
+       "$root/src/xlisp/Makefile" \
+       "$root/share/xlisp"
+    PATH="$root/bin:$PATH" make -C "$root/share/xlisp" all
+fi

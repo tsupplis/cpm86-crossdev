@@ -10,6 +10,7 @@ Languages supported are:
 - Pascal (Pascal MT+, Turbo Pascal)
 - Fortran-77
 - PL/M-86
+- Lisp (XLISP 1.1)
 
 ## Thanks
 
@@ -61,6 +62,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
 - nasm license terms can be found at (https://www.nasm.us)
 - src/tools/hexcom.c is a DRI HEXCOM 3.00 compatible reimplementation by Jeffrey H. Johnson, imported from https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c under the MIT-0 license
+- XLISP 1.1 is public domain software by David Betz; the source is stored in `src/xlisp`
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
 
 > [!WARNING]
@@ -149,6 +151,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | intel_link    | link.exe    | Intel linker                       |
 | intel_lib86   | lib86.exe   | Intel librarian                    |
 | intel_loc86   | loc86.exe   | Intel locator                      |
+| cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from src/xlisp) |
 
 ## Fetching the tools
 
@@ -177,6 +180,7 @@ it pulls the following:
 - emu2-cpm86, a CP/M-86 enabled fork of emu2 (https://github.com/johnsonjh/emu2-cpm86), based on the upstream emu2 project (https://github.com/dmsc/emu2)
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
 - PL/M-86 3.30 tools (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)
+- XLISP 1.1 (stored in `src/xlisp`, compiled from source using aztec42)
 
 Clearing the directory is achieved by:
 ```
@@ -446,4 +450,29 @@ intel_plm86 hellop.plm debug 'optimize(3)'
 pcdev_linkcmd hellop=scd,hellop '[data[ori[0]]'
 cmdinfo hellop.cmd
 ```
+
+### XLISP Programs
+
+XLISP 1.1 is a small public-domain Lisp interpreter by David Betz, built from
+source in `src/xlisp` using the Aztec C 4.2 compiler. It supports a subset of
+Common Lisp including lists, symbols, integers, strings, lexical closures, and
+a simple object system.
+
+The interpreter is interactive by default. Pass a `.lsp` filename to load and
+execute a file; after the file is exhausted, XLISP drops back to the interactive
+prompt. Use `(exit)` at the end of a script to terminate without waiting for
+input:
+
+```
+cpm86_xlisp hello.lsp
+```
+
+Interactive session:
+```
+cpm86_xlisp
+```
+
+The wrapper maps the tool directory (containing `xlisp.cmd`) to drive D and
+the CWD to drive C, so `.lsp` files in the working directory are found
+automatically.
 
