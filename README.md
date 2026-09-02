@@ -10,7 +10,7 @@ Languages supported are:
 - Pascal (Pascal MT+, Turbo Pascal)
 - Fortran-77
 - PL/M-86
-- PL/I (DR PL/I-86 1.0)
+- PL/I (DR PL/I-86 1.0) (Not yet functional)
 - Lisp (XLISP 1.1)
 
 ## Thanks
@@ -90,8 +90,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm_asm86     | asm86.com   | DR assembler (CP/M-80 tool)        |
 | cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M-80 tool)    |
 | cpm_xlt86     | xlt86.com   | DR 8080→8086 translator (CP/M-80, via tnylpo) |
-| cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2)   |
-| cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2) |
+| cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2, not working yet)   |
+| cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2, not working yet) |
 | cpm86_basic   | basic.cmd   | DR Personal Basic 1.2 (via cpm86)  |
 | cpm86_mbasic  | mbasic86.cmd | Microsoft Basic 5.22 (CP/M-86, via emu2) |
 | pcdev_mbasic  | mbasic86.com | Microsoft Basic 5.28 (DOS, via emu2)     |
@@ -365,12 +365,6 @@ cmdinfo helloa.cmd
 ```
 
 ### Assembler Programs with asm86
-```
-cpm86_asm86 hellob.a86
-cpm86_gencmd hellob.h86
-cmdinfo hellob.cmd
-```
-or using the legacy CP/M-80 binaries via tnylpo:
 ```
 cpm_asm86 hellob.a86
 cpm_gencmd hellob.h86
