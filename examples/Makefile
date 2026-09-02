@@ -9,8 +9,8 @@ ACC=aztec42_cc
 ALD=aztec42_link
 LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
-ASM86=cpm_asm86
-GENCMD=cpm_gencmd
+ASM86=cpm86_asm86
+GENCMD=cpm86_gencmd
 BIN2CMD=bin2cmd
 EXE2BIN=pcdev_exe2bin
 CMDINFO=cmdinfo
@@ -34,7 +34,8 @@ PLI=drpli_pc
 PLILINK=drpli_link
 TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellomt.cmd hellocvt.cmd \
-	hello80.cmd hellopli.cmd
+	hello80.cmd 
+TOOLS_BETA=hellopli.cmd
 
 all: binaries
 
