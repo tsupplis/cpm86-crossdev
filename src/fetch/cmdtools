@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -e
+
 echo INF: Checking CMD tools ...
 cd "$root"
 if [ ! -d cmdtools ]; then

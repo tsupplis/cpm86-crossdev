@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -e
+
 echo INF: Checking CB86  ...
 cd "$root/share"
 if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
