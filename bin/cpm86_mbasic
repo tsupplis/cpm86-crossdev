@@ -3,7 +3,7 @@ prog=mbasic86.cmd
 emu2=`dirname $0`/emu2
 EMU2_DRIVE_D="`dirname $0`/../share/cpm"
 export EMU2_DRIVE_D
-EMU2_PROGNAME="D:\\$prog"
+EMU2_PROGNAME="D:$prog"
 export EMU2_PROGNAME
 "$emu2" "$EMU2_DRIVE_D/$prog" "$@"
 if [ -z "$*" ];then

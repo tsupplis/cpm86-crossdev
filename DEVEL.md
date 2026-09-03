@@ -287,9 +287,40 @@ Examples: [`bin/aztec42_cc`](bin/aztec42_cc), [`bin/aztec34_cc`](bin/aztec34_cc)
 
 ---
 
-### Pattern 4 — CP/M-86 `.cmd` run inside `cpm86.exe` under `emu2`
+### Pattern 4a — CP/M-86 `.cmd` run directly under `emu2`
 
-Used for tools that are CP/M-86 binaries and run inside the `cpm86.exe`
+Used for tools that are CP/M-86 binaries invoked directly by `emu2` (no
+`cpm86.exe` intermediary).  Use `EMU2_CPM_APPEND` (not `EMU2_APPEND`) so
+that emu2 appends the drive to the CP/M PATH rather than the DOS PATH.
+
+```sh
+#!/bin/sh
+prog=<name>.cmd
+share="`dirname $0`/../share/<share-subdir>"
+emu2=`dirname $0`/emu2
+EMU2_CPM_APPEND="D:"
+export EMU2_CPM_APPEND
+EMU2_DRIVE_D="$share"
+export EMU2_DRIVE_D
+EMU2_DRIVE_P="$share"
+export EMU2_DRIVE_P
+EMU2_PROGNAME="D:\\$prog"
+export EMU2_PROGNAME
+"$emu2" "$share/$prog" "$@"
+if [ -z "$*" ]; then
+    echo ""
+fi
+```
+
+Examples: [`bin/drpmt_pc`](bin/drpmt_pc), [`bin/drpmt_asm`](bin/drpmt_asm),
+[`bin/drpmt_link`](bin/drpmt_link), [`bin/drpli_pc`](bin/drpli_pc),
+[`bin/m2cb_cvt`](bin/m2cb_cvt).
+
+---
+
+### Pattern 4b — CP/M-86 `.cmd` run inside `cpm86.exe` under `emu2`
+
+Used for tools that are CP/M-86 binaries that must run inside the `cpm86.exe`
 emulator image (itself run under `emu2`).
 
 ```sh
@@ -314,7 +345,7 @@ if [ -z "$*" ]; then
 fi
 ```
 
-Examples: [`bin/drpmt_pc`](bin/drpmt_pc), [`bin/drpli_pc`](bin/drpli_pc).
+No wrappers currently use this pattern — it is documented for reference should a tool require it.
 
 ---
 
@@ -380,7 +411,8 @@ Examples: [`bin/drccpm_cc`](bin/drccpm_cc) (DR C two-pass compiler),
 | Variable | Purpose |
 |---|---|
 | `EMU2_DRIVE_A` … `EMU2_DRIVE_Z` | Map a DOS drive letter to a host directory. |
-| `EMU2_APPEND` | Colon-separated list of DOS drives appended to the PATH inside emu2. |
+| `EMU2_APPEND` | Colon-separated list of DOS drives appended to the DOS PATH inside emu2. |
+| `EMU2_CPM_APPEND` | Colon-separated list of drives appended to the CP/M PATH when running a `.cmd` directly under emu2 (use instead of `EMU2_APPEND` for Pattern 4a wrappers). |
 | `EMU2_PROGNAME` | Overrides the displayed program name (cosmetic only). |
 
 Drives are resolved at runtime; the convention used in this project is:

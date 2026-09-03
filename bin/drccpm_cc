@@ -1,8 +1,8 @@
 #!/bin/sh
 share="`dirname $0`/../share/drc86cpm"
 emu2=`dirname $0`/emu2
-EMU2_APPEND="D:\\"
-export EMU2_APPEND
+EMU2_CPM_APPEND="D:"
+export EMU2_CPM_APPEND
 EMU2_DRIVE_D="$share"
 export EMU2_DRIVE_D
 
@@ -19,13 +19,13 @@ for arg in "$@"; do
     esac
 done
 
-EMU2_PROGNAME="D:\\drc860.cmd"
+EMU2_PROGNAME="D:drc860.cmd"
 export EMU2_PROGNAME
 "$emu2" "$share/drc860.cmd" -v1 $cpp_args -- PATH=D:\\
 rc=$?
 
 if [ $rc -eq 0 ] && [ -f ctemp.tok ]; then
-    EMU2_PROGNAME="D:\\drc861.cmd"
+    EMU2_PROGNAME="D:drc861.cmd"
     export EMU2_PROGNAME
     "$emu2" "$share/drc861.cmd" -v1 $cc_args -- PATH=D:\\
     rc=$?

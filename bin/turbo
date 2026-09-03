@@ -1,8 +1,8 @@
 #!/bin/sh
 prog=turbo.cmd
 emu2=`dirname $0`/emu2
-EMU2_APPEND=D:
-export EMU2_APPEND
+EMU2_CPM_APPEND=D:
+export EMU2_CPM_APPEND
 EMU2_DRIVE_D="`dirname $0`/../share/turbocpm"
 export EMU2_DRIVE_D
 EMU2_PROGNAME="D:$prog"

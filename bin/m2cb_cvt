@@ -1,18 +1,15 @@
 #!/bin/sh
 share="`dirname $0`/../share/m2cbcpm"
 emu2=`dirname $0`/emu2
-emudir="`dirname $0`/../share/emu"
-EMU2_APPEND="C:"
-export EMU2_APPEND
+EMU2_CPM_APPEND="C:"
+export EMU2_CPM_APPEND
 EMU2_DRIVE_C="$share"
 export EMU2_DRIVE_C
 EMU2_DRIVE_D="`pwd`"
 export EMU2_DRIVE_D
 EMU2_DRIVE_P="$share"
 export EMU2_DRIVE_P
-EMU2_DRIVE_E="$emudir"
-export EMU2_DRIVE_E
-EMU2_PROGNAME="E:\\cpm86.exe"
+EMU2_PROGNAME="C:m2cbasic.cmd"
 export EMU2_PROGNAME
 
 # Prefix bare filenames (no drive letter) with D: so the tool finds them in CWD
@@ -25,7 +22,7 @@ for arg in "$@"; do
     esac
 done
 
-"$emu2" "$emudir/cpm86.exe" "C:m2cbasic" $args
+"$emu2" "$share/m2cbasic.cmd" $args
 if [ -z "$*" ]; then
     echo ""
 fi
