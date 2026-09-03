@@ -21,6 +21,9 @@ rm -rf "$root/share/pcdev" "$root/share/emu" "$root/share/aztec"?? \
        "$root/share/intel" "$root/share/m2cb"* \
        "$root/share/xlisp" "$root/share/plicpm"
 
+printf 'INF: removing fetch logs ...\n'
+rm -f "$root"/fetch-*.log
+
 printf 'INF: removing archive and legacy build trees ...\n'
 # Remove legacy root-level build trees (relocated to archive/ — transitional)
 rm -rf "$root/emu2" "$root/tnylpo" "$root/nasm" "$root/upx" "$root/cmdtools"

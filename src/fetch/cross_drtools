@@ -3,36 +3,36 @@
 set -e
 
 echo INF: Checking DOS DR tools ...
-if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
-   -o ! -f pcdev/lib86.exe ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/pcdev"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/tools86.zip"
-    unzip -L "$ARCHIVED_FILE"
-    unzip -L dos86pr2.zip
-    cp linkcmd.exe rasm86.exe ../pcdev
-    cp linkexe.exe ../pcdev
-    cp lib86.exe ../pcdev
-    chmod 644 ../pcdev/*.*
-    rm -rf "$root/share/temp-tools"
+if [ ! -f "$root/share/pcdev/linkcmd.exe" ] || [ ! -f "$root/share/pcdev/rasm86.exe" ] \
+   || [ ! -f "$root/share/pcdev/linkexe.exe" ] || [ ! -f "$root/share/pcdev/lib86.exe" ]; then
+    tmp="$root/share/temp-drtools"
+    rm -rf "$tmp"
+    mkdir -p "$tmp" "$root/share/pcdev"
+    trap 'rm -rf "$tmp"' EXIT
+    (cd "$tmp" && fetch_get "http://www.cpm.z80.de/download/tools86.zip" \
+        && unzip -L "$ARCHIVED_FILE" && unzip -L dos86pr2.zip)
+    cp "$tmp/linkcmd.exe" "$tmp/rasm86.exe" "$tmp/linkexe.exe" "$tmp/lib86.exe" \
+       "$root/share/pcdev"
+    chmod 644 "$root/share/pcdev"/*.*
+    rm -rf "$tmp"
+    trap - EXIT
 fi
-if [ ! -f cpm/asm86.com -o ! -f cpm/gencmd.com ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/cpm"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/mpm862sr.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp 03/a86.cpm ../cpm/asm86.com
-    cp 03/gencmd.cpm ../cpm/gencmd.com
-    chmod 644 ../cpm/*.*
-    rm -rf "$root/share/temp-tools"
+echo INF: Checking CP/M-80 DR tools ...
+if [ ! -f "$root/share/cpm/asm86.com" ] || [ ! -f "$root/share/cpm/gencmd.com" ]; then
+    tmp="$root/share/temp-drtools"
+    rm -rf "$tmp"
+    mkdir -p "$tmp" "$root/share/cpm"
+    trap 'rm -rf "$tmp"' EXIT
+    (cd "$tmp" && fetch_get "http://www.cpm.z80.de/download/mpm862sr.zip" \
+        && unzip -L "$ARCHIVED_FILE")
+    cp "$tmp/03/a86.cpm"    "$root/share/cpm/asm86.com"
+    cp "$tmp/03/gencmd.cpm" "$root/share/cpm/gencmd.com"
+    chmod 644 "$root/share/cpm/asm86.com" "$root/share/cpm/gencmd.com"
+    rm -rf "$tmp"
+    trap - EXIT
 fi
 echo INF: Checking CP/M-86 DR tools ...
-cd "$root/share"
-if [ ! -f cpm/asm86.cmd -o ! -f cpm/gencmd.cmd ]; then
+if [ ! -f "$root/share/cpm/asm86.cmd" ] || [ ! -f "$root/share/cpm/gencmd.cmd" ]; then
     mkdir -p "$root/share/cpm"
     fetch_get "https://github.com/tsupplis/cpm86-kernel/raw/refs/heads/main/base/asm86.cmd" "asm86.cmd"
     cp "$ARCHIVED_FILE" "$root/share/cpm/asm86.cmd"
@@ -41,120 +41,22 @@ if [ ! -f cpm/asm86.cmd -o ! -f cpm/gencmd.cmd ]; then
     chmod 644 "$root/share/cpm/asm86.cmd" "$root/share/cpm/gencmd.cmd"
 fi
 echo INF: Checking Personal Basic 86 1.2 ...
-cd "$root/share"
-if [ ! -f cpm/basic.cmd ]; then
+if [ ! -f "$root/share/cpm/basic.cmd" ]; then
     mkdir -p "$root/share/cpm"
-    cp "$root/src/drtools/basic.cmd" cpm/basic.cmd
-    chmod 644 cpm/basic.cmd
+    cp "$root/src/drtools/basic.cmd" "$root/share/cpm/basic.cmd"
+    chmod 644 "$root/share/cpm/basic.cmd"
 fi
 echo INF: Checking XLT86 1.3 for CP/M-80 ...
-cd "$root/share"
-if [ ! -f cpm/xlt86.com ]; then
-    mkdir -p "$root/share/cpm"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/xlt86.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp xlt86.com xlt00.ovl xlt01.ovl ../cpm
-    chmod 644 ../cpm/xlt86.com ../cpm/xlt00.ovl ../cpm/xlt01.ovl
-    rm -rf "$root/share/temp-tools"
-fi
-echo INF: Checking DR C 86 1.11 ...
-cd "$root/share"
-if [ ! -f drc86cpm/drc860.cmd ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/drc86cpm"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/drc_86.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp v1-11/disk1/drc860.cmd v1-11/disk1/drc861.cmd \
-       v1-11/disk1/drc862.cmd v1-11/disk1/drcrpp.cmd \
-       v1-11/disk1/drc.err ../drc86cpm
-    cp v1-11/disk1/ctype.h v1-11/disk1/errno.h v1-11/disk1/portab.h \
-       v1-11/disk1/setjmp.h v1-11/disk1/stdio.h ../drc86cpm
-    cp v1-11/disk2/clearl.l86 v1-11/disk2/clears.l86 \
-       v1-11/disk2/startup.a86 ../drc86cpm
-    cp v1-11/disk3/link86.cmd ../drc86cpm
-    cp "$root/share/pcdev/linkcmd.exe" "$root/share/drc86cpm"
-    chmod 644 ../drc86cpm/*
-    rm -rf "$root/share/temp-tools"
-fi
-echo INF: Checking DR C 86 1.11 extra headers ...
-cd "$root/share"
-if [ ! -f drc86cpm/alloc.h ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/drc86111.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp alloc.h dos.h bios.h float.h conio.h ../drc86cpm
-    cp pcbios.a86 ../drc86cpm
-    chmod 644 ../drc86cpm/alloc.h ../drc86cpm/dos.h ../drc86cpm/bios.h \
-              ../drc86cpm/float.h ../drc86cpm/conio.h ../drc86cpm/pcbios.a86
-    rm -rf "$root/share/temp-tools"
-fi
-echo INF: Assembling DR C 86 1.11 pcbios ...
-if [ ! -f "$root/share/drc86cpm/pcbios.obj" ]; then
-    (cd "$root/share/drc86cpm" && "$root/bin/pcdev_rasm86" pcbios.a86 '$' nc)
-fi
-echo INF: Checking DR FORTRAN-77 4.0 ...
-cd "$root/share"
-if [ ! -f f77cpm/f77.cmd ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/f77cpm"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/f77-86.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp f77.cmd codegen.cmd f77.ers f77io.err clear87.cmd link86.cmd ../f77cpm
-    cp clears.l86 clearl.l86 f32s.obj f32l.obj 8087.sim ../f77cpm
-    cp pkmemras.a86 ../f77cpm
-    cp "$root/share/pcdev/linkcmd.exe" "$root/share/f77cpm"
-    chmod 644 ../f77cpm/*
-    rm -rf "$root/share/temp-tools"
-fi
-echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...
-if [ ! -f "$root/share/f77cpm/pkmemras.obj" ]; then
-    (cd "$root/share/f77cpm" && "$root/bin/pcdev_rasm86" pkmemras.a86 '$' nc)
-fi
-echo INF: Checking Pascal MT+ 3.3 for CP/M-86 ...
-cd "$root/share"
-if [ ! -f drpmtcpm/mt-86.cmd ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/drpmtcpm"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/mt8633cp.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp mt-86.cmd mt-86.000 mt-86.001 mt-86.002 mt-86.003 mt-86.004 mt-86.005 ../drpmtcpm
-    cp linkmt.cmd linkmt.001 linkmt.002 ../drpmtcpm
-    cp asmt86.cmd asmt86.001 asmt86.002 asmt86.003 asmt86.004 ../drpmtcpm
-    cp libmt.cmd mt2int.cmd strip.cmd sz.cmd nm.cmd dis86.cmd ../drpmtcpm
-    cp paslib.r86 fpreals.r86 bcdreals.r86 87reals.r86 87trans.r86 ../drpmtcpm
-    cp fullheap.r86 debugger.r86 randomio.r86 trancend.r86 ../drpmtcpm
-    cp halt.r86 pasint.r86 ioerrors.r86 iomod4.r86 ovlmgr4.r86 ../drpmtcpm
-    cp mterrs.txt asmers.txt fibdef.lib ../drpmtcpm
-    chmod 644 ../drpmtcpm/*
-    cd "$root/share"
-    rm -rf "$root/share/temp-tools"
-fi
-echo INF: Checking PL/I-86 1.0 for CP/M-86 ...
-cd "$root/share"
-if [ ! -f plicpm/pli.cmd ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/plicpm"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-    fetch_get "http://www.cpm.z80.de/download/pli86.zip"
-    unzip -L "$ARCHIVED_FILE"
-    unzip -L pli86-1.zip
-    cp pli.cmd pli0.ovr pli1.ovr pli2.ovr ../plicpm
-    cp link86.cmd lib86.cmd xref86.cmd ../plicpm
-    cp plilib.l86 ../plicpm
-    cp dio86.dcl diomod.dcl fcb.dcl record.dcl matsize.lib ../plicpm
-    cp cpmdio.a86 div2.a86 fdiv2.a86 ../plicpm
-    cp "$root/share/pcdev/linkcmd.exe" "$root/share/plicpm"
-    chmod 644 ../plicpm/*
-    rm -rf "$root/share/temp-tools"
+if [ ! -f "$root/share/cpm/xlt86.com" ]; then
+    tmp="$root/share/temp-drtools"
+    rm -rf "$tmp"
+    mkdir -p "$tmp" "$root/share/cpm"
+    trap 'rm -rf "$tmp"' EXIT
+    (cd "$tmp" && fetch_get "http://www.cpm.z80.de/download/xlt86.zip" \
+        && unzip -L "$ARCHIVED_FILE")
+    cp "$tmp/xlt86.com" "$tmp/xlt00.ovl" "$tmp/xlt01.ovl" "$root/share/cpm"
+    chmod 644 "$root/share/cpm/xlt86.com" \
+              "$root/share/cpm/xlt00.ovl" "$root/share/cpm/xlt01.ovl"
+    rm -rf "$tmp"
+    trap - EXIT
 fi

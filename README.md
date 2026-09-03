@@ -283,7 +283,7 @@ docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 pcdev_masm hell
 
 Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for asm86 is provided:
 ```
-./build_demo
+./test_crossdev
 ```
 
 ### Basic Programs

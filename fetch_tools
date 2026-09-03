@@ -27,7 +27,7 @@ run_fetcher() {
     else
         _rc=$?
         printf 'ERR: [%s] FAILED (exit %s) — last output:\n' "$_name" "$_rc" >&2
-        tail -5 "$fetch_log" | sed 's/^/    /' >&2
+        tail -10 "$fetch_log" | sed 's/^/    /' >&2
         printf 'ERR: full log: %s\n' "$fetch_log_name" >&2
         exit "$_rc"
     fi
@@ -43,6 +43,10 @@ run_fetcher cross_aztec34
 run_fetcher cross_cpm86_patch
 run_fetcher cross_aztec42
 run_fetcher cross_drtools
+run_fetcher cross_drc
+run_fetcher cross_f77
+run_fetcher cross_pli
+run_fetcher cross_drpmt
 run_fetcher cross_turbo
 run_fetcher cross_cb86
 run_fetcher cross_m2cb
@@ -59,6 +63,12 @@ run_fetcher cross_xlisp
 # ── Finalise permissions ───────────────────────────────────────────────────────
 find "$root/share" -type d -exec chmod 755 {} \;
 find "$root/share" -type f -exec chmod a-w {} \;
+
+# ── Smoke test ────────────────────────────────────────────────────────────────
+printf 'INF: [test_crossdev] starting ...\n'
+(cd "$root/examples" && sh test_crossdev) >> "$fetch_log" 2>&1 \
+    && printf 'INF: [test_crossdev] ok\n' \
+    || { printf 'ERR: [test_crossdev] FAILED — see %s\n' "$fetch_log_name" >&2; exit 1; }
 
 printf 'INF: fetch and build completed — log: %s\n' "$fetch_log_name"
 exit 0

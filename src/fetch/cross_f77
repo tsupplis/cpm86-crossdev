@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking DR FORTRAN-77 4.0 ...
+cd "$root/share"
+if [ ! -f f77cpm/f77.cmd ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/f77cpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/f77-86.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp f77.cmd codegen.cmd f77.ers f77io.err clear87.cmd link86.cmd ../f77cpm
+    cp clears.l86 clearl.l86 f32s.obj f32l.obj 8087.sim ../f77cpm
+    cp pkmemras.a86 ../f77cpm
+    cp "$root/share/pcdev/linkcmd.exe" "$root/share/f77cpm"
+    chmod 644 ../f77cpm/*
+    rm -rf "$root/share/temp-tools"
+fi
+echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...
+if [ ! -f "$root/share/f77cpm/pkmemras.obj" ]; then
+    (cd "$root/share/f77cpm" && "$root/bin/pcdev_rasm86" pkmemras.a86 '$' nc)
+fi

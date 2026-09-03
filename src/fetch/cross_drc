@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking DR C 86 1.11 ...
+cd "$root/share"
+if [ ! -f drc86cpm/drc860.cmd ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/drc86cpm"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/drc_86.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp v1-11/disk1/drc860.cmd v1-11/disk1/drc861.cmd \
+       v1-11/disk1/drc862.cmd v1-11/disk1/drcrpp.cmd \
+       v1-11/disk1/drc.err ../drc86cpm
+    cp v1-11/disk1/ctype.h v1-11/disk1/errno.h v1-11/disk1/portab.h \
+       v1-11/disk1/setjmp.h v1-11/disk1/stdio.h ../drc86cpm
+    cp v1-11/disk2/clearl.l86 v1-11/disk2/clears.l86 \
+       v1-11/disk2/startup.a86 ../drc86cpm
+    cp v1-11/disk3/link86.cmd ../drc86cpm
+    cp "$root/share/pcdev/linkcmd.exe" "$root/share/drc86cpm"
+    chmod 644 ../drc86cpm/*
+    rm -rf "$root/share/temp-tools"
+fi
+echo INF: Checking DR C 86 1.11 extra headers ...
+cd "$root/share"
+if [ ! -f drc86cpm/alloc.h ]; then
+    rm -rf "$root/share/temp-tools"
+    mkdir -p "$root/share/temp-tools"
+    cd "$root/share/temp-tools"
+    fetch_get "http://www.cpm.z80.de/download/drc86111.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp alloc.h dos.h bios.h float.h conio.h ../drc86cpm
+    cp pcbios.a86 ../drc86cpm
+    chmod 644 ../drc86cpm/alloc.h ../drc86cpm/dos.h ../drc86cpm/bios.h \
+              ../drc86cpm/float.h ../drc86cpm/conio.h ../drc86cpm/pcbios.a86
+    rm -rf "$root/share/temp-tools"
+fi
+echo INF: Assembling DR C 86 1.11 pcbios ...
+if [ ! -f "$root/share/drc86cpm/pcbios.obj" ]; then
+    (cd "$root/share/drc86cpm" && "$root/bin/pcdev_rasm86" pcbios.a86 '$' nc)
+fi
