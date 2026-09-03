@@ -9,5 +9,5 @@ if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
        "$root/src/xlisp"/*.lnk "$root/src/xlisp"/*.lsp \
        "$root/src/xlisp/Makefile" \
        "$root/share/xlisp"
-    PATH="$root/bin:$PATH" make -C "$root/share/xlisp" all
+    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$root/share/xlisp" all
 fi

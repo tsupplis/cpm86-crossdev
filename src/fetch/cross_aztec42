@@ -3,17 +3,21 @@
 set -e
 
 echo INF: Checking Aztec 4.2 tools ...
-cd "$root/share"
-if [ ! -d aztec42/bin ];then
+if [ ! -d "$root/share/aztec42/bin" ]; then
     fetch_get "https://www.aztecmuseum.ca/AztecC86.zip"
-    unzip -L "$ARCHIVED_FILE"
-    mkdir -p "$root/share/aztec42"
-    cp -R aztecc86/bin aztec42
-    cp -R aztecc86/lib aztec42
+    tmp="$root/share/temp-aztec42"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    (cd "$tmp" && unzip -L "$ARCHIVED_FILE")
+    mkdir -p "$root/share/aztec42/src"
+    cp -R "$tmp/aztecc86/bin"     "$root/share/aztec42/bin"
+    cp -R "$tmp/aztecc86/lib"     "$root/share/aztec42/lib"
     # current AztecC86.zip doesn't have obj/, so
-    # lets only copy it if actually present.
-    [ -d aztecc86/obj ] && cp -R aztecc86/obj aztec42
-    cp -R aztecc86/arc/* aztec42/src
-    cp -R aztecc86/include aztec42
-    rm -rf aztecc86
+    # only copy it if actually present.
+    [ -d "$tmp/aztecc86/obj" ] && cp -R "$tmp/aztecc86/obj" "$root/share/aztec42/obj"
+    cp -R "$tmp/aztecc86/arc/." "$root/share/aztec42/src"
+    cp -R "$tmp/aztecc86/include" "$root/share/aztec42/include"
+    rm -rf "$tmp"
+    trap - EXIT
 fi

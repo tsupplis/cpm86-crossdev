@@ -13,10 +13,10 @@ cpm86-crossdev/
 ├── fetch_tools          # top-level entry point — runs every fetcher in order
 ├── clear_tools          # removes all generated artefacts (keeps archive/)
 ├── src/
-│   ├── fetch/           # one shell fragment per tool — sourced by fetch_tools
+│   ├── fetch/           # one shell fragment per tool — run by fetch_tools
 │   │   ├── _archive     # shared download-cache helper (fetch_get function)
-│   │   ├── aztec34      # download-only fetcher example
-│   │   ├── buildemu2    # git-clone + build fetcher example
+│   │   ├── cross_aztec34      # download-only fetcher example
+│   │   ├── native_emu2        # git-clone + build fetcher example
 │   │   └── …
 │   ├── aztec42-patch/   # patches applied during the aztec42 build step
 │   ├── drtools/         # DR Personal Basic binary (stored in-tree)
@@ -64,9 +64,12 @@ cpm86-crossdev/
 └── examples/            # sample source files
 ```
 
-`fetch_tools` sources every file in `src/fetch/` in a fixed order.  Each
-fragment receives `$root` (the absolute project root) and the `fetch_get`
-function from `src/fetch/_archive`.  After all fetchers complete, `share/` is
+`fetch_tools` runs every fetcher in `src/fetch/` in a fixed order.  Each
+fetcher receives `$root` (the absolute project root) and the `fetch_get`
+function from `src/fetch/_archive`.  Each fetcher runs in its own isolated
+subshell (via `env -i sh -c`), with all output redirected to a timestamped
+`fetch-YYYYMMDD-HHMMSS.log` at the project root.  Only `INF:`/`ERR:` summary
+lines appear on the terminal.  After all fetchers complete, `share/` is
 write-protected and the tool chain is ready.
 
 The `archive/` directory is the **persistent download cache**.  `clear_tools`
@@ -75,47 +78,76 @@ deliberately leaves it intact so that the tree can be rebuilt offline with
 
 ---
 
+## Fetcher naming convention
+
+Fetchers in `src/fetch/` follow a two-part `<tier>_<toolname>` naming scheme
+that immediately communicates whether the fetcher downloads a cross-development
+tool (run under an emulator) or builds a native host binary:
+
+| Prefix | Meaning | Examples |
+|---|---|---|
+| `cross_` | Downloads/stages a cross-development tool into `share/` — runs under emu2 or tnylpo at build time | `cross_aztec34`, `cross_drtools`, `cross_turbo` |
+| `native_` | Clones or downloads source and compiles a native host binary into `bin/` | `native_emu2`, `native_nasm`, `native_tnylpo` |
+
+Some fetchers do both (e.g. `cross_aztec42_build` downloads the archive *and*
+builds native support tools from source); name them after their primary purpose
+and add a `_build` suffix when the build step is distinct from the download.
+
+---
+
 ## Writing a fetcher
 
-A fetcher is a POSIX shell fragment stored in `src/fetch/`.  It is **sourced**
-(not executed) by `fetch_tools`, so it shares the same shell process and must
-not call `exit` on success.  `set -e` is inherited from the parent.
+A fetcher is a POSIX shell fragment stored in `src/fetch/`.  `fetch_tools`
+runs each one in its own isolated subshell, so:
 
-### Template
+- `$root` and `fetch_get` are injected via `env -i sh -c`; no other environment
+  variables are inherited — pass anything extra through `env` if needed.
+- `set -e` is active inside the subshell.
+- Do **not** call `exit 0` on success — a zero exit from the last command is
+  sufficient.  A non-zero exit is reported as a failure by `fetch_tools`.
+
+### Template — download-only fetcher (`cross_`)
 
 ```sh
-#!/bin/sh   # <- makes editors happy; ignored when sourced
+#!/bin/sh   # <- makes editors happy; not executed directly
 
 set -e
 
 echo INF: Checking <Tool Name> <version> ...
-
-# --- download-only fetcher ---
-cd "$root/share"
-if [ ! -f <share-subdir>/<sentinel-file> ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/<share-subdir>"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
-
+if [ ! -f "$root/share/<share-subdir>/<sentinel-file>" ]; then
     fetch_get "<URL>"            # downloads to archive/<basename> if needed
-    unzip -L "$ARCHIVED_FILE"   # or: tar zxf "$ARCHIVED_FILE"
 
-    cp <file> ...  "$root/share/<share-subdir>/"
+    tmp="$root/share/temp-<toolname>"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    (cd "$tmp" && unzip -L "$ARCHIVED_FILE")   # or: tar zxf "$ARCHIVED_FILE" -C "$tmp"
+
+    mkdir -p "$root/share/<share-subdir>"
+    cp -R "$tmp/<extracted-dir>/<subdir>" "$root/share/<share-subdir>/"
+    # … more cp lines …
     chmod 644 "$root/share/<share-subdir>"/*
 
-    rm -rf "$root/share/temp-tools"
+    rm -rf "$tmp"
+    trap - EXIT
 fi
 ```
 
+Key points:
+- Use a **private staging directory** (`temp-<toolname>`) so that a `cp` failure
+  mid-way leaves no partial state under `share/`.  The `trap` ensures cleanup on
+  any error.
+- Use **absolute paths** (`$root/share/...`) throughout — never `cd` to a
+  directory and use relative paths.
+
+### Template — git-clone + build fetcher (`native_`)
+
 ```sh
-#!/bin/sh   # <- makes editors happy; ignored when sourced
+#!/bin/sh
 
 set -e
 
 echo INF: Checking <Tool Name> ...
-
-# --- git-clone + build fetcher ---
 mkdir -p "$root/archive"
 if [ ! -d "$root/archive/<tool>" ]; then
     git clone "<repo-url>" "$root/archive/<tool>"
@@ -125,18 +157,18 @@ if [ ! -f "$root/bin/<binary>" ]; then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null \
              || getconf NPROCESSORS_ONLN 2>/dev/null \
              || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd "$root/archive/<tool>"; make -j"$ncpus"; cp <binary> "$root/bin/")
+    (cd "$root/archive/<tool>" && "${MAKE:-make}" -j"$ncpus" && cp <binary> "$root/bin/")
 fi
 ```
 
+### Template — tarball + build fetcher (`native_`)
+
 ```sh
-#!/bin/sh   # <- makes editors happy; ignored when sourced
+#!/bin/sh
 
 set -e
 
 echo INF: Checking <Tool Name> ...
-
-# --- tarball + build fetcher ---
 mkdir -p "$root/archive"
 if [ ! -d "$root/archive/<tool>" ]; then
     fetch_get "<url>"
@@ -147,7 +179,7 @@ if [ ! -f "$root/bin/<binary>" ]; then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null \
              || getconf NPROCESSORS_ONLN 2>/dev/null \
              || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd "$root/archive/<tool>"; ./configure; make -j"$ncpus"; cp <binary> "$root/bin/")
+    (cd "$root/archive/<tool>" && ./configure && "${MAKE:-make}" -j"$ncpus" && cp <binary> "$root/bin/")
 fi
 ```
 
@@ -155,15 +187,18 @@ fi
 
 | Rule | Detail |
 |---|---|
+| Follow the naming convention | Name the file `cross_<toolname>` for emulated tools, `native_<toolname>` for host-compiled binaries. |
 | Always guard with a sentinel | Wrap every action in `if [ ! -f ... ]` or `if [ ! -d ... ]` so re-running `fetch_tools` is idempotent. |
+| Use absolute paths | Always use `$root/share/...`, `$root/bin/...`, etc.  Never `cd` to a directory and then use relative paths — the fetcher runs in an isolated subshell and relative paths are fragile. |
+| Use a staging temp dir for unzip/tar | Extract into `$root/share/temp-<toolname>`, copy what you need, then `rm -rf` it.  Guard with `trap 'rm -rf "$tmp"' EXIT` so partial state is cleaned on error. |
 | Use `fetch_get` for every download | Never call `wget` or `curl` directly.  `fetch_get` handles the `archive/` cache and the `ARCHIVE_FIRST` offline mode automatically. |
 | Stage into `share/<subdir>/` | Never install files directly into `bin/`.  Wrappers resolve paths to `share/` at runtime. |
 | `chmod 644` after staging | `fetch_tools` does a final `chmod a-w` pass over all of `share/` so the sentinel check (`[ ! -f ... ]`) stays reliable. |
 | Source/build trees go into `archive/` | Clone with `"$root/archive/<tool>"` as the target, or extract tarballs with `-C "$root/archive"`.  Build in-place under `archive/`.  Never create build directories at the project root.  Strip `.git` after cloning (`rm -rf "$root/archive/<tool>/.git"`). |
-| Remove `temp-tools` | Create `$root/share/temp-tools` as an extraction scratch area and `rm -rf` it afterwards. |
-| No `exit 0` | The fragment is sourced; a bare `exit` would terminate `fetch_tools` entirely. |
-| Register in `fetch_tools` | Add `cd "$root"; . src/fetch/<name>` at the appropriate position in `fetch_tools`. |
-| Register in `clear_tools` if needed | If the fetcher stages a `share/` subtree, add it to the `rm -rf` list in `clear_tools`. |
+| Use `${MAKE:-make}` | Never call bare `make` — use `"${MAKE:-make}"` so the caller can override the make binary. |
+| No `exit 0` | Exit status of the last command is used as the fetcher result.  A bare `exit` with a non-zero code is fine to signal failure. |
+| Register in `fetch_tools` | Add `run_fetcher <name>` at the appropriate position in `fetch_tools` (after any dependency fetchers). |
+| Register in `clear_tools` if needed | If the fetcher stages a `share/` subtree, add `"$root/share/<subdir>"` to the `rm -rf` list in `clear_tools`. |
 
 ### `fetch_get` reference
 
@@ -360,14 +395,15 @@ Drives are resolved at runtime; the convention used in this project is:
 
 ## Adding a new tool — end-to-end checklist
 
-1. **Create `src/fetch/<toolname>`** — download and stage the tool into
-   `share/<toolname>/`.  Follow the fetcher template above.
+1. **Create `src/fetch/<tier>_<toolname>`** — download and stage the tool into
+   `share/<toolname>/`.  Use `cross_` for emulated tools, `native_` for host
+   binaries.  Follow the fetcher template above.
 
-2. **Add to `fetch_tools`** — insert `cd "$root"; . src/fetch/<toolname>` at
-   the right point in the sequence (after any dependency fetchers).
+2. **Add to `fetch_tools`** — insert `run_fetcher <tier>_<toolname>` at the
+   right point in the sequence (after any dependency fetchers).
 
-3. **Add to `clear_tools`** — insert `share/<toolname>` into the `rm -rf`
-   list.
+3. **Add to `clear_tools`** — insert `"$root/share/<toolname>"` into the
+   `rm -rf` list.
 
 4. **Create `bin/<prefix>_<prog>`** — write the wrapper using the appropriate
    pattern.  `chmod +x bin/<prefix>_<prog>`.

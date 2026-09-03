@@ -1,13 +1,31 @@
 #!/bin/sh
-set -ex
-rm -rf bin/emu2 bin/tnylpo bin/nasm bin/upx
-rm -rf bin/cmdinfo bin/bin2cmd bin/exe2cmd bin/doscat bin/hexcom
-(cd src/tools;"${MAKE:-make}" clean)
-rm -rf share/pcdev share/emu share/aztec?? share/cpm share/cb86* \
-    share/dr* share/f77* share/turbo* share/intel share/m2cb* \
-    share/xlisp share/plicpm
+set -e
+root=`dirname $0`
+cd "$root"
+root=`pwd`
+
+printf 'INF: clearing tools in %s\n' "$root"
+
+printf 'INF: removing native tool binaries ...\n'
+rm -rf "$root/bin/emu2" "$root/bin/tnylpo" "$root/bin/nasm" "$root/bin/upx"
+rm -rf "$root/bin/cmdinfo" "$root/bin/bin2cmd" "$root/bin/exe2cmd" \
+       "$root/bin/doscat" "$root/bin/hexcom"
+
+printf 'INF: cleaning src/tools ...\n'
+(cd "$root/src/tools" && "${MAKE:-make}" clean)
+
+printf 'INF: removing share trees ...\n'
+rm -rf "$root/share/pcdev" "$root/share/emu" "$root/share/aztec"?? \
+       "$root/share/cpm"   "$root/share/cb86"* \
+       "$root/share/dr"*   "$root/share/f77"* "$root/share/turbo"* \
+       "$root/share/intel" "$root/share/m2cb"* \
+       "$root/share/xlisp" "$root/share/plicpm"
+
+printf 'INF: removing archive and legacy build trees ...\n'
 # Remove legacy root-level build trees (relocated to archive/ — transitional)
-rm -rf emu2 tnylpo nasm upx cmdtools
-rm -rf archive/*
-rm -f bin/bin2cmd bin/cmdinfo bin/exe2cmd
-rmdir share > /dev/null 2>&1
+rm -rf "$root/emu2" "$root/tnylpo" "$root/nasm" "$root/upx" "$root/cmdtools"
+rm -rf "$root/archive"/*
+rm -f  "$root/bin/bin2cmd" "$root/bin/cmdinfo" "$root/bin/exe2cmd"
+rmdir  "$root/share" > /dev/null 2>&1 || true
+
+printf 'INF: clear completed\n'

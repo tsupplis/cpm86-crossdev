@@ -2,10 +2,7 @@
 
 set -e
 
-echo INF: Checking CP/M DR tools ...
-cd "$root/share"
 echo INF: Checking DOS DR tools ...
-cd "$root/share"
 if [ ! -f pcdev/linkcmd.exe -o ! -f pcdev/rasm86.exe -o ! -f pcdev/linkexe.exe \
    -o ! -f pcdev/lib86.exe ]; then
     rm -rf "$root/share/temp-tools"
@@ -99,9 +96,7 @@ if [ ! -f drc86cpm/alloc.h ]; then
 fi
 echo INF: Assembling DR C 86 1.11 pcbios ...
 if [ ! -f "$root/share/drc86cpm/pcbios.obj" ]; then
-    cd "$root/share/drc86cpm"
-    "$root/bin/pcdev_rasm86" pcbios.a86 '$' nc
-    cd "$root/share"
+    (cd "$root/share/drc86cpm" && "$root/bin/pcdev_rasm86" pcbios.a86 '$' nc)
 fi
 echo INF: Checking DR FORTRAN-77 4.0 ...
 cd "$root/share"
@@ -121,9 +116,7 @@ if [ ! -f f77cpm/f77.cmd ]; then
 fi
 echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...
 if [ ! -f "$root/share/f77cpm/pkmemras.obj" ]; then
-    cd "$root/share/f77cpm"
-    "$root/bin/pcdev_rasm86" pkmemras.a86 '$' nc
-    cd "$root/share"
+    (cd "$root/share/f77cpm" && "$root/bin/pcdev_rasm86" pkmemras.a86 '$' nc)
 fi
 echo INF: Checking Pascal MT+ 3.3 for CP/M-86 ...
 cd "$root/share"

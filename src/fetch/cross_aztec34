@@ -3,22 +3,26 @@
 set -e
 
 echo INF: Checking Aztec 3.4 tools ...
-cd "$root/share"
-if [ ! -d aztec34/bin -o ! -f emu/cpm86.exe ];then
+if [ ! -d "$root/share/aztec34/bin" ] || [ ! -f "$root/share/emu/cpm86.exe" ]; then
     fetch_get "https://www.aztecmuseum.ca/az8634b.zip"
-    unzip -L "$ARCHIVED_FILE"
-    mkdir -p "$root/share/aztec34"
+    tmp="$root/share/temp-aztec34"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    (cd "$tmp" && unzip -L "$ARCHIVED_FILE")
+    mkdir -p "$root/share/aztec34/src"
     mkdir -p "$root/share/emu"
     mkdir -p "$root/share/aztec42/src"
-    cp -R az8634b/bin aztec34
-    cp -R az8634b/lib aztec34
-    cp -R az8634b/emu/cpm.exe emu/cpm86.exe
-    cp -R az8634b/obj/* aztec34/lib
-    cp -R az8634b/src aztec34
-    cp -R az8634b/src/dos11.arc aztec42/src
-    cp -R az8634b/src/cpm86.arc aztec42/src
-    cp -R az8634b/include aztec34
-    rm -rf az8634b
+    cp -R "$tmp/az8634b/bin"        "$root/share/aztec34/bin"
+    cp -R "$tmp/az8634b/lib"        "$root/share/aztec34/lib"
+    cp    "$tmp/az8634b/emu/cpm.exe" "$root/share/emu/cpm86.exe"
+    cp -R "$tmp/az8634b/obj/."      "$root/share/aztec34/lib"
+    cp -R "$tmp/az8634b/src"        "$root/share/aztec34/src"
+    cp    "$tmp/az8634b/src/dos11.arc" "$root/share/aztec42/src"
+    cp    "$tmp/az8634b/src/cpm86.arc" "$root/share/aztec42/src"
+    cp -R "$tmp/az8634b/include"    "$root/share/aztec34/include"
+    rm -rf "$tmp"
+    trap - EXIT
 fi
 
 echo INF: Patching the Aztec 3.4 preprocessor ...
@@ -26,5 +30,5 @@ ccb34="$root/share/aztec34/bin/ccb.exe"
 cc34="$root/share/aztec34/bin/cc.exe"
 if [ -f "$cc34" ] && [ ! -f "$cc34.bak" ] && \
    [ -f "$ccb34" ] && [ ! -f "$ccb34.bak" ]; then
-    sh "$root/src/patch/patch_aztec_cpp"
+    (cd "$root/share" && sh "$root/src/patch/patch_aztec_cpp")
 fi

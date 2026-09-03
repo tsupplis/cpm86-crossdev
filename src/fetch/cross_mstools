@@ -3,26 +3,23 @@
 set -e
 
 echo INF: Checking Microsoft tools ...
-cd "$root/share"
-if [ ! -f pcdev/masm.exe -o ! -f pcdev/exe2bin.exe -o ! -f pcdev/link.exe ]; then
-    cd "$root/share"
+if [ ! -f "$root/share/pcdev/masm.exe" ] || [ ! -f "$root/share/pcdev/exe2bin.exe" ] || [ ! -f "$root/share/pcdev/link.exe" ]; then
     mkdir -p "$root/share/pcdev"
-    cp ../src/mstools/*.exe pcdev
-    chmod 644 pcdev/*.*
+    cp "$root/src/mstools"/*.exe "$root/share/pcdev"
+    chmod 644 "$root/share/pcdev"/*.*
 fi
-if [ ! -f pcdev/asm.com -o ! -f pcdev/hex2bin.com ]; then
-    cd "$root/share"
+if [ ! -f "$root/share/pcdev/asm.com" ] || [ ! -f "$root/share/pcdev/hex2bin.com" ]; then
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/mstools"/*.com pcdev
-    chmod 644 pcdev/*.*
+    cp "$root/src/mstools"/*.com "$root/share/pcdev"
+    chmod 644 "$root/share/pcdev"/*.*
 fi
-if [ ! -f cpm/mbasic86.cmd ]; then
+if [ ! -f "$root/share/cpm/mbasic86.cmd" ]; then
     mkdir -p "$root/share/cpm"
-    cp "$root/src/mstools/mbasic86.cmd" cpm
-    chmod 644 cpm/mbasic86.cmd
+    cp "$root/src/mstools/mbasic86.cmd" "$root/share/cpm"
+    chmod 644 "$root/share/cpm/mbasic86.cmd"
 fi
-if [ ! -f pcdev/mbasic86.com ]; then
+if [ ! -f "$root/share/pcdev/mbasic86.com" ]; then
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/mstools/mbasic86.com" pcdev
-    chmod 644 pcdev/mbasic86.com
+    cp "$root/src/mstools/mbasic86.com" "$root/share/pcdev"
+    chmod 644 "$root/share/pcdev/mbasic86.com"
 fi

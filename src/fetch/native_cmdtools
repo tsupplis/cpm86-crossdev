@@ -2,7 +2,7 @@
 
 set -e
 
-echo INF: Checking CMD tools ...
+echo INF: Checking cmdtools ...
 mkdir -p "$root/archive"
 if [ ! -d "$root/archive/cmdtools" ]; then
     git clone "https://github.com/tsupplis/cpm86-cmdtools" "$root/archive/cmdtools"

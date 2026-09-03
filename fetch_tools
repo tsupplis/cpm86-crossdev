@@ -3,26 +3,62 @@ set -e
 root=`dirname $0`
 cd "$root"
 root=`pwd`
+
+# ── Logging setup ─────────────────────────────────────────────────────────────
+timestamp=`date +%Y%m%d-%H%M%S`
+fetch_log_name="fetch-${timestamp}.log"
+fetch_log="$root/$fetch_log_name"
+: > "$fetch_log"
+printf 'INF: logging to %s\n' "$fetch_log_name"
+
+# run_fetcher <name>
+#   Sources the named fetcher in a subshell so its stdout+stderr go to both the
+#   log file and a per-fetcher capture.  Reports a one-line start/ok/FAIL to the
+#   terminal.  On failure the last 5 lines of output are shown on the terminal.
+run_fetcher() {
+    _name="$1"
+    _file="$root/src/fetch/$_name"
+    printf 'INF: [%s] starting ...\n' "$_name"
+    printf '\n=== %s ===\n' "$_name" >> "$fetch_log"
+    if env -i HOME="$HOME" PATH="$PATH" root="$root" \
+        sh -c '. "$root/src/fetch/_archive"; cd "$root"; . "$root/src/fetch/'"$_name"'"' \
+        >> "$fetch_log" 2>&1 </dev/null; then
+        printf 'INF: [%s] ok\n' "$_name"
+    else
+        _rc=$?
+        printf 'ERR: [%s] FAILED (exit %s) — last output:\n' "$_name" "$_rc" >&2
+        tail -5 "$fetch_log" | sed 's/^/    /' >&2
+        printf 'ERR: full log: %s\n' "$fetch_log_name" >&2
+        exit "$_rc"
+    fi
+}
+
+# ── Source helpers (not logged — tiny, no output) ─────────────────────────────
 . src/fetch/_archive
 mkdir -p "$root/share/pcdev"
-cd "$root"; . src/fetch/native_emu2
-cd "$root"; . src/fetch/cross_aztec34
-cd "$root"; . src/fetch/cross_cpm86_patch
-cd "$root"; . src/fetch/cross_aztec42
-cd "$root"; . src/fetch/cross_drtools
-cd "$root"; . src/fetch/cross_turbo
-cd "$root"; . src/fetch/native_cb86
-cd "$root"; . src/fetch/cross_m2cb
-cd "$root"; . src/fetch/cross_plm86
-cd "$root"; . src/fetch/cross_mstools
-cd "$root"; . src/fetch/native_drtools
-cd "$root"; . src/fetch/native_tnylpo
-cd "$root"; . src/fetch/native_nasm
-cd "$root"; . src/fetch/native_upx
-cd "$root"; . src/fetch/cross_aztec42_build
-cd "$root"; . src/fetch/cross_aztec_startups
-cd "$root"; . src/fetch/cross_xlisp
+
+# ── Fetchers ──────────────────────────────────────────────────────────────────
+run_fetcher native_emu2
+run_fetcher cross_aztec34
+run_fetcher cross_cpm86_patch
+run_fetcher cross_aztec42
+run_fetcher cross_drtools
+run_fetcher cross_turbo
+run_fetcher cross_cb86
+run_fetcher cross_m2cb
+run_fetcher cross_plm86
+run_fetcher cross_mstools
+run_fetcher native_cmdtools
+run_fetcher native_tnylpo
+run_fetcher native_nasm
+run_fetcher native_upx
+run_fetcher cross_aztec42_build
+run_fetcher cross_aztec_startups
+run_fetcher cross_xlisp
+
+# ── Finalise permissions ───────────────────────────────────────────────────────
 find "$root/share" -type d -exec chmod 755 {} \;
 find "$root/share" -type f -exec chmod a-w {} \;
-printf 'INF: %s\n' "Fetch and build completed"
+
+printf 'INF: fetch and build completed — log: %s\n' "$fetch_log_name"
 exit 0

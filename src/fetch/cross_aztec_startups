@@ -24,9 +24,9 @@ for az in aztec34 aztec42; do
     (
         cd "$lib" || exit 0
         if [ -f c86.lib ]; then
-            "$root/bin/${az}_lib" c86.lib -x begin  >/dev/null 2>&1 && mv -f begin.o begin86.o
+            "$root/bin/${az}_lib" c86.lib -x begin && mv -f begin.o begin86.o
         fi
-        [ -f c.lib  ] && "$root/bin/${az}_lib" c.lib  -x sbegin >/dev/null 2>&1
-        [ -f cl.lib ] && "$root/bin/${az}_lib" cl.lib -x lbegin >/dev/null 2>&1
+        [ -f c.lib  ] && "$root/bin/${az}_lib" c.lib  -x sbegin
+        [ -f cl.lib ] && "$root/bin/${az}_lib" cl.lib -x lbegin
     )
 done

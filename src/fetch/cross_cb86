@@ -17,7 +17,7 @@ if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
     cp ../pcdev/linkcmd.exe ../cb86cpm/link86.exe
     cp ../pcdev/lib86.exe ../cb86cpm/lib86.exe
     cp ../pcdev/rasm86.exe ../cb86cpm/rasm86.exe
-    rm ../temp-tools/*.*
+    rm "$root/share/temp-tools"/*.*
     fetch_get "http://www.cpm.z80.de/download/cb86toys.zip"
     unzip -L "$ARCHIVED_FILE"
     cp cb86.exe ../cb86dos
