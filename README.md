@@ -191,7 +191,7 @@ All the tools are wrapped in the bin directory for direct usage:
 The development environment can be assembled by using the following steps:
 ```
 ./fetch_tools
-export PATH=`pwd`/bin
+export PATH="$(pwd -P)"/bin
 ```
 it pulls the following:
 - aztec 3.4 c compiler  (https://www.aztecmuseum.ca/az8634b.zip)
@@ -267,8 +267,8 @@ docker build --progress=plain --rm=true -t cpm86:latest -f docker/Dockerfile .
 to user the created image, just ensure that the local path where the compilation happens is mounted properly:
 
 ```
-docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 pcdev_rasm86 helloa.a86
-docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 aztec34_cc helloc.c
+docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 pcdev_rasm86 helloa.a86
+docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 aztec34_cc helloc.c
 ```
 The only difference on the command line happens with \;
 ```
@@ -276,7 +276,7 @@ pcdev_masm hellod \;
 ```
 ... becomes ...
 ```
-docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 pcdev_masm hellod '\\;'
+docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 pcdev_masm hellod '\\;'
 ```
 
 ## Using the tools
