@@ -36,7 +36,7 @@ PLI=drpli_pc
 PLILINK=drpli_link
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
-	hello80.cmd hellopli.cmd
+	hello80.cmd # hellopli.cmd
 
 all: binaries
 
