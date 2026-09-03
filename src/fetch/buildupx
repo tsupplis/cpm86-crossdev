@@ -3,13 +3,13 @@
 set -e
 
 echo INF: Checking UPX ...
-cd "$root"
-if [ ! -d upx ];then
+mkdir -p "$root/archive"
+if [ ! -d "$root/archive/upx" ];then
     fetch_get "https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz"
-    tar zxf "$ARCHIVED_FILE" || tar axf "$ARCHIVED_FILE"
-    mv upx-5.2.1-src upx
+    tar axf "$ARCHIVED_FILE" -C "$root/archive"
+    mv "$root/archive/upx-5.2.1-src" "$root/archive/upx"
 fi
-if [ ! -f build/release/upx ];then
+if [ ! -f "$root/bin/upx" ];then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd upx;make -j"$ncpus";cp ./build/release/upx ../bin)
+    (cd "$root/archive/upx";make -j"$ncpus";cp ./build/release/upx "$root/bin")
 fi

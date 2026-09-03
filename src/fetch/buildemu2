@@ -3,13 +3,13 @@
 set -e
 
 echo INF: Checking EMU2 ...
-cd "$root"
-if [ ! -d emu2 ];then
-    git clone "https://gitlab.com/johnsonjh/emu2-cpm86" emu2 || \
-    git clone "https://github.com/johnsonjh/emu2-cpm86" emu2
-    rm -rf emu2/.git
+mkdir -p "$root/archive"
+if [ ! -d "$root/archive/emu2" ];then
+    git clone "https://gitlab.com/johnsonjh/emu2-cpm86" "$root/archive/emu2" || \
+    git clone "https://github.com/johnsonjh/emu2-cpm86" "$root/archive/emu2"
+    rm -rf "$root/archive/emu2/.git"
 fi
 if [ ! -f "$root/bin/emu2" ];then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd "$root/emu2";make -j"$ncpus";cp "$root/emu2/emu2" "$root/bin")
+    (cd "$root/archive/emu2";make -j"$ncpus";cp "$root/archive/emu2/emu2" "$root/bin")
 fi

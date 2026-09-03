@@ -25,6 +25,7 @@ MBASIC=cpm86_mbasic
 M2CB=m2cb_cvt
 XLT86=cpm_xlt86
 EMU2=emu2
+CPM86=cpm86
 DRCCC=drccpm_cc
 F77=drfcpm_f77
 PMT=drpmt_pc
@@ -32,7 +33,7 @@ PMTLINK=drpmt_link
 XLISP=cpm86_xlisp
 PLI=drpli_pc
 PLILINK=drpli_link
-TOOLS=helloa.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
+TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellomt.cmd hellocvt.cmd \
 	hello80.cmd 
 TOOLS_BETA=hellopli.cmd
@@ -68,7 +69,7 @@ hellod.obj: hellod.asm
 	$(MASM) hellod \;
 
 hellob.cmd: hellob.h86
-	$(GENCMD) $^
+	$(GENCMD) $^ 8080
 	ls -l $@
 	$(CMDINFO) $@
 
@@ -80,6 +81,11 @@ helloans.cmd: helloans.c
 
 helloc.cmd: helloc.o
 	$(LD) -o $@ $^ $(LDFLAGS)
+	ls -l $@
+	$(CMDINFO) $@
+
+%.cmd: %.obj
+	$(LINK86) $* '[$$sz]'
 	ls -l $@
 	$(CMDINFO) $@
 
@@ -157,20 +163,28 @@ hello80.a86: hello80.asm
 	ls -l $@
 
 hello80.cmd: hello80.h86
-	$(GENCMD) $<
+	$(GENCMD) $< 8080
 	ls -l $@
 	$(CMDINFO) $@
 
-test: binaries
-	@for cmd in $(TOOLS); do \
-	    echo "test: $$cmd"; \
-	    EMU2_DRIVE_C=. $(EMU2) ./$$cmd || echo "**************** ERROR with $$cmd"; \
-	done
-	@echo "test: hellomsb.bas"
+test: emu2-test cpm86-test
+	@echo "--------- TEST: mdasic hellomsb.bas"
 	$(MBASIC) hellomsb.bas
-	@echo "test: hello.lsp"
+	@echo "--------- TEST: hello.lsp"
 	$(XLISP) hello.lsp
-	
+
+emu2-test: binaries
+	@for cmd in $(TOOLS); do \
+	    echo "--------- CPM86 TEST: $$cmd"; \
+	    EMU2_DRIVE_C=. $(CPM86) $$cmd || echo "--------- ERROR with $$cmd"; \
+	done
+
+cpm86-test: binaries
+	@for cmd in $(TOOLS); do \
+	    echo "--------- EMU2 TEST: $$cmd"; \
+	    EMU2_DRIVE_C=. $(EMU2) ./$$cmd || echo "--------- ERROR with $$cmd"; \
+	done
+
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
 		  *.mp2 *exe *.map \

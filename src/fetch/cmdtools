@@ -3,17 +3,17 @@
 set -e
 
 echo INF: Checking CMD tools ...
-cd "$root"
-if [ ! -d cmdtools ]; then
-    git clone "https://github.com/tsupplis/cpm86-cmdtools" cmdtools
-    rm -rf cmdtools/.git
+mkdir -p "$root/archive"
+if [ ! -d "$root/archive/cmdtools" ]; then
+    git clone "https://github.com/tsupplis/cpm86-cmdtools" "$root/archive/cmdtools"
+    rm -rf "$root/archive/cmdtools/.git"
 fi
 if [ ! -f "$root/bin/cmdinfo" -o ! -f "$root/bin/bin2cmd" \
     -o ! -f "$root/bin/exe2cmd" ]; then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd "$root/cmdtools"; make -j"$ncpus")
-    cp "$root/cmdtools/cmdinfo" "$root/bin/cmdinfo"
-    cp "$root/cmdtools/bin2cmd" "$root/bin/bin2cmd"
-    cp "$root/cmdtools/exe2cmd" "$root/bin/exe2cmd"
+    (cd "$root/archive/cmdtools"; make -j"$ncpus")
+    cp "$root/archive/cmdtools/cmdinfo" "$root/bin/cmdinfo"
+    cp "$root/archive/cmdtools/bin2cmd" "$root/bin/bin2cmd"
+    cp "$root/archive/cmdtools/exe2cmd" "$root/bin/exe2cmd"
     chmod 755 "$root/bin/cmdinfo" "$root/bin/bin2cmd" "$root/bin/exe2cmd"
 fi

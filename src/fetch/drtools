@@ -47,7 +47,7 @@ echo INF: Checking Personal Basic 86 1.2 ...
 cd "$root/share"
 if [ ! -f cpm/basic.cmd ]; then
     mkdir -p "$root/share/cpm"
-    cp "$root/src/dr/basic.cmd" cpm/basic.cmd
+    cp "$root/src/drtools/basic.cmd" cpm/basic.cmd
     chmod 644 cpm/basic.cmd
 fi
 echo INF: Checking XLT86 1.3 for CP/M-80 ...

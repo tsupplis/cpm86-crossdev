@@ -36,10 +36,10 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - Turbo Pascal 3.02 for CP/M-86 — the last CP/M-86 release from Borland; stored in `src/turbo`, extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2); includes the compiler (`turbo.cmd`), installer (`tinst.cmd`) and message/data files
 - CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
 - M2CBASIC 1.4 for CP/M-86 (http://www.cpm.z80.de/download/m2cbasic.zip) — Microsoft BASIC to CBASIC source converter; includes the translator (`m2cbasic.cmd` with overlays `m2cb1.ovr`–`m2cb9.ovr`), runtime libraries (`m2cblib.bas`, `m2cbrio.bas`, `m2cbrio.rlo`, `m2cbrio.am`) and companion utility (`m2cbconv.cmd`)
-- DR Personal Basic 1.2 for CP/M-86 (recovered from https://datamuseum.dk/wiki/Bits:30002879, stored in `src/dr/basic.cmd`; the original 1.1 release is also available at http://www.cpm.z80.de/download/pbasic86.zip)
+- DR Personal Basic 1.2 for CP/M-86 (recovered from https://datamuseum.dk/wiki/Bits:30002879, stored in `src/drtools/basic.cmd`; the original 1.1 release is also available at http://www.cpm.z80.de/download/pbasic86.zip)
 - nasm netwide assembler version 3.02
 - masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
-- Microsoft Basic 5.22 for CP/M-86 (`mbasic86.cmd`) and 5.28 for DOS (`mbasic86.com`), both included in the repository as patched binaries (unpatched originals kept as `mbasic86.org` / `mbasorig.com`); patch notes at [src/microsoft/msbasic-patch.md](src/microsoft/msbasic-patch.md)
+- Microsoft Basic 5.22 for CP/M-86 (`mbasic86.cmd`) and 5.28 for DOS (`mbasic86.com`), both included in the repository as patched binaries (unpatched originals kept as `mbasic86.org` / `mbasorig.com`); patch notes at [src/mstools/msbasic-patch.md](src/mstools/msbasic-patch.md)
 - DR PL/I-86 1.0 for CP/M-86 (http://www.cpm.z80.de/download/pli86.zip) — compiler (`pli.cmd` + overlays `pli0.ovr`–`pli2.ovr`), linker (`link86.cmd`), runtime library (`plilib.l86`), include files (`dio86.dcl`, `diomod.dcl`, `fcb.dcl`, `record.dcl`), CP/M DIO assembly sources (`cpmdio.a86`, `div2.a86`, `fdiv2.a86`)
 - Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 2.1 assembler (asm86.exe), Intel linker 2.30 (link.exe) and librarian 2.1 (lib86.exe) and locator 2.5(loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
@@ -177,7 +177,7 @@ it pulls the following:
 - Pascal MT+ 3.3 (http://www.cpm.z80.de/download/mt8633cp.zip)
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - M2CBASIC 1.4 (http://www.cpm.z80.de/download/m2cbasic.zip)
-- DR Personal Basic 1.2 (stored in `src/dr/basic.cmd`, recovered from https://datamuseum.dk/wiki/Bits:30002879; original 1.0 at http://www.cpm.z80.de/download/pbasic86.zip)
+- DR Personal Basic 1.2 (stored in `src/drtools/basic.cmd`, recovered from https://datamuseum.dk/wiki/Bits:30002879; original 1.0 at http://www.cpm.z80.de/download/pbasic86.zip)
 - masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
 - cmdtools — cmdinfo, bin2cmd, exe2cmd built natively from (https://github.com/tsupplis/cpm86-cmdtools)
 - nasm (https://www.nasm.us/pub/nasm/releasebuilds/3.02/nasm-3.02.tar.gz)

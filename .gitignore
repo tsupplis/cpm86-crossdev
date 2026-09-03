@@ -1,37 +1,43 @@
+# ── Editor / OS noise ────────────────────────────────────────────────────────
 **/.*.swp
 **/.DS_Store
-share
-archive
-tnylpo
-nasm
-cmdtools
-emu2
-upx
-aztecc.tar.gz
-pcdev.tar.gz
+**/.vscode
+
+# ── Generated directories at project root ────────────────────────────────────
+# Download cache (persistent — not removed by clear_tools)
+archive/
+# Tool share trees staged by fetchers
+share/
+# Local user scratch area
+local/
+
+# ── Generated native binaries in bin/ ────────────────────────────────────────
 bin/emu2
 bin/tnylpo
+bin/nasm
 bin/upx
-bin/bin2cmd
 bin/cmdinfo
+bin/bin2cmd
 bin/exe2cmd
-syncaz
+bin/doscat
+bin/hexcom
+
+# ── Build artefacts ──────────────────────────────────────────────────────────
 **/*.lock
+**/*.log
+**/*.o
+**/*.obj
+**/*.lib
 **/*.lha
 **/*.zip
-**/./.D*
-**/*.log
-**/*.bin
-**/hello*.cmd
-**/hello*.com
-**/hello*.exe
-**/*.lib
-**/.*.swp
-**/*.obj
-**/*.o
 **/*.lin
 **/*.h86
 **/*.r86
+**/*.sym
+**/*.lst
+**/*.map
+
+# ── CP/M disk images ─────────────────────────────────────────────────────────
 **/hack*.img
 **/cpmtest.img
 **/cdostest.img
@@ -39,13 +45,12 @@ syncaz
 **/ccpm86.img
 **/cpm86.img
 **/cdos.img
-**/*.sym
-**/*.lst
-**/*.map
-**/.vscode
-**/push
-bin/doscat
-bin/hexcom
+
+# ── Example build outputs ────────────────────────────────────────────────────
+**/hello*.cmd
+**/hello*.com
+**/hello*.exe
+**/hello*.bin
 examples/*.prt
 examples/*.prn
 examples/hellod.a
@@ -55,4 +60,3 @@ examples/comndata.*
 examples/8087.sim
 examples/hellocvt.cb
 examples/hello80.a86
-local/**

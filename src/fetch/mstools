@@ -7,22 +7,22 @@ cd "$root/share"
 if [ ! -f pcdev/masm.exe -o ! -f pcdev/exe2bin.exe -o ! -f pcdev/link.exe ]; then
     cd "$root/share"
     mkdir -p "$root/share/pcdev"
-    cp ../src/microsoft/*.exe pcdev
+    cp ../src/mstools/*.exe pcdev
     chmod 644 pcdev/*.*
 fi
 if [ ! -f pcdev/asm.com -o ! -f pcdev/hex2bin.com ]; then
     cd "$root/share"
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/microsoft"/*.com pcdev
+    cp "$root/src/mstools"/*.com pcdev
     chmod 644 pcdev/*.*
 fi
 if [ ! -f cpm/mbasic86.cmd ]; then
     mkdir -p "$root/share/cpm"
-    cp "$root/src/microsoft/mbasic86.cmd" cpm
+    cp "$root/src/mstools/mbasic86.cmd" cpm
     chmod 644 cpm/mbasic86.cmd
 fi
 if [ ! -f pcdev/mbasic86.com ]; then
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/microsoft/mbasic86.com" pcdev
+    cp "$root/src/mstools/mbasic86.com" pcdev
     chmod 644 pcdev/mbasic86.com
 fi

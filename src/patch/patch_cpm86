@@ -60,6 +60,7 @@ for target in "${outfile}" "${eof_outfile}"; do
   patch_file "${target}" 1888 '\x30\x35'
   patch_file "${target}" 1891 '\x32\x33'
   patch_file "${target}" 1894 '\x32\x36'
+  patch_file "${target}" 2273 '\x65'
   patch_file "${target}" 4962 '\x00'
   patch_file "${target}" 5062 '\xE8\x5B\x0E\x90'
   patch_file "${target}" 5089 '\x83\xC2\x7F\xB1\x07\xD3\xEA'

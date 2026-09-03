@@ -1,7 +1,10 @@
 #!/bin/sh
 rm -rf bin/emu2 bin/tnylpo bin/nasm bin/upx
+rm -rf bin/cmdinfo bin/bin2cmd bin/exe2cmd bin/doscat bin/hexcom
 (cd src/tools;make clean)
 rm -rf share/pcdev share/emu share/aztec?? share/cpm share/cb86* \
     share/dr* share/f77* share/turbo* share/intel share/m2cb* \
     share/xlisp share/plicpm
+# Remove legacy root-level build trees (relocated to archive/ — transitional)
 rm -rf emu2 tnylpo nasm upx cmdtools
+rm -rf archive/*
