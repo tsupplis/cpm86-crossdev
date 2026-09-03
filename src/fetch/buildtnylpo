@@ -10,5 +10,5 @@ if [ ! -d "$root/archive/tnylpo" ];then
 fi
 if [ ! -f "$root/bin/tnylpo" ];then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd "$root/archive/tnylpo";make -j"$ncpus";cp tnylpo "$root/bin")
+    (cd "$root/archive/tnylpo";"${MAKE:-make}" -j"$ncpus";cp tnylpo "$root/bin")
 fi

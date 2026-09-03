@@ -3,4 +3,4 @@
 set -e
 
 echo Testing ...
-(PATH=`pwd`/../bin:$PATH;make clean hellopli.cmd)
+(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean hellopli.cmd)

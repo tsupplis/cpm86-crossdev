@@ -71,6 +71,34 @@ The following tools are not included and downloaded by the fetch tool but requir
 > [!WARNING]
 > The Intel PL/M-86 3.30 tools licensing is unclear; their usage is left to the discretion of the end user.
 
+## Prerequisites
+
+The following prerequisites are required to build **cpm86-crossdev**.
+
+If they aren't already available on your system, they can be installed with your
+favorite package manager.
+
+### Requirements
+
+* C/C++ toolchain supporting **C99** and **C++14** (*e.g.*, [GNU GCC](https://gcc.gnu.org/) or [LLVM Clang](https://clang.llvm.org/))
+* [CMake](https://cmake.org/)
+* [`dos2unix`](https://dos2unix.sourceforge.io/)
+* [`git`](https://git-scm.com/)
+* [GNU Bash](https://www.gnu.org/software/bash/)
+* [GNU Coreutils](https://www.gnu.org/software/coreutils/) or equivalent
+* [GNU Gzip](https://www.gnu.org/software/gzip/)
+* [GNU Make](https://www.gnu.org/software/make/)
+* [GNU `patch`](https://savannah.gnu.org/projects/patch/)
+* [GNU `tar`](https://www.gnu.org/software/tar/), [libarchive `tar`](https://www.libarchive.org/), or equivalent
+* [GNU Wget](https://www.gnu.org/software/wget/)
+* [Info-ZIP Unzip](https://infozip.sourceforge.net/UnZip.html)
+* [ncurses](https://invisible-island.net/ncurses/)
+* [XZ Utils](https://tukaani.org/xz/)
+
+### Optional
+
+* [Docker](https://www.docker.com/), [Podman](https://podman.io/), or equivalent
+
 ## Script Mapping
 
 When several tools can perform the same job, use the highest tier available:
@@ -163,7 +191,7 @@ All the tools are wrapped in the bin directory for direct usage:
 The development environment can be assembled by using the following steps:
 ```
 ./fetch_tools
-export PATH=`pwd`/bin
+export PATH="$(pwd -P)"/bin
 ```
 it pulls the following:
 - aztec 3.4 c compiler  (https://www.aztecmuseum.ca/az8634b.zip)
@@ -222,30 +250,33 @@ because this behavior does not match real CP/M-86, it's disabled by default and 
 env CPM86_EOF=1 cpm86 program.cmd
 ```
 
-This may be a next step: 
+This may be a next step:
 - automating pce, cpmtools
-- bootable/up-to-date CP/M-86 floppy ... 
+- bootable/up-to-date CP/M-86 floppy ...
 
 ## Docker image
 
-A Dockerfile is provided for this environment. To build the image from the docker directory, jusr run make, alternatively:
-```
-docker build --rm=true -t cpm86:latest -f Dockerfile .
-```
+A `Dockerfile` is provided for this environment.
 
-to user the created image, just ensure that the local path where the compilation happense ismounted properly:
+To build the container, *from the repository root*, run:
 
 ```
-docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 pcdev_rasm86 helloa.a86
-docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 aztec34_cc helloc.c
+docker build --progress=plain --rm=true -t cpm86:latest -f docker/Dockerfile .
+```
+
+to user the created image, just ensure that the local path where the compilation happens is mounted properly:
+
+```
+docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 pcdev_rasm86 helloa.a86
+docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 aztec34_cc helloc.c
 ```
 The only difference on the command line happens with \;
 ```
-pcdev_masm hellod \; 
+pcdev_masm hellod \;
 ```
 ... becomes ...
 ```
-docker run -it --rm -h cpm86 -v `pwd`:/work -w /work cpm86 pcdev_masm hellod '\\;' 
+docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 pcdev_masm hellod '\\;'
 ```
 
 ## Using the tools
