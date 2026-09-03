@@ -22,6 +22,7 @@ LINK=pcdev_link
 PLM86=intel_plm86
 IASM86=intel_asm86
 MBASIC=cpm86_mbasic
+BASIC=cpm86_basic
 M2CB=m2cb_cvt
 XLT86=cpm_xlt86
 EMU2=emu2
@@ -168,8 +169,10 @@ hello80.cmd: hello80.h86
 	$(CMDINFO) $@
 
 test: emu2-test cpm86-test
-	@echo "--------- TEST: mdasic hellomsb.bas"
+	@echo "--------- TEST: mbasic hellomsb.bas"
 	$(MBASIC) hellomsb.bas
+	@echo "--------- TEST: basic hellopba.bas"
+	$(BASIC) < hellopba.bas
 	@echo "--------- TEST: hello.lsp"
 	$(XLISP) hello.lsp
 
