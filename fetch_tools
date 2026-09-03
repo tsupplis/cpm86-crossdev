@@ -69,6 +69,7 @@ printf 'INF: [test_crossdev] starting ...\n'
 (cd "$root/examples" && sh test_crossdev) >> "$fetch_log" 2>&1 \
     && printf 'INF: [test_crossdev] ok\n' \
     || { printf 'ERR: [test_crossdev] FAILED — see %s\n' "$fetch_log_name" >&2; exit 1; }
+(cd "$root/examples" && PATH="$root/bin:$PATH" "${MAKE:-make}" clean) >> "$fetch_log" 2>&1
 
 printf 'INF: fetch and build completed — log: %s\n' "$fetch_log_name"
 exit 0
