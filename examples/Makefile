@@ -35,7 +35,7 @@ XLISP=cpm86_xlisp
 PLI=drpli_pc
 PLILINK=drpli_link
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
-	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellomt.cmd hellocvt.cmd \
+	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
 	hello80.cmd 
 TOOLS_BETA=hellopli.cmd
 
@@ -129,12 +129,12 @@ hellocvt.cb: hellomsb.bas
 	$(M2CB) hellomsb.bas
 	mv hellomsb.cb hellocvt.cb
 
-hellomt.r86: hellomt.pas
-	$(PMT) hellomt
+hellopmt.r86: hellopmt.pas
+	$(PMT) hellopmt
 	ls -l $@
 
-hellomt.cmd: hellomt.r86
-	$(PMTLINK) hellomt.cmd=hellomt,p:paslib/s
+hellopmt.cmd: hellopmt.r86
+	$(PMTLINK) hellopmt.cmd=hellopmt,p:paslib/s
 	ls -l $@
 	$(CMDINFO) $@
 
