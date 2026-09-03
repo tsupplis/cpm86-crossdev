@@ -378,7 +378,7 @@ always present. The startup is selected from the C library you link against:
 | `-lcl`  / `-lcld`  | MS-DOS large   | `lbegin.o`  |
 
 These startup objects are produced from the C libraries by `fetch_tools`
-(`src/fetch/buildstartups`). Without this, Aztec's single-pass `ln` only pulls
+(`src/fetch/cross_aztec_startups`). Without this, Aztec's single-pass `ln` only pulls
 the startup from the library on demand, so a program that references no libc
 symbol — e.g. `int main(void){ return 0; }` — would link with **no** startup and
 crash on exit, and a program that references the startup indirectly (e.g.

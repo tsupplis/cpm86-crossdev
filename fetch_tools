@@ -5,23 +5,23 @@ cd "$root"
 root=`pwd`
 . src/fetch/_archive
 mkdir -p "$root/share/pcdev"
-cd "$root"; . src/fetch/buildemu2
-cd "$root"; . src/fetch/aztec34
-cd "$root"; . src/fetch/buildcpm86
-cd "$root"; . src/fetch/aztec42
-cd "$root"; . src/fetch/drtools
-cd "$root"; . src/fetch/turbo
-cd "$root"; . src/fetch/cb86
-cd "$root"; . src/fetch/m2cb
-cd "$root"; . src/fetch/plm86
-cd "$root"; . src/fetch/mstools
-cd "$root"; . src/fetch/cmdtools
-cd "$root"; . src/fetch/buildtnylpo
-cd "$root"; . src/fetch/buildnasm
-cd "$root"; . src/fetch/buildupx
-cd "$root"; . src/fetch/buildaztec42
-cd "$root"; . src/fetch/buildstartups
-cd "$root"; . src/fetch/xlisp
+cd "$root"; . src/fetch/native_emu2
+cd "$root"; . src/fetch/cross_aztec34
+cd "$root"; . src/fetch/cross_cpm86_patch
+cd "$root"; . src/fetch/cross_aztec42
+cd "$root"; . src/fetch/cross_drtools
+cd "$root"; . src/fetch/cross_turbo
+cd "$root"; . src/fetch/native_cb86
+cd "$root"; . src/fetch/cross_m2cb
+cd "$root"; . src/fetch/cross_plm86
+cd "$root"; . src/fetch/cross_mstools
+cd "$root"; . src/fetch/native_drtools
+cd "$root"; . src/fetch/native_tnylpo
+cd "$root"; . src/fetch/native_nasm
+cd "$root"; . src/fetch/native_upx
+cd "$root"; . src/fetch/cross_aztec42_build
+cd "$root"; . src/fetch/cross_aztec_startups
+cd "$root"; . src/fetch/cross_xlisp
 find "$root/share" -type d -exec chmod 755 {} \;
 find "$root/share" -type f -exec chmod a-w {} \;
 printf 'INF: %s\n' "Fetch and build completed"
