@@ -1,7 +1,10 @@
 #!/bin/sh
+set -ex
 rm -rf bin/emu2 bin/tnylpo bin/nasm bin/upx
-(cd src/tools;make clean)
+(cd src/tools;"${MAKE:-make}" clean)
 rm -rf share/pcdev share/emu share/aztec?? share/cpm share/cb86* \
     share/dr* share/f77* share/turbo* share/intel share/m2cb* \
     share/xlisp share/plicpm
 rm -rf emu2 tnylpo nasm upx cmdtools
+rm -f bin/bin2cmd bin/cmdinfo bin/exe2cmd
+rmdir share > /dev/null 2>&1

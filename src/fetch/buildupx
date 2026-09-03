@@ -11,5 +11,5 @@ if [ ! -d upx ];then
 fi
 if [ ! -f build/release/upx ];then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd upx;make -j"$ncpus";cp ./build/release/upx ../bin)
+    (cd upx;"${MAKE:-make}" -j"$ncpus";cp ./build/release/upx ../bin)
 fi
