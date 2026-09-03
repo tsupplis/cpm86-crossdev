@@ -33,14 +33,32 @@ RUN apk update && \
           xz
 COPY docker/arch /usr/bin/arch
 COPY .. /opt/crossdev
-RUN (ln -fs "$(command -v wget2)" "$(command -v wget)" && cd /opt/crossdev && ./clear_tools && ./fetch_tools)
-ARG USER_ID="8855"
+ARG USER_ID=8855
 ARG USER="cpm86"
 ARG HOME="/home"
-RUN useradd -M ${USER} -u ${USER_ID} -d ${HOME}
-USER ${USER_ID}
 ENV USER="${USER}"
 ENV USERNAME="${USER}"
 ENV LOGNAME="${USER}"
 ENV PATH="/opt/crossdev/bin:${PATH}"
+RUN useradd -M ${USER} -u ${USER_ID} -d ${HOME}
 CMD ["/bin/bash", "--login"]
+RUN chown -R "${USER}":"${USER}" /opt && \
+    ln -fs "$(command -v wget2)" "$(command -v wget)"
+USER ${USER_ID}
+RUN set -e; \
+    ( \
+        cd /opt/crossdev && \
+        ./clear_tools && \
+        ./fetch_tools \
+    ) || { \
+        rc=$?; \
+        cd /opt/crossdev; \
+        echo "=== FETCH TOOLS FAILED (exit $rc) ==="; \
+        for f in fetch-*.log; do \
+            [ -f "$f" ] || continue; \
+            echo "--- $f ---"; \
+            cat "$f"; \
+            echo; \
+        done; \
+        exit "$rc"; \
+    }
