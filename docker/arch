@@ -1,1 +1,2 @@
-echo x86_64
+#!/bin/sh
+printf '%s\n' "x86_64"

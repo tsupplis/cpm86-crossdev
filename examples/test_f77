@@ -3,4 +3,4 @@
 set -e
 
 echo Testing ...
-(PATH=`pwd`/../bin:$PATH;make clean hellof77.cmd)
+(PATH=`pwd`/../bin:$PATH;"${MAKE:-build}" -j 1 clean hellof77.cmd)

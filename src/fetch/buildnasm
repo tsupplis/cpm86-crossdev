@@ -11,5 +11,5 @@ if [ ! -d nasm ];then
 fi
 if [ ! -f bin/nasm ];then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd nasm;./configure;make -j"$ncpus";cp nasm ../bin)
+    (cd nasm;./configure;"${MAKE:-make}" -j"$ncpus";cp nasm ../bin)
 fi

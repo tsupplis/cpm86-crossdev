@@ -3,5 +3,5 @@
 set -e
 
 echo Testing ...
-(PATH=`pwd`/../bin:$PATH;make clean all)
-(PATH=`pwd`/../bin:$PATH;make test)
+(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean all)
+(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" test)
