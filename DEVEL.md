@@ -478,3 +478,19 @@ ARCHIVE_FIRST=1 ./fetch_tools
 
 The `local/` directory at the project root is gitignored and is a safe place
 for personal experiments that should not be committed.
+
+---
+
+## CP/M-86 reference documentation
+
+The authoritative public reference for CP/M-86 internals.  Use these when
+investigating emulator bugs or adding new BDOS support.
+
+| Topic | URL |
+|---|---|
+| BDOS function overview | https://www.seasip.info/Cpm/bdos.html |
+| BDOS function reference (all calls) | https://www.seasip.info/Cpm/bdosfunc.html |
+| FCB layout (offset table) | https://www.seasip.info/Cpm/fcb.html |
+| CP/M file formats (OMF-86, SYM, …) | https://www.seasip.info/Cpm/formats.html |
+| Last-record byte count (`r2`) | https://www.seasip.info/Cpm/bytelen.html |
+
