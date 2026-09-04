@@ -28,7 +28,13 @@ static int tgetc()
     }
 
     /* get the character */
-    if ((ch = getc(stdin)) == '\n')
+    ch = getc(stdin);
+
+    /* CP/M EOF (^Z) and Unix EOF (^D) both signal end-of-input */
+    if (ch == '\032' || ch == '\004')
+	return (EOF);
+
+    if (ch == '\n')
 	prompt = TRUE;
 
     /* return the character */
