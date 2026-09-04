@@ -1,0 +1,85 @@
+            title   'tst00201 - BDOS fn 002h c_write'
+
+; ============================================================
+; tst00201.a86 - Test BDOS function 002h (c_write)
+;
+; Build:  make tst00201.cmd
+; Run:    emu2 tst00201.cmd
+;
+; Sub-tests:
+;   002.01  output a known character '*' via fn 002h
+;   002.02  output a second character '!' via fn 002h
+;
+; Expected output (no ERR: lines):
+;   INF: test 002.01 started (c_write)
+;   *INF: test 002.01 successful
+;   INF: test 002.02 started (c_write)
+;   !INF: test 002.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_CONOUT   equ     2
+FN_DMASEG   equ     33h
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 002.01 started (c_write)', CR, LF, '$'
+msg_s01     db      'INF: test 002.01 successful', CR, LF, '$'
+
+msg_t02     db      'INF: test 002.02 started (c_write)', CR, LF, '$'
+msg_s02     db      'INF: test 002.02 successful', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 002.01: output '*' ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_CONOUT
+            mov     dl, '*'
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+
+            ; --- test 002.02: output '!' ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_CONOUT
+            mov     dl, '!'
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

@@ -1,0 +1,132 @@
+            title   'tst03501 - fn 035h MC_MAX'
+
+; Test fn 035h: MC_MAX - get maximum allocatable memory block
+; emu2: sizes largest free block, returns size in BX (paragraphs), then frees
+; Sub-tests:
+;   035.01  MC_MAX returns BX > 0 (some memory available)
+;   035.02  MC_MAX CX=0 (no error)
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+FN_MCMAX    equ     035h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_035_01s db  'INF: test 035.01 started (mc_max bx>0)', CR, LF, '$'
+msg_035_01p db  'INF: test 035.01 successful', CR, LF, '$'
+msg_035_01f db  'ERR: test 035.01 failed', CR, LF, '$'
+
+msg_035_02s db  'INF: test 035.02 started (mc_max cx=0)', CR, LF, '$'
+msg_035_02p db  'INF: test 035.02 successful', CR, LF, '$'
+msg_035_02f db  'ERR: test 035.02 failed', CR, LF, '$'
+
+; MCB for MC_MAX: segment(word), length(word), ext(byte)
+mcb_seg     dw  0
+mcb_len     dw  1
+mcb_ext     db  0
+
+; saved results
+max_len     rw  1
+max_cx      rw  1
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+; ============================================================
+; test 035.01: MC_MAX => mcb_len filled with max paragraphs (must be > 0)
+; MC_MAX writes size back into MCB+2 (mcb_len); AX=0 on success
+; ============================================================
+t035_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_035_01s
+            int     BDOS
+
+            ; init MCB: request a very large block so MC_MAX fills in the real max
+            xor     ax, ax
+            mov     mcb_seg, ax
+            mov     ax, 0FFFFh
+            mov     mcb_len, ax
+            xor     al, al
+            mov     mcb_ext, al
+
+            mov     cx, FN_MCMAX
+            mov     dx, offset mcb_seg
+            int     BDOS
+
+            ; save CX (error code) before next BDOS call clobbers it
+            mov     max_cx, cx
+
+            ; read size from MCB+2 (mcb_len was updated by BDOS)
+            mov     ax, mcb_len
+            mov     max_len, ax
+
+            ; mcb_len must be > 0
+            mov     ax, max_len
+            cmp     ax, 0
+            jne     t035_01p
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_035_01f
+            int     BDOS
+            jmps    t035_02
+t035_01p:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_035_01p
+            int     BDOS
+
+; ============================================================
+; test 035.02: CX from MC_MAX must be 0 (no error)
+; ============================================================
+t035_02:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_035_02s
+            int     BDOS
+
+            ; re-call MC_MAX
+            xor     ax, ax
+            mov     mcb_seg, ax
+            mov     ax, 0FFFFh
+            mov     mcb_len, ax
+            xor     al, al
+            mov     mcb_ext, al
+
+            mov     cx, FN_MCMAX
+            mov     dx, offset mcb_seg
+            int     BDOS
+            mov     max_cx, cx
+
+            mov     ax, max_cx
+            cmp     ax, 0
+            jne     t035_02f
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_035_02p
+            int     BDOS
+            jmps    t035_done
+t035_02f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_035_02f
+            int     BDOS
+
+t035_done:
+            xor     cx, cx
+            int     BDOS
+
+            end     main

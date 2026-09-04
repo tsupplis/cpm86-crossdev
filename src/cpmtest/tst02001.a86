@@ -1,0 +1,101 @@
+            title   'tst02001 - fn 020h F_USERNUM'
+
+; Test fn 020h: F_USERNUM - get/set user number
+; Sub-tests:
+;   020.01  get user number (DL=0FFh) => returns 0 on emu2
+;   020.02  set user number 0 (DL=00h) => no error, still 0
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+FN_USERNUM  equ     020h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_020_01s db  'INF: test 020.01 started (f_usernum get)', CR, LF, '$'
+msg_020_01p db  'INF: test 020.01 successful', CR, LF, '$'
+msg_020_01f db  'ERR: test 020.01 failed', CR, LF, '$'
+
+msg_020_02s db  'INF: test 020.02 started (f_usernum set)', CR, LF, '$'
+msg_020_02p db  'INF: test 020.02 successful', CR, LF, '$'
+msg_020_02f db  'ERR: test 020.02 failed', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            ; redirect DMA to CS
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+; ============================================================
+; test 020.01: get user number => DL=0FFh, expect AL=0
+; ============================================================
+t020_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_020_01s
+            int     BDOS
+
+            mov     cx, FN_USERNUM
+            mov     dl, 0FFh
+            int     BDOS
+
+            cmp     al, 0
+            jne     t020_01f
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_020_01p
+            int     BDOS
+            jmps    t020_02
+t020_01f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_020_01f
+            int     BDOS
+
+; ============================================================
+; test 020.02: set user 0 => DL=0, then get again => still 0
+; ============================================================
+t020_02:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_020_02s
+            int     BDOS
+
+            ; set user 0
+            mov     cx, FN_USERNUM
+            mov     dl, 0
+            int     BDOS
+
+            ; get user => expect 0
+            mov     cx, FN_USERNUM
+            mov     dl, 0FFh
+            int     BDOS
+
+            cmp     al, 0
+            jne     t020_02f
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_020_02p
+            int     BDOS
+            jmps    t020_done
+t020_02f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_020_02f
+            int     BDOS
+
+t020_done:
+            xor     cx, cx
+            int     BDOS
+
+            end     main

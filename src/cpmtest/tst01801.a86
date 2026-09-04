@@ -1,0 +1,75 @@
+            title   'tst01801 - BDOS fn 018h drv_loginvec'
+
+; ============================================================
+; tst01801.a86 - Test BDOS function 018h (drv_loginvec)
+;
+; Build:  make tst01801.cmd
+; Run:    emu2 tst01801.cmd
+;
+; Sub-tests:
+;   018.01  call fn 018h - expect BX != 0 (drive A is logged in)
+;
+; Expected output (no ERR: lines):
+;   INF: test 018.01 started (drv_loginvec)
+;   INF: test 018.01 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_LOGINVEC equ     18h
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 018.01 started (drv_loginvec)', CR, LF, '$'
+msg_s01     db      'INF: test 018.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 018.01 failed', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 018.01: login vector non-zero ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_LOGINVEC
+            int     BDOS
+
+            ; result in BX (and AX); at least drive A (bit 0) must be set
+            cmp     bx, 0
+            je      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     done
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

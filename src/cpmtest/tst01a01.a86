@@ -1,0 +1,150 @@
+            title   'tst01a01 - BDOS fn 01ah f_dmaoff'
+
+; ============================================================
+; tst01a01.a86 - Test BDOS function 01Ah (f_dmaoff)
+;
+; Build:  make tst01a01.cmd
+; Run:    emu2 tst01a01.cmd
+;
+; Fixture:  tst014aa.in  - 128 bytes all 0x41 ('A')
+; Artifact: tst1adma.out - copy of read buffer (128 x 0x41)
+;
+; Sub-tests:
+;   01a.01  set DMA offset to local buffer; open+read tst014aa.in;
+;           buf[0]==0x41 and buf[112]==0x41
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DMAOFF   equ     1Ah
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_READ     equ     14h
+FN_WRITE    equ     15h
+FN_MAKE     equ     16h
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 01a.01 started (f_dmaoff)', CR, LF, '$'
+msg_s01     db      'INF: test 01a.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 01a.01 failed', CR, LF, '$'
+
+fcb1        db      0
+            db      'TST014AA'
+            db      'IN '
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb_out     db      0
+            db      'TST1ADMA'
+            db      'OUT'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+dma_buf     rb      128
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 01a.01: set DMA offset then read ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            ; explicitly set DMA offset (this is what we test)
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01
+
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            jne     fail01
+
+            ; spot-check buf[0] and buf[112]
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 041h
+            jne     fail01
+            mov     al, 112[bx]
+            cmp     al, 041h
+            jne     fail01
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     done
+
+fail01:     mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+done:       ; artifact tst1adma.out
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

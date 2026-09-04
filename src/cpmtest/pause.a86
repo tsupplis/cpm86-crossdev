@@ -1,0 +1,43 @@
+            title   'pause - press any key to continue'
+
+; Simple pause utility for CP/M-86.
+; Displays "Press any key to continue..." and waits for one keypress.
+; Used between test groups in runall5.sub.
+
+BDOS        equ     0E0h
+FN_CONIN    equ     001h
+FN_PRTSTR   equ     009h
+FN_EXIT     equ     000h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg         db  'Press any key to continue...', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg
+            int     BDOS
+
+            mov     cx, FN_CONIN
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

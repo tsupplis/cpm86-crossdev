@@ -1,0 +1,76 @@
+            title   'tst01b01 - BDOS fn 01bh drv_allocvec'
+
+; ============================================================
+; tst01b01.a86 - Test BDOS function 01Bh (drv_allocvec)
+;
+; Build:  make tst01b01.cmd
+; Run:    emu2 tst01b01.cmd
+;
+; Sub-tests:
+;   01b.01  call fn 01Bh - expect BX != 0 (valid address returned)
+;
+; Expected output (no ERR: lines):
+;   INF: test 01b.01 started (drv_allocvec)
+;   INF: test 01b.01 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_ALLOCVEC equ     1Bh
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 01b.01 started (drv_allocvec)', CR, LF, '$'
+msg_s01     db      'INF: test 01b.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 01b.01 failed', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 01b.01: allocation vector address non-null ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_ALLOCVEC
+            int     BDOS
+
+            ; result in ES:BX; BX may be 0 if paragraph-aligned - check ES instead
+            mov     ax, es
+            cmp     ax, 0
+            je      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     done
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

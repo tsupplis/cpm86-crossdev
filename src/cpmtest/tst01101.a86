@@ -1,0 +1,256 @@
+            title   'tst01101 - BDOS fn 011h f_sfirst'
+
+; ============================================================
+; tst01101.a86 - Test BDOS function 011h (f_sfirst)
+;
+; Build:  make tst01101.cmd
+; Run:    emu2 tst01101.cmd
+;
+; Sub-tests:
+
+;   011.01  create tstsr01.tmp + tstsr02.tmp + tstsr03.dat;
+;           sfirst exact 'tstsr01.tmp' - must find it (AL != 0FFh)
+;   011.02  sfirst wildcard 'tstsr??.tmp' - must find something
+;   011.03  sfirst wildcard 'tstsr??.dat' - must find tstsr03.dat
+;   011.04  sfirst 'tstno--.xxx' (nonexistent) - must return 0FFh
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_MAKE     equ     16h
+FN_SFIRST   equ     11h
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 011.01 started (f_sfirst)', CR, LF, '$'
+msg_s01     db      'INF: test 011.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 011.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 011.02 started (f_sfirst)', CR, LF, '$'
+msg_s02     db      'INF: test 011.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 011.02 failed', CR, LF, '$'
+
+msg_t03     db      'INF: test 011.03 started (f_sfirst)', CR, LF, '$'
+msg_s03     db      'INF: test 011.03 successful', CR, LF, '$'
+msg_f03     db      'ERR: test 011.03 failed', CR, LF, '$'
+
+msg_t04     db      'INF: test 011.04 started (f_sfirst)', CR, LF, '$'
+msg_s04     db      'INF: test 011.04 successful', CR, LF, '$'
+msg_f04     db      'ERR: test 011.04 failed', CR, LF, '$'
+
+fcb1        db      0
+            db      'TSTSR01 '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb2        db      0
+            db      'TSTSR02 '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb3        db      0
+            db      'TSTSR03 '
+            db      'DAT'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; wildcard: TSTSR??.TMP
+fcb_wc1     db      0
+            db      'TSTSR',03Fh,03Fh,' '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; wildcard: TSTSR??.DAT
+fcb_wc2     db      0
+            db      'TSTSR',03Fh,03Fh,' '
+            db      'DAT'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; non-existent: TSTNOMCH.XXX
+fcb_none    db      0
+            db      'TSTNOMCH'
+            db      'XXX'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; wildcard FCB to clean up: TSTSR???.???
+fcb_clnwc   db      0
+            db      'TSTSR',03Fh,03Fh,03Fh   ; TSTSR???
+            db      03Fh,03Fh,03Fh            ; ???
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; pre-clean all (ignore results)
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_clnwc
+            int     BDOS
+
+            ; create test files
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb2
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb2
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb3
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb3
+            int     BDOS
+
+            ; --- test 011.01: exact sfirst ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 011.02: wildcard sfirst TSTSR??.TMP ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_wc1
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     test03
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+            ; --- test 011.03: wildcard sfirst TSTSR??.DAT ---
+test03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t03
+            int     BDOS
+
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_wc2
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail03
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s03
+            int     BDOS
+            jmp     test04
+
+fail03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f03
+            int     BDOS
+
+            ; --- test 011.04: sfirst non-existent ---
+test04:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t04
+            int     BDOS
+
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_none
+            int     BDOS
+
+            cmp     al, 0FFh
+            jne     fail04
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s04
+            int     BDOS
+            jmp     done
+
+fail04:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f04
+            int     BDOS
+
+done:       ; cleanup all test files
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_clnwc
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

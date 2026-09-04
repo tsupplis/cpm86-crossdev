@@ -1,0 +1,73 @@
+            title   'tst00001 - BDOS fn 000h p_termcpm'
+
+; ============================================================
+; tst00001.a86 - Test BDOS function 000h (p_termcpm)
+;
+; Build:  make tst00001.cmd
+; Run:    emu2 tst00001.cmd
+;
+; Sub-tests:
+;   000.01  call fn 000h - warm boot / exit
+;
+; Expected output:
+;   INF: test 000.01 started (p_termcpm)
+;   INF: test 000.01 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA - before code so all symbols resolve in pass 1
+; ============================================================
+
+msg_t00001  db      'INF: test 000.01 started (p_termcpm)', CR, LF, '$'
+msg_s00001  db      'INF: test 000.01 successful', CR, LF, '$'
+
+; ============================================================
+; print_str: print $-terminated string at DS:DX
+; ============================================================
+; (inline - DX must be set by caller before call)
+
+; ============================================================
+; print_crlf: print CR LF
+; ============================================================
+crlf_str    db      CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            ; set DMA segment to CS so FCB I/O lands in our segment
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 000.01: p_termcpm ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t00001
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s00001
+            int     BDOS
+
+            ; fn 000h is the exit - calling it IS the test passing
+            xor     cx, cx
+            int     BDOS
+
+            end     main

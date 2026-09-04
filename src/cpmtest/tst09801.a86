@@ -1,0 +1,273 @@
+            title   'tst09801 - fn 098h F_PARSE'
+
+; Test fn 098h: F_PARSE - parse ASCII filename into FCB
+; PFCB at DS:DX: +0=offset of input string (within DS), +2=offset of target FCB
+; Returns: 0=last spec, 0FFFFh=invalid, else offset of delimiter
+; Sub-tests:
+;   098.01  parse "TEST    .TXT" => FCB name="TEST    ", ext="TXT", drive=0
+;   098.02  parse empty string "" => returns 0 (end of line)
+;   098.03  parse "A:FOO.BAR" => drive=1, name="FOO     ", ext="BAR"
+;   098.04  parse wildcard "*.CMD" => name all '?', ext="CMD"
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+FN_PARSE    equ     098h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_098_01s db  'INF: test 098.01 started (f_parse simple)', CR, LF, '$'
+msg_098_01p db  'INF: test 098.01 successful', CR, LF, '$'
+msg_098_01f db  'ERR: test 098.01 failed', CR, LF, '$'
+
+msg_098_02s db  'INF: test 098.02 started (f_parse empty)', CR, LF, '$'
+msg_098_02p db  'INF: test 098.02 successful', CR, LF, '$'
+msg_098_02f db  'ERR: test 098.02 failed', CR, LF, '$'
+
+msg_098_03s db  'INF: test 098.03 started (f_parse drive)', CR, LF, '$'
+msg_098_03p db  'INF: test 098.03 successful', CR, LF, '$'
+msg_098_03f db  'ERR: test 098.03 failed', CR, LF, '$'
+
+msg_098_04s db  'INF: test 098.04 started (f_parse wildcard)', CR, LF, '$'
+msg_098_04p db  'INF: test 098.04 successful', CR, LF, '$'
+msg_098_04f db  'ERR: test 098.04 failed', CR, LF, '$'
+
+; ---- input strings (null terminated) ----
+str1        db  'TEST.TXT', 0
+str2        db  0                   ; empty string
+str3        db  'A:FOO.BAR', 0
+str4        db  '*.CMD', 0
+
+; ---- target FCB (36 bytes, zeroed) ----
+pfcb_fcb    db  0                   ; +0  drive
+            db  ' ',' ',' ',' '    ; +1..4  name
+            db  ' ',' ',' ',' '    ; +5..8
+            db  ' ',' ',' '        ; +9..11 ext
+            db  0, 0, 0, 0         ; +12..15 ex/s1/s2/rc
+            db  0,0,0,0,0,0,0,0    ; +16..23 alloc
+            db  0,0,0,0,0,0,0,0    ; +24..31
+            db  0,0,0,0            ; +32..35 r0/r1/r2
+
+; ---- PFCB descriptor: [string_offset(word), fcb_offset(word)] ----
+pfcb        dw  offset str1         ; +0: string offset
+            dw  offset pfcb_fcb     ; +2: FCB offset
+
+; saved results
+save_ax     rw  1
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+; ============================================================
+; test 098.01: parse "TEST.TXT" => drive=0, name="TEST    ", ext="TXT "
+; ============================================================
+t098_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_01s
+            int     BDOS
+
+            ; point PFCB at str1
+            mov     ax, offset str1
+            mov     pfcb, ax
+            mov     ax, offset pfcb_fcb
+            mov     2[bx], ax       ; patch +2
+
+            ; Use BX-relative write for pfcb+2 — must set BX first
+            mov     bx, offset pfcb
+            mov     ax, offset str1
+            mov     [bx], ax        ; pfcb+0 = &str1
+            mov     ax, offset pfcb_fcb
+            mov     2[bx], ax       ; pfcb+2 = &pfcb_fcb
+
+            mov     cx, FN_PARSE
+            mov     dx, offset pfcb
+            int     BDOS
+            mov     save_ax, ax
+
+            ; AX must be 0 (last spec, null-terminated)
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t098_01f
+
+            ; check drive byte = 0
+            mov     bx, offset pfcb_fcb
+            mov     al, [bx]
+            cmp     al, 0
+            jne     t098_01f
+
+            ; check name[0] = 'T'
+            mov     al, 1[bx]
+            cmp     al, 'T'
+            jne     t098_01f
+
+            ; check ext[0] = 'T'
+            mov     al, 9[bx]
+            cmp     al, 'T'
+            jne     t098_01f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_01p
+            int     BDOS
+            jmps    t098_02
+
+t098_01f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_01f
+            int     BDOS
+
+; ============================================================
+; test 098.02: parse empty string => returns 0
+; ============================================================
+t098_02:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_02s
+            int     BDOS
+
+            mov     bx, offset pfcb
+            mov     ax, offset str2
+            mov     [bx], ax        ; pfcb+0 = &str2 (empty)
+            mov     ax, offset pfcb_fcb
+            mov     2[bx], ax
+
+            mov     cx, FN_PARSE
+            mov     dx, offset pfcb
+            int     BDOS
+            mov     save_ax, ax
+
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t098_02f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_02p
+            int     BDOS
+            jmps    t098_03
+
+t098_02f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_02f
+            int     BDOS
+
+; ============================================================
+; test 098.03: parse "A:FOO.BAR" => drive=1, name[0]='F', ext[0]='B'
+; ============================================================
+t098_03:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_03s
+            int     BDOS
+
+            mov     bx, offset pfcb
+            mov     ax, offset str3
+            mov     [bx], ax
+            mov     ax, offset pfcb_fcb
+            mov     2[bx], ax
+
+            mov     cx, FN_PARSE
+            mov     dx, offset pfcb
+            int     BDOS
+            mov     save_ax, ax
+
+            ; AX=0 (last spec)
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t098_03f
+
+            ; drive byte = 1 (A:)
+            mov     bx, offset pfcb_fcb
+            mov     al, [bx]
+            cmp     al, 1
+            jne     t098_03f
+
+            ; name[0] = 'F'
+            mov     al, 1[bx]
+            cmp     al, 'F'
+            jne     t098_03f
+
+            ; ext[0] = 'B'
+            mov     al, 9[bx]
+            cmp     al, 'B'
+            jne     t098_03f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_03p
+            int     BDOS
+            jmps    t098_04
+
+t098_03f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_03f
+            int     BDOS
+
+; ============================================================
+; test 098.04: parse "*.CMD" => name all '?', ext[0]='C'
+; ============================================================
+t098_04:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_04s
+            int     BDOS
+
+            mov     bx, offset pfcb
+            mov     ax, offset str4
+            mov     [bx], ax
+            mov     ax, offset pfcb_fcb
+            mov     2[bx], ax
+
+            mov     cx, FN_PARSE
+            mov     dx, offset pfcb
+            int     BDOS
+            mov     save_ax, ax
+
+            ; AX=0
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t098_04f
+
+            ; name[0] = '?'
+            mov     bx, offset pfcb_fcb
+            mov     al, 1[bx]
+            cmp     al, '?'
+            jne     t098_04f
+
+            ; name[7] = '?' (last name byte also '?')
+            mov     al, 8[bx]
+            cmp     al, '?'
+            jne     t098_04f
+
+            ; ext[0] = 'C'
+            mov     al, 9[bx]
+            cmp     al, 'C'
+            jne     t098_04f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_04p
+            int     BDOS
+            jmps    t098_done
+
+t098_04f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_098_04f
+            int     BDOS
+
+t098_done:
+            xor     cx, cx
+            int     BDOS
+
+            end     main

@@ -1,0 +1,75 @@
+            title   'tst02f01 - fn 02Fh P_CHAIN launcher'
+
+; Test fn 02Fh: P_CHAIN - chain to another program
+; Sub-tests:
+;   02f.01  chain to sub02f02.cmd => that binary prints success then exits
+;           if P_CHAIN returns (chain failed), print ERR and exit
+;
+; Protocol: write command string into DMA buffer, call fn 02Fh.
+; emu2 reads null/CR-terminated string from DMA; loads <name> or <name>.CMD.
+; On success fn 02Fh never returns (process is replaced).
+; On failure fn 02Fh returns => print ERR.
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMAOFF   equ     01Ah
+FN_DMASEG   equ     033h
+FN_CHAIN    equ     02Fh
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_02f_01s db  'INF: test 02f.01 started (p_chain)', CR, LF, '$'
+msg_02f_01f db  'ERR: test 02f.01 failed (p_chain returned)', CR, LF, '$'
+
+; DMA buffer: null-terminated command string for P_CHAIN
+; emu2 tries "sub02f02" then "sub02f02.CMD"
+chain_cmd   db  'sub02f02', 0
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            ; set DMA segment to CS so our chain_cmd buffer is the DMA
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+            ; set DMA offset to chain_cmd
+            mov     cx, FN_DMAOFF
+            mov     dx, offset chain_cmd
+            int     BDOS
+
+; ============================================================
+; test 02f.01: chain to sub02f02 — if this returns, chain failed
+; ============================================================
+t02f_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_02f_01s
+            int     BDOS
+
+            mov     cx, FN_CHAIN
+            int     BDOS
+
+            ; if we reach here, P_CHAIN failed (returned)
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_02f_01f
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

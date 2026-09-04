@@ -1,0 +1,653 @@
+            title   'tst01502 - fn 015h/014h text file ^Z scenarios'
+
+; ============================================================
+; tst01502.a86 - Text file: ^Z EOF marker, partial last record,
+;                multi-record text, append at ^Z
+;
+; Build:  make tst01502.cmd
+; Run:    emu2 tst01502.cmd
+;
+; Artifacts:
+;   tst52txt.out  - 3-record text file (written by test)
+;     rec 0: "RECORD0\r\n" + 0x41 x 119      (full record)
+;     rec 1: "RECORD1\r\n" + 0x42 x 119      (full record)
+;     rec 2: "APPEND!\r\n" + ^Z + 0x00 x 118  (partial, ^Z at byte 9)
+;
+; Sub-tests:
+;   015.01  create tstx01.tmp; write rec with ^Z at offset 7;
+;           read back; buf[7]==^Z and buf[0..6]=="HELLO\r\n"
+;   015.02  write rec with text 80 chars + ^Z pad to 128;
+;           read back; buf[80]==^Z and buf[0]=='T'
+;   015.03  write 2 full text records + 1 partial (^Z at byte 9);
+;           size == 3
+;   015.04  re-read all 3 records; verify ^Z only in rec 2
+;   015.05  append: open; randrec to find rec 2; overwrite with
+;           "APPEND!\r\n^Z" at record 2; read back; buf[9]==^Z
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DMAOFF   equ     1Ah
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_READ     equ     14h
+FN_WRITE    equ     15h
+FN_MAKE     equ     16h
+FN_READRAND equ     21h
+FN_WRTRAND  equ     22h
+FN_SIZE     equ     23h
+FN_RANDREC  equ     24h
+CR          equ     0Dh
+LF          equ     0Ah
+CTRLZ       equ     1Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 015.01 started (f_write/text ^Z)', CR, LF, '$'
+msg_s01     db      'INF: test 015.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 015.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 015.02 started (f_write/text partial)', CR, LF, '$'
+msg_s02     db      'INF: test 015.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 015.02 failed', CR, LF, '$'
+
+msg_t03     db      'INF: test 015.03 started (f_write/text multi)', CR, LF, '$'
+msg_s03     db      'INF: test 015.03 successful', CR, LF, '$'
+msg_f03     db      'ERR: test 015.03 failed', CR, LF, '$'
+
+msg_t04     db      'INF: test 015.04 started (f_read/text ^Z only in last)', CR, LF, '$'
+msg_s04     db      'INF: test 015.04 successful', CR, LF, '$'
+msg_f04     db      'ERR: test 015.04 failed', CR, LF, '$'
+
+msg_t05     db      'INF: test 015.05 started (f_writerand/append at ^Z)', CR, LF, '$'
+msg_s05     db      'INF: test 015.05 successful', CR, LF, '$'
+msg_f05     db      'ERR: test 015.05 failed', CR, LF, '$'
+
+fcb1        db      0
+            db      'TSTX01  '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb_out     db      0
+            db      'TST52TXT'
+            db      'OUT'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; "HELLO\r\n^Z" + padding = 7 bytes text + ^Z at [7], zeros to 128
+rec_hello   db      'H','E','L','L','O',CR,LF,CTRLZ
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 16
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 32
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 48
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 64
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 80
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 96
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 112
+            db      0,0,0,0,0,0,0,0                  ; 120
+
+; "TEXT..." 80 'T's + ^Z at [80] + zeros to 128
+rec_text80  db      'T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T' ; 16
+            db      'T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T' ; 32
+            db      'T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T' ; 48
+            db      'T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T' ; 64
+            db      'T','T','T','T','T','T','T','T','T','T','T','T','T','T','T','T' ; 80
+            db      CTRLZ                                                            ; [80]
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 16
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 32
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0   ; 47 => total 128
+
+; "RECORD0\r\n" + 0x41 x 119 (full record, no ^Z)
+rec_r0      db      'R','E','C','O','R','D','0',CR,LF
+            db      041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h ; 16
+            db      041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h ; 32
+            db      041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h ; 48
+            db      041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h ; 64
+            db      041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h ; 80
+            db      041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h ; 96
+            db      041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h,041h ; 112
+            db      041h,041h,041h,041h,041h,041h,041h                               ; 119
+
+; "RECORD1\r\n" + 0x42 x 119 (full record, no ^Z)
+rec_r1      db      'R','E','C','O','R','D','1',CR,LF
+            db      042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h ; 16
+            db      042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h ; 32
+            db      042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h ; 48
+            db      042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h ; 64
+            db      042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h ; 80
+            db      042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h ; 96
+            db      042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h,042h ; 112
+            db      042h,042h,042h,042h,042h,042h,042h                               ; 119
+
+; "APPEND!\r\n^Z" at [0..9], zeros to 128
+rec_app     db      'A','P','P','E','N','D','!',CR,LF,CTRLZ
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 16
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 32
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 48
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 64
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 80
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 96
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 112
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ; 128 - 10 = 118 zeros
+
+dma_buf     rb      128
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; --- test 015.01: ^Z at offset 7 ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            ; write rec_hello (^Z at byte 7)
+            call    copy_hello
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail01
+
+            ; close, reopen, read back
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            call    clrbuf
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail01
+
+            ; verify 'H' at [0] and ^Z at [7]
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 'H'
+            jne     fail01
+            mov     al, 7[bx]
+            cmp     al, CTRLZ
+            jne     fail01
+
+            ; also verify bytes 1-6 are "ELLO\r\n"
+            mov     al, 1[bx]
+            cmp     al, 'E'
+            jne     fail01
+            mov     al, 5[bx]
+            cmp     al, CR
+            jne     fail01
+            mov     al, 6[bx]
+            cmp     al, LF
+            jne     fail01
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 015.02: partial record, ^Z at offset 80 ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            ; truncate file: delete and recreate
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; write rec_text80 (80 x 'T' + ^Z + padding)
+            call    copy_text80
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail02
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            call    clrbuf
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail02
+
+            ; verify 'T' at [0] and ^Z at [80]
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 'T'
+            jne     fail02
+            mov     al, 80[bx]
+            cmp     al, CTRLZ
+            jne     fail02
+            ; byte 79 should still be 'T'
+            mov     al, 79[bx]
+            cmp     al, 'T'
+            jne     fail02
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     test03
+
+fail02:     mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+            ; --- test 015.03: 3 records: full/full/partial; size==3 ---
+test03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t03
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; rec 0: RECORD0 + 0x41 fill (no ^Z)
+            call    copy_r0
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail03
+
+            ; rec 1: RECORD1 + 0x42 fill (no ^Z)
+            call    copy_r1
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail03
+
+            ; rec 2: APPEND! + ^Z (partial)
+            call    copy_app
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail03
+
+            ; close + check size == 3
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_SIZE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     bx, offset fcb1
+            mov     al, 33[bx]
+            cmp     al, 3
+            jne     fail03
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s03
+            int     BDOS
+            jmp     test04
+
+fail03:     mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_f03
+            int     BDOS
+
+            ; --- test 015.04: read all 3; ^Z only in rec 2 ---
+test04:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t04
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; read rec 0: no ^Z, first 9 bytes = "RECORD0\r\n"
+            call    clrbuf
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail04
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 'R'
+            jne     fail04
+            mov     al, 9[bx]           ; byte 9 = first 0x41 fill (no ^Z)
+            cmp     al, 041h
+            jne     fail04
+            mov     al, 127[bx]         ; last byte = 0x41 (no ^Z)
+            cmp     al, 041h
+            jne     fail04
+
+            ; read rec 1: no ^Z, first 9 bytes = "RECORD1\r\n"
+            call    clrbuf
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail04
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 'R'
+            jne     fail04
+            mov     al, 127[bx]         ; last byte = 0x42 (no ^Z)
+            cmp     al, 042h
+            jne     fail04
+
+            ; read rec 2: ^Z at byte 9
+            call    clrbuf
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail04
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 'A'
+            jne     fail04
+            mov     al, 9[bx]           ; ^Z
+            cmp     al, CTRLZ
+            jne     fail04
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s04
+            int     BDOS
+            jmp     test05
+
+fail04:     mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_f04
+            int     BDOS
+
+            ; --- test 015.05: append by overwriting rec 2 ---
+            ; The file already has 3 records with ^Z at rec2[9].
+            ; We "append" by writing a new rec at position 2
+            ; with "APPEND!\r\n^Z", then read it back.
+test05:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t05
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; R0=2 for random write of rec 2
+            mov     bx, offset fcb1
+            mov     al, 2
+            mov     33[bx], al
+            xor     al, al
+            mov     34[bx], al
+            mov     35[bx], al
+
+            ; prepare buffer: "APPEND!\r\n^Z" + zeros
+            call    copy_app
+            mov     cx, FN_WRTRAND
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail05
+
+            ; close and reopen; random-read rec 2
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     bx, offset fcb1
+            mov     al, 2
+            mov     33[bx], al
+            xor     al, al
+            mov     34[bx], al
+            mov     35[bx], al
+
+            call    clrbuf
+            mov     cx, FN_READRAND
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail05
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 'A'
+            jne     fail05
+            mov     al, 8[bx]
+            cmp     al, LF
+            jne     fail05
+            mov     al, 9[bx]           ; ^Z still at [9]
+            cmp     al, CTRLZ
+            jne     fail05
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s05
+            int     BDOS
+            jmp     done
+
+fail05:     mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_f05
+            int     BDOS
+
+done:       ; artifact tst52txt.out: copy 3 records in order
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     al, 3
+            mov     rec_cnt, al
+
+cpy_lp:     mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     al, rec_cnt
+            dec     al
+            mov     rec_cnt, al
+            cmp     al, 0
+            jne     cpy_lp
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+; ============================================================
+; copy helpers: copy static record template into dma_buf
+; ============================================================
+copy_hello: mov     si, offset rec_hello
+            mov     di, offset dma_buf
+            mov     cx, 128
+ch_lp:      mov     al, [si]
+            mov     [di], al
+            inc     si
+            inc     di
+            loop    ch_lp
+            ret
+
+copy_text80:
+            mov     si, offset rec_text80
+            mov     di, offset dma_buf
+            mov     cx, 128
+ct_lp:      mov     al, [si]
+            mov     [di], al
+            inc     si
+            inc     di
+            loop    ct_lp
+            ret
+
+copy_r0:    mov     si, offset rec_r0
+            mov     di, offset dma_buf
+            mov     cx, 128
+cr0lp:      mov     al, [si]
+            mov     [di], al
+            inc     si
+            inc     di
+            loop    cr0lp
+            ret
+
+copy_r1:    mov     si, offset rec_r1
+            mov     di, offset dma_buf
+            mov     cx, 128
+cr1lp:      mov     al, [si]
+            mov     [di], al
+            inc     si
+            inc     di
+            loop    cr1lp
+            ret
+
+copy_app:   mov     si, offset rec_app
+            mov     di, offset dma_buf
+            mov     cx, 128
+caplp:      mov     al, [si]
+            mov     [di], al
+            inc     si
+            inc     di
+            loop    caplp
+            ret
+
+clrbuf:     mov     si, offset dma_buf
+            mov     cx, 128
+            xor     al, al
+clrlp:      mov     [si], al
+            inc     si
+            loop    clrlp
+            ret
+
+rec_cnt     rb      1
+
+            end     main

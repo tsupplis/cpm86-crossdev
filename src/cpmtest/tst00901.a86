@@ -1,0 +1,91 @@
+            title   'tst00901 - BDOS fn 009h c_writestr'
+
+; ============================================================
+; tst00901.a86 - Test BDOS function 009h (c_writestr)
+;
+; Build:  make tst00901.cmd
+; Run:    emu2 tst00901.cmd
+;
+; Sub-tests:
+;   009.01  output a known $-terminated string via fn 009h
+;   009.02  output a string containing embedded CR LF
+;
+; Expected output (no ERR: lines):
+;   INF: test 009.01 started (c_writestr)
+;   HELLO
+;   INF: test 009.01 successful
+;   INF: test 009.02 started (c_writestr)
+;   LINE1
+;   LINE2
+;   INF: test 009.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 009.01 started (c_writestr)', CR, LF, '$'
+msg_s01     db      'INF: test 009.01 successful', CR, LF, '$'
+
+msg_t02     db      'INF: test 009.02 started (c_writestr)', CR, LF, '$'
+msg_s02     db      'INF: test 009.02 successful', CR, LF, '$'
+
+; test payload strings
+str01       db      'HELLO', CR, LF, '$'
+str02       db      'LINE1', CR, LF, 'LINE2', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 009.01: known string ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset str01
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+
+            ; --- test 009.02: string with embedded CR LF ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset str02
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

@@ -1,0 +1,43 @@
+            title   'sub02f02 - fn 02Fh P_CHAIN target'
+
+; P_CHAIN support binary — chained to by tst02f01.
+; Built by 'make all' but NOT listed in TESTS (not run directly).
+; On arrival prints the success line and exits cleanly.
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_arrive  db  'INF: test 02f.01 successful (p_chain target reached)', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_arrive
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

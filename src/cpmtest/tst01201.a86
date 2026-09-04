@@ -1,0 +1,236 @@
+            title   'tst01201 - BDOS fn 012h f_snext'
+
+; ============================================================
+; tst01201.a86 - Test BDOS function 012h (f_snext)
+;
+; Build:  make tst01201.cmd
+; Run:    emu2 tst01201.cmd
+;
+; Sub-tests:
+;   012.01  create tstsn01.tmp + tstsn02.tmp + tstsn03.tmp;
+;           sfirst TSTSN??.TMP; snext until 0FFh;
+;           count must be >= 3
+;   012.02  sfirst non-existent; snext must also return 0FFh
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_MAKE     equ     16h
+FN_SFIRST   equ     11h
+FN_SNEXT    equ     12h
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 012.01 started (f_snext)', CR, LF, '$'
+msg_s01     db      'INF: test 012.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 012.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 012.02 started (f_snext)', CR, LF, '$'
+msg_s02     db      'INF: test 012.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 012.02 failed', CR, LF, '$'
+
+fcb1        db      0
+            db      'TSTSN01 '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb2        db      0
+            db      'TSTSN02 '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb3        db      0
+            db      'TSTSN03 '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; wildcard: TSTSN??.TMP
+fcb_wc      db      0
+            db      'TSTSN',03Fh,03Fh,' '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; non-existent for test 012.02
+fcb_none    db      0
+            db      'TSTNOMCH'
+            db      'XXX'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; wildcard cleanup: TSTSN???.TMP
+fcb_clnwc   db      0
+            db      'TSTSN',03Fh,03Fh,03Fh
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+match_cnt   rb      1               ; count of matches found
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; pre-clean (ignore results)
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_clnwc
+            int     BDOS
+
+            ; create 3 files
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb2
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb2
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb3
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb3
+            int     BDOS
+
+            ; --- test 012.01: sfirst + snext count >= 3 ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            ; initialise counter
+            xor     al, al
+            mov     match_cnt, al
+
+            ; sfirst
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_wc
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01          ; no match at all
+
+            ; count first match
+            mov     al, match_cnt
+            inc     al
+            mov     match_cnt, al
+
+            ; snext loop
+snext_lp:   mov     cx, FN_SNEXT
+            mov     dx, offset fcb_wc
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      count_done
+
+            mov     al, match_cnt
+            inc     al
+            mov     match_cnt, al
+
+            ; safety cap: stop after 16 matches
+            cmp     al, 16
+            jne     snext_lp
+
+count_done: ; count must be >= 3
+            mov     al, match_cnt
+            cmp     al, 3
+            jb      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 012.02: sfirst non-existent; snext returns 0FFh ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_none
+            int     BDOS
+
+            cmp     al, 0FFh
+            jne     fail02          ; found something - unexpected
+
+            ; sfirst returned 0FFh; snext should also be 0FFh
+            mov     cx, FN_SNEXT
+            mov     dx, offset fcb_none
+            int     BDOS
+
+            cmp     al, 0FFh
+            jne     fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       ; cleanup
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_clnwc
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

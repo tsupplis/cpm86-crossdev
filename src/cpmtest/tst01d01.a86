@@ -1,0 +1,76 @@
+            title   'tst01d01 - BDOS fn 01dh drv_rovec'
+
+; ============================================================
+; tst01d01.a86 - Test BDOS function 01Dh (drv_rovec)
+;
+; Build:  make tst01d01.cmd
+; Run:    emu2 tst01d01.cmd
+;
+; Sub-tests:
+;   01d.01  call fn 01Dh - expect BX=0 and AX=0 (no R/O drives)
+;
+; Expected output (no ERR: lines):
+;   INF: test 01d.01 started (drv_rovec)
+;   INF: test 01d.01 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_ROVEC    equ     1Dh
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 01d.01 started (drv_rovec)', CR, LF, '$'
+msg_s01     db      'INF: test 01d.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 01d.01 failed', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 01d.01: R/O vector == 0 ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_ROVEC
+            int     BDOS
+
+            cmp     bx, 0
+            jne     fail01
+            cmp     ax, 0
+            jne     fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     done
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

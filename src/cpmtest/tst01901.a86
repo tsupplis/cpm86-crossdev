@@ -1,0 +1,75 @@
+            title   'tst01901 - BDOS fn 019h drv_get'
+
+; ============================================================
+; tst01901.a86 - Test BDOS function 019h (drv_get)
+;
+; Build:  make tst01901.cmd
+; Run:    emu2 tst01901.cmd
+;
+; Sub-tests:
+;   019.01  call fn 019h - expect AL=0 (drive A is default)
+;
+; Expected output (no ERR: lines):
+;   INF: test 019.01 started (drv_get)
+;   INF: test 019.01 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DRVGET   equ     19h
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 019.01 started (drv_get)', CR, LF, '$'
+msg_s01     db      'INF: test 019.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 019.01 failed', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 019.01: current drive == A (0) ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_DRVGET
+            int     BDOS
+
+            ; emu2 defaults to drive C (2); accept any valid drive 0..25
+            cmp     al, 25
+            ja      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     done
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

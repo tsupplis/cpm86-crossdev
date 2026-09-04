@@ -1,0 +1,465 @@
+            title   'tst02201 - BDOS fn 022h f_writerand'
+
+; ============================================================
+; tst02201.a86 - Test BDOS function 022h (f_writerand)
+;
+; Build:  make tst02201.cmd
+; Run:    emu2 tst02201.cmd
+;
+; Artifact: tst22rnd.out - 4 records (512 bytes) after overwrite
+;   rec 0: 128 x 0x41  rec 1: 128 x 0x58 (overwritten)
+;   rec 2: 128 x 0x43  rec 3: 128 x 0x44
+;
+; Sub-tests:
+;   022.01  create tstwrn.tmp; seq-write 4 recs (0x41/0x42/0x43/0x44)
+;   022.02  close; reopen; random-write rec 1 with 0x58 (overwrite)
+;   022.03  close; reopen; random-read rec 0; buf[0]==0x41 buf[112]==0x41
+;   022.04  random-read rec 1; buf[0]==0x58 buf[112]==0x58 (overwrite held)
+;   022.05  random-read rec 2; buf[0]==0x43 buf[112]==0x43 (unchanged)
+;   022.06  random-read rec 3; buf[0]==0x44 buf[112]==0x44 (unchanged)
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DMAOFF   equ     1Ah
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_READ     equ     14h
+FN_WRITE    equ     15h
+FN_MAKE     equ     16h
+FN_READRAND equ     21h
+FN_WRTRAND  equ     22h
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 022.01 started (f_writerand)', CR, LF, '$'
+msg_s01     db      'INF: test 022.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 022.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 022.02 started (f_writerand)', CR, LF, '$'
+msg_s02     db      'INF: test 022.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 022.02 failed', CR, LF, '$'
+
+msg_t03     db      'INF: test 022.03 started (f_writerand)', CR, LF, '$'
+msg_s03     db      'INF: test 022.03 successful', CR, LF, '$'
+msg_f03     db      'ERR: test 022.03 failed', CR, LF, '$'
+
+msg_t04     db      'INF: test 022.04 started (f_writerand)', CR, LF, '$'
+msg_s04     db      'INF: test 022.04 successful', CR, LF, '$'
+msg_f04     db      'ERR: test 022.04 failed', CR, LF, '$'
+
+msg_t05     db      'INF: test 022.05 started (f_writerand)', CR, LF, '$'
+msg_s05     db      'INF: test 022.05 successful', CR, LF, '$'
+msg_f05     db      'ERR: test 022.05 failed', CR, LF, '$'
+
+msg_t06     db      'INF: test 022.06 started (f_writerand)', CR, LF, '$'
+msg_s06     db      'INF: test 022.06 successful', CR, LF, '$'
+msg_f06     db      'ERR: test 022.06 failed', CR, LF, '$'
+
+fcb1        db      0
+            db      'TSTWRN  '
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb_out     db      0
+            db      'TST22RND'
+            db      'OUT'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+dma_buf     rb      128
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; --- test 022.01: seq-write 4 records ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            call    fill41
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail01
+
+            call    fill42
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail01
+
+            call    fill43
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail01
+
+            call    fill44
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+            cmp     al, 0
+            jne     fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 022.02: overwrite rec 1 with 0x58 ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; set R0=1 for record 1
+            mov     bx, offset fcb1
+            mov     al, 1
+            mov     33[bx], al
+            xor     al, al
+            mov     34[bx], al
+            mov     35[bx], al
+
+            call    fill58
+
+            mov     cx, FN_WRTRAND
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            jne     fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     test03
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+            ; --- test 022.03: random-read rec 0; [0]==[112]==0x41 ---
+test03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t03
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; R0=0
+            mov     bx, offset fcb1
+            xor     al, al
+            mov     33[bx], al
+            mov     34[bx], al
+            mov     35[bx], al
+
+            call    clrbuf
+            mov     cx, FN_READRAND
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            jne     fail03
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 041h
+            jne     fail03
+            mov     al, 112[bx]
+            cmp     al, 041h
+            jne     fail03
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s03
+            int     BDOS
+            jmp     test04
+
+fail03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f03
+            int     BDOS
+
+            ; --- test 022.04: random-read rec 1; [0]==[112]==0x58 ---
+test04:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t04
+            int     BDOS
+
+            ; R0=1
+            mov     bx, offset fcb1
+            mov     al, 1
+            mov     33[bx], al
+            xor     al, al
+            mov     34[bx], al
+            mov     35[bx], al
+
+            call    clrbuf
+            mov     cx, FN_READRAND
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            jne     fail04
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 058h
+            jne     fail04
+            mov     al, 112[bx]
+            cmp     al, 058h
+            jne     fail04
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s04
+            int     BDOS
+            jmp     test05
+
+fail04:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f04
+            int     BDOS
+
+            ; --- test 022.05: random-read rec 2; [0]==[112]==0x43 ---
+test05:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t05
+            int     BDOS
+
+            ; R0=2
+            mov     bx, offset fcb1
+            mov     al, 2
+            mov     33[bx], al
+            xor     al, al
+            mov     34[bx], al
+            mov     35[bx], al
+
+            call    clrbuf
+            mov     cx, FN_READRAND
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            jne     fail05
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 043h
+            jne     fail05
+            mov     al, 112[bx]
+            cmp     al, 043h
+            jne     fail05
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s05
+            int     BDOS
+            jmp     test06
+
+fail05:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f05
+            int     BDOS
+
+            ; --- test 022.06: random-read rec 3; [0]==[112]==0x44 ---
+test06:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t06
+            int     BDOS
+
+            ; R0=3
+            mov     bx, offset fcb1
+            mov     al, 3
+            mov     33[bx], al
+            xor     al, al
+            mov     34[bx], al
+            mov     35[bx], al
+
+            call    clrbuf
+            mov     cx, FN_READRAND
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            jne     fail06
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]
+            cmp     al, 044h
+            jne     fail06
+            mov     al, 112[bx]
+            cmp     al, 044h
+            jne     fail06
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s06
+            int     BDOS
+            jmp     done
+
+fail06:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f06
+            int     BDOS
+
+done:       mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; artifact tst22rnd.out: copy all 4 records from working file
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     al, 4
+            mov     rec_cnt, al
+
+cpy_lp:     mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     al, rec_cnt
+            dec     al
+            mov     rec_cnt, al
+            cmp     al, 0
+            jne     cpy_lp
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+; ============================================================
+; fill helpers
+; ============================================================
+fill41:     mov     si, offset dma_buf
+            mov     cx, 128
+            mov     al, 041h
+f41lp:      mov     [si], al
+            inc     si
+            loop    f41lp
+            ret
+
+fill42:     mov     si, offset dma_buf
+            mov     cx, 128
+            mov     al, 042h
+f42lp:      mov     [si], al
+            inc     si
+            loop    f42lp
+            ret
+
+fill43:     mov     si, offset dma_buf
+            mov     cx, 128
+            mov     al, 043h
+f43lp:      mov     [si], al
+            inc     si
+            loop    f43lp
+            ret
+
+fill44:     mov     si, offset dma_buf
+            mov     cx, 128
+            mov     al, 044h
+f44lp:      mov     [si], al
+            inc     si
+            loop    f44lp
+            ret
+
+fill58:     mov     si, offset dma_buf
+            mov     cx, 128
+            mov     al, 058h
+f58lp:      mov     [si], al
+            inc     si
+            loop    f58lp
+            ret
+
+clrbuf:     mov     si, offset dma_buf
+            mov     cx, 128
+            xor     al, al
+clrlp:      mov     [si], al
+            inc     si
+            loop    clrlp
+            ret
+
+rec_cnt     rb      1
+
+            end     main

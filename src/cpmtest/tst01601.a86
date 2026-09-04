@@ -1,0 +1,138 @@
+            title   'tst01601 - BDOS fn 016h f_make'
+
+; ============================================================
+; tst01601.a86 - Test BDOS function 016h (f_make)
+;
+; Build:  make tst01601.cmd
+; Run:    emu2 tst01601.cmd
+;
+; Sub-tests:
+;   016.01  pre-clean + create tstmk01.tmp - expect AL != 0FFh
+;   016.02  close + create same name again - expect AL != 0FFh
+;
+; Expected output (no ERR: lines):
+;   INF: test 016.01 started (f_make)
+;   INF: test 016.01 successful
+;   INF: test 016.02 started (f_make)
+;   INF: test 016.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_MAKE     equ     16h
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 016.01 started (f_make)', CR, LF, '$'
+msg_s01     db      'INF: test 016.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 016.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 016.02 started (f_make)', CR, LF, '$'
+msg_s02     db      'INF: test 016.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 016.02 failed', CR, LF, '$'
+
+fcb1        db      0               ; drive
+            db      'TSTMK01 '      ; filename (8 chars)
+            db      'TMP'           ; extension
+            db      0,0,0,0         ; EX S1 S2 RC
+            db      0,0,0,0,0,0,0,0 ; D0-D7
+            db      0,0,0,0,0,0,0,0 ; D8-D15
+            db      0               ; CR
+            db      0,0,0           ; R0 R1 R2
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; pre-clean stale file (ignore result)
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; --- test 016.01: create file ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 016.02: close + create same name again ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; reset FCB EX field before second make
+            mov     bx, offset fcb1
+            xor     al, al
+            mov     12[bx], al
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       ; cleanup
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main
