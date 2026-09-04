@@ -3,7 +3,7 @@
 set -e
 
 echo INF: Checking PolyPascal-86 V3.11 for CP/M-86 ...
-if [ ! -f "$root/share/polypascpm/ppas.cmd" ]; then
+if [ ! -f "$root/share/polypascpm/.finished" ]; then
     tmp="$root/share/temp-polypascpm"
     rm -rf "$tmp"
     mkdir -p "$tmp"
@@ -46,6 +46,7 @@ if [ ! -f "$root/share/polypascpm/ppas.cmd" ]; then
     done
 
     mkdir -p "$root/share/polypascpm"
+    touch "$root/share/polypascpm/.finished"
     cp "$tmp"/* "$root/share/polypascpm/"
     chmod 644 "$root/share/polypascpm"/*
 
@@ -54,7 +55,7 @@ if [ ! -f "$root/share/polypascpm/ppas.cmd" ]; then
 fi
 
 echo INF: Checking PolyPascal-86 V3.11 for DOS ...
-if [ ! -f "$root/share/polypascpm/ppas.com" ]; then
+if [ ! -f "$root/share/polypasdos/.finished" ]; then
     tmp="$root/share/temp-polypasdos"
     rm -rf "$tmp"
     mkdir -p "$tmp"
@@ -96,6 +97,7 @@ if [ ! -f "$root/share/polypascpm/ppas.com" ]; then
     done
 
     mkdir -p "$root/share/polypasdos"
+    touch "$root/share/polypasdos/.finished"
     cp "$tmp"/* "$root/share/polypasdos/"
     chmod 644 "$root/share/polypasdos"/*
 
