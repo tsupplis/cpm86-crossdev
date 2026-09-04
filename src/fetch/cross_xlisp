@@ -3,11 +3,21 @@
 set -e
 
 echo INF: Building XLISP for CP/M-86 ...
+mkdir -p "$root/archive"
+if [ ! -d "$root/archive/cpm86-ports" ]; then
+    git clone "https://github.com/tsupplis/cpm86-ports.git" "$root/archive/cpm86-ports"
+    rm -rf "$root/archive/cpm86-ports/.git"
+fi
 if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
+    tmp="$root/share/temp-xlisp"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    cp "$root/archive/cpm86-ports/xlisp"/* "$tmp/"
+    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all
     mkdir -p "$root/share/xlisp"
-    cp "$root/src/xlisp"/*.c "$root/src/xlisp"/*.h \
-       "$root/src/xlisp"/*.lnk "$root/src/xlisp"/*.lsp \
-       "$root/src/xlisp/Makefile" \
-       "$root/share/xlisp"
-    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$root/share/xlisp" all
+    cp "$tmp/xlisp.cmd" "$tmp"/*.lsp "$root/share/xlisp/"
+    chmod 644 "$root/share/xlisp"/*
+    rm -rf "$tmp"
+    trap - EXIT
 fi

@@ -24,7 +24,6 @@ cpm86-crossdev/
 │   ├── patch/           # binary patch scripts for cpm86.exe, aztec34 cpp
 │   ├── tools/           # native helper tools (doscat, hexcom) built by make
 │   ├── turbo/           # Turbo Pascal binary/data files stored in-tree
-│   └── xlisp/           # XLISP 1.1 C sources, built by aztec42
 ├── archive/             # download cache + build trees for native tools (never removed by clear_tools)
 │   ├── emu2/            # emu2-cpm86 source (cloned once, .git stripped)
 │   ├── tnylpo/          # tnylpo source (cloned once, .git stripped)

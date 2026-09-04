@@ -65,7 +65,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - nasm license terms can be found at (https://www.nasm.us)
 - src/tools/hexcom.c is a DRI HEXCOM 3.00 compatible reimplementation by Jeffrey H. Johnson, imported from https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c under the MIT-0 license
 - DR PL/I-86 1.0 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- XLISP 1.1 is public domain software by David Betz; the source is stored in `src/xlisp`
+- XLISP 1.1 is public domain software by David Betz; the source is at https://github.com/tsupplis/cpm86-ports
 - PolyPascal-86 V3.11 is a PolyData MicroCenter A/S product; its licensing is unclear
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
 
@@ -191,7 +191,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | intel_loc86   | loc86.exe   | Intel locator                      |
 | drpli_pc      | pli.cmd     | DR PL/I-86 1.0 compiler                     |
 | drpli_link    | linkcmd.exe  | DR PL/I-86 1.0 linker                        |
-| cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from src/xlisp) |
+| cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from source) |
 
 ## Fetching the tools
 
@@ -221,7 +221,7 @@ it pulls the following:
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
 - PL/M-86 3.30 tools (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)
 - PL/I-86 1.0 (http://www.cpm.z80.de/download/pli86.zip)
-- XLISP 1.1 (stored in `src/xlisp`, compiled from source using aztec42)
+- XLISP 1.1 (https://github.com/tsupplis/cpm86-ports, compiled from source using aztec42)
 
 Clearing the directory is achieved by:
 ```
@@ -507,7 +507,7 @@ cmdinfo hellopi.cmd
 ### XLISP Programs
 
 XLISP 1.1 is a small public-domain Lisp interpreter by David Betz, built from
-source in `src/xlisp` using the Aztec C 4.2 compiler. It supports a subset of
+source using the Aztec C 4.2 compiler. It supports a subset of
 Common Lisp including lists, symbols, integers, strings, lexical closures, and
 a simple object system.
 
