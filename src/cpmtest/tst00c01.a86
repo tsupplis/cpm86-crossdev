@@ -1,0 +1,106 @@
+            title   'tst00c01 - BDOS fn 00ch s_bdosver'
+
+; ============================================================
+; tst00c01.a86 - Test BDOS function 00Ch (s_bdosver)
+;
+; Build:  make tst00c01.cmd
+; Run:    emu2 tst00c01.cmd
+;
+; Sub-tests:
+;   00c.01  call fn 00Ch - expect AX != 0
+;   00c.02  call fn 00Ch - expect AL >= 20h (CP/M 2.x or later)
+;
+; Expected output (no ERR: lines):
+;   INF: test 00c.01 started (s_bdosver)
+;   INF: test 00c.01 successful
+;   INF: test 00c.02 started (s_bdosver)
+;   INF: test 00c.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_BDOSVER  equ     0Ch
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 00c.01 started (s_bdosver)', CR, LF, '$'
+msg_s01     db      'INF: test 00c.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 00c.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 00c.02 started (s_bdosver)', CR, LF, '$'
+msg_s02     db      'INF: test 00c.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 00c.02 failed', CR, LF, '$'
+
+ver_save    dw      0               ; saved version number
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 00c.01: AX != 0 ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_BDOSVER
+            int     BDOS
+
+            ; save version; check AX != 0
+            mov     bx, ax
+            mov     ver_save, bx
+            cmp     ax, 0
+            je      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 00c.02: AL >= 20h ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_BDOSVER
+            int     BDOS
+
+            cmp     al, 020h
+            jb      fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

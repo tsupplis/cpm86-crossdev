@@ -1,0 +1,185 @@
+            title   'tst01401 - BDOS fn 014h f_read'
+
+; ============================================================
+; tst01401.a86 - Test BDOS function 014h (f_read)
+;
+; Build:  make tst01401.cmd
+; Run:    emu2 tst01401.cmd
+;
+; Fixture:  tst014aa.in  - 128 bytes all 0x41 ('A')
+; Artifact: tst14buf.out - copy of read buffer (128 x 0x41)
+;
+; Sub-tests:
+;   014.01  open tst014aa.in; read rec 0; AL==0
+;   014.02  buf[0]==0x41 and buf[112]==0x41 (16-byte spot checks)
+;   014.03  read again past EOF; AL != 0
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DMAOFF   equ     1Ah
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_READ     equ     14h
+FN_WRITE    equ     15h
+FN_MAKE     equ     16h
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 014.01 started (f_read)', CR, LF, '$'
+msg_s01     db      'INF: test 014.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 014.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 014.02 started (f_read)', CR, LF, '$'
+msg_s02     db      'INF: test 014.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 014.02 failed', CR, LF, '$'
+
+msg_t03     db      'INF: test 014.03 started (f_read)', CR, LF, '$'
+msg_s03     db      'INF: test 014.03 successful', CR, LF, '$'
+msg_f03     db      'ERR: test 014.03 failed', CR, LF, '$'
+
+fcb1        db      0
+            db      'TST014AA'
+            db      'IN '
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb_out     db      0
+            db      'TST14BUF'
+            db      'OUT'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+dma_buf     rb      128
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; --- test 014.01: read rec 0 ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            jne     fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 014.02: spot-check buf[0] and buf[112] ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     bx, offset dma_buf
+            mov     al, [bx]        ; byte 0
+            cmp     al, 041h
+            jne     fail02
+            mov     al, 112[bx]     ; byte 112
+            cmp     al, 041h
+            jne     fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     test03
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+            ; --- test 014.03: read past EOF ---
+test03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t03
+            int     BDOS
+
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            je      fail03
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s03
+            int     BDOS
+            jmp     done
+
+fail03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f03
+            int     BDOS
+
+done:       mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; artifact tst14buf.out
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

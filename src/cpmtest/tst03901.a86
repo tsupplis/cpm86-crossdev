@@ -1,0 +1,146 @@
+            title   'tst03901 - fn 039h MC_FREE'
+
+; Test fn 039h: MC_FREE - free memory block
+; MCB layout: +0 segment (word), +2 length (word), +4 ext (byte)
+; ext=0FFh => free all segments (no segment-specific match)
+; On success: AX=0, CX=0
+; Sub-tests:
+;   039.01  alloc 1 paragraph then free it (ext=0) => AX=0, CX=0
+;   039.02  free all (ext=0FFh) => AX=0, CX=0
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+FN_MCALLOC  equ     037h
+FN_MCFREE   equ     039h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_039_01s db  'INF: test 039.01 started (mc_free exact)', CR, LF, '$'
+msg_039_01p db  'INF: test 039.01 successful', CR, LF, '$'
+msg_039_01f db  'ERR: test 039.01 failed', CR, LF, '$'
+
+msg_039_02s db  'INF: test 039.02 started (mc_free all)', CR, LF, '$'
+msg_039_02p db  'INF: test 039.02 successful', CR, LF, '$'
+msg_039_02f db  'ERR: test 039.02 failed', CR, LF, '$'
+
+mcb         dw  0
+mcb_len     dw  1
+mcb_ext     db  0
+
+save_ax     rw  1
+save_cx     rw  1
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+; ============================================================
+; test 039.01: alloc 1 para then free by segment
+; ============================================================
+t039_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_039_01s
+            int     BDOS
+
+            ; allocate 1 paragraph
+            xor     ax, ax
+            mov     mcb, ax
+            mov     ax, 1
+            mov     mcb_len, ax
+            xor     al, al
+            mov     mcb_ext, al
+
+            mov     cx, FN_MCALLOC
+            mov     dx, offset mcb
+            int     BDOS
+
+            ; alloc must succeed for free test to be meaningful
+            cmp     ax, 0
+            jne     t039_01f
+
+            ; free by segment (ext=0)
+            xor     al, al
+            mov     mcb_ext, al
+            mov     cx, FN_MCFREE
+            mov     dx, offset mcb
+            int     BDOS
+
+            mov     save_ax, ax
+            mov     save_cx, cx
+
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t039_01f
+            mov     ax, save_cx
+            cmp     ax, 0
+            jne     t039_01f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_039_01p
+            int     BDOS
+            jmps    t039_02
+
+t039_01f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_039_01f
+            int     BDOS
+
+; ============================================================
+; test 039.02: free all (ext=0FFh) => AX=0, CX=0
+; ============================================================
+t039_02:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_039_02s
+            int     BDOS
+
+            ; ext=0FFh => free all
+            mov     al, 0FFh
+            mov     mcb_ext, al
+
+            mov     cx, FN_MCFREE
+            mov     dx, offset mcb
+            int     BDOS
+
+            mov     save_ax, ax
+            mov     save_cx, cx
+
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t039_02f
+            mov     ax, save_cx
+            cmp     ax, 0
+            jne     t039_02f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_039_02p
+            int     BDOS
+            jmps    t039_done
+
+t039_02f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_039_02f
+            int     BDOS
+
+t039_done:
+            xor     cx, cx
+            int     BDOS
+
+            end     main

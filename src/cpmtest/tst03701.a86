@@ -1,0 +1,149 @@
+            title   'tst03701 - fn 037h MC_ALLOC'
+
+; Test fn 037h: MC_ALLOC - allocate memory block
+; MCB layout (at DS:DX): +0 segment (word), +2 length paragraphs (word), +4 ext (byte)
+; On success: AX=0, CX=0, MCB+0 = allocated segment
+; On failure: AX=0FFFFh, CX=3
+; Sub-tests:
+;   037.01  allocate 1 paragraph => AX=0, CX=0, segment != 0
+;   037.02  free the allocated block => AX=0, CX=0
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+FN_MCALLOC  equ     037h
+FN_MCFREE   equ     039h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_037_01s db  'INF: test 037.01 started (mc_alloc)', CR, LF, '$'
+msg_037_01p db  'INF: test 037.01 successful', CR, LF, '$'
+msg_037_01f db  'ERR: test 037.01 failed', CR, LF, '$'
+
+msg_037_02s db  'INF: test 037.02 started (mc_alloc+free)', CR, LF, '$'
+msg_037_02p db  'INF: test 037.02 successful', CR, LF, '$'
+msg_037_02f db  'ERR: test 037.02 failed', CR, LF, '$'
+
+; MCB: segment(word), length(word), ext(byte)
+mcb         dw  0           ; +0: segment (filled by BDOS)
+mcb_len     dw  1           ; +2: request 1 paragraph
+mcb_ext     db  0           ; +4: ext=0 = normal free
+
+; saved results
+save_ax     rw  1
+save_cx     rw  1
+save_seg    rw  1
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+; ============================================================
+; test 037.01: allocate 1 paragraph => AX=0, CX=0, MCB+0 != 0
+; ============================================================
+t037_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_037_01s
+            int     BDOS
+
+            ; reset MCB
+            xor     ax, ax
+            mov     mcb, ax
+            mov     ax, 1
+            mov     mcb_len, ax
+            xor     al, al
+            mov     mcb_ext, al
+
+            mov     cx, FN_MCALLOC
+            mov     dx, offset mcb
+            int     BDOS
+
+            ; save results (BX/AX clobbered by next BDOS)
+            mov     save_ax, ax
+            mov     save_cx, cx
+            mov     ax, mcb         ; segment filled by BDOS
+            mov     save_seg, ax
+
+            ; AX must be 0
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t037_01f
+            ; CX must be 0
+            mov     ax, save_cx
+            cmp     ax, 0
+            jne     t037_01f
+            ; segment must be non-zero
+            mov     ax, save_seg
+            cmp     ax, 0
+            je      t037_01f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_037_01p
+            int     BDOS
+            jmps    t037_02
+
+t037_01f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_037_01f
+            int     BDOS
+
+; ============================================================
+; test 037.02: free the block just allocated => AX=0, CX=0
+; (MCB+0 still holds the segment from 037.01)
+; ============================================================
+t037_02:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_037_02s
+            int     BDOS
+
+            ; MCB+0 already has the allocated segment
+            ; ext=0 => normal free by segment
+            xor     al, al
+            mov     mcb_ext, al
+
+            mov     cx, FN_MCFREE
+            mov     dx, offset mcb
+            int     BDOS
+
+            mov     save_ax, ax
+            mov     save_cx, cx
+
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t037_02f
+            mov     ax, save_cx
+            cmp     ax, 0
+            jne     t037_02f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_037_02p
+            int     BDOS
+            jmps    t037_done
+
+t037_02f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_037_02f
+            int     BDOS
+
+t037_done:
+            xor     cx, cx
+            int     BDOS
+
+            end     main

@@ -1,0 +1,149 @@
+            title   'tst03301 - BDOS fn 033h f_dmaseg'
+
+; ============================================================
+; tst03301.a86 - Test BDOS function 033h (f_dmaseg)
+;
+; Build:  make tst03301.cmd
+; Run:    emu2 tst03301.cmd
+;
+; Fixture:  tst014aa.in  - 128 bytes all 0x41 ('A')
+; Artifact: tst01seg.out - copy of the read buffer (must match tst014aa.in)
+;
+; Sub-tests:
+;   033.01  set DMA seg=CS and DMA offset to local buffer;
+;           open+read tst014aa.in; verify buffer byte 0 == 0x41
+;
+; Expected output (no ERR: lines):
+;   INF: test 033.01 started (f_dmaseg)
+;   INF: test 033.01 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DMAOFF   equ     1Ah
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_READ     equ     14h
+FN_WRITE    equ     15h
+FN_MAKE     equ     16h
+FN_DELETE   equ     13h
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 033.01 started (f_dmaseg)', CR, LF, '$'
+msg_s01     db      'INF: test 033.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 033.01 failed', CR, LF, '$'
+
+fcb1        db      0               ; drive
+            db      'TST014AA'      ; filename
+            db      'IN '           ; extension
+            db      0,0,0,0         ; EX S1 S2 RC
+            db      0,0,0,0,0,0,0,0 ; D0-D7
+            db      0,0,0,0,0,0,0,0 ; D8-D15
+            db      0               ; CR
+            db      0,0,0           ; R0 R1 R2
+
+; FCB for artifact tst01seg.out
+fcb_out     db      0               ; drive
+            db      'TST01SEG'      ; filename
+            db      'OUT'           ; extension
+            db      0,0,0,0         ; EX S1 S2 RC
+            db      0,0,0,0,0,0,0,0 ; D0-D7
+            db      0,0,0,0,0,0,0,0 ; D8-D15
+            db      0               ; CR
+            db      0,0,0           ; R0 R1 R2
+
+dma_buf     rb      128             ; DMA read buffer
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            ; explicitly set DMA segment to CS
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; set DMA offset to our buffer
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            ; --- test 033.01: read with DMA seg=CS ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01
+
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0
+            jne     fail01
+
+            ; verify first byte landed in our buffer == 0x41
+            mov     al, dma_buf
+            cmp     al, 041h
+            jne     fail01
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     done
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+done:       ; --- write artifact tst01seg.out ---
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

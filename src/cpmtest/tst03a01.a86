@@ -1,0 +1,78 @@
+            title   'tst03a01 - fn 03Ah MC_ALLFREE'
+
+; Test fn 03Ah: MC_ALLFREE - free all memory
+; emu2: returns AX=0, CX=0 (no-op on single-process emulator)
+; Sub-tests:
+;   03a.01  MC_ALLFREE => AX=0, CX=0
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+FN_MCALLFR  equ     03Ah
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_03a_01s db  'INF: test 03a.01 started (mc_allfree)', CR, LF, '$'
+msg_03a_01p db  'INF: test 03a.01 successful', CR, LF, '$'
+msg_03a_01f db  'ERR: test 03a.01 failed', CR, LF, '$'
+
+save_ax     rw  1
+save_cx     rw  1
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+; ============================================================
+; test 03a.01: MC_ALLFREE => AX=0, CX=0
+; ============================================================
+t03a_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_03a_01s
+            int     BDOS
+
+            mov     cx, FN_MCALLFR
+            int     BDOS
+
+            mov     save_ax, ax
+            mov     save_cx, cx
+
+            mov     ax, save_ax
+            cmp     ax, 0
+            jne     t03a_01f
+            mov     ax, save_cx
+            cmp     ax, 0
+            jne     t03a_01f
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_03a_01p
+            int     BDOS
+            jmps    t03a_done
+
+t03a_01f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_03a_01f
+            int     BDOS
+
+t03a_done:
+            xor     cx, cx
+            int     BDOS
+
+            end     main

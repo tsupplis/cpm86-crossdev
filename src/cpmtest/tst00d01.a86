@@ -1,0 +1,66 @@
+            title   'tst00d01 - BDOS fn 00dh drv_allreset'
+
+; ============================================================
+; tst00d01.a86 - Test BDOS function 00Dh (drv_allreset)
+;
+; Build:  make tst00d01.cmd
+; Run:    emu2 tst00d01.cmd
+;
+; Sub-tests:
+;   00d.01  call fn 00Dh - must complete without crash
+;
+; Expected output (no ERR: lines):
+;   INF: test 00d.01 started (drv_allreset)
+;   INF: test 00d.01 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_ALLRESET equ     0Dh
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 00d.01 started (drv_allreset)', CR, LF, '$'
+msg_s01     db      'INF: test 00d.01 successful', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 00d.01: reset disk system ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_ALLRESET
+            int     BDOS
+
+            ; no meaningful return value to check - reaching here is success
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

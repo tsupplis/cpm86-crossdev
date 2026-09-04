@@ -1,0 +1,225 @@
+            title   'tst02301 - BDOS fn 023h f_size'
+
+; ============================================================
+; tst02301.a86 - Test BDOS function 023h (f_size)
+;
+; Build:  make tst02301.cmd
+; Run:    emu2 tst02301.cmd
+;
+; Artifact: tst23siz.out - 3 records (384 bytes); 0x41/0x42/0x43
+;
+; Sub-tests:
+;   023.01  create tst23tmp.tmp; write 3 recs (0x41/0x42/0x43); close;
+;           reopen; fn 023h; FCB+33 (R0) == 3
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DMAOFF   equ     1Ah
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_READ     equ     14h
+FN_WRITE    equ     15h
+FN_MAKE     equ     16h
+FN_SIZE     equ     23h
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 023.01 started (f_size)', CR, LF, '$'
+msg_s01     db      'INF: test 023.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 023.01 failed', CR, LF, '$'
+
+fcb1        db      0
+            db      'TST23TMP'
+            db      'TMP'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb_out     db      0
+            db      'TST23SIZ'
+            db      'OUT'
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+dma_buf     rb      128
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; write 3 records
+            call    fill41
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            call    fill42
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            call    fill43
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            ; --- test 023.01: size == 3 ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01
+
+            mov     cx, FN_SIZE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     bx, offset fcb1
+            mov     al, 33[bx]
+            cmp     al, 3
+            jne     fail01
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     done
+
+fail01:     mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+done:       ; artifact tst23siz.out: copy 3 records
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     al, 3
+            mov     rec_cnt, al
+
+cpy_lp:     mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_READ
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_DMAOFF
+            mov     dx, offset dma_buf
+            int     BDOS
+
+            mov     cx, FN_WRITE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     al, rec_cnt
+            dec     al
+            mov     rec_cnt, al
+            cmp     al, 0
+            jne     cpy_lp
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb_out
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb1
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+fill41:     mov     si, offset dma_buf
+            mov     cx, 128
+            mov     al, 041h
+f41lp:      mov     [si], al
+            inc     si
+            loop    f41lp
+            ret
+
+fill42:     mov     si, offset dma_buf
+            mov     cx, 128
+            mov     al, 042h
+f42lp:      mov     [si], al
+            inc     si
+            loop    f42lp
+            ret
+
+fill43:     mov     si, offset dma_buf
+            mov     cx, 128
+            mov     al, 043h
+f43lp:      mov     [si], al
+            inc     si
+            loop    f43lp
+            ret
+
+rec_cnt     rb      1
+
+            end     main

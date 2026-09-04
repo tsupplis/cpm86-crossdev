@@ -1,0 +1,173 @@
+            title   'tst01701 - BDOS fn 017h f_rename'
+
+; ============================================================
+; tst01701.a86 - Test BDOS function 017h (f_rename)
+;
+; Build:  make tst01701.cmd
+; Run:    emu2 tst01701.cmd
+;
+; Sub-tests:
+;   017.01  make tstrn01.tmp; rename to tstrn02.tmp; AL != 0FFh
+;   017.02  open tstrn02.tmp; AL == 0 (new name exists)
+;
+; Expected output (no ERR: lines):
+;   INF: test 017.01 started (f_rename)
+;   INF: test 017.01 successful
+;   INF: test 017.02 started (f_rename)
+;   INF: test 017.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_OPEN     equ     0Fh
+FN_CLOSE    equ     10h
+FN_DELETE   equ     13h
+FN_MAKE     equ     16h
+FN_RENAME   equ     17h
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 017.01 started (f_rename)', CR, LF, '$'
+msg_s01     db      'INF: test 017.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 017.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 017.02 started (f_rename)', CR, LF, '$'
+msg_s02     db      'INF: test 017.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 017.02 failed', CR, LF, '$'
+
+; rename FCB: bytes 0-11 = old name, bytes 16-27 = new name
+; byte 0 = drive, bytes 1-8 = old filename, bytes 9-11 = old ext
+; byte 16 = drive, bytes 17-24 = new filename, bytes 25-27 = new ext
+fcb_ren     db      0               ; drive (old)
+            db      'TSTRN01 '      ; old filename
+            db      'TMP'           ; old extension
+            db      0,0,0,0         ; EX S1 S2 RC (padding to byte 16)
+            db      0               ; drive (new) at offset 16
+            db      'TSTRN02 '      ; new filename
+            db      'TMP'           ; new extension
+            db      0,0,0,0,0,0,0,0 ; D0-D7
+            db      0,0,0,0,0,0,0,0 ; D8-D15
+            db      0               ; CR
+            db      0,0,0           ; R0 R1 R2
+
+; FCB to open new name after rename
+fcb_new     db      0               ; drive
+            db      'TSTRN02 '      ; filename
+            db      'TMP'           ; extension
+            db      0,0,0,0         ; EX S1 S2 RC
+            db      0,0,0,0,0,0,0,0 ; D0-D7
+            db      0,0,0,0,0,0,0,0 ; D8-D15
+            db      0               ; CR
+            db      0,0,0           ; R0 R1 R2
+
+; FCB to pre-clean old name
+fcb_old     db      0               ; drive
+            db      'TSTRN01 '      ; filename
+            db      'TMP'           ; extension
+            db      0,0,0,0         ; EX S1 S2 RC
+            db      0,0,0,0,0,0,0,0 ; D0-D7
+            db      0,0,0,0,0,0,0,0 ; D8-D15
+            db      0               ; CR
+            db      0,0,0           ; R0 R1 R2
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; pre-clean both names (ignore results)
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_old
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_new
+            int     BDOS
+
+            ; create old name
+            mov     cx, FN_MAKE
+            mov     dx, offset fcb_old
+            int     BDOS
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb_old
+            int     BDOS
+
+            ; --- test 017.01: rename old -> new ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_RENAME
+            mov     dx, offset fcb_ren
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 017.02: open new name ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_OPEN
+            mov     dx, offset fcb_new
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail02
+
+            mov     cx, FN_CLOSE
+            mov     dx, offset fcb_new
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       ; cleanup
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_old
+            int     BDOS
+
+            mov     cx, FN_DELETE
+            mov     dx, offset fcb_new
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

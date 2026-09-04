@@ -1,0 +1,105 @@
+            title   'tst03201 - fn 032h S_BIOS'
+
+; Test fn 032h: S_BIOS - direct BIOS call
+; emu2 supports: CONST (2), CONIN (3), CONOUT (4) only; others return 0
+; Sub-tests:
+;   032.01  BIOS fn 4 CONOUT - output a visible char (no EOF side-effect)
+;   032.02  BIOS fn 2 CONST  - console status returns 0 (no char waiting)
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+FN_SBIOS    equ     032h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+; S_BIOS packet layout (3 bytes): fn, AL param, BX param low, BX param high
+; BDOS fn 32h: DX = address of 3-byte packet { bios_fn, al_val, bx_val }
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_032_01s db  'INF: test 032.01 started (s_bios conout)', CR, LF, '$'
+msg_032_01p db  'INF: test 032.01 successful', CR, LF, '$'
+msg_032_01f db  'ERR: test 032.01 failed', CR, LF, '$'
+
+msg_032_02s db  'INF: test 032.02 started (s_bios const)', CR, LF, '$'
+msg_032_02p db  'INF: test 032.02 successful', CR, LF, '$'
+msg_032_02f db  'ERR: test 032.02 failed', CR, LF, '$'
+
+; BIOS call packets: [fn_byte, al_byte, bx_word]
+; BIOS fn 4 = CONOUT, character in AL
+bios_pkt1   db  4, '!', 0, 0    ; CONOUT '!'
+; BIOS fn 2 = CONST (console status)
+bios_pkt2   db  2, 0, 0, 0      ; CONST
+
+crlf_str    db  CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+; ============================================================
+; test 032.01: BIOS CONOUT - output '!' (AL=33h in packet)
+; We just verify the call does not crash; no return value to check
+; ============================================================
+t032_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_032_01s
+            int     BDOS
+
+            mov     cx, FN_SBIOS
+            mov     dx, offset bios_pkt1
+            int     BDOS
+            ; emit CRLF after the '!'
+            mov     cx, FN_PRTSTR
+            mov     dx, offset crlf_str
+            int     BDOS
+
+            ; no crash = success
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_032_01p
+            int     BDOS
+
+; ============================================================
+; test 032.02: BIOS CONST - no char waiting => AL=0
+; ============================================================
+t032_02:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_032_02s
+            int     BDOS
+
+            mov     cx, FN_SBIOS
+            mov     dx, offset bios_pkt2
+            int     BDOS
+
+            cmp     al, 0
+            jne     t032_02f
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_032_02p
+            int     BDOS
+            jmps    t032_done
+t032_02f:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_032_02f
+            int     BDOS
+
+t032_done:
+            xor     cx, cx
+            int     BDOS
+
+            end     main

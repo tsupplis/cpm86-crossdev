@@ -1,0 +1,117 @@
+            title   'tst01f01 - BDOS fn 01fh drv_dpb'
+
+; ============================================================
+; tst01f01.a86 - Test BDOS function 01Fh (drv_dpb)
+;
+; Build:  make tst01f01.cmd
+; Run:    emu2 tst01f01.cmd
+;
+; Sub-tests:
+;   01f.01  call fn 01Fh - expect ES:BX non-null
+;   01f.02  SPT field (word at ES:BX+0) > 0
+;
+; Expected output (no ERR: lines):
+;   INF: test 01f.01 started (drv_dpb)
+;   INF: test 01f.01 successful
+;   INF: test 01f.02 started (drv_dpb)
+;   INF: test 01f.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DPB      equ     1Fh
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 01f.01 started (drv_dpb)', CR, LF, '$'
+msg_s01     db      'INF: test 01f.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 01f.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 01f.02 started (drv_dpb)', CR, LF, '$'
+msg_s02     db      'INF: test 01f.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 01f.02 failed', CR, LF, '$'
+
+dpb_addr    dw      0               ; saved BX from fn 01Fh
+dpb_seg     dw      0               ; saved ES from fn 01Fh
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 01f.01: DPB address non-null ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_DPB
+            int     BDOS
+
+            ; save BX for next sub-test; check it's non-zero or ES is non-zero
+            mov     dpb_addr, bx
+            mov     dpb_seg, es
+
+            ; DPB is valid if ES is non-zero (BX=0x40 is valid)
+            mov     ax, es
+            cmp     ax, 0
+            je      fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 01f.02: SPT (word at offset 0) > 0 ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            ; reload ES:BX and read SPT word at offset 0
+            mov     es, dpb_seg
+            mov     bx, dpb_addr
+
+            mov     ax, es:0[bx]    ; SPT word at ES:BX+0
+            cmp     ax, 0
+            je      fail02
+
+            mov     cx, cs          ; restore ES = CS
+            mov     es, cx
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     ax, cs
+            mov     es, ax
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main
