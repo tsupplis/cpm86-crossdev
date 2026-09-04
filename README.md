@@ -164,7 +164,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | ppcpm_ppas    | ppas.cmd       | PolyPascal-86 V3.11 compiler+editor (CP/M-86) |
 | ppcpm_ppbs    | ppbs.cmd       | PolyPascal-86 V3.11 BCD business variant (CP/M-86) |
 | ppcpm_pp87    | pp87.cmd       | PolyPascal-86 V3.11 8087 FPU variant (CP/M-86) |
-| turbo         | turbo.cmd      | Turbo Pascal 3.01 (CP/M-86)             |
+| cpm_turbo     | turbo.cmd      | Turbo Pascal 3.01 (CP/M-86)             |
 | drpmt_pc      | mt+86.cmd      | Pascal MT+ 3.3 compiler                 |
 | drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker                   |
 | drpmt_asm     | asmt86.cmd     | Pascal MT+ 3.3 assembler                |
