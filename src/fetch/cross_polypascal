@@ -17,7 +17,8 @@ if [ ! -f "$root/share/polypascpm/ppas.cmd" ]; then
     fi
 
     cp "$root/archive/polypascal/PPCPM"/* "$tmp/"
-
+    cp "$root/archive/polypascal/"PPAS.HLP.en "$tmp/PPAS.HLP"
+    cp "$root/archive/polypascal/"PPAS.ERM.en "$tmp/PPAS.ERM"
     # lowercase all filenames (CP/M convention — emu2 finds them case-insensitively)
     for f in "$tmp"/*; do
         base=$(basename "$f")
