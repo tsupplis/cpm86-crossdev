@@ -36,15 +36,18 @@ COPY docker/arch /usr/bin/arch
 COPY .. /opt/crossdev
 ARG USER_ID=8855
 ARG USER="cpm86"
-ARG HOME="/home"
 ENV USER="${USER}"
+ARG HOME="/home/${USER}"
 ENV USERNAME="${USER}"
 ENV LOGNAME="${USER}"
 ENV PATH="/opt/crossdev/bin:${PATH}"
 RUN useradd -M ${USER} -u ${USER_ID} -d ${HOME}
 CMD ["/bin/bash", "--login"]
 RUN chown -R "${USER}":"${USER}" /opt && \
-    ln -fs "$(command -v wget2)" "$(command -v wget)"
+    ln -fs "$(command -v wget2)" "$(command -v wget)" && \
+    mkdir -p "${HOME}"/.screen && \
+    chown -R "${USER}":"${USER}" "${HOME}" && \
+    chmod 700 "${HOME}"/.screen
 USER ${USER_ID}
 RUN set -e; \
     ( \
