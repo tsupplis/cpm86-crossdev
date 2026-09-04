@@ -18,6 +18,26 @@ if [ ! -f "$root/share/polypascpm/ppas.cmd" ]; then
 
     cp "$root/archive/polypascal/PPCPM"/* "$tmp/"
 
+    # install English localizatons
+    printf 'INF: %s\n' "Installing PolyPascal English localizations ..."
+    cp -f "$root/archive/polypascal/PPAS.HLP.en" "$tmp/PPAS.HLP"
+    cp -f "$root/archive/polypascal/PPAS.HLP.en" "$tmp/PPASRC.HLP"
+    cp -f "$root/archive/polypascal/PPAS.ERM.en" "$tmp/PPAS.ERM"
+
+    (   # customize for IBM-PC CP/M-86 system
+        cd "$tmp" && \
+        printf '%s\n' "PPAS.CMD" "1BXYES" > ppas.script && \
+        printf '%s\n' "PPBS.CMD" "1BXYES" > ppbs.script && \
+        printf '%s\n' "PP87.CMD" "1BXYES" > pp87.script && \
+        printf 'INF: %s\n' "Configuring PolyPascal CP/M-86 PPAS ..." && \
+        screen -Dm emu2 -i 50 -d 10 -s ppas.script INSTALL.CMD && \
+        printf 'INF: %s\n' "Configuring PolyPascal CP/M-86 PPBS ..." && \
+        screen -Dm emu2 -i 50 -d 10 -s ppbs.script INSTALL.CMD && \
+        printf 'INF: %s\n' "Configuring PolyPascal CP/M-86 PP87 ..." && \
+        screen -Dm emu2 -i 50 -d 10 -s pp87.script INSTALL.CMD && \
+        rm -f ./pp*.script
+    )
+
     # lowercase all filenames (CP/M convention — emu2 finds them case-insensitively)
     for f in "$tmp"/*; do
         base=$(basename "$f")
@@ -28,6 +48,56 @@ if [ ! -f "$root/share/polypascpm/ppas.cmd" ]; then
     mkdir -p "$root/share/polypascpm"
     cp "$tmp"/* "$root/share/polypascpm/"
     chmod 644 "$root/share/polypascpm"/*
+
+    rm -rf "$tmp"
+    trap - EXIT
+fi
+
+echo INF: Checking PolyPascal-86 V3.11 for DOS ...
+if [ ! -f "$root/share/polypascpm/ppas.com" ]; then
+    tmp="$root/share/temp-polypasdos"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+
+    mkdir -p "$root/archive"
+    if [ ! -d "$root/archive/polypascal" ]; then
+        git clone --depth=1 "https://github.com/johnsonjh/PolyPascal.git" \
+            "$root/archive/polypascal"
+        rm -rf "$root/archive/polypascal/.git"
+    fi
+
+    cp "$root/archive/polypascal/PPDOS"/* "$tmp/"
+
+    # install English localizatons
+    printf 'INF: %s\n' "Installing PolyPascal English localizations ..."
+    cp -f "$root/archive/polypascal/PPAS.HLP.en" "$tmp/PPAS.HLP"
+    cp -f "$root/archive/polypascal/PPAS.ERM.en" "$tmp/PPAS.ERM"
+
+    (   # customize for IBM-PC DOS system, help and error messages on D:
+        cd "$tmp" && \
+        printf '%s\n' "PPAS.COM" "1A24CD:\\PPAS.HLP" "DD:\\PPAS.ERM" "XXXYES" > ppas.script && \
+        printf '%s\n' "PPBS.COM" "1A24CD:\\PPAS.HLP" "DD:\\PPAS.ERM" "XXXYES" > ppbs.script && \
+        printf '%s\n' "PP87.COM" "1A24CD:\\PPAS.HLP" "DD:\\PPAS.ERM" "XXXYES" > pp87.script && \
+        printf 'INF: %s\n' "Configuring PolyPascal DOS PPAS ..." && \
+        screen -Dm emu2 -i 50 -d 10 -s ppas.script INSTALL.COM && \
+        printf 'INF: %s\n' "Configuring PolyPascal DOS PPBS ..." && \
+        screen -Dm emu2 -i 50 -d 10 -s ppbs.script INSTALL.COM && \
+        printf 'INF: %s\n' "Configuring PolyPascal DOS PP87 ..." && \
+        screen -Dm emu2 -i 50 -d 10 -s pp87.script INSTALL.COM && \
+        rm -f ./pp*.script
+    )
+
+    # lowercase all filenames
+    for f in "$tmp"/*; do
+        base=$(basename "$f")
+        lower=$(printf '%s\n' "$base" | tr '[:upper:]' '[:lower:]')
+        [ "$base" = "$lower" ] || mv "$f" "$tmp/$lower"
+    done
+
+    mkdir -p "$root/share/polypasdos"
+    cp "$tmp"/* "$root/share/polypasdos/"
+    chmod 644 "$root/share/polypasdos"/*
 
     rm -rf "$tmp"
     trap - EXIT

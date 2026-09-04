@@ -1,0 +1,13 @@
+#!/bin/sh
+prog=pp87.com
+share="`dirname $0`/../share/polypasdos"
+emu2=`dirname $0`/emu2
+EMU2_DRIVE_D="$share"
+export EMU2_DRIVE_D
+EMU2_PROGNAME="D:\\$prog"
+export EMU2_PROGNAME
+clear 2> /dev/null || :
+"$emu2" "$share/$prog" "$@"
+if [ -z "$*" ]; then
+    echo ""
+fi

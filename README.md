@@ -93,6 +93,7 @@ favorite package manager.
 * [GNU Gzip](https://www.gnu.org/software/gzip/)
 * [GNU Make](https://www.gnu.org/software/make/)
 * [GNU `patch`](https://savannah.gnu.org/projects/patch/)
+* [GNU Screen](https://www.gnu.org/software/screen/)
 * [GNU `tar`](https://www.gnu.org/software/tar/), [libarchive `tar`](https://www.libarchive.org/), or equivalent
 * [GNU Wget](https://www.gnu.org/software/wget/)
 * [Info-ZIP Unzip](https://infozip.sourceforge.net/UnZip.html)
@@ -164,6 +165,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | ppcpm_ppas    | ppas.cmd       | PolyPascal-86 V3.11 compiler+editor (CP/M-86) |
 | ppcpm_ppbs    | ppbs.cmd       | PolyPascal-86 V3.11 BCD business variant (CP/M-86) |
 | ppcpm_pp87    | pp87.cmd       | PolyPascal-86 V3.11 8087 FPU variant (CP/M-86) |
+| ppdos_ppas    | ppas.com       | PolyPascal-86 V3.11 compiler+editor (DOS) |
+| ppdos_ppbs    | ppbs.com       | PolyPascal-86 V3.11 BCD business variant (DOS) |
+| ppdos_pp87    | pp87.com       | PolyPascal-86 V3.11 8087 FPU variant (DOS) |
 | cpm86_turbo   | turbo.cmd      | Turbo Pascal 3.01 (CP/M-86)             |
 | drpmt_pc      | mt+86.cmd      | Pascal MT+ 3.3 compiler                 |
 | drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker                   |

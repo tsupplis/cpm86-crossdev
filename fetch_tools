@@ -1,8 +1,117 @@
 #!/bin/sh
-set -e
 root=`dirname $0`
 cd "$root"
 root=`pwd`
+
+# ── Check prereqs ─────────────────────────────────────────────────────────────
+
+find_command()
+{
+  missing=${missing-}
+  missing=""
+  sep=${sep-}
+  sep=""
+
+  for cmd; do
+    if ! command -v "${cmd:?}" > /dev/null 2>&1; then
+      missing="${missing:-}${sep:-}${cmd:?}"
+      sep=" "
+    fi
+  done
+
+  [ -z "${missing:-}" ] && return 0
+
+  case ${FIND_COMMAND_FATAL:-0} in
+  1)
+    prefix="ERROR: "
+    ;;
+  *)
+    prefix="WARNING: "
+    ;;
+  esac
+
+  # shellcheck disable=SC2086
+  set -- ${missing:-}
+  count=$#
+
+  if [ "${count:?}" -eq 1 ]; then
+    printf '%sCommand '\''%s'\'' was not found!\n' "${prefix:?}" "${1:?}"
+    return 1
+  fi
+
+  if [ "${count:?}" -eq 2 ]; then
+    printf '%sCommands '\''%s'\'' and '\''%s'\'' were not found!\n' \
+      "${prefix:?}" "${1:?}" "${2:?}"
+    return 1
+  fi
+
+  last=${count:?}
+  last_cmd=$(eval "printf '%s' \"\${${last:?}}\"")
+
+  out=${out-}
+  out=""
+  i=${i-}
+  i=1
+
+  while [ "${i:?}" -lt "${last:?}" ]; do
+    eval "c=\${${i:?}}"
+    if [ -z "${out:-}" ]; then
+      out="'${c:?}'"
+    else
+      out="${out:?}, '${c:?}'"
+    fi
+    i=$((i + 1))
+  done
+
+  printf '%sCommands %s, and '\''%s'\'' were not found!\n' \
+    "${prefix:?}" "${out:?}" "${last_cmd:?}"
+
+  return 1
+}
+
+################################################################################
+
+test -d "/opt/freeware/bin" && {
+  export PATH="/opt/freeware/bin:${PATH:-}"
+}
+
+################################################################################
+
+test -d "/usr/pkg/gnu/bin" && {
+  export PATH="${PATH:-}:/usr/pkg/gnu/bin"
+}
+
+################################################################################
+
+test -z "${CC:-}" && {
+  CC=$(command -v cc 2> /dev/null || \
+       command -v gcc 2> /dev/null || \
+       command -v clang 2> /dev/null || printf '%s\n' "cc")
+  export CC
+}
+
+################################################################################
+
+export FIND_COMMAND_FATAL=1
+
+find_command \
+    "${MAKE:-make}" \
+    "${CC:?}" \
+    "bash" \
+    "cmake" \
+    "dos2unix" \
+    "git" \
+    "gzip" \
+    "patch" \
+    "screen" \
+    "tar" \
+    "unzip" \
+    "wget" \
+    "xz" || exit 1
+
+# ── Enable strict error checking ──────────────────────────────────────────────
+
+set -e
 
 # ── Logging setup ─────────────────────────────────────────────────────────────
 timestamp=`date +%Y%m%d-%H%M%S`
