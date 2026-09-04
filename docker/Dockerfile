@@ -24,6 +24,7 @@ RUN apk update && \
           ncurses \
           ncurses-dev \
           patch \
+          screen \
           shadow \
           sudo \
           tar \
