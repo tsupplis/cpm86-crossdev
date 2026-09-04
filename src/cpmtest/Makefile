@@ -43,8 +43,8 @@ TESTS = \
 	tst03a01.cmd \
 	tst09801.cmd
 
-# sub02f02 is a P_CHAIN helper — built but not listed in TESTS
-HELPERS = sub02f02.cmd
+# helpers — built by 'make all' but not listed in TESTS
+HELPERS = sub02f02.cmd pause.cmd
 
 all: $(TESTS) $(HELPERS)
 
