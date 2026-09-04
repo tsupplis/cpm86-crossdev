@@ -48,6 +48,7 @@ run_fetcher cross_f77
 run_fetcher cross_pli
 run_fetcher cross_drpmt
 run_fetcher cross_turbo
+run_fetcher cross_polypascal
 run_fetcher cross_cb86
 run_fetcher cross_m2cb
 run_fetcher cross_plm86

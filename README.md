@@ -66,10 +66,14 @@ The following tools are not included and downloaded by the fetch tool but requir
 - src/tools/hexcom.c is a DRI HEXCOM 3.00 compatible reimplementation by Jeffrey H. Johnson, imported from https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c under the MIT-0 license
 - DR PL/I-86 1.0 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - XLISP 1.1 is public domain software by David Betz; the source is stored in `src/xlisp`
+- PolyPascal-86 V3.11 is a PolyData MicroCenter A/S product; its licensing is unclear
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
 
 > [!WARNING]
 > The Intel PL/M-86 3.30 tools licensing is unclear; their usage is left to the discretion of the end user.
+
+> [!WARNING]
+> The PolyPascal-86 V3.11 (PolyData MicroCenter A/S) tools licensing is unclear; their usage is left to the discretion of the end user.
 
 ## Prerequisites
 
@@ -157,6 +161,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | aztec42_obd   | obd.exe     | Aztec C object dump                |
 | aztec42_obj   | obj.exe     | Aztec C object lister              |
 | aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
+| ppcpm_ppas    | ppas.cmd       | PolyPascal-86 V3.11 compiler+editor (CP/M-86) |
+| ppcpm_ppbs    | ppbs.cmd       | PolyPascal-86 V3.11 BCD business variant (CP/M-86) |
+| ppcpm_pp87    | pp87.cmd       | PolyPascal-86 V3.11 8087 FPU variant (CP/M-86) |
 | turbo         | turbo.cmd      | Turbo Pascal 3.01 (CP/M-86)             |
 | drpmt_pc      | mt+86.cmd      | Pascal MT+ 3.3 compiler                 |
 | drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker                   |
@@ -443,6 +450,21 @@ so no special handling is needed for standard CP/M calls. XLT86 reports
 equivalent); this is expected and the output `.a86` is complete and correct.
 
 ### Pascal Programs
+
+PolyPascal-86 V3.11 — integrated compiler and editor for CP/M-86.
+`ppcpm_ppas` is the standard floating-point version; `ppcpm_ppbs` is the BCD
+business variant (18 significant digits); `ppcpm_pp87` uses the 8087 co-processor.
+
+```
+ppcpm_ppas
+```
+
+The system is interactive: the editor opens first. Use the `COMPILE` command
+to compile the current buffer and `RUN` to execute the compiled program.
+`PPAS.HLP` and `PPAS.ERM` are automatically found on drive D alongside the
+binary.
+
+### Pascal MT+ Programs
 
 Pascal MT+ 3.3 — compiled to a CP/M-86 binary:
 ```

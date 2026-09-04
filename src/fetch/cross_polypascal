@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking PolyPascal-86 V3.11 for CP/M-86 ...
+if [ ! -f "$root/share/polypascpm/ppas.cmd" ]; then
+    tmp="$root/share/temp-polypascpm"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+
+    mkdir -p "$root/archive"
+    if [ ! -d "$root/archive/polypascal" ]; then
+        git clone --depth=1 "https://github.com/johnsonjh/PolyPascal.git" \
+            "$root/archive/polypascal"
+        rm -rf "$root/archive/polypascal/.git"
+    fi
+
+    cp "$root/archive/polypascal/PPCPM"/* "$tmp/"
+
+    # lowercase all filenames (CP/M convention — emu2 finds them case-insensitively)
+    for f in "$tmp"/*; do
+        base=$(basename "$f")
+        lower=$(printf '%s\n' "$base" | tr '[:upper:]' '[:lower:]')
+        [ "$base" = "$lower" ] || mv "$f" "$tmp/$lower"
+    done
+
+    mkdir -p "$root/share/polypascpm"
+    cp "$tmp"/* "$root/share/polypascpm/"
+    chmod 644 "$root/share/polypascpm"/*
+
+    rm -rf "$tmp"
+    trap - EXIT
+fi

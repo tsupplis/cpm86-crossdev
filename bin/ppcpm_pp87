@@ -1,0 +1,14 @@
+#!/bin/sh
+prog=pp87.cmd
+share="`dirname $0`/../share/polypascpm"
+emu2=`dirname $0`/emu2
+EMU2_CPM_APPEND="D:"
+export EMU2_CPM_APPEND
+EMU2_DRIVE_D="$share"
+export EMU2_DRIVE_D
+EMU2_PROGNAME="D:$prog"
+export EMU2_PROGNAME
+"$emu2" "$share/$prog" "$@"
+if [ -z "$*" ]; then
+    echo ""
+fi
