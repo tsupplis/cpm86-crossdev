@@ -189,7 +189,7 @@ cpm86-test: binaries
 
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
-		  *.mp2 *exe *.map \
+		  *.mp2 *exe *.map *.err \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello80.a86 \
 	      $(TOOLS)
