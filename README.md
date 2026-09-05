@@ -9,6 +9,7 @@ Languages supported are:
 - Basic (DR CBASIC, DR Personal Basic, Microsoft Basic)
 - Pascal (Pascal MT+, Turbo Pascal)
 - Fortran-77
+- COBOL (Micro Focus Level II COBOL for CP/M-86)
 - PL/M-86
 - PL/I (DR PL/I-86 1.0) (Not yet functional)
 - Lisp (XLISP 1.1)
@@ -67,6 +68,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - DR PL/I-86 1.0 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
 - XLISP 1.1 is public domain software by David Betz; the source is at https://github.com/tsupplis/cpm86-ports
 - PolyPascal-86 V3.11 is a PolyData MicroCenter A/S product; its licensing is unclear
+- Micro Focus Level II COBOL V2.1 for CP/M-86 is a Micro Focus Limited product (Copyright © 1981, 1983); its licensing is unclear
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
 
 > [!WARNING]
@@ -74,6 +76,9 @@ The following tools are not included and downloaded by the fetch tool but requir
 
 > [!WARNING]
 > The PolyPascal-86 V3.11 (PolyData MicroCenter A/S) tools licensing is unclear; their usage is left to the discretion of the end user.
+
+> [!WARNING]
+> The Micro Focus Level II COBOL V2.1 (Micro Focus Limited) tools licensing is unclear; their usage is left to the discretion of the end user.
 
 ## Prerequisites
 
@@ -196,6 +201,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | drpli_pc      | pli.cmd     | DR PL/I-86 1.0 compiler                     |
 | drpli_link    | linkcmd.exe  | DR PL/I-86 1.0 linker                        |
 | cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from source) |
+| mfcobol_cc    | cobol.cmd   | Micro Focus Level II COBOL compiler (CP/M-86) |
+| mfcobol_run   | run.cmd     | Micro Focus Level II COBOL runtime (CP/M-86)  |
 
 ## Fetching the tools
 
@@ -226,6 +233,7 @@ it pulls the following:
 - PL/M-86 3.30 tools (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)
 - PL/I-86 1.0 (http://www.cpm.z80.de/download/pli86.zip)
 - XLISP 1.1 (https://github.com/tsupplis/cpm86-ports, compiled from source using aztec42)
+- Micro Focus Level II COBOL for CP/M-86 (https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip) — compiler (`cobol.cmd`), runtime (`run.cmd`), overlays and support files
 
 Clearing the directory is achieved by:
 ```
@@ -490,6 +498,19 @@ drfcpm_f77 hellof.f77
 drfcpm_link 'hellof.cmd=hellof
 cmdinfo hellof.cmd
 ```
+
+### COBOL Programs
+
+Micro Focus Level II COBOL V2.1 for CP/M-86 — compile source (`.cbl`) to an
+intermediate bytecode file (`.int`), then execute with the runtime:
+
+```
+mfcobol_cc hellocbl.cbl
+mfcobol_run hellocbl.int
+```
+
+The compiler (`mfcobol_cc`) automatically stages its required overlay (`cobol`)
+into the current working directory and cleans it up via a trap on exit.
 
 ### PL/M-86 Programs
 ```

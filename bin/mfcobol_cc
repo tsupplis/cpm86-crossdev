@@ -1,0 +1,23 @@
+#!/bin/sh
+prog=cobol.cmd
+share="`dirname $0`/../share/mfcobolcpm"
+emu2=`dirname $0`/emu2
+EMU2_CPM_APPEND="D:"
+export EMU2_CPM_APPEND
+EMU2_DRIVE_D="$share"
+export EMU2_DRIVE_D
+EMU2_PROGNAME="D:$prog"
+export EMU2_PROGNAME
+
+trap 'rm -f cobol' EXIT INT TERM
+
+if [ -f "$share/cobol" ]; then
+    cp "$share/cobol" .
+fi
+
+"$emu2" "$share/$prog" "$@"
+rc=$?
+if [ -z "$*" ]; then
+    echo ""
+fi
+exit $rc

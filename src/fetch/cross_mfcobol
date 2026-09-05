@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking Micro Focus Level II COBOL for CP/M-86 ...
+if [ ! -f "$root/share/mfcobolcpm/cobol.cmd" ]; then
+    tmp="$root/share/temp-mfcobol"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    fetch_get "https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip"
+    (cd "$tmp" && unzip -L "$ARCHIVED_FILE")
+    mkdir -p "$root/share/mfcobolcpm"
+    cp "$tmp"/cobol.cmd "$tmp"/cobol.dyn "$tmp"/cobol.err \
+       "$tmp"/cobol.i51 "$tmp"/cobol.i52 "$tmp"/cobol.i53 \
+       "$tmp"/cobol.i56 "$tmp"/cobol.i59 "$tmp"/cobol.isr \
+       "$tmp"/cobol "$tmp"/run.cmd \
+       "$tmp"/adis.int "$tmp"/ixsio.int \
+       "$root/share/mfcobolcpm/"
+    chmod 644 "$root/share/mfcobolcpm"/*
+    rm -rf "$tmp"
+    trap - EXIT
+fi

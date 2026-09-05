@@ -20,7 +20,8 @@ rm -rf "$root/share/pcdev" "$root/share/emu" "$root/share/aztec"?? \
        "$root/share/dr"*   "$root/share/f77"* "$root/share/turbo"* \
        "$root/share/intel" "$root/share/m2cb"* \
        "$root/share/xlisp" "$root/share/plicpm" \
-       "$root/share/polypascpm" "$root/share/polypasdos"
+       "$root/share/polypascpm" "$root/share/polypasdos" \
+       "$root/share/mfcobolcpm"
 
 printf 'INF: removing fetch logs ...\n'
 rm -f "$root"/fetch-*.log

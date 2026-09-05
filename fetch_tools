@@ -153,6 +153,7 @@ run_fetcher cross_cpm86_patch
 run_fetcher cross_aztec42
 run_fetcher cross_drtools
 run_fetcher cross_drc
+run_fetcher cross_mfcobol
 run_fetcher cross_f77
 run_fetcher cross_pli
 run_fetcher cross_drpmt

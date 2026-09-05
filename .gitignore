@@ -61,6 +61,7 @@ examples/comndata.*
 examples/8087.sim
 examples/hellocvt.cb
 examples/hello80.a86
+examples/*.int
 
 src/xlisp/xlisp.cmd
 src/cpmtest/*.out

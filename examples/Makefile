@@ -34,9 +34,11 @@ PMTLINK=drpmt_link
 XLISP=cpm86_xlisp
 PLI=drpli_pc
 PLILINK=drpli_link
+COBOL=mfcobol_cc
+COBRUN=mfcobol_run
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
-	hello80.cmd # hellopli.cmd
+	hello80.cmd hellocbl.int hellopli.cmd
 
 all: binaries
 
@@ -174,6 +176,8 @@ test: emu2-test cpm86-test
 	$(BASIC) < hellopba.bas
 	@echo "--------- TEST: hello.lsp"
 	$(XLISP) hello.lsp
+	@echo "--------- TEST: cobol hellocbl.cbl"
+	$(COBRUN) hellocbl.int
 
 emu2-test: binaries
 	@for cmd in $(TOOLS); do \
@@ -187,9 +191,13 @@ cpm86-test: binaries
 	    EMU2_DRIVE_C=. $(EMU2) ./$$cmd || echo "--------- ERROR with $$cmd"; \
 	done
 
+hellocbl.int: hellocbl.cbl
+	$(COBOL) hellocbl.cbl
+	ls -l $@
+
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
-		  *.mp2 *exe *.map *.err \
+		  *.mp2 *exe *.map *.err *.int \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello80.a86 \
 	      $(TOOLS)
