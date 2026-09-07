@@ -18,7 +18,7 @@ fetch_get() {
     fi
 
     echo "INF: archive: downloading $name ..."
-    if wget -O "$ARCHIVED_FILE.part" "$url"; then
+    if wget -U "Mozilla/5.0" -O "$ARCHIVED_FILE.part" "$url"; then
         mv -f "$ARCHIVED_FILE.part" "$ARCHIVED_FILE"
         return 0
     fi

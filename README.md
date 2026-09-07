@@ -6,7 +6,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 Languages supported are:
 - C (K&R and almost ANSI)
 - Assembler
-- Basic (DR CBASIC, DR Personal Basic, Microsoft Basic 86/80)
+- Basic (DR CBASIC, DR Personal Basic, Microsoft Basic 86/80, TDL BASIC)
 - Pascal (Pascal MT+, Turbo Pascal)
 - Fortran-77
 - COBOL (Micro Focus Level II COBOL for CP/M-86)
@@ -42,6 +42,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
 - Microsoft Basic 5.22 for CP/M-86 (`mbasic86.cmd`) and 5.28 for DOS (`mbasic86.com`), both included in the repository as patched binaries (unpatched originals kept as `mbasic86.org` / `mbasorig.com`); patch notes at [src/mstools/msbasic-patch.md](src/mstools/msbasic-patch.md)
 - Microsoft Basic 5.29 for CP/M-80 (`mbasic.com`, run via `cpm_mbasic`) and Basic 4.51 (Old Basic) for CP/M-80 (`obasic.com`, run via `cpm_obasic`), executed using `tnylpo`
+- TDL BASIC 3.05 (Technical Design Labs Z-80 BASIC) for CP/M-80 (`tdlbasic.com`, run via `cpm_tdlbasic`, from https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip), executed using `tnylpo`
 - DR PL/I-86 1.0 for CP/M-86 (http://www.cpm.z80.de/download/pli86.zip) — compiler (`pli.cmd` + overlays `pli0.ovr`–`pli2.ovr`), linker (`link86.cmd`), runtime library (`plilib.l86`), include files (`dio86.dcl`, `diomod.dcl`, `fcb.dcl`, `record.dcl`), CP/M DIO assembly sources (`cpmdio.a86`, `div2.a86`, `fdiv2.a86`)
 - Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 2.1 assembler (asm86.exe), Intel linker 2.30 (link.exe) and librarian 2.1 (lib86.exe) and locator 2.5(loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
@@ -70,6 +71,7 @@ The following tools are not included and downloaded by the fetch tool but requir
 - XLISP 1.1 is public domain software by David Betz; the source is at https://github.com/tsupplis/cpm86-ports
 - PolyPascal-86 V3.11 is a PolyData MicroCenter A/S product; its licensing is unclear
 - Micro Focus Level II COBOL V2.1 for CP/M-86 is a Micro Focus Limited product (Copyright © 1981, 1983); its licensing is unclear
+- TDL BASIC 3.05 (Technical Design Labs) licensing is unclear
 - I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
 
 > [!WARNING]
@@ -80,6 +82,9 @@ The following tools are not included and downloaded by the fetch tool but requir
 
 > [!WARNING]
 > The Micro Focus Level II COBOL V2.1 (Micro Focus Limited) tools licensing is unclear; their usage is left to the discretion of the end user.
+
+> [!WARNING]
+> The TDL BASIC 3.05 (Technical Design Labs) tools licensing is unclear; their usage is left to the discretion of the end user.
 
 ## Prerequisites
 
@@ -131,6 +136,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm_xlt86     | xlt86.com   | DR 8080→8086 translator (CP/M-80, via tnylpo) |
 | cpm_mbasic    | mbasic.com  | Microsoft Basic 5.29 (8080 CP/M-80, via tnylpo) |
 | cpm_obasic    | obasic.com  | Microsoft Basic 4.51 (8080 CP/M-80, via tnylpo) |
+| cpm_tdlbasic  | tdlbasic.com | TDL BASIC 3.05 (Z-80 CP/M-80, via tnylpo)       |
 | cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2, not working yet)   |
 | cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2, not working yet) |
 | cpm86_basic   | basic.cmd   | DR Personal Basic 1.2 (via cpm86)  |
@@ -237,6 +243,7 @@ it pulls the following:
 - PL/I-86 1.0 (http://www.cpm.z80.de/download/pli86.zip)
 - XLISP 1.1 (https://github.com/tsupplis/cpm86-ports, compiled from source using aztec42)
 - Micro Focus Level II COBOL for CP/M-86 (https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip) — compiler (`cobol.cmd`), runtime (`run.cmd`), overlays and support files
+- TDL BASIC 3.05 for CP/M-80 (https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip) — Z-80 BASIC interpreter (`tdlbasic.com`)
 
 Clearing the directory is achieved by:
 ```
@@ -344,6 +351,11 @@ cpm_mbasic hellomsb.bas
 Microsoft Basic 4.51 Old Basic (8080 CP/M-80 version, via tnylpo):
 ```
 cpm_obasic hellomsb.bas
+```
+
+TDL BASIC 3.05 (Z-80 CP/M-80 version, via tnylpo):
+```
+cpm_tdlbasic hellomsb.bas
 ```
 
 DR Personal Basic 1.2 — interactive interpreter:

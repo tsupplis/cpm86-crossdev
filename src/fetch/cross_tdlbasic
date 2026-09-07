@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking TDL BASIC 3.05 for CP/M-80 ...
+if [ ! -f "$root/share/cpm/tdlbasic.com" ]; then
+    fetch_get "https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip"
+    tmp="$root/archive/temp-tdlbasic"
+    rm -rf "$tmp"
+    mkdir -p "$tmp" "$root/share/cpm"
+    trap 'rm -rf "$tmp"' EXIT
+    (cd "$tmp" && unzip -L -q "$ARCHIVED_FILE")
+    cp "$tmp/nutting_ice/ice/basic.cpm" "$root/share/cpm/tdlbasic.com"
+    chmod 644 "$root/share/cpm/tdlbasic.com"
+    rm -rf "$tmp"
+    trap - EXIT
+fi
