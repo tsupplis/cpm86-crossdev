@@ -6,7 +6,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 Languages supported are:
 - C (K&R and almost ANSI)
 - Assembler
-- Basic (DR CBASIC, DR Personal Basic, Microsoft Basic)
+- Basic (DR CBASIC, DR Personal Basic, Microsoft Basic 86/80)
 - Pascal (Pascal MT+, Turbo Pascal)
 - Fortran-77
 - COBOL (Micro Focus Level II COBOL for CP/M-86)
@@ -41,6 +41,7 @@ A cleaned-up distribution and kernel is available at https://github.com/tsupplis
 - nasm netwide assembler version 3.02
 - masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
 - Microsoft Basic 5.22 for CP/M-86 (`mbasic86.cmd`) and 5.28 for DOS (`mbasic86.com`), both included in the repository as patched binaries (unpatched originals kept as `mbasic86.org` / `mbasorig.com`); patch notes at [src/mstools/msbasic-patch.md](src/mstools/msbasic-patch.md)
+- Microsoft Basic 5.29 for CP/M-80 (`mbasic.com`, run via `cpm_mbasic`) and Basic 4.51 (Old Basic) for CP/M-80 (`obasic.com`, run via `cpm_obasic`), executed using `tnylpo`
 - DR PL/I-86 1.0 for CP/M-86 (http://www.cpm.z80.de/download/pli86.zip) — compiler (`pli.cmd` + overlays `pli0.ovr`–`pli2.ovr`), linker (`link86.cmd`), runtime library (`plilib.l86`), include files (`dio86.dcl`, `diomod.dcl`, `fcb.dcl`, `record.dcl`), CP/M DIO assembly sources (`cpmdio.a86`, `div2.a86`, `fdiv2.a86`)
 - Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 2.1 assembler (asm86.exe), Intel linker 2.30 (link.exe) and librarian 2.1 (lib86.exe) and locator 2.5(loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
@@ -128,6 +129,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | cpm_asm86     | asm86.com   | DR assembler (CP/M-80 tool)        |
 | cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M-80 tool)    |
 | cpm_xlt86     | xlt86.com   | DR 8080→8086 translator (CP/M-80, via tnylpo) |
+| cpm_mbasic    | mbasic.com  | Microsoft Basic 5.29 (8080 CP/M-80, via tnylpo) |
+| cpm_obasic    | obasic.com  | Microsoft Basic 4.51 (8080 CP/M-80, via tnylpo) |
 | cpm86_asm86   | asm86.cmd   | DR assembler (CP/M-86, via emu2, not working yet)   |
 | cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M-86, via emu2, not working yet) |
 | cpm86_basic   | basic.cmd   | DR Personal Basic 1.2 (via cpm86)  |
@@ -224,7 +227,7 @@ it pulls the following:
 - cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
 - M2CBASIC 1.4 (http://www.cpm.z80.de/download/m2cbasic.zip)
 - DR Personal Basic 1.2 (stored in `src/drtools/basic.cmd`, recovered from https://datamuseum.dk/wiki/Bits:30002879; original 1.0 at http://www.cpm.z80.de/download/pbasic86.zip)
-- masm, link, asm, exe2bin, hex2bin (local copies from https://github.com/microsoft/MS-DOS)
+- masm, link, asm, exe2bin, hex2bin, Microsoft Basic 86/80 (mbasic86, mbasic85 5.29, obasic 4.51) (local copies from https://github.com/microsoft/MS-DOS and repository)
 - cmdtools — cmdinfo, bin2cmd, exe2cmd built natively from (https://github.com/tsupplis/cpm86-cmdtools)
 - nasm (https://www.nasm.us/pub/nasm/releasebuilds/3.02/nasm-3.02.tar.gz)
 - upx (https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-src.tar.xz)
@@ -331,6 +334,16 @@ cpm86_mbasic hellomsb.bas
 Microsoft Basic 5.28 — interpreted, run directly (DOS version):
 ```
 pcdev_mbasic hellomsb.bas
+```
+
+Microsoft Basic 5.29 (8080 CP/M-80 version, via tnylpo):
+```
+cpm_mbasic hellomsb.bas
+```
+
+Microsoft Basic 4.51 Old Basic (8080 CP/M-80 version, via tnylpo):
+```
+cpm_obasic hellomsb.bas
 ```
 
 DR Personal Basic 1.2 — interactive interpreter:
