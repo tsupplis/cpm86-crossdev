@@ -5,7 +5,7 @@ set -e
 echo INF: Checking Aztec 3.4 tools ...
 if [ ! -d "$root/share/aztec34/bin" ] || [ ! -f "$root/share/emu/cpm86.exe" ]; then
     fetch_get "https://www.aztecmuseum.ca/az8634b.zip"
-    tmp="$root/share/temp-aztec34"
+    tmp="$root/archive/temp-aztec34"
     rm -rf "$tmp"
     mkdir -p "$tmp"
     trap 'rm -rf "$tmp"' EXIT

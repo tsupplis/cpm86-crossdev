@@ -116,7 +116,7 @@ echo INF: Checking <Tool Name> <version> ...
 if [ ! -f "$root/share/<share-subdir>/<sentinel-file>" ]; then
     fetch_get "<URL>"            # downloads to archive/<basename> if needed
 
-    tmp="$root/share/temp-<toolname>"
+    tmp="$root/archive/temp-<toolname>"
     rm -rf "$tmp"
     mkdir -p "$tmp"
     trap 'rm -rf "$tmp"' EXIT
@@ -133,7 +133,7 @@ fi
 ```
 
 Key points:
-- Use a **private staging directory** (`temp-<toolname>`) so that a `cp` failure
+- Use a **private staging directory** in `archive/` (`$root/archive/temp-<toolname>`) so that a `cp` failure
   mid-way leaves no partial state under `share/`.  The `trap` ensures cleanup on
   any error.
 - Use **absolute paths** (`$root/share/...`) throughout — never `cd` to a
@@ -189,7 +189,7 @@ fi
 | Follow the naming convention | Name the file `cross_<toolname>` for emulated tools, `native_<toolname>` for host-compiled binaries. |
 | Always guard with a sentinel | Wrap every action in `if [ ! -f ... ]` or `if [ ! -d ... ]` so re-running `fetch_tools` is idempotent. |
 | Use absolute paths | Always use `$root/share/...`, `$root/bin/...`, etc.  Never `cd` to a directory and then use relative paths — the fetcher runs in an isolated subshell and relative paths are fragile. |
-| Use a staging temp dir for unzip/tar | Extract into `$root/share/temp-<toolname>`, copy what you need, then `rm -rf` it.  Guard with `trap 'rm -rf "$tmp"' EXIT` so partial state is cleaned on error. |
+| Use a staging temp dir for unzip/tar | Extract into `$root/archive/temp-<toolname>`, copy what you need, then `rm -rf` it.  Guard with `trap 'rm -rf "$tmp"' EXIT` so partial state is cleaned on error. |
 | Use `fetch_get` for every download | Never call `wget` or `curl` directly.  `fetch_get` handles the `archive/` cache and the `ARCHIVE_FIRST` offline mode automatically. |
 | Stage into `share/<subdir>/` | Never install files directly into `bin/`.  Wrappers resolve paths to `share/` at runtime. |
 | `chmod 644` after staging | `fetch_tools` does a final `chmod a-w` pass over all of `share/` so the sentinel check (`[ ! -f ... ]`) stays reliable. |

@@ -9,7 +9,7 @@ if [ ! -d "$root/archive/cpm86-ports" ]; then
     rm -rf "$root/archive/cpm86-ports/.git"
 fi
 if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
-    tmp="$root/share/temp-xlisp"
+    tmp="$root/archive/temp-xlisp"
     rm -rf "$tmp"
     mkdir -p "$tmp"
     trap 'rm -rf "$tmp"' EXIT

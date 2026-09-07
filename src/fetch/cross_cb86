@@ -6,33 +6,34 @@ echo INF: Checking CB86  ...
 cd "$root/share"
 if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
     -o ! -f cb86cpm/cb86.l86 -o ! -f cb86dos/cb86.l86 ]; then
-    rm -rf "$root/share/temp-tools"
-    mkdir -p "$root/share/cb86cpm"
-    mkdir -p "$root/share/cb86dos"
-    mkdir -p "$root/share/temp-tools"
-    cd "$root/share/temp-tools"
+    tmp="$root/archive/temp-cb86"
+    rm -rf "$tmp"
+    mkdir -p "$root/share/cb86cpm" "$root/share/cb86dos" "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/cbasic86.zip"
     unzip -L "$ARCHIVED_FILE"
-    cp cb86.l86 ../cb86cpm
-    cp ../pcdev/linkcmd.exe ../cb86cpm/link86.exe
-    cp ../pcdev/lib86.exe ../cb86cpm/lib86.exe
-    cp ../pcdev/rasm86.exe ../cb86cpm/rasm86.exe
-    rm "$root/share/temp-tools"/*.*
+    cp cb86.l86 "$root/share/cb86cpm"
+    cp "$root/share/pcdev/linkcmd.exe" "$root/share/cb86cpm/link86.exe"
+    cp "$root/share/pcdev/lib86.exe" "$root/share/cb86cpm/lib86.exe"
+    cp "$root/share/pcdev/rasm86.exe" "$root/share/cb86cpm/rasm86.exe"
+    rm -rf "$tmp"/*
     fetch_get "http://www.cpm.z80.de/download/cb86toys.zip"
     unzip -L "$ARCHIVED_FILE"
-    cp cb86.exe ../cb86dos
-    cp cb86.or1 ../cb86dos
-    cp cb86.or2 ../cb86dos
-    cp cb86.or3 ../cb86dos
-    cp cb86.l86 ../cb86dos
-    cp ../cb86dos/cb86.exe ../cb86cpm/cb86.exe
-    cp ../cb86dos/cb86.or1 ../cb86cpm/cb86.or1
-    cp ../cb86dos/cb86.or2 ../cb86cpm/cb86.or2
-    cp ../cb86dos/cb86.or3 ../cb86cpm/cb86.or3
-    cp ../pcdev/linkexe.exe ../cb86dos/link86.exe
-    cp ../pcdev/lib86.exe ../cb86dos/lib86.exe
-    cp ../pcdev/rasm86.exe ../cb86dos/rasm86.exe
-    chmod 644 ../cb86cpm/*.*
-    chmod 644 ../cb86dos/*.*
-    rm -rf "$root/share/temp-tools"
+    cp cb86.exe "$root/share/cb86dos"
+    cp cb86.or1 "$root/share/cb86dos"
+    cp cb86.or2 "$root/share/cb86dos"
+    cp cb86.or3 "$root/share/cb86dos"
+    cp cb86.l86 "$root/share/cb86dos"
+    cp "$root/share/cb86dos/cb86.exe" "$root/share/cb86cpm/cb86.exe"
+    cp "$root/share/cb86dos/cb86.or1" "$root/share/cb86cpm/cb86.or1"
+    cp "$root/share/cb86dos/cb86.or2" "$root/share/cb86cpm/cb86.or2"
+    cp "$root/share/cb86dos/cb86.or3" "$root/share/cb86cpm/cb86.or3"
+    cp "$root/share/pcdev/linkexe.exe" "$root/share/cb86dos/link86.exe"
+    cp "$root/share/pcdev/lib86.exe" "$root/share/cb86dos/lib86.exe"
+    cp "$root/share/pcdev/rasm86.exe" "$root/share/cb86dos/rasm86.exe"
+    chmod 644 "$root/share/cb86cpm"/*.*
+    chmod 644 "$root/share/cb86dos"/*.*
+    rm -rf "$tmp"
+    trap - EXIT
 fi

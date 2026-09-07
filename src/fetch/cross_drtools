@@ -5,7 +5,7 @@ set -e
 echo INF: Checking DOS DR tools ...
 if [ ! -f "$root/share/pcdev/linkcmd.exe" ] || [ ! -f "$root/share/pcdev/rasm86.exe" ] \
    || [ ! -f "$root/share/pcdev/linkexe.exe" ] || [ ! -f "$root/share/pcdev/lib86.exe" ]; then
-    tmp="$root/share/temp-drtools"
+    tmp="$root/archive/temp-drtools"
     rm -rf "$tmp"
     mkdir -p "$tmp" "$root/share/pcdev"
     trap 'rm -rf "$tmp"' EXIT
@@ -19,7 +19,7 @@ if [ ! -f "$root/share/pcdev/linkcmd.exe" ] || [ ! -f "$root/share/pcdev/rasm86.
 fi
 echo INF: Checking CP/M-80 DR tools ...
 if [ ! -f "$root/share/cpm/asm86.com" ] || [ ! -f "$root/share/cpm/gencmd.com" ]; then
-    tmp="$root/share/temp-drtools"
+    tmp="$root/archive/temp-drtools"
     rm -rf "$tmp"
     mkdir -p "$tmp" "$root/share/cpm"
     trap 'rm -rf "$tmp"' EXIT
@@ -48,7 +48,7 @@ if [ ! -f "$root/share/cpm/basic.cmd" ]; then
 fi
 echo INF: Checking XLT86 1.3 for CP/M-80 ...
 if [ ! -f "$root/share/cpm/xlt86.com" ]; then
-    tmp="$root/share/temp-drtools"
+    tmp="$root/archive/temp-drtools"
     rm -rf "$tmp"
     mkdir -p "$tmp" "$root/share/cpm"
     trap 'rm -rf "$tmp"' EXIT

@@ -4,7 +4,7 @@ set -e
 
 echo INF: Checking Micro Focus Level II COBOL for CP/M-86 ...
 if [ ! -f "$root/share/mfcobolcpm/cobol.cmd" ]; then
-    tmp="$root/share/temp-mfcobol"
+    tmp="$root/archive/temp-mfcobol"
     rm -rf "$tmp"
     mkdir -p "$tmp"
     trap 'rm -rf "$tmp"' EXIT
