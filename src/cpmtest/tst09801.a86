@@ -90,7 +90,7 @@ t098_01:
             mov     ax, offset pfcb_fcb
             mov     2[bx], ax       ; patch +2
 
-            ; Use BX-relative write for pfcb+2 — must set BX first
+            ; Use BX-relative write for pfcb+2 - must set BX first
             mov     bx, offset pfcb
             mov     ax, offset str1
             mov     [bx], ax        ; pfcb+0 = &str1
