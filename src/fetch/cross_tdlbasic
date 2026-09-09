@@ -9,7 +9,7 @@ if [ ! -f "$root/share/cpm/tdlbasic.com" ]; then
     rm -rf "$tmp"
     mkdir -p "$tmp" "$root/share/cpm"
     trap 'rm -rf "$tmp"' EXIT
-    (cd "$tmp" && unzip -L -q "$ARCHIVED_FILE")
+    (cd "$tmp" && unzip -C -LL -q "$ARCHIVED_FILE")
     cp "$tmp/nutting_ice/ice/basic.cpm" "$root/share/cpm/tdlbasic.com"
     chmod 644 "$root/share/cpm/tdlbasic.com"
     rm -rf "$tmp"
