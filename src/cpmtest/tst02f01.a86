@@ -54,7 +54,7 @@ main:
             int     BDOS
 
 ; ============================================================
-; test 02f.01: chain to sub02f02 — if this returns, chain failed
+; test 02f.01: chain to sub02f02 - if this returns, chain failed
 ; ============================================================
 t02f_01:
             mov     cx, FN_PRTSTR

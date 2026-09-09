@@ -38,7 +38,7 @@ if [ ! -f "$root/share/polypascpm/.finished" ]; then
         rm -f ./pp*.script
     )
 
-    # lowercase all filenames (CP/M convention — emu2 finds them case-insensitively)
+    # lowercase all filenames (CP/M convention - emu2 finds them case-insensitively)
     for f in "$tmp"/*; do
         base=$(basename "$f")
         lower=$(printf '%s\n' "$base" | tr '[:upper:]' '[:lower:]')

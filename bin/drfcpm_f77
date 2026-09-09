@@ -13,7 +13,7 @@ export EMU2_PROGNAME
 "$emu2" "$share/f77.cmd" "$@" -- PATH=D:\\
 rc=$?
 
-# if .cil was produced, codegen was not called automatically — run it
+# if .cil was produced, codegen was not called automatically - run it
 src="${@##* }"
 base="${src%.*}"
 if [ $rc -eq 0 ] && [ -f "${base}.cil" ]; then

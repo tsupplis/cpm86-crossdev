@@ -43,7 +43,7 @@ TESTS = \
 	tst03a01.cmd \
 	tst09801.cmd
 
-# helpers — built by 'make all' but not listed in TESTS
+# helpers - built by 'make all' but not listed in TESTS
 HELPERS = sub02f02.cmd pause.cmd
 
 all: $(TESTS) $(HELPERS)
