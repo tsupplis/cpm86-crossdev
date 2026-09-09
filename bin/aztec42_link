@@ -31,6 +31,7 @@ startup=
 for a in "$@"; do
     case "$a" in
         -lc86)       startup=begin86.o ;;
+        -ld11)       startup=begin11.o ;;
         -lcl|-lcld)  startup=lbegin.o  ;;
         -lc|-lclc)   startup=sbegin.o  ;;
     esac
