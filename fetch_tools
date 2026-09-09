@@ -163,6 +163,7 @@ run_fetcher cross_cb86
 run_fetcher cross_m2cb
 run_fetcher cross_plm86
 run_fetcher cross_mstools
+run_fetcher cross_mbasic
 run_fetcher cross_tdlbasic
 run_fetcher native_cmdtools
 run_fetcher native_tnylpo

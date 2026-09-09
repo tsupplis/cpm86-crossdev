@@ -18,11 +18,6 @@ if [ ! -f "$root/share/cpm/mbasic86.cmd" ]; then
     cp "$root/src/mstools/mbasic86.cmd" "$root/share/cpm"
     chmod 644 "$root/share/cpm/mbasic86.cmd"
 fi
-if [ ! -f "$root/share/cpm/mbasic.com" ]; then
-    mkdir -p "$root/share/cpm"
-    cp "$root/src/mstools/mbasic85.com" "$root/share/cpm/mbasic.com"
-    chmod 644 "$root/share/cpm/mbasic.com"
-fi
 if [ ! -f "$root/share/cpm/obasic.com" ]; then
     mkdir -p "$root/share/cpm"
     cp "$root/src/mstools/obasic.com" "$root/share/cpm/obasic.com"
