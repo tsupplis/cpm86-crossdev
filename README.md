@@ -96,6 +96,7 @@ favorite package manager.
 ### Requirements
 
 * C/C++ toolchain supporting **C99** and **C++14** (*e.g.*, [GNU GCC](https://gcc.gnu.org/) or [LLVM Clang](https://clang.llvm.org/))
+* [`curl`](https://curl.se/)
 * [CMake](https://cmake.org/)
 * [`dos2unix`](https://dos2unix.sourceforge.io/)
 * [`git`](https://git-scm.com/)
@@ -236,7 +237,7 @@ it pulls the following:
 - Microsoft Basic 5.21 (http://cpmarchives.classiccmp.org/cpm/mirrors/www.retroarchive.org/cpm/lang/Mbasic.com)
 - masm, link, asm, exe2bin, hex2bin, Microsoft Basic 86/80 (mbasic86, obasic 4.51) (local copies from https://github.com/microsoft/MS-DOS and repository)
 - cmdtools — cmdinfo, bin2cmd, exe2cmd built natively from (https://github.com/tsupplis/cpm86-cmdtools)
-- nasm (https://www.nasm.us/pub/nasm/releasebuilds/3.02/nasm-3.02.tar.gz)
+- nasm (https://nasm.us/pub/nasm/snapshots/)
 - upx (https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-src.tar.xz)
 - emu2-cpm86, a CP/M-86 enabled fork of emu2 (https://github.com/johnsonjh/emu2-cpm86), based on the upstream emu2 project (https://github.com/dmsc/emu2)
 - tnylpo (https://gitlab.com/gbrein/tnylpo.git)
