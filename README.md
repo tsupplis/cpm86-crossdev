@@ -3,16 +3,17 @@
 This project regroups a simple method to create a cross development environment for CP/M-86. It happens that all DOS based tools can also be used for building DOS programs.
 This project was developed for myself in a nerdy spirit and for a lot of fun. Just sharing without any guarantees.
 
-Languages supported are:
-- C (K&R and almost ANSI)
-- Assembler
-- Basic (DR CBASIC, DR Personal Basic, Microsoft Basic 86/80, TDL BASIC)
-- Pascal (Pascal MT+, Turbo Pascal)
-- Fortran-77
-- COBOL (Micro Focus Level II COBOL for CP/M-86)
-- PL/M-86
-- PL/I (DR PL/I-86 1.0) (Not yet functional)
-- Lisp (XLISP 1.1)
+| Language   | Compilers / Interpreters                                                   |
+|------------|----------------------------------------------------------------------------|
+| C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11                   |
+| Assembler  | RASM-86, ASM-86, MASM 1.10, NASM 3.02                                     |
+| Basic      | DR CBASIC 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.22/5.28, TDL BASIC 3.05  |
+| Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal-86 3.11                     |
+| Fortran-77 | DR Fortran-77 4.0                                                          |
+| COBOL      | Micro Focus Level II COBOL V2.1                                            |
+| PL/M-86    | Intel PL/M-86 3.30                                                         |
+| PL/I       | DR PL/I-86 1.0                                                             |
+| Lisp       | XLISP 1.1                                                                  |
 
 ## Thanks
 
@@ -26,95 +27,76 @@ The source for CP/M-86 doc, sources and binaries is http://www.cpm.z80.de.
 A cleaned-up distribution and kernel is available at https://github.com/tsupplis/cpm86-kernel. This distribution is working well in virtual environments, patched with all known patches, 'y2k' friendly (it contains the version of tod which sources are in this project) and AT friendly.
 
 ## Key tools for CP/M-86 development
-- aztec c compiler version 4.2/4.10d (**preferred**, almost ANSI; the CP/M-86 library (c86.lib) is patched and recompiled from sources and actively improved, a DOS 1.1 library (d11.lib) is also provided), documentation at (https://www.aztecmuseum.ca/docs/Aztec_C_MSDOS_4.10C_Commercial_Apr88.pdf)
-- aztec c compiler version 3.4/3.40a (K&R legacy; the CP/M-86 library is provided as c86.lib, patched but otherwise left as-is)
-- rasm86 1.4a / link86 2.02 / lib86 1.3 DOS versions from Digital Research
-- asm86 1.1 and gencmd from Digital Research (CP/M-80 and CP/M-86 versions)
-- XLT86 1.3 from Digital Research (http://www.cpm.z80.de/download/xlt86.zip) — 8080/8085 assembly language to 8086 assembly language translator (`xlt86.com` + overlays `xlt00.ovl`, `xlt01.ovl`); CP/M-80 version, run via `tnylpo`
-- DR C 1.11 for CP/M-86 (http://www.cpm.z80.de/download/drc_86.zip) — compiler passes (`drc860.cmd`–`drc862.cmd`), preprocessor (`drcrpp.cmd`), runtime (`startup.a86`, `clearl.l86`, `clears.l86`) and standard headers (`ctype.h`, `errno.h`, `portab.h`, `setjmp.h`, `stdio.h`); extended with extra headers from (http://www.cpm.z80.de/download/drc86111.zip): `alloc.h`, `dos.h`, `bios.h`, `float.h`, `conio.h` and PC BIOS glue source `pcbios.a86` (needs assembling with `cpm86_asm86` before use)
-- DR Fortran-77 4.0 for CP/M-86 (http://www.cpm.z80.de/download/f77-86.zip) — compiler (`f77.cmd`, `codegen.cmd`), runtime (`clears.l86`, `clearl.l86`, `f32s.obj`, `f32l.obj`, `8087.sim`), Fortran/assembly interface example (`pkmemras.a86`, assembled to `pkmemras.obj`)
-- Pascal MT+ 3.3 for CP/M-86 (http://www.cpm.z80.de/download/mt8633cp.zip) — compiler (`mt+86.cmd`), linker (`linkmt.cmd`), assembler (`asmt86.cmd`), runtime (`paslib.r86`, floating point modules, I/O modules), utilities (`strip.cmd`, `sz.cmd`, `nm.cmd`, `dis86.cmd`)
-- Turbo Pascal 3.02 for CP/M-86 — the last CP/M-86 release from Borland; stored in `src/turbo`, extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2); includes the compiler (`turbo.cmd`), installer (`tinst.cmd`) and message/data files
-- CB-86 CBASIC compiler version 2.0 (CP/M-86) / 2.1 (DOS) and libraries from Digital Research
-- M2CBASIC 1.4 for CP/M-86 (http://www.cpm.z80.de/download/m2cbasic.zip) — Microsoft BASIC to CBASIC source converter; includes the translator (`m2cbasic.cmd` with overlays `m2cb1.ovr`–`m2cb9.ovr`), runtime libraries (`m2cblib.bas`, `m2cbrio.bas`, `m2cbrio.rlo`, `m2cbrio.am`) and companion utility (`m2cbconv.cmd`)
-- DR Personal Basic 1.2 for CP/M-86 (recovered from https://datamuseum.dk/wiki/Bits:30002879, stored in `src/drtools/basic.cmd`; the original 1.1 release is also available at http://www.cpm.z80.de/download/pbasic86.zip)
-- nasm netwide assembler version 3.02
-- masm 1.10, link 2.0, asm 2.44a, exe2bin 1.1, hex2bin from Microsoft (the version of masm in this repository has been patched to work with emu2 and other emulators, see https://github.com/tsupplis/pcdos11-hacking for details). asm.com and hex2bin.com have been rebuilt from modified sources at https://github.com/tsupplis/pcdos11-hacking .
-- Microsoft Basic 5.22 for CP/M-86 (`mbasic86.cmd`) and 5.28 for DOS (`mbasic86.com`), both included in the repository as patched binaries (unpatched originals kept as `mbasic86.org` / `mbasorig.com`); patch notes at [src/mstools/msbasic-patch.md](src/mstools/msbasic-patch.md)
-- Microsoft Basic 5.21 for CP/M-80 (`mbasic.com`, run via `cpm_mbasic`) and Microsoft Basic 4.51 ("Old Basic") for CP/M-80 (`obasic.com`, run via `cpm_obasic`), executed using `tnylpo`
-- TDL BASIC 3.05 (Technical Design Labs Z-80 BASIC) for CP/M-80 (`tdlbasic.com`, run via `cpm_tdlbasic`, from https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip), executed using `tnylpo`
-- DR PL/I-86 1.0 for CP/M-86 (http://www.cpm.z80.de/download/pli86.zip) — compiler (`pli.cmd` + overlays `pli0.ovr`–`pli2.ovr`), linker (`link86.cmd`), runtime library (`plilib.l86`), include files (`dio86.dcl`, `diomod.dcl`, `fcb.dcl`, `record.dcl`), CP/M DIO assembly sources (`cpmdio.a86`, `div2.a86`, `fdiv2.a86`)
-- Intel PL/M-86 3.30 compiler (plm86.exe), Intel ASM-86 2.1 assembler (asm86.exe), Intel linker 2.30 (link.exe) and librarian 2.1 (lib86.exe) and locator 2.5(loc86.exe) from the retroarchive (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip). A real-world example of a CP/M-86 project written in PL/M-86 is available at (https://github.com/tsupplis/ccpm86-y2k).
 
-- The Super Cool emu2 DOS/CP/M-86 emulator version 2021.01 (https://github.com/dmsc/emu2). This is an incredible way to bring dos command line development tools to a modern and up to date shell/make/whatever based dev environment. Another stunning emulator. Emu2 and PCE are an incredible pair. We use the emu2-cpm86 fork (https://github.com/johnsonjh/emu2-cpm86), which adds and keeps improving CP/M-86 support on top of upstream emu2.
-- We also need to run some CP/M-80 programs, for that, the tnylpo emulator is used (https://gitlab.com/gbrein/tnylpo). It works very well with asm86.com and gencmd.com programs.
-- upx executable packer version 5.2.1 (https://github.com/upx/upx)
+### Compilers and language tools
+
+| Tool | Version | Description |
+|------|---------|-------------|
+| Aztec C | 4.2/4.10d (**preferred**) | Almost-ANSI C; `c86.lib` patched & improved, `d11.lib` for DOS 1.1 |
+| Aztec C | 3.4/3.40a | K&R legacy C; `c86.lib` patched, otherwise as-is |
+| DR C | 1.11 | CP/M-86 C compiler; passes `drc860`–`drc862`, runtime `clearl/clears.l86` |
+| DR Fortran-77 | 4.0 | CP/M-86; compiler `f77.cmd`+`codegen.cmd`, runtime `f32s/l.obj`, `8087.sim` |
+| Pascal MT+ | 3.3 | CP/M-86; compiler `mt+86.cmd`, linker `linkmt.cmd`, assembler `asmt86.cmd` |
+| Turbo Pascal | 3.02 | Last CP/M-86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd` |
+| PolyPascal-86 | 3.11 | Integrated editor+compiler; small/BCD/8087 variants (`ppas`, `ppbs`, `pp87`) |
+| DR CBASIC | 2.0 (CP/M-86) / 2.1 (DOS) | Compiled BASIC; compiler `cb86.exe`, linker `link86.exe` |
+| M2CBASIC | 1.4 | MS BASIC → CBASIC source converter; translator + runtime libs |
+| DR Personal Basic | 1.2 | Interactive CP/M-86 BASIC interpreter |
+| MS Basic | 5.22 (CP/M-86) / 5.28 (DOS) | Interpreted; patched binaries included |
+| MS Basic | 5.21 (CP/M-80) / 4.51 "Old Basic" | Run via `tnylpo` |
+| TDL BASIC | 3.05 | Z-80 CP/M-80 BASIC; run via `tnylpo` |
+| Intel PL/M-86 | 3.30 | Compiler `plm86.exe`, assembler `asm86.exe`, linker, librarian, locator |
+| DR PL/I-86 | 1.0 | CP/M-86; compiler `pli.cmd`, runtime `plilib.l86`, DIO sources |
+| XLISP | 1.1 | Public-domain Lisp interpreter; built from source with Aztec C 4.2 |
+| Micro Focus COBOL | Level II V2.1 | CP/M-86; compiler `cobol.cmd`, runtime `run.cmd` |
+
+### Assemblers
+
+| Tool | Version | Description |
+|------|---------|-------------|
+| RASM-86 / LINK-86 / LIB-86 | 1.4a / 2.02 / 1.3 | DR DOS assembler toolchain |
+| ASM-86 + GENCMD | 1.1 | DR assembler; CP/M-80 and CP/M-86 versions |
+| XLT86 | 1.3 | DR 8080/8085 → 8086 translator; `xlt86.com` + overlays; run via `tnylpo` |
+| MASM / LINK / ASM / EXE2BIN / HEX2BIN | 1.10 / 2.0 / 2.44a / 1.1 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 |
+| NASM | 3.02 | Netwide assembler (native) |
+| Intel ASM-86 | 2.1 | Part of Intel PL/M-86 toolchain (`asm86.exe`) |
+
+### Emulators and utilities
+
+| Tool | Version | Description |
+|------|---------|-------------|
+| emu2-cpm86 | 2021.01 | DOS/CP/M-86 emulator (fork of emu2 with CP/M-86 support) |
+| tnylpo | — | CP/M-80 emulator; used for `asm86.com`, `gencmd.com`, XLT86, MS Basic 80 |
+| upx | 5.2.1 | Executable packer |
 
 ## License Considerations
 
-- Microsoft MS-DOS tools (DOS 1.1 and Basic 86) are under MITS license (https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md)
-The following tools are not included and downloaded by the fetch tool but require you to understand the conditions of usage:
-- The Aztec C use conditions is documented at (https://www.aztecmuseum.ca/intro.htm#intro)
-- The DR tools usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- XLT86 1.3 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- The DR C 1.11 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- The DR Fortran-77 4.0 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- Pascal MT+ 3.3 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- Turbo Pascal 3.01A for CP/M-86 is a Borland product. It is freely usable but not open source. The files are stored in this repository as extracted from the RC750 disk image at (https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2).
-- The DR CBASIC compiler 2.0 for CP/M-86 and 2.1 for DOS is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- M2CBASIC 1.4 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- The DR Personal Basic 1.2 for CP/M-86 is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- emu2 and tnylpo are open source with their licenses described respectively at (https://github.com/dmsc/emu2/blob/master/LICENSE) and (https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE); the emu2-cpm86 fork we build is licensed under GPL-2.0, see (https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE)
-- nasm license terms can be found at (https://www.nasm.us)
-- src/tools/hexcom.c is a DRI HEXCOM 3.00 compatible reimplementation by Jeffrey H. Johnson, imported from https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c under the MIT-0 license
-- DR PL/I-86 1.0 for CP/M-86 is a Digital Research product; usage is documented at (http://www.cpm.z80.de/license.html) and (http://www.cpm.z80.de/faq.html)
-- XLISP 1.1 is public domain software by David Betz; the source is at https://github.com/tsupplis/cpm86-ports
-- PolyPascal-86 V3.11 is a PolyData MicroCenter A/S product; its licensing is unclear
-- Micro Focus Level II COBOL V2.1 for CP/M-86 is a Micro Focus Limited product (Copyright © 1981, 1983); its licensing is unclear
-- TDL BASIC 3.05 (Technical Design Labs) licensing is unclear
-- I am not guaranteeing in any ways the components mentioned above. You are of course free to use these at your own risk if you accept the conditions of usage given above.
+No guarantees are made for any component. Use each at your own risk subject to the conditions below.
 
-> [!WARNING]
-> The Intel PL/M-86 3.30 tools licensing is unclear; their usage is left to the discretion of the end user.
-
-> [!WARNING]
-> The PolyPascal-86 V3.11 (PolyData MicroCenter A/S) tools licensing is unclear; their usage is left to the discretion of the end user.
-
-> [!WARNING]
-> The Micro Focus Level II COBOL V2.1 (Micro Focus Limited) tools licensing is unclear; their usage is left to the discretion of the end user.
-
-> [!WARNING]
-> The TDL BASIC 3.05 (Technical Design Labs) tools licensing is unclear; their usage is left to the discretion of the end user.
+| Component | License / Status | Reference |
+|-----------|-----------------|-----------|
+| MS-DOS tools (DOS 1.1, Basic 86) | MITS license | [LICENSE](https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md) |
+| Aztec C | Freeware (conditions apply) | [aztecmuseum.ca](https://www.aztecmuseum.ca/intro.htm#intro) |
+| DR tools (RASM-86, ASM-86, CBASIC, DR C, Fortran-77, Pascal MT+, Personal Basic, PL/I-86, XLT86, M2CBASIC) | DR/Caldera open-source license | [license](http://www.cpm.z80.de/license.html) · [faq](http://www.cpm.z80.de/faq.html) |
+| Turbo Pascal 3.01A (Borland) | Freely usable, not open source | [RC750 image](https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2) |
+| emu2 / emu2-cpm86 | GPL-2.0 | [emu2](https://github.com/dmsc/emu2/blob/master/LICENSE) · [emu2-cpm86](https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE) |
+| tnylpo | Open source | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
+| NASM | BSD-2-Clause | [nasm.us](https://www.nasm.us) |
+| hexcom.c (Jeffrey H. Johnson) | MIT-0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
+| XLISP 1.1 (David Betz) | Public domain | [cpm86-ports](https://github.com/tsupplis/cpm86-ports) |
+| Intel PL/M-86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) |
+| PolyPascal-86 V3.11 (PolyData MicroCenter A/S) | **Unclear** ⚠️ | — |
+| Micro Focus Level II COBOL V2.1 | **Unclear** ⚠️ | — |
+| TDL BASIC 3.05 (Technical Design Labs) | **Unclear** ⚠️ | — |
 
 ## Prerequisites
 
-The following prerequisites are required to build **cpm86-crossdev**.
+Install any missing prerequisites with your favorite package manager.
 
-If they aren't already available on your system, they can be installed with your
-favorite package manager.
-
-### Requirements
-
-* C/C++ toolchain supporting **C99** and **C++14** (*e.g.*, [GNU GCC](https://gcc.gnu.org/) or [LLVM Clang](https://clang.llvm.org/))
-* [`curl`](https://curl.se/)
-* [CMake](https://cmake.org/)
-* [`dos2unix`](https://dos2unix.sourceforge.io/)
-* [`git`](https://git-scm.com/)
-* [GNU Bash](https://www.gnu.org/software/bash/)
-* [GNU Coreutils](https://www.gnu.org/software/coreutils/) or equivalent
-* [GNU Gzip](https://www.gnu.org/software/gzip/)
-* [GNU Make](https://www.gnu.org/software/make/)
-* [GNU `patch`](https://savannah.gnu.org/projects/patch/)
-* [GNU Screen](https://www.gnu.org/software/screen/)
-* [GNU `tar`](https://www.gnu.org/software/tar/), [libarchive `tar`](https://www.libarchive.org/), or equivalent
-* [GNU Wget](https://www.gnu.org/software/wget/)
-* [Info-ZIP Unzip](https://infozip.sourceforge.net/UnZip.html)
-* [ncurses](https://invisible-island.net/ncurses/)
-* [XZ Utils](https://tukaani.org/xz/)
-
-### Optional
-
-* [Docker](https://www.docker.com/), [Podman](https://podman.io/), or equivalent
+| | Prerequisites |
+|---|---|
+| **Required** | C/C++ toolchain (C99/C++14): [GCC](https://gcc.gnu.org/) or [Clang](https://clang.llvm.org/) · [`curl`](https://curl.se/) · [CMake](https://cmake.org/) · [`dos2unix`](https://dos2unix.sourceforge.io/) · [`git`](https://git-scm.com/) · [Bash](https://www.gnu.org/software/bash/) · [Coreutils](https://www.gnu.org/software/coreutils/) · [Gzip](https://www.gnu.org/software/gzip/) · [Make](https://www.gnu.org/software/make/) · [`patch`](https://savannah.gnu.org/projects/patch/) · [Screen](https://www.gnu.org/software/screen/) · [`tar`](https://www.gnu.org/software/tar/) · [Wget](https://www.gnu.org/software/wget/) · [Unzip](https://infozip.sourceforge.net/UnZip.html) · [ncurses](https://invisible-island.net/ncurses/) · [XZ Utils](https://tukaani.org/xz/) |
+| **Optional** | [Docker](https://www.docker.com/), [Podman](https://podman.io/), or equivalent (for containerised builds) |
 
 ## Script Mapping
 
@@ -221,31 +203,35 @@ The development environment can be assembled by using the following steps:
 ./fetch_tools
 export PATH="$(pwd -P)"/bin
 ```
-it pulls the following:
-- aztec 3.4 c compiler  (https://www.aztecmuseum.ca/az8634b.zip)
-- link86, lib86 and rasm86 (http://www.cpm.z80.de/download/tools86.zip)
-- asm86 and gencmd CP/M-80 versions (http://www.cpm.z80.de/download/mpm862sr.zip)
-- XLT86 1.3 (http://www.cpm.z80.de/download/xlt86.zip)
-- asm86 and gencmd CP/M-86 versions (https://github.com/tsupplis/cpm86-kernel)
-- DR C 1.11 (http://www.cpm.z80.de/download/drc_86.zip) + extra headers (http://www.cpm.z80.de/download/drc86111.zip)
-- DR Fortran-77 4.0 (http://www.cpm.z80.de/download/f77-86.zip)
-- Turbo Pascal 3.02 for CP/M-86 (stored in `src/turbo`, extracted from https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2)
-- Pascal MT+ 3.3 (http://www.cpm.z80.de/download/mt8633cp.zip)
-- cb86 2.0/2.1 and libraries (http://www.cpm.z80.de/download/cbasic86.zip) and (http://www.cpm.z80.de/download/cb86toys.zi)
-- M2CBASIC 1.4 (http://www.cpm.z80.de/download/m2cbasic.zip)
-- DR Personal Basic 1.2 (stored in `src/drtools/basic.cmd`, recovered from https://datamuseum.dk/wiki/Bits:30002879; original 1.0 at http://www.cpm.z80.de/download/pbasic86.zip)
-- Microsoft Basic 5.21 (http://cpmarchives.classiccmp.org/cpm/mirrors/www.retroarchive.org/cpm/lang/Mbasic.com)
-- masm, link, asm, exe2bin, hex2bin, Microsoft Basic 86/80 (mbasic86, obasic 4.51) (local copies from https://github.com/microsoft/MS-DOS and repository)
-- cmdtools — cmdinfo, bin2cmd, exe2cmd built natively from (https://github.com/tsupplis/cpm86-cmdtools)
-- nasm (https://nasm.us/pub/nasm/snapshots/)
-- upx (https://github.com/upx/upx/releases/download/v5.2.0/upx-5.2.0-src.tar.xz)
-- emu2-cpm86, a CP/M-86 enabled fork of emu2 (https://github.com/johnsonjh/emu2-cpm86), based on the upstream emu2 project (https://github.com/dmsc/emu2)
-- tnylpo (https://gitlab.com/gbrein/tnylpo.git)
-- PL/M-86 3.30 tools (http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)
-- PL/I-86 1.0 (http://www.cpm.z80.de/download/pli86.zip)
-- XLISP 1.1 (https://github.com/tsupplis/cpm86-ports, compiled from source using aztec42)
-- Micro Focus Level II COBOL for CP/M-86 (https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip) — compiler (`cobol.cmd`), runtime (`run.cmd`), overlays and support files
-- TDL BASIC 3.05 for CP/M-80 (https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip) — Z-80 BASIC interpreter (`tdlbasic.com`)
+
+| Component | Source |
+|-----------|--------|
+| Aztec C 4.2 | [AztecC86.zip](https://www.aztecmuseum.ca/AztecC86.zip) |
+| Aztec C 3.4 | [az8634b.zip](https://www.aztecmuseum.ca/az8634b.zip) |
+| RASM-86, LINK-86, LIB-86 | [tools86.zip](http://www.cpm.z80.de/download/tools86.zip) |
+| ASM-86 + GENCMD (CP/M-80) | [mpm862sr.zip](http://www.cpm.z80.de/download/mpm862sr.zip) |
+| XLT86 1.3 | [xlt86.zip](http://www.cpm.z80.de/download/xlt86.zip) |
+| ASM-86 + GENCMD (CP/M-86) | [cpm86-kernel](https://github.com/tsupplis/cpm86-kernel) (GitHub) |
+| DR C 1.11 + extra headers | [drc_86.zip](http://www.cpm.z80.de/download/drc_86.zip) · [drc86111.zip](http://www.cpm.z80.de/download/drc86111.zip) |
+| DR Fortran-77 4.0 | [f77-86.zip](http://www.cpm.z80.de/download/f77-86.zip) |
+| Turbo Pascal 3.02 (CP/M-86) | [RC750 image](https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2) (stored in `src/turbo`) |
+| PolyPascal-86 3.11 | [PolyPascal](https://github.com/johnsonjh/PolyPascal) (GitHub) |
+| Pascal MT+ 3.3 | [mt8633cp.zip](http://www.cpm.z80.de/download/mt8633cp.zip) |
+| DR CBASIC 2.0/2.1 + libs | [cbasic86.zip](http://www.cpm.z80.de/download/cbasic86.zip) · [cb86toys.zip](http://www.cpm.z80.de/download/cb86toys.zi) |
+| M2CBASIC 1.4 | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip) |
+| DR Personal Basic 1.2 | [datamuseum.dk](https://datamuseum.dk/wiki/Bits:30002879) (stored in `src/drtools/basic.cmd`) |
+| MS Basic 5.21 (CP/M-80) | repository (local copy) |
+| MASM, LINK, ASM, EXE2BIN, HEX2BIN, MS Basic 86/80 | [MS-DOS](https://github.com/microsoft/MS-DOS) (GitHub) + repository |
+| cmdtools (cmdinfo, bin2cmd, exe2cmd) | [cpm86-cmdtools](https://github.com/tsupplis/cpm86-cmdtools) (GitHub, built natively) |
+| NASM | [nasm.us snapshots](https://nasm.us/pub/nasm/snapshots/) |
+| upx | [upx releases](https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz) (GitHub) |
+| emu2-cpm86 | [emu2-cpm86](https://gitlab.com/johnsonjh/emu2-cpm86) (GitLab, fork of [emu2](https://github.com/dmsc/emu2)) |
+| tnylpo | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab) |
+| Intel PL/M-86 3.30 tools | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) |
+| DR PL/I-86 1.0 | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) |
+| XLISP 1.1 | [cpm86-ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42) |
+| Micro Focus Level II COBOL | [LII-COBOL-CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip) |
+| TDL BASIC 3.05 (CP/M-80) | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip) |
 
 Clearing the directory is achieved by:
 ```
