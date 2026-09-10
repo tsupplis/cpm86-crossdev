@@ -305,51 +305,27 @@ Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for 
 
 ### Basic Programs
 
-DR CBASIC — compiled to a CP/M-86 binary:
-```
+<table width="100%">
+<tr><th>Variant</th><th>Commands</th></tr>
+<tr><td>DR CBASIC (compiled, CP/M-86)</td><td><pre>
 drcbcpm_bc hellor.bas
 drcbcpm_link hellor.cmd=hellor.o
 cmdinfo hellor.cmd
-```
-
-Microsoft BASIC to CBASIC — convert then compile:
-```
+</pre></td></tr>
+<tr><td>MS BASIC → CBASIC (convert + compile)</td><td><pre>
 m2cb_cvt hellomsb.bas
 mv hellomsb.cb hellocvt.cb
 drcbcpm_bc hellocvt.cb
 drcbcpm_link hellocvt
 cmdinfo hellocvt.cmd
-```
-
-Microsoft Basic 5.22 — interpreted, run directly (CP/M-86 version):
-```
-cpm86_mbasic hellomsb.bas
-```
-
-Microsoft Basic 5.28 — interpreted, run directly (DOS version):
-```
-pcdev_mbasic hellomsb.bas
-```
-
-Microsoft Basic 5.21 (8080 CP/M-80 version, via tnylpo):
-```
-cpm_mbasic hellomsb.bas
-```
-
-Microsoft Basic 4.51 Old Basic (8080 CP/M-80 version, via tnylpo):
-```
-cpm_obasic hellomsb.bas
-```
-
-TDL BASIC 3.05 (Z-80 CP/M-80 version, via tnylpo):
-```
-cpm_tdlbasic hellomsb.bas
-```
-
-DR Personal Basic 1.2 — interactive interpreter:
-```
-cpm86_basic
-```
+</pre></td></tr>
+<tr><td>MS Basic 5.22 (interpreted, CP/M-86)</td><td><pre>cpm86_mbasic hellomsb.bas</pre></td></tr>
+<tr><td>MS Basic 5.28 (interpreted, DOS)</td><td><pre>pcdev_mbasic hellomsb.bas</pre></td></tr>
+<tr><td>MS Basic 5.21 (CP/M-80, via tnylpo)</td><td><pre>cpm_mbasic hellomsb.bas</pre></td></tr>
+<tr><td>MS Basic 4.51 "Old Basic" (CP/M-80, via tnylpo)</td><td><pre>cpm_obasic hellomsb.bas</pre></td></tr>
+<tr><td>TDL BASIC 3.05 (Z-80 CP/M-80, via tnylpo)</td><td><pre>cpm_tdlbasic hellomsb.bas</pre></td></tr>
+<tr><td>DR Personal Basic 1.2 (interactive)</td><td><pre>cpm86_basic</pre></td></tr>
+</table>
 
 ### C Programs
 
@@ -377,25 +353,26 @@ syntax. The most common options are:
 
 This is not necessary with the wrappers.
 
-```
+<table width="100%">
+<tr><th>Variant</th><th>Commands</th></tr>
+<tr><td>Aztec C 4.2 (preferred, almost-ANSI)</td><td><pre style="margin:0">
 aztec42_cc helloc.c
 aztec42_sqz helloc.o
 aztec42_link -o helloc.cmd helloc.o -lc86
 cmdinfo helloc.cmd
-```
-or with the legacy K&R compiler ...
-```
+</pre></td></tr>
+<tr><td>Aztec C 3.4 (K&R legacy)</td><td><pre style="margin:0">
 aztec34_cc helloc.c
 aztec34_sqz helloc.o
 aztec34_link -o helloc.cmd helloc.o -lc86
 cmdinfo helloc.cmd
-```
-or with DR C 1.11 ...
-```
+</pre></td></tr>
+<tr><td>DR C 1.11</td><td><pre style="margin:0">
 drccpm_cc -ohellodrc.obj hellodrc.c
 drccpm_link 'hellodrc.cmd=hellodrc.obj'
 cmdinfo hellodrc.cmd
-```
+</pre></td></tr>
+</table>
 
 #### C runtime startup
 
@@ -420,150 +397,87 @@ command-line object fixes all of these cases, so neither `ord` nor a doubled
 library is needed. To restore the old behaviour set `AZTEC_NOSTARTUP=1`, or force
 a specific startup with `AZTEC_STARTUP=<obj-in-lib>`.
 
-### Assembler Programs with rasm86
-```
+### Assembler Programs
+
+<table width="100%">
+<tr><th>Variant</th><th>Commands</th></tr>
+<tr><td>RASM-86</td><td><pre style="margin:0">
 pcdev_rasm86 helloa.a86 '$' pz sz
 pcdev_linkcmd helloa '[$sz]'
 cmdinfo helloa.cmd
-```
-
-### Assembler Programs with asm86
-```
+</pre></td></tr>
+<tr><td>ASM-86 (CP/M-80)</td><td><pre style="margin:0">
 cpm_asm86 hellob.a86
 cpm_gencmd hellob.h86
 cmdinfo hellob.cmd
-```
-
-### Assembler Programs with masm
-```
+</pre></td></tr>
+<tr><td>MASM</td><td><pre style="margin:0">
 pcdev_masm hellod \;
 pcdev_link hellod \;
 pcdev_exe2bin hellod.exe
 bin2cmd hellod.bin hellod.cmd
 cmdinfo hellod.cmd
-```
-
-### Assembler Programs with nasm
-```
+</pre></td></tr>
+<tr><td>NASM</td><td><pre style="margin:0">
 nasm hellon.asm -fbin -o hellon.bin
 bin2cmd hellon.bin hellon.cmd
 cmdinfo hellon.cmd
-```
-
-### 8080 to 8086 translation with XLT86
-
-`cpm_xlt86` translates an 8080/8085 assembly source file (`.asm`) into an
-8086 assembly source file (`.a86`) ready for `asm86`. It is a CP/M-80 tool
-run via `tnylpo`; the wrapper maps the tool directory (with overlays
-`xlt00.ovl` and `xlt01.ovl`) as the default drive A, and the CWD as drive B
-so translated output lands alongside the source.
-
-Pass the basename without extension — XLT86 appends `.asm` for input and
-writes `.a86` as output. Then assemble and package with the `asm86`/`gencmd`
-pipeline:
-
-```
+</pre></td></tr>
+<tr><td>XLT86 (8080→8086) + ASM-86</td><td>Pass basename without extension. XLT86 translates <code>CALL 5</code> to <code>INT 224</code> (0E0h). "Number of Errors: 1" for <code>ORG 100h</code> is expected and harmless.<pre style="margin:0">
 cpm_xlt86 hello80
 cpm86_asm86 hello80.a86
 cpm86_gencmd hello80.h86
 cmdinfo hello80.cmd
-```
+</pre></td></tr>
+</table>
 
-XLT86 translates `CALL 5` (CP/M BDOS entry) directly to `INT 224` (0E0h),
-so no special handling is needed for standard CP/M calls. XLT86 reports
-"Number of Errors: 1" for an `ORG 100h` directive (which has no 8086
-equivalent); this is expected and the output `.a86` is complete and correct.
+### Misc Languages
 
-### Pascal Programs
-
-PolyPascal-86 V3.11 — integrated compiler and editor for CP/M-86.
-`ppcpm_ppas` is the standard floating-point version; `ppcpm_ppbs` is the BCD
-business variant (18 significant digits); `ppcpm_pp87` uses the 8087 co-processor.
-
-```
+<table width="100%">
+<tr><th>Language</th><th>Commands</th></tr>
+<tr><td>PolyPascal-86 V3.11 (CP/M-86)</td><td>
+Interactive editor+compiler. Standard (<code>ppas</code>), BCD (<code>ppbs</code>), 8087 (<code>pp87</code>) variants.<pre style="margin:0">
 ppcpm_ppas
-```
-
-The system is interactive: the editor opens first. Use the `COMPILE` command
-to compile the current buffer and `RUN` to execute the compiled program.
-`PPAS.HLP` and `PPAS.ERM` are automatically found on drive D alongside the
-binary.
-
-### Pascal MT+ Programs
-
-Pascal MT+ 3.3 — compiled to a CP/M-86 binary:
-```
+</pre>
+The editor opens first. Use <code>COMPILE</code> then <code>RUN</code>. <code>PPAS.HLP</code> and <code>PPAS.ERM</code> found automatically on drive D.
+</td></tr>
+<tr><td>Pascal MT+ 3.3 (CP/M-86)</td><td><pre style="margin:0">
 drpmt_pc hellomt
 drpmt_link hellomt.cmd=hellomt,p:paslib/s
 cmdinfo hellomt.cmd
-```
-
-### Fortran-77 Programs
-
-`drfcpm_f77` handles both compiler passes internally (`f77.cmd` then
-`codegen.cmd`), cleaning up the `.cil`/`.cym` intermediates via a trap.
-`drfcpm_link` automatically accesses `share/f77cpm/`.
-
-
-DR Fortran-77 4.0 — compiled to a CP/M-86 binary (small model):
-```
+</pre></td></tr>
+<tr><td>DR Fortran-77 4.0 (CP/M-86, small model)</td><td>
+Both compiler passes (<code>f77.cmd</code> + <code>codegen.cmd</code>) run internally; <code>.cil</code>/<code>.cym</code> intermediates cleaned up automatically.<pre style="margin:0">
 drfcpm_f77 hellof.f77
-drfcpm_link 'hellof.cmd=hellof
+drfcpm_link 'hellof.cmd=hellof'
 cmdinfo hellof.cmd
-```
-
-### COBOL Programs
-
-Micro Focus Level II COBOL V2.1 for CP/M-86 — compile source (`.cbl`) to an
-intermediate bytecode file (`.int`), then execute with the runtime:
-
-```
+</pre></td></tr>
+<tr><td>Micro Focus Level II COBOL V2.1 (CP/M-86)</td><td>
+Compiles <code>.cbl</code> to bytecode <code>.int</code>; runtime executes it.<pre style="margin:0">
 mfcobol_cc hellocbl.cbl
 mfcobol_run hellocbl.int
-```
-
-The compiler (`mfcobol_cc`) automatically stages its required overlay (`cobol`)
-into the current working directory and cleans it up via a trap on exit.
-
-### PL/M-86 Programs
-```
+</pre>
+The <code>cobol</code> overlay is staged automatically and cleaned up on exit.
+</td></tr>
+<tr><td>Intel PL/M-86 3.30</td><td><pre style="margin:0">
 intel_asm86 scd.a86
 intel_plm86 hellop.plm debug 'optimize(3)'
 pcdev_linkcmd hellop=scd,hellop '[data[ori[0]]'
 cmdinfo hellop.cmd
-```
-
-### PL/I-86 Programs
-
-DR PL/I-86 1.0 — compiled to a CP/M-86 binary:
-```
+</pre></td></tr>
+<tr><td>DR PL/I-86 1.0 (CP/M-86)</td><td><pre style="margin:0">
 drpli_pc hellopi
 drpli_link 'hellopi.cmd=hellopi'
 cmdinfo hellopi.cmd
-```
-
-### XLISP Programs
-
-XLISP 1.1 is a small public-domain Lisp interpreter by David Betz, built from
-source using the Aztec C 4.2 compiler. It supports a subset of
-Common Lisp including lists, symbols, integers, strings, lexical closures, and
-a simple object system.
-
-The interpreter is interactive by default. Pass a `.lsp` filename to load and
-execute a file; after the file is exhausted, XLISP drops back to the interactive
-prompt. Use `(exit)` at the end of a script to terminate without waiting for
-input:
-
-```
+</pre></td></tr>
+<tr><td>XLISP 1.1 (CP/M-86)</td><td>
+Interactive by default. Pass a <code>.lsp</code> file to load and run it; use <code>(exit)</code> to terminate without waiting for input.<pre style="margin:0">
 cpm86_xlisp hello.lsp
-```
-
-Interactive session:
-```
+</pre>
+For an interactive session:<pre style="margin:0">
 cpm86_xlisp
-```
-
-The wrapper maps the tool directory (containing `xlisp.cmd`) to drive D and
-the CWD to drive C, so `.lsp` files in the working directory are found
-automatically.
+</pre>
+Drive D = tool dir (contains <code>xlisp.cmd</code>), drive C = CWD, so <code>.lsp</code> files are found automatically.
+</td></tr>
+</table>
 
