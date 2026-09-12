@@ -13,6 +13,7 @@ cpp_args=""
 cc_args=""
 for arg in "$@"; do
     case "$arg" in
+        -l*) cc_args="$cc_args $arg" ;;
         -o*) cc_args="$cc_args $arg" ;;
         *.c) cpp_args="$cpp_args $arg" ;;
         *)   cpp_args="$cpp_args $arg"; cc_args="$cc_args $arg" ;;
