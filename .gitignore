@@ -68,3 +68,5 @@ src/cpmtest/*.out
 src/cpmtest/*.cmd
 src/cpmtest/*.obj
 
+docs/**/*.cmd
+docs/**/*-plan.md
