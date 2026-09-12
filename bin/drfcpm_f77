@@ -6,17 +6,25 @@ export EMU2_CPM_APPEND
 EMU2_DRIVE_D="$share"
 export EMU2_DRIVE_D
 
-trap 'rm -f *.cil *.cym' EXIT INT TERM
+# Find the source file (.f77 or .F77) among the arguments.
+src=""
+for arg in "$@"; do
+    case "$arg" in
+        *.f77|*.F77) src="$arg" ;;
+    esac
+done
+base="${src%.*}"
+
+trap 'rm -f "${base}.cil" "${base}.cym"' EXIT INT TERM
 
 EMU2_PROGNAME="D:f77.cmd"
 export EMU2_PROGNAME
 "$emu2" "$share/f77.cmd" "$@" -- PATH=D:\\
 rc=$?
 
-# if .cil was produced, codegen was not called automatically - run it
-src="${@##* }"
-base="${src%.*}"
-if [ $rc -eq 0 ] && [ -f "${base}.cil" ]; then
+# f77.cmd (pass 1) leaves a .cil intermediate when it cannot chain to codegen
+# directly (emu2 single-program model).  Run codegen (pass 2) explicitly.
+if [ $rc -eq 0 ] && [ -n "$base" ] && [ -f "${base}.cil" ]; then
     EMU2_PROGNAME="D:codegen.cmd"
     export EMU2_PROGNAME
     "$emu2" "$share/codegen.cmd" "$base" -- PATH=D:\\
