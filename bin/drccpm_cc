@@ -8,24 +8,67 @@ export EMU2_DRIVE_D
 
 trap 'rm -f ctemp.tok' EXIT INT TERM
 
-# split args: drc860 gets flags+source (no -o), drc861 gets flags+output (no source)
+# Split args between drc860 (preprocessor) and drc861 (parser/code-gen).
+# Routing rules from the DRC C Language Programmer's Guide (Table 2-1):
+#
+#   drc860 only : source .c, -d<name> (define), -i<drive:> (include path),
+#                 -l<dev> (listing), -p (preprocess only), -z<drive:> (temp drive)
+#   drc861 only : -o<file> (object name), -f (8087), -j (no jump opt),
+#                 -n (no code opt), -q<n> (nodes), -x (reg save via lib),
+#                 -a[files] (auto-link), -3<drive:> (link86 location)
+#   both        : -b -c -m (memory model), -h (no banner), -r<dev> (interlist),
+#                 -v<n> (verbose), -w<n> (warnings)
+#   drop        : -0 -1 -2 (module locations — supervisor only, not forwarded)
+#
 cpp_args=""
 cc_args=""
+src_file=""
+preproc_only=0
+has_o=0
 for arg in "$@"; do
     case "$arg" in
-        -l*) cc_args="$cc_args $arg" ;;
-        -o*) cc_args="$cc_args $arg" ;;
-        *.c) cpp_args="$cpp_args $arg" ;;
-        *)   cpp_args="$cpp_args $arg"; cc_args="$cc_args $arg" ;;
+        # preprocessor-only options → drc860 only
+        -[dD]*|-[iI]*|-[lL]*|-[zZ]*)
+            cpp_args="$cpp_args $arg" ;;
+        # -p: preprocess only — drc860 only, skip drc861
+        -[pP])
+            cpp_args="$cpp_args $arg"
+            preproc_only=1 ;;
+        # code-gen-only options → drc861 only
+        -[oO]*)
+            cc_args="$cc_args $arg"
+            has_o=1 ;;
+        -[fF]|-[jJ]|-[nN]|-[qQ]*|-[xX]|-[aA]*|-3*)
+            cc_args="$cc_args $arg" ;;
+        # supervisor module-location options → drop (we call drc860/861 directly)
+        -[0]*|-[1]*|-[2]*)
+            ;;
+        # source file → drc860 only; remember it for -o deduction
+        *.c|*.C)
+            cpp_args="$cpp_args $arg"
+            src_file="$arg" ;;
+        # options for both passes: -b -c -m -h -r -v -w
+        *)
+            cpp_args="$cpp_args $arg"
+            cc_args="$cc_args $arg" ;;
     esac
 done
+
+# If no -o given and we have a source file, derive object name from it.
+# Strip leading path and replace .c/.C extension with .obj so drc861
+# writes the object in the current directory with a predictable name.
+if [ $has_o -eq 0 ] && [ -n "$src_file" ] && [ $preproc_only -eq 0 ]; then
+    base=`basename "$src_file"`
+    objname=`echo "$base" | sed 's/\.[cC]$/.obj/'`
+    cc_args="$cc_args -o$objname"
+fi
 
 EMU2_PROGNAME="D:drc860.cmd"
 export EMU2_PROGNAME
 "$emu2" "$share/drc860.cmd" -v1 $cpp_args -- PATH=D:\\
 rc=$?
 
-if [ $rc -eq 0 ] && [ -f ctemp.tok ]; then
+if [ $rc -eq 0 ] && [ $preproc_only -eq 0 ] && [ -f ctemp.tok ]; then
     EMU2_PROGNAME="D:drc861.cmd"
     export EMU2_PROGNAME
     "$emu2" "$share/drc861.cmd" -v1 $cc_args -- PATH=D:\\
