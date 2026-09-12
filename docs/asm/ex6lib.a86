@@ -1,0 +1,129 @@
+            title   'ex6lib - library usage: add_u16 and mul_u16'
+
+; ============================================================
+; ex6lib.a86 - Demonstrates LIB-86 library usage
+;
+; Build:  make mathlib.l86 ex6lib.cmd
+; Run:    emu2 ex6lib.cmd
+;
+; Calls add_u16(0012h, 0034h) and mul_u16(0006h, 0007h).
+; Prints results as 4-digit hex.
+;
+; Layout: org 100h, jmp main, data before code.
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_CONOUT   equ     2
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+            extrn   add_u16:near
+            extrn   mul_u16:near
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA — before code so all symbols resolve in pass 1
+; ============================================================
+add_lbl     db      'add_u16(0012h + 0034h) = $'
+mul_lbl     db      'mul_u16(0006h * 0007h) = $'
+newline     db      CR, LF, '$'
+
+hex_val     rw      1               ; scratch: word to convert
+nib_idx     rb      1               ; nibble loop counter (0..3)
+hex_char    rb      1               ; single hex char to print
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            ; ── add_u16(0012h, 0034h) ──────────────────────
+            mov     cx, FN_PRINT
+            mov     dx, offset add_lbl
+            int     BDOS
+
+            mov     ax, 0012h
+            mov     bx, 0034h
+            call    add_u16         ; AX = 0046h
+
+            mov     hex_val, ax
+            call    word_to_hex
+
+            mov     cx, FN_PRINT
+            mov     dx, offset newline
+            int     BDOS
+
+            ; ── mul_u16(0006h, 0007h) ──────────────────────
+            mov     cx, FN_PRINT
+            mov     dx, offset mul_lbl
+            int     BDOS
+
+            mov     ax, 0006h
+            mov     bx, 0007h
+            call    mul_u16         ; AX = 002Ah
+
+            mov     hex_val, ax
+            call    word_to_hex
+
+            mov     cx, FN_PRINT
+            mov     dx, offset newline
+            int     BDOS
+
+            ; ── exit ───────────────────────────────────────
+            xor     cx, cx
+            int     BDOS
+
+; ============================================================
+; word_to_hex: print hex_val as 4 uppercase hex digits via fn 2
+;   Uses hex_val, nib_idx, hex_char as memory scratch.
+;   Prints MS nibble first (rotate left 4 each iteration).
+; ============================================================
+word_to_hex:
+            mov     al, 4
+            mov     nib_idx, al     ; 4 nibbles to print
+
+wth_loop:
+            ; rotate hex_val left 4 bits, top nibble into AL bits[3:0]
+            mov     ax, hex_val
+            mov     cl, 4
+            rol     ax, cl
+            mov     hex_val, ax
+            and     al, 0Fh         ; isolate nibble
+
+            call    nibble_to_hex   ; AL = ASCII char
+            mov     hex_char, al    ; save before BDOS clobbers AX
+
+            mov     dl, hex_char
+            mov     cx, FN_CONOUT
+            int     BDOS            ; clobbers AX, BX — hex_char and nib_idx safe
+
+            mov     al, nib_idx
+            dec     al
+            mov     nib_idx, al
+            or      al, al
+            jne     wth_loop
+
+            ret
+
+; ============================================================
+; nibble_to_hex: AL = 0..0Fh → AL = '0'..'9' / 'A'..'F'
+; ============================================================
+nibble_to_hex:
+            cmp     al, 10
+            jb      nth_digit
+            add     al, 'A'-10
+            ret
+nth_digit:
+            add     al, '0'
+            ret
+
+            end     main

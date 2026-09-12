@@ -1,0 +1,1257 @@
+        title   'exhelp - helper library demonstration for CP/M-86'
+
+; ============================================================
+; exhelp.a86  --  Self-contained demo of all helper routines
+;
+; Single-segment org 100h -- contains inline copies of every
+; routine from hlp_num, hlp_str, hlp_io, hlp_mem, hlp_file,
+; hlp_cmd.  No external references; links standalone.
+;
+; Build:
+;   make exhelp.cmd
+; Run:
+;   emu2 ./exhelp.cmd
+;   emu2 ./exhelp.cmd hello
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_CONOUT   equ     2
+FN_PRINT    equ     9
+FN_RDLINE   equ     10
+FN_SET_DMA  equ     1Ah     ; 26  set DMA offset
+FN_SET_SEG  equ     33h     ; 51  set DMA segment
+FN_OPEN     equ     0Fh     ; 15  open file
+FN_CLOSE    equ     10h     ; 16  close file
+FN_DELETE   equ     13h     ; 19  delete file
+FN_READ_SEQ equ     14h     ; 20  read sequential
+FN_WRITE_SEQ equ    15h     ; 21  write sequential
+FN_CREATE   equ     16h     ; 22  create file
+FN_FILE_SIZE equ    23h     ; 35  compute file size
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+FCB_NAME    equ     1
+FCB_EXT     equ     9
+FCB_CR      equ     32
+FCB_R0      equ     33
+
+        cseg
+        org     100h
+
+        jmp     main
+
+; ============================================================
+; ─── DATA ────────────────────────────────────────────────────
+; ============================================================
+
+; ── num scratch ─────────────────────────────────────────────
+w2h_val     rw      1
+w2h_cnt     rb      1
+w2d_buf     rb      6
+w2d_len     rb      1
+w2d_idx     rb      1
+
+; ── io scratch ──────────────────────────────────────────────
+cls_str     db      1Bh, '[2J$'
+pzs_si      rw      1
+
+; ── cmd buffers ─────────────────────────────────────────────
+argv1_buf   rb      9
+argv2_buf   rb      9
+argc_val    rb      1
+
+; ── demo test strings ───────────────────────────────────────
+str_hello   db      'Hello, CP/M-86!', 0
+str_atest   db      '  spaces before  ', 0
+str_btest   db      'MIXED case STRING', 0
+str_ctest   db      'cmp equal', 0
+str_dtest   db      'cmp equal', 0
+str_etest   db      'alpha', 0
+str_ftest   db      'beta', 0
+str_hexin   db      'FF', 0
+str_decin   db      '12345', 0
+str_padtgt  db      'hi', 0, 0, 0, 0, 0, 0, 0, 0, 0  ; 11 bytes room
+
+; ── demo output labels ($ terminated for fn 9) ──────────────
+hdr_num     db      CR, LF, '=== NUMERIC ===', CR, LF, '$'
+hdr_str     db      CR, LF, '=== STRING ===', CR, LF, '$'
+hdr_io      db      CR, LF, '=== I/O ===', CR, LF, '$'
+hdr_mem     db      CR, LF, '=== MEMORY ===', CR, LF, '$'
+hdr_file    db      CR, LF, '=== FILE I/O ===', CR, LF, '$'
+hdr_bp      db      CR, LF, '=== BP FRAME ===', CR, LF, '$'
+hdr_cmd     db      CR, LF, '=== CMDLINE ===', CR, LF, '$'
+
+lbl_hex4    db      'word_to_hex(0ABCDh): $'
+lbl_dec1    db      CR, LF, 'word_to_dec(12345): $'
+lbl_dec2    db      CR, LF, 'word_to_dec(0): $'
+lbl_s2i     db      CR, LF, 'str_to_int("12345"): $'
+lbl_h2b     db      CR, LF, 'hex_to_byte("FF"): $'
+lbl_slen    db      CR, LF, 'strlen("Hello, CP/M-86!"): $'
+lbl_scmpeq  db      CR, LF, 'strcmp equal: $'
+lbl_scmplt  db      CR, LF, 'strcmp lt: $'
+lbl_ltrim   db      CR, LF, 'ltrim result: $'
+lbl_rtrim   db      CR, LF, 'rtrim result: [$'
+lbl_rtend   db      ']', CR, LF, '$'
+lbl_toup    db      CR, LF, 'toupper: $'
+lbl_tolo    db      CR, LF, 'tolower: $'
+lbl_pzstr   db      CR, LF, 'print_zstr: $'
+lbl_memset  db      CR, LF, 'memset byte[2]: $'
+lbl_memcmp  db      CR, LF, 'memcmp equal: $'
+lbl_memcmpn db      CR, LF, 'memcmp diff: $'
+lbl_fcreat  db      CR, LF, 'file create: $'
+lbl_fwrite  db      CR, LF, 'file write: $'
+lbl_fclose  db      CR, LF, 'file close: $'
+lbl_fopen   db      CR, LF, 'file open: $'
+lbl_fread   db      CR, LF, 'file read byte[5]: $'
+lbl_fdel    db      CR, LF, 'file delete: $'
+lbl_bp      db      CR, LF, 'bp_demo(42): $'
+lbl_argc    db      CR, LF, 'argc: $'
+lbl_argv1   db      CR, LF, 'argv1: $'
+lbl_ok      db      'OK', CR, LF, '$'
+lbl_err     db      'ERR', CR, LF, '$'
+lbl_eq      db      'EQ', CR, LF, '$'
+lbl_neq     db      'NE', CR, LF, '$'
+
+; ── memory demo buffers ──────────────────────────────────────
+mem_a       rb      8
+mem_b       rb      8
+
+; ── FCB and DMA buffer for file I/O ─────────────────────────
+test_fcb    rb      36          ; 36-byte FCB
+test_dma    rb      128         ; 128-byte DMA transfer buffer
+
+; file name / ext for HELPTEST.TMP (8+3, space padded, uppercase)
+fname       db      'HELPTEST'  ; 8 chars
+fext        db      'TMP'       ; 3 chars
+
+; ============================================================
+; ─── PRIMITIVES (hlp_num inline) ─────────────────────────────
+; ============================================================
+
+; ── nibble_to_hex ────────────────────────────────────────────
+nibble_to_hex:
+        cmp     al, 10
+        jb      nth_digit
+        add     al, 'A'-10
+        ret
+nth_digit:
+        add     al, '0'
+        ret
+
+; ── byte_to_hex ──────────────────────────────────────────────
+byte_to_hex:
+        push    bx
+        mov     bl, al
+        mov     al, bl
+        shr     al, 1
+        shr     al, 1
+        shr     al, 1
+        shr     al, 1
+        and     al, 0Fh
+        call    nibble_to_hex
+        mov     bh, al
+        mov     al, bl
+        and     al, 0Fh
+        call    nibble_to_hex
+        mov     ah, bh
+        pop     bx
+        ret
+
+; ── word_to_hex ──────────────────────────────────────────────
+word_to_hex:
+        mov     w2h_val, ax
+        mov     al, 4
+        mov     w2h_cnt, al
+w2h_loop:
+        mov     ax, w2h_val
+        shl     ax, 1
+        jnc     w2h_r1
+        or      al, 1
+w2h_r1: shl     ax, 1
+        jnc     w2h_r2
+        or      al, 1
+w2h_r2: shl     ax, 1
+        jnc     w2h_r3
+        or      al, 1
+w2h_r3: shl     ax, 1
+        jnc     w2h_r4
+        or      al, 1
+w2h_r4: mov     w2h_val, ax
+        and     al, 0Fh
+        call    nibble_to_hex
+        mov     dl, al
+        mov     cx, FN_CONOUT
+        int     BDOS
+        mov     al, w2h_cnt
+        dec     al
+        mov     w2h_cnt, al
+        cmp     al, 0
+        jne     w2h_loop
+        ret
+
+; ── div10 ────────────────────────────────────────────────────
+div10:
+        push    bx
+        xor     dx, dx
+        mov     bx, 10
+        div     bx
+        pop     bx
+        ret
+
+; ── word_to_dec ──────────────────────────────────────────────
+word_to_dec:
+        cmp     ax, 0
+        jne     w2d_build
+        mov     dl, '0'
+        mov     cx, FN_CONOUT
+        int     BDOS
+        ret
+w2d_build:
+        push    ax              ; save value -- xor al,al below destroys AX
+        xor     al, al
+        mov     w2d_len, al
+        pop     ax              ; restore value for extraction loop
+w2d_extract:
+        cmp     ax, 0
+        je      w2d_print
+        call    div10
+        push    ax
+        mov     al, w2d_len
+        xor     ah, ah
+        mov     bx, ax
+        mov     al, dl
+        add     al, '0'
+        mov     w2d_buf[bx], al
+        mov     al, w2d_len
+        inc     al
+        mov     w2d_len, al
+        pop     ax
+        jmp     w2d_extract
+w2d_print:
+        mov     al, w2d_len
+        dec     al
+        mov     w2d_idx, al
+w2d_ploop:
+        mov     al, w2d_idx
+        xor     ah, ah
+        mov     bx, ax
+        mov     dl, w2d_buf[bx]
+        mov     cx, FN_CONOUT
+        int     BDOS
+        mov     al, w2d_idx
+        cmp     al, 0
+        je      w2d_done
+        dec     al
+        mov     w2d_idx, al
+        jmp     w2d_ploop
+w2d_done:
+        ret
+
+; ── ascii_to_nibble (private) ─────────────────────────────────
+ascii_to_nibble:
+        cmp     al, '9'
+        ja      atn_alpha
+        sub     al, '0'
+        ret
+atn_alpha:
+        and     al, 0DFh
+        sub     al, 'A'-10
+        ret
+
+; ── hex_to_byte ──────────────────────────────────────────────
+hex_to_byte:
+        mov     al, [si]
+        inc     si
+        call    ascii_to_nibble
+        shl     al, 1
+        shl     al, 1
+        shl     al, 1
+        shl     al, 1
+        mov     ah, al
+        mov     al, [si]
+        inc     si
+        call    ascii_to_nibble
+        or      al, ah
+        ret
+
+; ── str_to_int ───────────────────────────────────────────────
+str_to_int:
+        xor     ax, ax
+sti_loop:
+        mov     bl, [si]
+        cmp     bl, '0'
+        jb      sti_done
+        cmp     bl, '9'
+        ja      sti_done
+        push    bx
+        mov     bx, 10
+        mul     bx
+        pop     bx
+        xor     bh, bh
+        sub     bl, '0'
+        add     ax, bx
+        inc     si
+        jmp     sti_loop
+sti_done:
+        ret
+
+; ============================================================
+; ─── STRING (hlp_str inline) ─────────────────────────────────
+; ============================================================
+
+; ── strlen ───────────────────────────────────────────────────
+strlen:
+        push    si
+        push    ax
+        xor     cx, cx
+sln_loop:
+        mov     al, [si]
+        cmp     al, 0
+        je      sln_done
+        inc     si
+        inc     cx
+        jmp     sln_loop
+sln_done:
+        pop     ax
+        pop     si
+        ret
+
+; ── strcpy ───────────────────────────────────────────────────
+strcpy:
+        mov     al, [si]
+        mov     [di], al
+        inc     si
+        inc     di
+        cmp     al, 0
+        jne     strcpy
+        ret
+
+; ── strcmp ───────────────────────────────────────────────────
+strcmp:
+        mov     ah, [si]
+        mov     al, [di]
+        cmp     ah, al
+        jb      scm_less
+        ja      scm_greater
+        cmp     ah, 0
+        je      scm_equal
+        inc     si
+        inc     di
+        jmp     strcmp
+scm_equal:
+        xor     al, al
+        ret
+scm_greater:
+        mov     al, 1
+        ret
+scm_less:
+        mov     al, 0FFh
+        ret
+
+; ── ltrim ────────────────────────────────────────────────────
+ltrim:
+        mov     al, [si]
+        cmp     al, ' '
+        jne     ltrim_done
+        cmp     al, 0
+        je      ltrim_done
+        inc     si
+        jmp     ltrim
+ltrim_done:
+        ret
+
+; ── rtrim ────────────────────────────────────────────────────
+rtrim:
+        push    si
+        mov     bx, si
+rtrim_find:
+        mov     al, [si]
+        cmp     al, 0
+        je      rtrim_trim
+        inc     si
+        jmp     rtrim_find
+rtrim_trim:
+        cmp     si, bx
+        je      rtrim_done2
+        dec     si
+        mov     al, [si]
+        cmp     al, ' '
+        jne     rtrim_place
+        jmp     rtrim_trim
+rtrim_place:
+        inc     si
+        xor     al, al
+        mov     [si], al
+rtrim_done2:
+        pop     si
+        ret
+
+; ── str_contains ─────────────────────────────────────────────
+str_contains:
+        mov     bl, al
+scon_loop:
+        mov     al, [si]
+        cmp     al, 0
+        je      scon_no
+        cmp     al, bl
+        je      scon_yes
+        inc     si
+        jmp     scon_loop
+scon_yes:
+        mov     al, 1
+        ret
+scon_no:
+        xor     al, al
+        ret
+
+; ── pad_right ────────────────────────────────────────────────
+pad_right:
+        push    si
+        mov     di, si
+        xor     bx, bx
+prgt_len:
+        mov     al, [di]
+        cmp     al, 0
+        je      prgt_pad
+        inc     di
+        inc     bx
+        jmp     prgt_len
+prgt_pad:
+        cmp     bx, cx
+        jae     prgt_done
+        mov     al, ' '
+        mov     [di], al
+        inc     di
+        inc     bx
+        jmp     prgt_pad
+prgt_done:
+        xor     al, al
+        mov     [di], al
+        pop     si
+        ret
+
+; ── toupper_buf ──────────────────────────────────────────────
+toupper_buf:
+        mov     al, [si]
+        cmp     al, 0
+        je      tup_done
+        cmp     al, 'a'
+        jb      tup_next
+        cmp     al, 'z'
+        ja      tup_next
+        and     al, 0DFh
+        mov     [si], al
+tup_next:
+        inc     si
+        jmp     toupper_buf
+tup_done:
+        ret
+
+; ── tolower_buf ──────────────────────────────────────────────
+tolower_buf:
+        mov     al, [si]
+        cmp     al, 0
+        je      tlo_done
+        cmp     al, 'A'
+        jb      tlo_next
+        cmp     al, 'Z'
+        ja      tlo_next
+        or      al, 20h
+        mov     [si], al
+tlo_next:
+        inc     si
+        jmp     tolower_buf
+tlo_done:
+        ret
+
+; ============================================================
+; ─── I/O (hlp_io inline) ─────────────────────────────────────
+; ============================================================
+
+; ── print_char ───────────────────────────────────────────────
+print_char:
+        mov     dl, al
+        mov     cx, FN_CONOUT
+        int     BDOS
+        ret
+
+; ── print_crlf ───────────────────────────────────────────────
+print_crlf:
+        mov     dl, CR
+        mov     cx, FN_CONOUT
+        int     BDOS
+        mov     dl, LF
+        mov     cx, FN_CONOUT
+        int     BDOS
+        ret
+
+; ── cls ──────────────────────────────────────────────────────
+cls:
+        mov     cx, FN_PRINT
+        mov     dx, offset cls_str
+        int     BDOS
+        ret
+
+; ── print_zstr ───────────────────────────────────────────────
+print_zstr:
+        mov     al, [si]
+        cmp     al, 0
+        je      pzs_done
+        mov     dl, al
+        mov     pzs_si, si
+        mov     cx, FN_CONOUT
+        int     BDOS
+        mov     si, pzs_si
+        inc     si
+        jmp     print_zstr
+pzs_done:
+        ret
+
+; ── read_line ────────────────────────────────────────────────
+read_line:
+        push    si
+        mov     cx, FN_RDLINE
+        mov     dx, di
+        int     BDOS
+        mov     al, 1[di]
+        xor     ah, ah
+        mov     bx, di
+        add     bx, 2
+        add     bx, ax
+        xor     al, al
+        mov     [bx], al
+        xor     ch, ch
+        mov     cl, 1[di]
+        pop     si
+        ret
+
+; ============================================================
+; ─── MEMORY (hlp_mem inline) ─────────────────────────────────
+; ============================================================
+
+; ── memset ───────────────────────────────────────────────────
+memset:
+        cmp     cx, 0
+        je      mset_done
+        mov     [si], al
+        inc     si
+        dec     cx
+        jmp     memset
+mset_done:
+        ret
+
+; ── memcpy ───────────────────────────────────────────────────
+memcpy:
+        cmp     cx, 0
+        je      mcpy_done
+        mov     al, [si]
+        mov     [di], al
+        inc     si
+        inc     di
+        dec     cx
+        jmp     memcpy
+mcpy_done:
+        ret
+
+; ── memcmp ───────────────────────────────────────────────────
+memcmp:
+        cmp     cx, 0
+        je      mcmp_equal
+        mov     al, [si]
+        mov     ah, [di]
+        cmp     al, ah
+        jb      mcmp_less
+        ja      mcmp_greater
+        inc     si
+        inc     di
+        dec     cx
+        jmp     memcmp
+mcmp_equal:
+        xor     al, al
+        ret
+mcmp_greater:
+        mov     al, 1
+        ret
+mcmp_less:
+        mov     al, 0FFh
+        ret
+
+; ============================================================
+; ─── FILE I/O (hlp_file inline) ──────────────────────────────
+; ============================================================
+
+fini_si     rw      1
+fio_si      rw      1
+
+; ── fcb_init ─────────────────────────────────────────────────
+; In: SI->FCB(36B), BX->name(8B), CX->ext(3B)
+fcb_init:
+        push    si
+        push    di
+        push    bx
+        push    cx
+
+        ; zero FCB
+        mov     di, si
+        mov     cx, 36
+        xor     al, al
+fini_z: mov     [di], al
+        inc     di
+        dec     cx
+        cmp     cx, 0
+        jne     fini_z
+
+        ; copy name
+        pop     cx              ; ext ptr
+        pop     bx              ; name ptr
+        push    bx
+        push    cx
+        mov     di, si
+        add     di, FCB_NAME
+        mov     cx, 8
+fini_n: mov     al, [bx]
+        mov     [di], al
+        inc     bx
+        inc     di
+        dec     cx
+        cmp     cx, 0
+        jne     fini_n
+
+        ; copy ext
+        pop     cx
+        pop     bx              ; (name ptr, not used)
+        mov     di, si
+        add     di, FCB_EXT
+        mov     bx, cx          ; BX -> ext bytes
+        mov     cx, 3
+fini_e: mov     al, [bx]
+        mov     [di], al
+        inc     bx
+        inc     di
+        dec     cx
+        cmp     cx, 0
+        jne     fini_e
+
+        pop     di
+        pop     si
+        ret
+
+; ── file_open ────────────────────────────────────────────────
+file_open:
+        mov     fio_si, si
+        mov     cx, FN_OPEN
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ── file_create ──────────────────────────────────────────────
+file_create:
+        mov     fio_si, si
+        mov     cx, FN_CREATE
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ── file_open_append ─────────────────────────────────────────
+file_open_append:
+        mov     fio_si, si
+        mov     cx, FN_OPEN
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        cmp     al, 0FFh
+        je      foa_done
+        mov     cx, FN_FILE_SIZE
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        mov     al, FCB_R0[si]
+        mov     FCB_CR[si], al
+        xor     al, al
+foa_done:
+        ret
+
+; ── file_close ───────────────────────────────────────────────
+file_close:
+        mov     fio_si, si
+        mov     cx, FN_CLOSE
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ── file_read ────────────────────────────────────────────────
+file_read:
+        mov     fio_si, si
+        mov     cx, FN_SET_DMA
+        mov     dx, di
+        int     BDOS
+        mov     si, fio_si
+        mov     cx, FN_READ_SEQ
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ── file_write ───────────────────────────────────────────────
+file_write:
+        mov     fio_si, si
+        mov     cx, FN_SET_DMA
+        mov     dx, di
+        int     BDOS
+        mov     si, fio_si
+        mov     cx, FN_WRITE_SEQ
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ── file_delete ──────────────────────────────────────────────
+file_delete:
+        mov     fio_si, si
+        mov     cx, FN_DELETE
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ============================================================
+; ─── CALLING CONVENTION DEMO ─────────────────────────────────
+; ============================================================
+
+; ── bp_demo: receives one word arg on stack; prints it ───────
+; Caller: push word / call bp_demo / add sp,2
+; bp_demo accesses the arg as 4[bp] (ret addr at 0[bp], arg at 2[bp])
+bp_demo:
+        push    bp
+        mov     bp, sp
+        mov     ax, 4[bp]       ; fetch argument
+        call    word_to_dec
+        pop     bp
+        ret
+
+; ============================================================
+; ─── COMMAND LINE (hlp_cmd inline) ───────────────────────────
+; ============================================================
+
+; parse_cmdline is called in main BEFORE DS redirect.
+; It uses DS for the base-page reads and ES (=CS) for writes.
+parse_cmdline:
+        mov     di, offset argv1_buf
+        mov     cx, 19
+        xor     al, al
+pcl_zl: stosb
+        loop    pcl_zl
+
+        xor     bx, bx
+        mov     cl, 80h[bx]
+        xor     ch, ch
+
+        cmp     cx, 0
+        jne     pcl_htail
+        jmp     pcl_end
+
+pcl_htail:
+        mov     si, 81h
+        xor     dx, dx
+
+pcl_s1: cmp     cx, 0
+        jne     pcl_s1a
+        jmp     pcl_end
+pcl_s1a:
+        mov     al, [si]
+        cmp     al, ' '
+        jne     pcl_t1
+        inc     si
+        dec     cx
+        jmp     pcl_s1
+
+pcl_t1: mov     di, offset argv1_buf
+        mov     bx, 8
+pcl_t1l:
+        cmp     cx, 0
+        je      pcl_e1
+        cmp     bx, 0
+        je      pcl_e1
+        mov     al, [si]
+        cmp     al, ' '
+        je      pcl_e1
+        stosb
+        inc     si
+        dec     cx
+        dec     bx
+        jmp     pcl_t1l
+pcl_e1: xor     al, al
+        stosb
+        mov     dx, 1
+
+pcl_s2: cmp     cx, 0
+        je      pcl_end
+        mov     al, [si]
+        cmp     al, ' '
+        jne     pcl_t2
+        inc     si
+        dec     cx
+        jmp     pcl_s2
+
+pcl_t2: mov     di, offset argv2_buf
+        mov     bx, 8
+pcl_t2l:
+        cmp     cx, 0
+        je      pcl_e2
+        cmp     bx, 0
+        je      pcl_e2
+        mov     al, [si]
+        cmp     al, ' '
+        je      pcl_e2
+        stosb
+        inc     si
+        dec     cx
+        dec     bx
+        jmp     pcl_t2l
+pcl_e2: xor     al, al
+        stosb
+        mov     dx, 2
+
+pcl_end:
+        mov     di, offset argc_val
+        mov     al, dl
+        stosb
+        ret
+
+; ============================================================
+; ─── MAIN ────────────────────────────────────────────────────
+; ============================================================
+main:
+        ; ── 1. parse_cmdline FIRST (DS still = base page) ────
+        mov     cx, cs
+        mov     es, cx          ; ES = CS (our segment for stosb)
+        call    parse_cmdline   ; reads DS:80h; writes via ES:DI
+
+        ; ── 2. redirect DS and ES to our segment ─────────────
+        mov     cx, cs
+        mov     ds, cx
+        mov     es, cx
+
+        ; ── 3. set DMA segment to CS (critical for file I/O) ─
+        mov     cx, FN_SET_SEG
+        mov     dx, cs
+        int     BDOS
+
+        ; ── NUMERIC ──────────────────────────────────────────
+        mov     cx, FN_PRINT
+        mov     dx, offset hdr_num
+        int     BDOS
+
+        ; word_to_hex(0ABCDh)
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_hex4
+        int     BDOS
+        mov     ax, 0ABCDh
+        call    word_to_hex
+        call    print_crlf
+
+        ; word_to_dec(12345)
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_dec1
+        int     BDOS
+        mov     ax, 12345
+        call    word_to_dec
+        call    print_crlf
+
+        ; word_to_dec(0)
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_dec2
+        int     BDOS
+        mov     ax, 0
+        call    word_to_dec
+        call    print_crlf
+
+        ; str_to_int("12345")
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_s2i
+        int     BDOS
+        mov     si, offset str_decin
+        call    str_to_int      ; AX = 12345
+        call    word_to_dec
+        call    print_crlf
+
+        ; hex_to_byte("FF")
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_h2b
+        int     BDOS
+        mov     si, offset str_hexin
+        call    hex_to_byte     ; AL = 0FFh
+        xor     ah, ah
+        call    word_to_hex     ; prints 00FF
+        call    print_crlf
+
+        ; ── STRING ───────────────────────────────────────────
+        mov     cx, FN_PRINT
+        mov     dx, offset hdr_str
+        int     BDOS
+
+        ; strlen
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_slen
+        int     BDOS
+        mov     si, offset str_hello
+        call    strlen          ; CX = 15
+        mov     ax, cx
+        call    word_to_dec
+        call    print_crlf
+
+        ; strcmp equal
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_scmpeq
+        int     BDOS
+        mov     si, offset str_ctest
+        mov     di, offset str_dtest
+        call    strcmp
+        cmp     al, 0
+        jne     scmpe_ne
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_eq
+        int     BDOS
+        jmp     scmpe_done
+scmpe_ne:
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_neq
+        int     BDOS
+scmpe_done:
+
+        ; strcmp less-than
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_scmplt
+        int     BDOS
+        mov     si, offset str_etest    ; "alpha"
+        mov     di, offset str_ftest    ; "beta"
+        call    strcmp
+        cmp     al, 0FFh
+        jne     scmpl_ne
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_eq       ; expect "EQ" (i.e. AL=FFh -> lt -> "EQ" to expected)
+        int     BDOS
+        jmp     scmpl_done
+scmpl_ne:
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_neq
+        int     BDOS
+scmpl_done:
+
+        ; ltrim
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_ltrim
+        int     BDOS
+        mov     si, offset str_atest    ; "  spaces before  "
+        call    ltrim                   ; SI -> "spaces before  "
+        call    print_zstr
+        call    print_crlf
+
+        ; rtrim (modifies str_atest in place -- already ltrimmed ptr in SI)
+        ; use str_btest to avoid corrupting str_atest
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_rtrim
+        int     BDOS
+        mov     si, offset str_btest    ; "MIXED case STRING"
+        call    rtrim
+        mov     si, offset str_btest
+        call    print_zstr
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_rtend
+        int     BDOS
+
+        ; toupper_buf
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_toup
+        int     BDOS
+        mov     si, offset str_ctest    ; "cmp equal"
+        call    toupper_buf
+        mov     si, offset str_ctest
+        call    print_zstr
+        call    print_crlf
+
+        ; tolower_buf
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_tolo
+        int     BDOS
+        mov     si, offset str_ctest    ; now "CMP EQUAL"
+        call    tolower_buf
+        mov     si, offset str_ctest
+        call    print_zstr
+        call    print_crlf
+
+        ; ── I/O ──────────────────────────────────────────────
+        mov     cx, FN_PRINT
+        mov     dx, offset hdr_io
+        int     BDOS
+
+        ; print_zstr
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_pzstr
+        int     BDOS
+        mov     si, offset str_hello
+        call    print_zstr
+        call    print_crlf
+
+        ; ── MEMORY ───────────────────────────────────────────
+        mov     cx, FN_PRINT
+        mov     dx, offset hdr_mem
+        int     BDOS
+
+        ; memset mem_a with 0AAh
+        mov     si, offset mem_a
+        mov     cx, 8
+        mov     al, 0AAh
+        call    memset
+
+        ; memcpy mem_a -> mem_b
+        mov     si, offset mem_a
+        mov     di, offset mem_b
+        mov     cx, 8
+        call    memcpy
+
+        ; memcmp mem_a == mem_b (should be equal)
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_memcmp
+        int     BDOS
+        mov     si, offset mem_a
+        mov     di, offset mem_b
+        mov     cx, 8
+        call    memcmp
+        cmp     al, 0
+        jne     mc_ne
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_eq
+        int     BDOS
+        jmp     mc_done
+mc_ne:  mov     cx, FN_PRINT
+        mov     dx, offset lbl_neq
+        int     BDOS
+mc_done:
+
+        ; verify memset result: print mem_b[2] as hex
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_memset
+        int     BDOS
+        mov     bx, offset mem_b
+        mov     al, 2[bx]
+        xor     ah, ah
+        call    word_to_hex
+        call    print_crlf
+
+        ; corrupt mem_b[3] and show memcmp diff
+        mov     al, 0BBh
+        mov     bx, offset mem_b
+        mov     3[bx], al
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_memcmpn
+        int     BDOS
+        mov     si, offset mem_a
+        mov     di, offset mem_b
+        mov     cx, 8
+        call    memcmp
+        cmp     al, 0
+        jne     mcn_ne
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_eq
+        int     BDOS
+        jmp     mcn_done
+mcn_ne: mov     cx, FN_PRINT
+        mov     dx, offset lbl_neq
+        int     BDOS
+mcn_done:
+
+        ; ── FILE I/O ─────────────────────────────────────────
+        mov     cx, FN_PRINT
+        mov     dx, offset hdr_file
+        int     BDOS
+
+        ; fcb_init: SI=FCB, BX=name, CX=ext
+        mov     si, offset test_fcb
+        mov     bx, offset fname
+        mov     cx, offset fext
+        call    fcb_init
+
+        ; file_create
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_fcreat
+        int     BDOS
+        mov     si, offset test_fcb
+        call    file_create
+        cmp     al, 0FFh
+        jne     fcr_ok
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_err
+        int     BDOS
+        jmp     fcr_done
+fcr_ok: mov     cx, FN_PRINT
+        mov     dx, offset lbl_ok
+        int     BDOS
+fcr_done:
+
+        ; fill DMA buffer: byte N = N for bytes 0..127
+        mov     si, offset test_dma
+        mov     cx, 128
+        xor     al, al
+fdem_fill:
+        mov     [si], al
+        inc     al
+        inc     si
+        dec     cx
+        cmp     cx, 0
+        jne     fdem_fill
+
+        ; file_write
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_fwrite
+        int     BDOS
+        mov     si, offset test_fcb
+        mov     di, offset test_dma
+        call    file_write
+        cmp     al, 0
+        je      fwr_ok
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_err
+        int     BDOS
+        jmp     fwr_done
+fwr_ok: mov     cx, FN_PRINT
+        mov     dx, offset lbl_ok
+        int     BDOS
+fwr_done:
+
+        ; file_close
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_fclose
+        int     BDOS
+        mov     si, offset test_fcb
+        call    file_close
+        cmp     al, 0FFh
+        jne     fcl_ok
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_err
+        int     BDOS
+        jmp     fcl_done
+fcl_ok: mov     cx, FN_PRINT
+        mov     dx, offset lbl_ok
+        int     BDOS
+fcl_done:
+
+        ; re-init FCB for re-open (must clear cr/rc fields)
+        mov     si, offset test_fcb
+        mov     bx, offset fname
+        mov     cx, offset fext
+        call    fcb_init
+
+        ; file_open
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_fopen
+        int     BDOS
+        mov     si, offset test_fcb
+        call    file_open
+        cmp     al, 0FFh
+        jne     fop_ok
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_err
+        int     BDOS
+        jmp     fop_done
+fop_ok: mov     cx, FN_PRINT
+        mov     dx, offset lbl_ok
+        int     BDOS
+fop_done:
+
+        ; zero out DMA buffer before read
+        mov     si, offset test_dma
+        mov     cx, 128
+        xor     al, al
+fdem_clr:
+        mov     [si], al
+        inc     si
+        dec     cx
+        cmp     cx, 0
+        jne     fdem_clr
+
+        ; file_read
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_fread
+        int     BDOS
+        mov     si, offset test_fcb
+        mov     di, offset test_dma
+        call    file_read
+        ; print test_dma[5] as hex (should be 0005h)
+        mov     bx, offset test_dma
+        mov     al, 5[bx]
+        xor     ah, ah
+        call    word_to_hex
+        call    print_crlf
+
+        ; file_close again
+        mov     si, offset test_fcb
+        call    file_close
+
+        ; file_delete
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_fdel
+        int     BDOS
+        ; re-init FCB for delete (need clean FCB)
+        mov     si, offset test_fcb
+        mov     bx, offset fname
+        mov     cx, offset fext
+        call    fcb_init
+        mov     si, offset test_fcb
+        call    file_delete
+        cmp     al, 0FFh
+        jne     fdl_ok
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_err
+        int     BDOS
+        jmp     fdl_done
+fdl_ok: mov     cx, FN_PRINT
+        mov     dx, offset lbl_ok
+        int     BDOS
+fdl_done:
+
+        ; ── BP FRAME DEMO ─────────────────────────────────────
+        mov     cx, FN_PRINT
+        mov     dx, offset hdr_bp
+        int     BDOS
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_bp
+        int     BDOS
+        mov     ax, 42
+        push    ax
+        call    bp_demo
+        add     sp, 2
+        call    print_crlf
+
+        ; ── COMMAND LINE ──────────────────────────────────────
+        mov     cx, FN_PRINT
+        mov     dx, offset hdr_cmd
+        int     BDOS
+
+        ; argc
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_argc
+        int     BDOS
+        mov     al, argc_val
+        xor     ah, ah
+        call    word_to_dec
+        call    print_crlf
+
+        ; argv1 (may be empty if no argument given)
+        mov     cx, FN_PRINT
+        mov     dx, offset lbl_argv1
+        int     BDOS
+        mov     si, offset argv1_buf
+        call    print_zstr
+        call    print_crlf
+
+        ; ── EXIT ─────────────────────────────────────────────
+        xor     cx, cx
+        int     BDOS
+
+        end     main

@@ -1,0 +1,88 @@
+        title   'hlp_mem - memory block helpers for CP/M-86'
+
+; ============================================================
+; hlp_mem.a86  --  Memory block primitives
+;
+; Build:  pcdev_rasm86 hlp_mem.a86 '$ pz sz'
+;
+; Public routines:
+;   memset   memcpy   memcmp
+;
+; None of these routines call BDOS.
+; ============================================================
+
+        public  memset
+        public  memcpy
+        public  memcmp
+
+; ============================================================
+; memset
+; In:  SI -> buffer
+;     CX = byte count
+;     AL = fill byte
+; Out: (none) -- buffer filled with AL
+; Clobbers: SI, CX
+; ============================================================
+memset:
+        cmp     cx, 0
+        je      mset_done
+        mov     [si], al
+        inc     si
+        dec     cx
+        jmp     memset
+mset_done:
+        ret
+
+; ============================================================
+; memcpy
+; In:  SI -> source buffer
+;     DI -> destination buffer
+;     CX = byte count
+; Out: SI and DI advanced past copied region
+; Clobbers: SI, DI, CX, AL
+; ============================================================
+memcpy:
+        cmp     cx, 0
+        je      mcpy_done
+        mov     al, [si]
+        mov     [di], al
+        inc     si
+        inc     di
+        dec     cx
+        jmp     memcpy
+mcpy_done:
+        ret
+
+; ============================================================
+; memcmp
+; In:  SI -> buffer 1
+;     DI -> buffer 2
+;     CX = byte count
+; Out: AL = 0  (buffers are equal)
+;     AL = 1  (first differing byte: buf1 > buf2)
+;     AL = 0FFh (first differing byte: buf1 < buf2)
+; Clobbers: SI, DI, CX, AH
+; ============================================================
+memcmp:
+        cmp     cx, 0
+        je      mcmp_equal
+        mov     al, [si]
+        mov     ah, [di]
+        cmp     al, ah
+        jb      mcmp_less
+        ja      mcmp_greater
+        inc     si
+        inc     di
+        dec     cx
+        jmp     memcmp
+mcmp_equal:
+        xor     al, al
+        ret
+mcmp_greater:
+        mov     al, 1
+        ret
+mcmp_less:
+        mov     al, 0FFh
+        ret
+
+        end

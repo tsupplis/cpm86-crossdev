@@ -1,0 +1,60 @@
+            title   'ex2dual'
+
+; ============================================================
+; ex2dual.a86 - Dual-segment CP/M-86 example (cseg + dseg)
+;
+; Build:   make ex2dual.cmd
+; Run:     emu2 ./ex2dual.cmd
+;
+; Demonstrates:
+;   - Separate cseg (code) and dseg (data)
+;   - At entry: DS = data segment base, CS = code segment base
+;   - Must copy DS -> ES before using ES-relative addressing
+;   - BDOS fn 9 (print string), fn 0 (exit)
+;   - end with NO label: LINK-86 uses first code byte as entry
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+; ============================================================
+; CODE segment
+; ============================================================
+
+            cseg
+
+            ; At entry: DS = data segment (set by CP/M-86 loader)
+            ;           CS = code segment
+            ; Copy DS -> ES so string instructions work correctly
+            mov     cx, ds
+            mov     es, cx
+
+            ; Print first message
+            mov     cx, FN_PRINT
+            mov     dx, offset line1
+            int     BDOS
+
+            ; Print second message
+            mov     cx, FN_PRINT
+            mov     dx, offset line2
+            int     BDOS
+
+            ; Exit
+            xor     cx, cx
+            int     BDOS
+
+; ============================================================
+; DATA segment — placed after code in source, but LINK-86
+; puts it in DGROUP (separate from CGROUP).
+; DS already points here at program entry.
+; ============================================================
+
+            dseg
+
+line1       db      'CP/M-86 dual-segment example', CR, LF, '$'
+line2       db      'Data lives in dseg; code in cseg.', CR, LF, '$'
+
+            end             ; NO label — entry = first code byte

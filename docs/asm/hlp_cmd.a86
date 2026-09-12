@@ -1,0 +1,146 @@
+        title   'hlp_cmd - command-line parser for CP/M-86'
+
+; ============================================================
+; hlp_cmd.a86  --  Command-line argument parser
+;
+; Build:  pcdev_rasm86 hlp_cmd.a86 '$ pz sz'
+;
+; Public symbols:
+;   parse_cmdline  (routine)
+;   argv1_buf      (9-byte buffer: first token + null)
+;   argv2_buf      (9-byte buffer: second token + null)
+;   argc_val       (1 byte: 0, 1, or 2)
+;
+; CALLING CONSTRAINT:
+;   parse_cmdline MUST be called BEFORE redirecting DS to CS.
+;   At entry: DS -> CP/M base-page segment (tail at DS:80h).
+;             ES -> CS (caller's own segment; our buffers live here).
+;
+; CP/M command tail (DS:80h):
+;   DS:80h = length byte (total chars including any leading space)
+;   DS:81h = first char of tail (often a space)
+;
+; On return:
+;   argc_val = number of tokens found (0, 1, or 2)
+;   argv1_buf = first token, null-terminated (max 8 chars)
+;   argv2_buf = second token, null-terminated (max 8 chars)
+;   AL = argc (same value as argc_val byte)
+;
+; NOTE: callers read argc_val / argv1_buf / argv2_buf AFTER
+; the DS=CS redirect, at which point DS:offset works normally.
+; The AL return value from this call is also valid at return
+; time (DX used to track argc across the routine).
+; ============================================================
+
+; ── module data (in cseg; written via ES=CS by parse_cmdline) ───
+argv1_buf   rb      9           ; max 8 chars + null
+argv2_buf   rb      9           ; max 8 chars + null
+argc_val    rb      1           ; 0, 1, or 2
+
+        public  parse_cmdline
+        public  argv1_buf
+        public  argv2_buf
+        public  argc_val
+
+; ============================================================
+; parse_cmdline
+; ============================================================
+parse_cmdline:
+        ; ── zero both arg buffers and argc_val ───────────────
+        mov     di, offset argv1_buf
+        mov     cx, 19          ; 9 + 9 + 1 bytes
+        xor     al, al
+pcl_zloop:
+        stosb
+        loop    pcl_zloop
+
+        ; ── read tail length ─────────────────────────────────
+        xor     bx, bx          ; BX = 0
+        mov     cl, 80h[bx]     ; DS:80h = tail length
+        xor     ch, ch          ; CX = length
+
+        cmp     cx, 0
+        jne     pcl_has_tail
+        jmp     pcl_done        ; no tail: argc=0, return
+
+pcl_has_tail:
+        mov     si, 81h         ; SI -> first tail char (DS segment)
+        xor     dx, dx          ; DX = argc counter (0)
+
+        ; ── skip leading spaces ──────────────────────────────
+pcl_sp1:
+        cmp     cx, 0
+        jne     pcl_sp1a
+        jmp     pcl_done
+pcl_sp1a:
+        mov     al, [si]
+        cmp     al, ' '
+        jne     pcl_tok1
+        inc     si
+        dec     cx
+        jmp     pcl_sp1
+
+pcl_tok1:
+        ; ── copy token 1 into argv1_buf (via ES:DI, ES=CS) ──
+        mov     di, offset argv1_buf
+        mov     bx, 8           ; max 8 chars
+pcl_t1:
+        cmp     cx, 0
+        je      pcl_et1
+        cmp     bx, 0
+        je      pcl_et1
+        mov     al, [si]
+        cmp     al, ' '
+        je      pcl_et1
+        stosb
+        inc     si
+        dec     cx
+        dec     bx
+        jmp     pcl_t1
+pcl_et1:
+        xor     al, al
+        stosb                   ; null-terminate argv1
+        mov     dx, 1           ; argc = 1
+
+        ; ── skip spaces between tokens ───────────────────────
+pcl_sp2:
+        cmp     cx, 0
+        je      pcl_done
+        mov     al, [si]
+        cmp     al, ' '
+        jne     pcl_tok2
+        inc     si
+        dec     cx
+        jmp     pcl_sp2
+
+pcl_tok2:
+        ; ── copy token 2 into argv2_buf ──────────────────────
+        mov     di, offset argv2_buf
+        mov     bx, 8
+pcl_t2:
+        cmp     cx, 0
+        je      pcl_et2
+        cmp     bx, 0
+        je      pcl_et2
+        mov     al, [si]
+        cmp     al, ' '
+        je      pcl_et2
+        stosb
+        inc     si
+        dec     cx
+        dec     bx
+        jmp     pcl_t2
+pcl_et2:
+        xor     al, al
+        stosb                   ; null-terminate argv2
+        mov     dx, 2           ; argc = 2
+
+pcl_done:
+        ; store argc_val via ES:DI (ES = CS = our segment)
+        mov     di, offset argc_val
+        mov     al, dl          ; DL = argc (0, 1, or 2)
+        stosb
+        ; return AL = argc
+        ret
+
+        end

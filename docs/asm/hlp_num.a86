@@ -1,0 +1,277 @@
+        title   'hlp_num - numeric conversion helpers for CP/M-86'
+
+; ============================================================
+; hlp_num.a86  --  Numeric conversion primitives
+;
+; Build:  pcdev_rasm86 hlp_num.a86 '$ pz sz'
+;
+; Public routines:
+;   nibble_to_hex  byte_to_hex  word_to_hex
+;   div10          word_to_dec
+;   hex_to_byte    str_to_int
+;
+; All state that must survive a BDOS call lives in named
+; memory variables (never in AX or BX between int 0E0h calls).
+; ============================================================
+
+BDOS        equ     0E0h
+FN_CONOUT   equ     2               ; console output: DL = char
+
+; ── Module scratch data (in cseg -- RASM-86 permits db/rb in cseg) ──
+
+; word_to_hex
+w2h_val     rw      1               ; working copy of input (rotated each pass)
+w2h_cnt     rb      1               ; nibble counter: 4 down to 0
+
+; word_to_dec
+w2d_buf     rb      6               ; digit bytes (reversed), max 5 for 65535
+w2d_len     rb      1               ; number of digits stored
+w2d_idx     rb      1               ; current print index (counts down)
+
+        public  nibble_to_hex
+        public  byte_to_hex
+        public  word_to_hex
+        public  div10
+        public  word_to_dec
+        public  hex_to_byte
+        public  str_to_int
+
+; ============================================================
+; nibble_to_hex
+; In:  AL = 0..0Fh  (only low 4 bits used)
+; Out: AL = '0'..'9' or 'A'..'F'
+; Clobbers: nothing else
+; ============================================================
+nibble_to_hex:
+        cmp     al, 10
+        jb      nth_digit
+        add     al, 'A'-10
+        ret
+nth_digit:
+        add     al, '0'
+        ret
+
+; ============================================================
+; byte_to_hex
+; In:  AL = byte value
+; Out: AH = ASCII for high nibble,  AL = ASCII for low nibble
+; Clobbers: nothing else
+; ============================================================
+byte_to_hex:
+        push    bx
+        mov     bl, al          ; keep original byte
+
+        ; high nibble
+        mov     al, bl
+        shr     al, 1
+        shr     al, 1
+        shr     al, 1
+        shr     al, 1
+        and     al, 0Fh
+        call    nibble_to_hex
+        mov     bh, al          ; BH = high nibble ASCII
+
+        ; low nibble
+        mov     al, bl
+        and     al, 0Fh
+        call    nibble_to_hex   ; AL = low nibble ASCII
+        mov     ah, bh          ; AH = high nibble ASCII
+        pop     bx
+        ret
+
+; ============================================================
+; word_to_hex
+; In:  AX = 16-bit value
+; Out: prints 4 hex chars to console via BDOS fn 2
+; Clobbers: AX, BX, CX, DX
+; Notes: w2h_val and w2h_cnt hold state across BDOS calls.
+; ============================================================
+word_to_hex:
+        mov     w2h_val, ax
+        mov     al, 4
+        mov     w2h_cnt, al
+
+w2h_loop:
+        ; rotate w2h_val left by 4 -- bring next high nibble into bits 3:0
+        mov     ax, w2h_val
+        ; ROL AX,4 emulated as 4 x (shl ax,1 + feed carry into bit 0)
+        shl     ax, 1
+        jnc     w2h_r1
+        or      al, 1
+w2h_r1: shl     ax, 1
+        jnc     w2h_r2
+        or      al, 1
+w2h_r2: shl     ax, 1
+        jnc     w2h_r3
+        or      al, 1
+w2h_r3: shl     ax, 1
+        jnc     w2h_r4
+        or      al, 1
+w2h_r4: mov     w2h_val, ax     ; save rotated value for next pass
+
+        and     al, 0Fh
+        call    nibble_to_hex
+        mov     dl, al
+        mov     cx, FN_CONOUT
+        int     BDOS            ; clobbers AX, BX -- state is in memory
+
+        mov     al, w2h_cnt
+        dec     al
+        mov     w2h_cnt, al
+        cmp     al, 0
+        jne     w2h_loop
+        ret
+
+; ============================================================
+; div10
+; In:  AX = unsigned 16-bit dividend
+; Out: AX = quotient,  DX = remainder (0..9)
+; Clobbers: nothing else (BX saved/restored)
+; ============================================================
+div10:
+        push    bx
+        xor     dx, dx
+        mov     bx, 10
+        div     bx
+        pop     bx
+        ret
+
+; ============================================================
+; word_to_dec
+; In:  AX = 16-bit unsigned value
+; Out: prints decimal string to console (fn 2), no leading zeros
+; Clobbers: AX, BX, CX, DX
+; Notes: w2d_buf, w2d_len, w2d_idx hold state across BDOS calls.
+; ============================================================
+word_to_dec:
+        cmp     ax, 0
+        jne     w2d_build
+        mov     dl, '0'
+        mov     cx, FN_CONOUT
+        int     BDOS
+        ret
+
+w2d_build:
+        push    ax              ; save value -- xor al,al below destroys AX
+        xor     al, al
+        mov     w2d_len, al     ; reset digit count
+        pop     ax              ; restore value for extraction loop
+
+w2d_extract:
+        cmp     ax, 0
+        je      w2d_print
+        call    div10           ; AX=quotient, DX=remainder
+        push    ax              ; save quotient for next iteration
+
+        ; store digit: w2d_buf[w2d_len] = '0' + DL
+        mov     al, w2d_len
+        xor     ah, ah
+        mov     bx, ax
+        mov     al, dl
+        add     al, '0'
+        mov     w2d_buf[bx], al
+
+        mov     al, w2d_len
+        inc     al
+        mov     w2d_len, al
+
+        pop     ax
+        jmp     w2d_extract
+
+w2d_print:
+        ; digits are in w2d_buf[0..len-1] in reverse order;
+        ; print from index (len-1) down to 0
+        mov     al, w2d_len
+        dec     al
+        mov     w2d_idx, al
+
+w2d_ploop:
+        mov     al, w2d_idx
+        xor     ah, ah
+        mov     bx, ax
+        mov     dl, w2d_buf[bx]
+        mov     cx, FN_CONOUT
+        int     BDOS            ; clobbers AX, BX
+
+        mov     al, w2d_idx
+        cmp     al, 0
+        je      w2d_done
+        dec     al
+        mov     w2d_idx, al
+        jmp     w2d_ploop
+
+w2d_done:
+        ret
+
+; ============================================================
+; ascii_to_nibble  (private helper for hex_to_byte)
+; In:  AL = '0'..'9', 'A'..'F', or 'a'..'f'
+; Out: AL = nibble value 0..15
+; Clobbers: nothing else
+; ============================================================
+ascii_to_nibble:
+        cmp     al, '9'
+        ja      atn_alpha
+        sub     al, '0'
+        ret
+atn_alpha:
+        and     al, 0DFh        ; force upper case (clear bit 5)
+        sub     al, 'A'-10
+        ret
+
+; ============================================================
+; hex_to_byte
+; In:  SI -> 2 ASCII hex chars  (e.g. "FF")
+; Out: AL = byte value;  SI advanced by 2
+; Clobbers: AH
+; ============================================================
+hex_to_byte:
+        mov     al, [si]
+        inc     si
+        call    ascii_to_nibble
+        shl     al, 1           ; shift high nibble up
+        shl     al, 1
+        shl     al, 1
+        shl     al, 1
+        mov     ah, al          ; save
+
+        mov     al, [si]
+        inc     si
+        call    ascii_to_nibble
+        or      al, ah
+        ret
+
+; ============================================================
+; str_to_int
+; In:  SI -> null-terminated ASCII decimal string
+; Out: AX = unsigned 16-bit result (stops at first non-digit)
+;     SI advanced past all consumed digit characters
+; Clobbers: BX
+; Note: uses "mul bx" (bx=10) which clobbers DX -- acceptable
+;       since no BDOS calls are made here.
+; ============================================================
+str_to_int:
+        xor     ax, ax          ; accumulator = 0
+sti_loop:
+        mov     bl, [si]
+        cmp     bl, '0'
+        jb      sti_done
+        cmp     bl, '9'
+        ja      sti_done
+
+        ; AX = AX * 10  (mul clobbers DX, which is fine -- no BDOS here)
+        push    bx
+        mov     bx, 10
+        mul     bx              ; DX:AX = AX * 10  (DX = 0 for 16-bit values)
+        pop     bx
+
+        xor     bh, bh
+        sub     bl, '0'         ; BL = digit value
+        add     ax, bx          ; AX = AX*10 + digit
+
+        inc     si
+        jmp     sti_loop
+sti_done:
+        ret
+
+        end

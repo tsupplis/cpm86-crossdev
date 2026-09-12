@@ -1,0 +1,23 @@
+            title   'add16 - unsigned 16-bit addition'
+
+; ============================================================
+; add16.a86 - Library module: add_u16
+;
+; public add_u16
+;   IN:  AX = addend1, BX = addend2
+;   OUT: AX = AX + BX
+;   USES: AX (result)
+; ============================================================
+
+            cseg
+
+            public  add_u16
+
+; ============================================================
+; add_u16: AX = AX + BX
+; ============================================================
+add_u16:
+            add     ax, bx
+            ret
+
+            end                     ; library module — no entry point

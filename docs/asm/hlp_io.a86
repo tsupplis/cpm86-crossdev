@@ -1,0 +1,135 @@
+        title   'hlp_io - console I/O helpers for CP/M-86'
+
+; ============================================================
+; hlp_io.a86  --  Console I/O primitives
+;
+; Build:  pcdev_rasm86 hlp_io.a86 '$ pz sz'
+;
+; Public routines:
+;   print_char   print_crlf   cls
+;   print_zstr   read_line
+;
+; BDOS clobbers AX and BX on every int 0E0h call.
+; print_zstr saves/restores SI around each BDOS call.
+; read_line convention: caller passes DI -> buffer formatted as:
+;   [maxlen_byte] [0] [maxlen bytes of space]
+; After return: 1[DI] = actual length; 2[DI] = first char of text;
+; read_line null-terminates the text for you.
+; Returns CX = actual character count.
+; ============================================================
+
+BDOS        equ     0E0h
+FN_CONOUT   equ     2
+FN_PRINT    equ     9
+FN_RDLINE   equ     10          ; BDOS fn 10: Read Console Buffer
+CR          equ     0Dh
+LF          equ     0Ah
+
+; ── module data ─────────────────────────────────────────────
+cls_str     db      1Bh, '[2J$'         ; ANSI clear-screen sequence
+
+; ── saved SI across BDOS call in print_zstr ─────────────────
+pzs_si      rw      1
+
+        public  print_char
+        public  print_crlf
+        public  cls
+        public  print_zstr
+        public  read_line
+
+; ============================================================
+; print_char
+; In:  AL = character to print
+; Out: (none)
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+print_char:
+        mov     dl, al
+        mov     cx, FN_CONOUT
+        int     BDOS
+        ret
+
+; ============================================================
+; print_crlf
+; In:  (none)
+; Out: (none)
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+print_crlf:
+        mov     dl, CR
+        mov     cx, FN_CONOUT
+        int     BDOS
+        mov     dl, LF
+        mov     cx, FN_CONOUT
+        int     BDOS
+        ret
+
+; ============================================================
+; cls
+; In:  (none)
+; Out: (none) -- emits ESC [ 2 J via fn 9
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+cls:
+        mov     cx, FN_PRINT
+        mov     dx, offset cls_str
+        int     BDOS
+        ret
+
+; ============================================================
+; print_zstr
+; In:  SI -> null-terminated string
+; Out: (none)
+; Clobbers: AX, BX, CX, DX  (SI preserved across the routine)
+; Notes: SI is saved in pzs_si before each BDOS call and
+;       restored after, then incremented.  This is necessary
+;       because BDOS clobbers BX (and by extension, any index
+;       register the caller might have stored there).
+; ============================================================
+print_zstr:
+        mov     al, [si]
+        cmp     al, 0
+        je      pzs_done
+        mov     dl, al
+        mov     pzs_si, si      ; save SI before BDOS
+        mov     cx, FN_CONOUT
+        int     BDOS            ; clobbers AX, BX
+        mov     si, pzs_si      ; restore SI
+        inc     si              ; advance to next char
+        jmp     print_zstr
+pzs_done:
+        ret
+
+; ============================================================
+; read_line
+; In:  DI -> caller's buffer in the format:
+;           byte 0:  maximum input length  (set by caller)
+;           byte 1:  0                     (set by caller)
+;           bytes 2..: space for input     (maxlen bytes)
+; Out: CX = actual number of characters read
+;     text stored at 2[DI], null-terminated by this routine
+; Clobbers: AX, BX, CX, DX
+; Note: caller must ensure buffer is at least maxlen+2 bytes,
+;       plus 1 extra byte for the null terminator.
+; ============================================================
+read_line:
+        push    si
+        mov     cx, FN_RDLINE
+        mov     dx, di
+        int     BDOS            ; fills buffer; 1[DI] = actual length
+
+        ; null-terminate the result
+        mov     al, 1[di]       ; AL = actual length
+        xor     ah, ah
+        mov     bx, di          ; BX = buffer base
+        add     bx, 2           ; BX -> first text byte
+        add     bx, ax          ; BX -> one past last text byte
+        xor     al, al
+        mov     [bx], al        ; write null terminator
+
+        xor     ch, ch
+        mov     cl, 1[di]       ; return CX = actual length
+        pop     si
+        ret
+
+        end

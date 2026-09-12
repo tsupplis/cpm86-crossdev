@@ -1,0 +1,80 @@
+            title   'ex4stak'
+
+; ============================================================
+; ex4stak.a86 - Explicit stack segment with dgroup (RASM-86)
+;
+; Build:   make ex4stak.cmd
+; Run:     emu2 ./ex4stak.cmd
+;
+; Demonstrates:
+;   - sseg + dseg + cseg with RASM-86 native directives
+;   - dgroup GROUP combines DATA and STACK segments
+;   - At entry: seg stk_top returns the dgroup base (group base)
+;   - mov ss,cx + lea sp,stk_top sets up the explicit stack
+;   - LINK-86 produces no "NO STACK SEGMENT" warning
+;
+; RASM-86 segment directives:
+;   [name] sseg [align] [combine]  — default name STACK
+;   [name] dseg [align] [combine]  — default name DATA
+;   [name] cseg [align] [combine]  — default name CODE
+;   <gname> group <seg1>,<seg2>   — group by segment name
+;
+; Data labels: 'name  rw N'  (no colon — data, not code label)
+; Code labels: 'name:'        (colon — code label)
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+; Group DATA and STACK so one segment register covers both.
+; 'seg stk_top' and 'seg msg' will both return the dgroup base.
+dgroup      group   DATA, STACK
+
+; ============================================================
+; STACK segment — default name STACK
+; Stack grows DOWN: reserve words first, label stk_top at high end.
+; 'rw 0' reserves 0 bytes but places the label here.
+; SP = offset stk_top = initial top-of-stack pointer.
+; ============================================================
+
+            sseg
+
+            rw      32              ; 64 bytes of stack (stack grows DOWN)
+stk_top     rw      0               ; SP starts here — top of stack area
+
+; ============================================================
+; DATA segment — default name DATA
+; ============================================================
+
+            dseg
+
+msg         db      'CP/M-86 explicit stack segment', CR, LF, '$'
+
+; ============================================================
+; CODE segment
+; ============================================================
+
+            cseg
+
+main:
+            ; seg stk_top = dgroup base (STACK is a member of dgroup).
+            ; SP = offset stk_top = top of stack area (stack grows DOWN).
+            mov     ax, seg stk_top
+            mov     ds, ax
+            mov     ss, ax
+            mov     sp, offset stk_top
+            mov     es, ax
+
+            ; Print message
+            mov     cx, FN_PRINT
+            mov     dx, offset msg
+            int     BDOS
+
+            ; Exit
+            xor     cx, cx
+            int     BDOS
+
+            end     main

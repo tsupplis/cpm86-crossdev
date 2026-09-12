@@ -1,0 +1,107 @@
+            title   'ex8macr — CodeMacro demo'
+
+; ============================================================
+; ex8macr.a86 — Three CodeMacro definitions + demo program
+;
+; assembled with pcdev_rasm86 (RASM-86)
+; Build:
+;   make ex8macr.cmd
+;   emu2 ./ex8macr.cmd
+; ============================================================
+
+; ============================================================
+; CodeMacro 1: BDOS_CALL fn:Db
+;   fn:Db — data immediate, -256..255 (covers all BDOS fn 0..255)
+;   Emit:  B9h <fn word>   = MOV CX, imm16
+;          CDh E0h         = INT 0E0h
+; ============================================================
+CodeMacro BDOS_CALL  fn:Db
+    db    0B9h             ; MOV CX, imm16  (opcode byte)
+    dw    fn               ; immediate function number (16-bit)
+    db    0CDh             ; INT opcode
+    db    0E0h             ; 0E0h = BDOS interrupt vector
+EndM
+
+; ============================================================
+; CodeMacro 2: PUSHI imm:Db
+;   imm:Db — data immediate, -256..255
+;   Push a 16-bit value not in the 8086 base instruction set.
+;   Encodable as: 68h <word>  (80186+ opcode, but valid bytes)
+; ============================================================
+CodeMacro PUSHI  imm:Db
+    db    068h             ; PUSH imm16 opcode
+    dw    imm              ; the immediate value (zero-extended to word)
+EndM
+
+; ============================================================
+; CodeMacro 3: ESC opcode:Db(0,63), src:Eb
+;   8087 coprocessor escape instruction.
+;   Encoding:
+;     SEGFIX  — emit segment override prefix if src needs it
+;     DBIT    5(1Bh), 3(opcode(3))
+;               bits[7:3] = 11011 (1Bh = 27 = 11011b, 5 bits)
+;               bits[2:0] = opcode[5:3]  (3 bits, shifted right 3)
+;     MODRM   opcode, src
+;               mod/rm encodes src;  reg field = opcode[2:0]
+; ============================================================
+CodeMacro ESC  opcode:Db(0,63), src:Eb
+    SEGFIX  src
+    DBIT    5(1Bh), 3(opcode(3))
+    MODRM   opcode, src
+EndM
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_CONOUT   equ     2
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA — before code: avoids forward-reference ERROR 8
+; ============================================================
+banner      db      'ex8macr: CodeMacro demo', CR, LF, '$'
+msg2        db      'BDOS_CALL macro works', CR, LF, '$'
+char_hdr    db      'PUSHI+pop char: $'
+crlf_str    db      CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            ; single-segment: DS = ES = CS
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            ; --- use BDOS_CALL macro to print banner (fn 9) ---
+            mov     dx, offset banner
+            BDOS_CALL FN_PRINT
+
+            ; --- use BDOS_CALL macro to print second string ---
+            mov     dx, offset msg2
+            BDOS_CALL FN_PRINT
+
+            ; --- print label before char demo ---
+            mov     dx, offset char_hdr
+            BDOS_CALL FN_PRINT
+
+            ; --- use PUSHI then pop to print character 'A' (041h) ---
+            PUSHI   041h            ; push immediate 0x41 = 'A'
+            pop     ax              ; AX = 0x41
+            mov     dl, al          ; DL = 'A'
+            BDOS_CALL FN_CONOUT
+
+            ; --- trailing CRLF ---
+            mov     dx, offset crlf_str
+            BDOS_CALL FN_PRINT
+
+            ; --- exit ---
+            BDOS_CALL FN_EXIT
+
+            end     main

@@ -1,0 +1,88 @@
+            title   'ex1sing'
+
+; ============================================================
+; ex1sing.a86 - Single-segment CP/M-86 example (org 100h)
+;
+; Build:   make ex1sing.cmd
+; Run:     emu2 ./ex1sing.cmd
+;
+; Demonstrates:
+;   - Single cseg, org 100h  (no separate data segment)
+;   - jmp main at top; all data before code
+;   - At entry DS != CS; must set DS=ES=CS
+;   - BDOS fn 9 (print), fn 1 (read key), fn 2 (echo), fn 0 (exit)
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_CONIN    equ     1
+FN_CONOUT   equ     2
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA — before code so all symbols resolve in pass 1
+; ============================================================
+
+greeting    db      'CP/M-86 single-segment example', CR, LF, '$'
+prompt      db      'Press a key: $'
+echo_pre    db      CR, LF, 'You pressed: $'
+crlf_str    db      CR, LF, '$'
+key_char    rb      1               ; save key here — BX is clobbered by BDOS
+
+; ============================================================
+; CODE
+; ============================================================
+
+main:
+            ; At org 100h entry: DS = base-page segment, CS = code segment
+            ; Redirect DS and ES to our single segment (CS)
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            ; Print greeting
+            mov     cx, FN_PRINT
+            mov     dx, offset greeting
+            int     BDOS
+
+            ; Print prompt
+            mov     cx, FN_PRINT
+            mov     dx, offset prompt
+            int     BDOS
+
+            ; Read one key (fn 1 — blocks, echoes nothing itself)
+            mov     cx, FN_CONIN
+            int     BDOS
+            ; AL = character pressed; BX also clobbered by BDOS
+
+            ; Save to memory — BX will be clobbered by next BDOS call
+            mov     key_char, al
+
+            ; Print "You pressed: "
+            mov     cx, FN_PRINT
+            mov     dx, offset echo_pre
+            int     BDOS
+
+            ; Echo the character (fn 2, DL = char)
+            mov     al, key_char
+            mov     dl, al
+            mov     cx, FN_CONOUT
+            int     BDOS
+
+            ; Print trailing CRLF
+            mov     cx, FN_PRINT
+            mov     dx, offset crlf_str
+            int     BDOS
+
+            ; Exit (fn 0 = warm boot)
+            xor     cx, cx
+            int     BDOS
+
+            end     main

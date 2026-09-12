@@ -1,0 +1,25 @@
+            title   'mul16 - unsigned 16-bit multiply'
+
+; ============================================================
+; mul16.a86 - Library module: mul_u16
+;
+; public mul_u16
+;   IN:  AX = multiplicand, BX = multiplier
+;   OUT: AX = low 16 bits of AX * BX  (DX = high 16 bits, clobbered)
+;   USES: AX (low result), DX (high result — treat as clobbered)
+; ============================================================
+
+            cseg
+
+            public  mul_u16
+
+; ============================================================
+; mul_u16: AX = AX * BX  (low 16 bits)
+;   mul bx: DX:AX = AX * BX (unsigned 32-bit product)
+;   DX is clobbered; caller only uses AX.
+; ============================================================
+mul_u16:
+            mul     bx
+            ret
+
+            end                     ; library module — no entry point

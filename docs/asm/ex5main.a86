@@ -1,0 +1,92 @@
+            title   'ex5main - multi-module: call str_upper'
+
+; ============================================================
+; ex5main.a86 - Demonstrates public/extrn multi-module link
+;
+; Build:  make ex5main.cmd
+; Run:    emu2 ex5main.cmd
+;
+; Layout: org 100h, jmp main, data before code.
+; Data:   test_str  db 'hello from rasm-86!', 0, '$'
+;           offset 0..19 = string, offset 20 = null (for str_upper)
+;           offset 21    = '$' (for BDOS fn 9 after-print)
+;
+; Flow:
+;   1. Print original string char-by-char (fn 2, walk until null)
+;   2. Call str_upper (SI = offset test_str)
+;   3. Print uppercased string via fn 9 (dollar-terminated tail)
+;   4. Exit fn 0
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_CONOUT   equ     2
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+            extrn   str_upper:near
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA — before code so all symbols resolve in pass 1
+; ============================================================
+test_str    db      'hello from rasm-86!', 0, '$'
+
+before_lbl  db      CR, LF, 'Before: $'
+after_lbl   db      CR, LF, 'After:  $'
+newline     db      CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            ; -- print "Before: " label
+            mov     cx, FN_PRINT
+            mov     dx, offset before_lbl
+            int     BDOS
+
+            ; -- print original string char-by-char (walk until null)
+            mov     si, offset test_str
+pr_before:
+            mov     al, [si]
+            or      al, al
+            je      pr_before_done
+            mov     dl, al
+            mov     cx, FN_CONOUT
+            int     BDOS
+            inc     si
+            jmp     pr_before
+pr_before_done:
+
+            ; -- uppercase in-place
+            mov     si, offset test_str
+            call    str_upper
+
+            ; -- print "After: " label
+            mov     cx, FN_PRINT
+            mov     dx, offset after_lbl
+            int     BDOS
+
+            ; -- print uppercased string via fn 9 (dollar at offset 21)
+            mov     cx, FN_PRINT
+            mov     dx, offset test_str
+            int     BDOS
+
+            ; -- newline + exit
+            mov     cx, FN_PRINT
+            mov     dx, offset newline
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end     main

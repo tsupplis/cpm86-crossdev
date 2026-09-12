@@ -1,0 +1,36 @@
+            title   'ex5util - str_upper utility'
+
+; ============================================================
+; ex5util.a86 - Utility module: str_upper
+;
+; public str_upper
+;   IN:  SI = pointer to null-terminated string (in caller's CS)
+;   OUT: string uppercased in-place (a-z → A-Z, others unchanged)
+;   USES: AL, SI
+; ============================================================
+
+            cseg
+
+            public  str_upper
+
+; ============================================================
+; str_upper: uppercase null-terminated string at SI in-place
+;   Only converts 'a'..'z'; leaves spaces and punctuation alone.
+; ============================================================
+str_upper:
+            mov     al, [si]        ; load next byte
+            or      al, al          ; null terminator?
+            je      su_done
+            cmp     al, 'a'         ; below 'a'? skip
+            jb      su_next
+            cmp     al, 'z'         ; above 'z'? skip
+            ja      su_next
+            and     al, 0DFh        ; clear bit 5 → uppercase
+            mov     [si], al
+su_next:
+            inc     si
+            jmp     str_upper
+su_done:
+            ret
+
+            end                     ; utility module — no entry point

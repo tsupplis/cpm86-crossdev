@@ -1,0 +1,255 @@
+        title   'hlp_str - string helper routines for CP/M-86'
+
+; ============================================================
+; hlp_str.a86  --  Null-terminated string primitives
+;
+; Build:  pcdev_rasm86 hlp_str.a86 '$ pz sz'
+;
+; Public routines:
+;   strlen       strcpy       strcmp
+;   ltrim        rtrim
+;   str_contains pad_right
+;   toupper_buf  tolower_buf
+;
+; None of these routines call BDOS, so no clobber risk from
+; BDOS on AX/BX.  String convention: byte value 0 = terminator.
+; ============================================================
+
+        public  strlen
+        public  strcpy
+        public  strcmp
+        public  ltrim
+        public  rtrim
+        public  str_contains
+        public  pad_right
+        public  toupper_buf
+        public  tolower_buf
+
+; ============================================================
+; strlen
+; In:  SI -> null-terminated string
+; Out: CX = length (not counting null terminator)
+; Clobbers: nothing else (SI unchanged)
+; ============================================================
+strlen:
+        push    si
+        push    ax
+        xor     cx, cx
+sln_loop:
+        mov     al, [si]
+        cmp     al, 0
+        je      sln_done
+        inc     si
+        inc     cx
+        jmp     sln_loop
+sln_done:
+        pop     ax
+        pop     si
+        ret
+
+; ============================================================
+; strcpy
+; In:  SI -> source (null-terminated)
+;     DI -> destination buffer
+; Out: DI advanced past null terminator written
+;     SI advanced past null terminator read
+; Clobbers: SI, DI, AL
+; ============================================================
+strcpy:
+        mov     al, [si]
+        mov     [di], al
+        inc     si
+        inc     di
+        cmp     al, 0
+        jne     strcpy
+        ret
+
+; ============================================================
+; strcmp
+; In:  SI -> string 1  (null-terminated)
+;     DI -> string 2  (null-terminated)
+; Out: AL = 0  (equal)
+;     AL = 1  (s1 > s2)
+;     AL = 0FFh  (s1 < s2)
+; Clobbers: AH, SI, DI
+; ============================================================
+strcmp:
+        mov     ah, [si]
+        mov     al, [di]
+        cmp     ah, al
+        jb      scm_less
+        ja      scm_greater
+        ; characters equal
+        cmp     ah, 0           ; both zero -> strings are equal
+        je      scm_equal
+        inc     si
+        inc     di
+        jmp     strcmp
+scm_equal:
+        xor     al, al
+        ret
+scm_greater:
+        mov     al, 1
+        ret
+scm_less:
+        mov     al, 0FFh
+        ret
+
+; ============================================================
+; ltrim
+; In:  SI -> null-terminated string (may start with spaces)
+; Out: SI -> first non-space character (or null terminator)
+; Clobbers: AL
+; ============================================================
+ltrim:
+        mov     al, [si]
+        cmp     al, ' '
+        jne     ltrim_done
+        cmp     al, 0
+        je      ltrim_done
+        inc     si
+        jmp     ltrim
+ltrim_done:
+        ret
+
+; ============================================================
+; rtrim
+; In:  SI -> null-terminated string (modified in-place)
+; Out: trailing spaces removed; string null-terminated after
+;     last non-space character
+; Clobbers: AX, BX
+; ============================================================
+rtrim:
+        push    si
+        ; find the null terminator
+        mov     bx, si          ; BX = start
+rtrim_find:
+        mov     al, [si]
+        cmp     al, 0
+        je      rtrim_trim
+        inc     si
+        jmp     rtrim_find
+rtrim_trim:
+        ; SI points at null; walk back while [SI-1] is space
+        cmp     si, bx          ; don't walk back past start
+        je      rtrim_done
+        dec     si
+        mov     al, [si]
+        cmp     al, ' '
+        jne     rtrim_place     ; non-space -- put null one past here
+        jmp     rtrim_trim
+rtrim_place:
+        ; place null terminator after this non-space char
+        inc     si
+        xor     al, al
+        mov     [si], al
+rtrim_done:
+        pop     si
+        ret
+
+; ============================================================
+; str_contains
+; In:  SI -> null-terminated string
+;     AL = character to search for
+; Out: AL = 1 (found) or 0 (not found)
+; Clobbers: BX, SI
+; ============================================================
+str_contains:
+        mov     bl, al          ; save search char in BL
+scon_loop:
+        mov     al, [si]
+        cmp     al, 0
+        je      scon_no
+        cmp     al, bl
+        je      scon_yes
+        inc     si
+        jmp     scon_loop
+scon_yes:
+        mov     al, 1
+        ret
+scon_no:
+        xor     al, al
+        ret
+
+; ============================================================
+; pad_right
+; In:  SI -> null-terminated string (modified in-place)
+;     CX = target field width (total chars including existing)
+; Out: string padded with spaces to CX chars, then null-terminated
+; Clobbers: AX, BX, DI, CX
+; Note: caller must ensure buffer is large enough (CX+1 bytes).
+; ============================================================
+pad_right:
+        push    si
+        ; find current length via walking to null
+        mov     di, si          ; DI will be used to write padding
+        xor     bx, bx          ; BX = current length
+prgt_len:
+        mov     al, [di]
+        cmp     al, 0
+        je      prgt_pad
+        inc     di
+        inc     bx
+        jmp     prgt_len
+prgt_pad:
+        ; DI -> null; BX = current length; CX = target width
+        cmp     bx, cx
+        jae     prgt_done       ; already at or beyond target width
+        ; write spaces until BX == CX
+        mov     al, ' '
+        mov     [di], al
+        inc     di
+        inc     bx
+        jmp     prgt_pad
+prgt_done:
+        ; write final null terminator
+        xor     al, al
+        mov     [di], al
+        pop     si
+        ret
+
+; ============================================================
+; toupper_buf
+; In:  SI -> null-terminated string (modified in-place)
+; Out: all a-z converted to A-Z in-place
+; Clobbers: AL
+; ============================================================
+toupper_buf:
+        mov     al, [si]
+        cmp     al, 0
+        je      tup_done
+        cmp     al, 'a'
+        jb      tup_next
+        cmp     al, 'z'
+        ja      tup_next
+        and     al, 0DFh        ; clear bit 5 -> upper case
+        mov     [si], al
+tup_next:
+        inc     si
+        jmp     toupper_buf
+tup_done:
+        ret
+
+; ============================================================
+; tolower_buf
+; In:  SI -> null-terminated string (modified in-place)
+; Out: all A-Z converted to a-z in-place
+; Clobbers: AL
+; ============================================================
+tolower_buf:
+        mov     al, [si]
+        cmp     al, 0
+        je      tlo_done
+        cmp     al, 'A'
+        jb      tlo_next
+        cmp     al, 'Z'
+        ja      tlo_next
+        or      al, 20h         ; set bit 5 -> lower case
+        mov     [si], al
+tlo_next:
+        inc     si
+        jmp     tolower_buf
+tlo_done:
+        ret
+
+        end

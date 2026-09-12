@@ -1,0 +1,262 @@
+        title   'hlp_file - FCB file I/O helpers for CP/M-86'
+
+; ============================================================
+; hlp_file.a86  --  CP/M-86 sequential file I/O via FCB
+;
+; Build:  pcdev_rasm86 hlp_file.a86 '$ pz sz'
+;
+; Public routines:
+;   fcb_init         file_open        file_create
+;   file_open_append file_close
+;   file_read        file_write       file_delete
+;
+; FCB layout (36 bytes):
+;   +0   drive  (0 = default)
+;   +1   name[8]  uppercase, space-padded
+;   +9   ext[3]   uppercase, space-padded, no dot
+;   +12  extent / s1 / s2 / rc  (zero)
+;   +16  alloc map[16]           (zero)
+;   +32  current record cr       (0)
+;   +33  random record r0/r1/r2  (0)
+;
+; Calling convention:
+;   SI -> 36-byte FCB buffer
+;   DI -> 128-byte DMA buffer (for file_read / file_write)
+;
+; IMPORTANT: the caller must issue fn 33h (Set DMA Segment)
+; ONCE at startup pointing to the segment that holds DI.
+; (In a single-segment org 100h program: CX=33h, DX=CS.)
+; ============================================================
+
+BDOS            equ     0E0h
+
+FN_OPEN         equ     0Fh     ; 15  open file
+FN_CLOSE        equ     10h     ; 16  close file
+FN_DELETE       equ     13h     ; 19  delete file
+FN_READ_SEQ     equ     14h     ; 20  read sequential
+FN_WRITE_SEQ    equ     15h     ; 21  write sequential
+FN_CREATE       equ     16h     ; 22  make / create file
+FN_SET_DMA      equ     1Ah     ; 26  set DMA offset
+FN_FILE_SIZE    equ     23h     ; 35  compute file size -> FCB+33
+
+FCB_NAME        equ     1       ; offset of 8-char name field
+FCB_EXT         equ     9       ; offset of 3-char ext field
+FCB_CR          equ     32      ; offset of current record byte
+FCB_R0          equ     33      ; offset of random record low byte
+
+; ── module scratch ───────────────────────────────────────────
+fini_si         rw      1       ; saved SI across BDOS in fcb_init
+fini_di         rw      1       ; saved DI across BDOS in fcb_init
+fini_bx         rw      1       ; saved BX (loop counter) in fcb_init
+fio_si          rw      1       ; saved SI for generic file ops
+
+        public  fcb_init
+        public  file_open
+        public  file_create
+        public  file_open_append
+        public  file_close
+        public  file_read
+        public  file_write
+        public  file_delete
+
+; ============================================================
+; fcb_init
+; In:  SI -> 36-byte FCB buffer (may be uninitialised)
+;     BX -> 8-byte name (uppercase, space-padded, no null needed)
+;     CX -> 3-byte ext  (uppercase, space-padded, no null needed)
+; Out: FCB zeroed, name/ext copied
+; Clobbers: AX, BX, CX, DI
+; Notes: no BDOS call -- pure memory work.
+; ============================================================
+fcb_init:
+        push    si
+        push    di
+        push    bx
+        push    cx
+
+        ; zero all 36 bytes of FCB
+        mov     di, si
+        mov     cx, 36
+        xor     al, al
+fini_zero:
+        mov     [di], al
+        inc     di
+        dec     cx
+        jmp     fini_zero_chk
+fini_zero_chk:
+        cmp     cx, 0
+        jne     fini_zero
+
+        ; copy 8-byte name from BX -> FCB+1
+        pop     cx              ; restore CX (ext pointer)
+        pop     bx              ; restore BX (name pointer)
+        push    bx
+        push    cx
+
+        mov     di, si
+        add     di, FCB_NAME    ; DI -> FCB name field
+        mov     cx, 8
+fini_name:
+        mov     al, [bx]
+        mov     [di], al
+        inc     bx
+        inc     di
+        dec     cx
+        cmp     cx, 0
+        jne     fini_name
+
+        ; copy 3-byte ext from CX -> FCB+9
+        pop     cx              ; restore CX (ext pointer)
+        pop     bx              ; restore BX (name pointer) -- not needed
+        mov     di, si
+        add     di, FCB_EXT     ; DI -> FCB ext field
+        mov     bx, cx          ; BX -> ext bytes
+        mov     cx, 3
+fini_ext:
+        mov     al, [bx]
+        mov     [di], al
+        inc     bx
+        inc     di
+        dec     cx
+        cmp     cx, 0
+        jne     fini_ext
+
+        pop     di
+        pop     si
+        ret
+
+; ============================================================
+; file_open
+; In:  SI -> FCB
+; Out: AL = 0 (ok) or 0FFh (error / not found)
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+file_open:
+        mov     fio_si, si
+        mov     cx, FN_OPEN
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ============================================================
+; file_create
+; In:  SI -> FCB
+; Out: AL = 0 (ok) or 0FFh (error / disk full)
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+file_create:
+        mov     fio_si, si
+        mov     cx, FN_CREATE
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ============================================================
+; file_open_append
+; In:  SI -> FCB
+; Out: AL = 0 (ok) or 0FFh (error)
+;     FCB positioned for sequential write at end-of-file
+; Clobbers: AX, BX, CX, DX
+; Algorithm:
+;   1. Open file (fn 0Fh)
+;   2. Compute file size (fn 23h) -> FCB+33 = total 128-byte records
+;   3. Copy FCB+33 (R0 low byte) into FCB+32 (cr) so sequential
+;      writes append to end of file.
+; ============================================================
+file_open_append:
+        mov     fio_si, si
+        ; step 1: open
+        mov     cx, FN_OPEN
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        cmp     al, 0FFh
+        je      foa_done        ; open failed -> return 0FFh in AL
+
+        ; step 2: compute file size -> FCB+33
+        mov     cx, FN_FILE_SIZE
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+
+        ; step 3: copy R0 (FCB+33) into cr (FCB+32)
+        mov     al, FCB_R0[si]
+        mov     FCB_CR[si], al
+
+        xor     al, al          ; return 0 = success
+foa_done:
+        ret
+
+; ============================================================
+; file_close
+; In:  SI -> FCB
+; Out: AL = 0 (ok) or 0FFh (error)
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+file_close:
+        mov     fio_si, si
+        mov     cx, FN_CLOSE
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ============================================================
+; file_read
+; In:  SI -> FCB
+;     DI -> 128-byte DMA buffer (caller has issued fn 33h once)
+; Out: AL = 0 (ok) or non-zero (EOF / error)
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+file_read:
+        mov     fio_si, si
+        ; set DMA offset to DI
+        mov     cx, FN_SET_DMA
+        mov     dx, di
+        int     BDOS
+        mov     si, fio_si
+        ; read one 128-byte record
+        mov     cx, FN_READ_SEQ
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ============================================================
+; file_write
+; In:  SI -> FCB
+;     DI -> 128-byte DMA buffer (caller has issued fn 33h once)
+; Out: AL = 0 (ok) or non-zero (error / disk full)
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+file_write:
+        mov     fio_si, si
+        ; set DMA offset to DI
+        mov     cx, FN_SET_DMA
+        mov     dx, di
+        int     BDOS
+        mov     si, fio_si
+        ; write one 128-byte record
+        mov     cx, FN_WRITE_SEQ
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+; ============================================================
+; file_delete
+; In:  SI -> FCB  (drive + name + ext filled; wildcards ok)
+; Out: AL = 0 or 0FFh
+; Clobbers: AX, BX, CX, DX
+; ============================================================
+file_delete:
+        mov     fio_si, si
+        mov     cx, FN_DELETE
+        mov     dx, si
+        int     BDOS
+        mov     si, fio_si
+        ret
+
+        end

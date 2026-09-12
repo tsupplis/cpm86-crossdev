@@ -1,0 +1,76 @@
+            title   'ex3trip'
+
+; ============================================================
+; ex3trip.a86 - Triple-segment CP/M-86 example (cseg+dseg+eseg)
+;
+; Build:   make ex3trip.cmd
+; Run:     emu2 ./ex3trip.cmd
+;
+; Demonstrates:
+;   - Three segments: cseg (code), dseg (data), eseg (extra)
+;   - At entry: DS = data seg base, CS = code seg base,
+;               ES = extra seg base (set by CP/M-86 loader)
+;   - Load ES explicitly from the extra segment via 'seg' operator
+;   - rep movsb copies src_str (DS:SI) -> dst_buf (ES:DI)
+;   - Copy includes '$' terminator; then set DS=ES for fn 9 print
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+SRC_LEN     equ     38              ; length of src_str including '$'
+
+; ============================================================
+; CODE segment
+; ============================================================
+
+            cseg
+
+            ; At entry: DS = data seg, CS = code seg, ES = extra seg
+            ; Reload ES from the extra segment explicitly
+            mov     ax, seg dst_buf
+            mov     es, ax
+
+            ; SI -> src_str in dseg (DS already correct)
+            mov     si, offset src_str
+
+            ; DI -> dst_buf in eseg (ES already set above)
+            mov     di, offset dst_buf
+
+            ; Copy SRC_LEN bytes (includes '$' terminator)
+            mov     cx, SRC_LEN
+            rep movsb
+
+            ; Print dst_buf: fn 9 uses DS:DX.
+            ; Set DS = ES (eseg) so fn 9 finds the copied string.
+            mov     ax, es
+            mov     ds, ax
+
+            mov     cx, FN_PRINT
+            mov     dx, offset dst_buf
+            int     BDOS
+
+            ; Exit
+            xor     cx, cx
+            int     BDOS
+
+; ============================================================
+; DATA segment — source string lives here
+; ============================================================
+
+            dseg
+
+src_str     db      'CP/M-86 triple-segment: rep movsb', CR, LF, '$'
+
+; ============================================================
+; EXTRA segment — destination buffer lives here
+; ============================================================
+
+            eseg
+
+dst_buf     rb      SRC_LEN         ; reserve same length as source
+
+            end             ; NO label — entry = first code byte

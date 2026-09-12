@@ -1,0 +1,115 @@
+            title   'ex7gend — ASM86 + GENCMD dual-segment demo'
+
+; ============================================================
+; ex7gend.a86 — Read a line, uppercase it, print result
+;
+; assembled with cpm86_asm86 + cpm86_gencmd (no keyword)
+;
+; Same logic as ex7genc but split into cseg + dseg.
+; ASM86 default DR hex embeds segment layout; GENCMD reads it
+; and produces a two-header CMD (CODE + DATA).
+; At entry: DS = data segment (set by loader) — no redirect.
+;
+; Build:
+;   make ex7gend.cmd
+;   emu2 ./ex7gend.cmd
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_CONOUT   equ     2
+FN_PRINT    equ     9
+FN_READBUF  equ     10
+CR          equ     0Dh
+LF          equ     0Ah
+BUF_MAX     equ     30              ; max input chars
+
+; ============================================================
+; DATA segment — before code so symbols resolve in pass 1
+; ============================================================
+
+            dseg
+            org     100h            ; skip CP/M base-page (first 256 bytes of DS)
+
+; fn 10 input buffer: byte 0 = max len, byte 1 = actual len, byte 2+ = chars
+inbuf       db      BUF_MAX         ; +0: max len (set by caller)
+inbuf_len   db      0               ; +1: actual len (filled by BDOS)
+inbuf_data  rb      BUF_MAX         ; +2: characters (not null-terminated)
+            db      0               ; null guard / '$' slot
+
+banner      db      'ex7gend: type a line, get it uppercased', CR, LF
+            db      'Input : $'
+result_hdr  db      CR, LF, 'Upper : $'
+crlf_msg    db      CR, LF, '$'
+
+; ============================================================
+; CODE segment
+; ============================================================
+
+            cseg
+
+main:
+            ; DS already = data segment (loader set it from DATA header).
+            ; Set ES = DS before any ES-relative addressing.
+            mov     cx, ds
+            mov     es, cx
+
+            ; print banner / prompt
+            mov     cx, FN_PRINT
+            mov     dx, offset banner
+            int     BDOS
+
+            ; fn 10: read console buffer
+            ; BUF_MAX already in inbuf[0]; inbuf_len filled on return
+            mov     cx, FN_READBUF
+            mov     dx, offset inbuf
+            int     BDOS
+
+            ; null-terminate at inbuf_data[inbuf_len]
+            mov     al, inbuf_len   ; actual length
+            mov     ah, 0
+            mov     bx, ax
+            mov     al, 0
+            mov     inbuf_data[bx], al  ; write null at end
+
+            ; uppercase in-place: walk from inbuf_data until null
+            mov     si, offset inbuf_data
+upper_loop:
+            mov     al, [si]
+            cmp     al, 0
+            je      upper_done
+            cmp     al, 'a'
+            jb      upper_next
+            cmp     al, 'z'
+            ja      upper_next
+            and     al, 0DFh        ; clear bit 5 → uppercase
+            mov     [si], al
+upper_next:
+            inc     si
+            jmp     upper_loop
+upper_done:
+
+            ; append '$' for fn 9 — SI points at the null, overwrite it
+            mov     al, '$'
+            mov     [si], al
+
+            ; print result header
+            mov     cx, FN_PRINT
+            mov     dx, offset result_hdr
+            int     BDOS
+
+            ; print the uppercased string (fn 9, '$'-terminated)
+            mov     cx, FN_PRINT
+            mov     dx, offset inbuf_data
+            int     BDOS
+
+            ; trailing CRLF
+            mov     cx, FN_PRINT
+            mov     dx, offset crlf_msg
+            int     BDOS
+
+            ; exit
+            xor     cx, cx
+            int     BDOS
+
+            end
