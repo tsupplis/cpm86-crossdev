@@ -193,7 +193,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | intel_link86  | link86.exe  | Intel linker                       |
 | intel_lib86   | lib86.exe   | Intel librarian                    |
 | intel_loc86   | loc86.exe   | Intel locator                      |
-| intel_loc86   | loc86.exe   | Intel object to hex converter      |
+| intel_oh86   | oh86.exe   | Intel object to hex converter      |
 | drpli_pc      | pli.cmd     | DR PL/I-86 1.0 compiler                     |
 | drpli_link    | linkcmd.exe  | DR PL/I-86 1.0 linker                        |
 | cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from source) |
