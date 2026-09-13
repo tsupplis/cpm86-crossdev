@@ -189,9 +189,11 @@ All the tools are wrapped in the bin directory for direct usage:
 | upx           | (native)    | executable packer                  |
 | intel_plm86   | plm86.exe   | Intel PL/M-86 3.30 compiler        |
 | intel_asm86   | asm86.exe   | Intel ASM-86 assembler             |
-| intel_link    | link.exe    | Intel linker                       |
+| intel_link    | link.exe    | Microsoft linker                       |
+| intel_link86  | link86.exe  | Intel linker                       |
 | intel_lib86   | lib86.exe   | Intel librarian                    |
 | intel_loc86   | loc86.exe   | Intel locator                      |
+| intel_loc86   | loc86.exe   | Intel object to hex converter      |
 | drpli_pc      | pli.cmd     | DR PL/I-86 1.0 compiler                     |
 | drpli_link    | linkcmd.exe  | DR PL/I-86 1.0 linker                        |
 | cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from source) |

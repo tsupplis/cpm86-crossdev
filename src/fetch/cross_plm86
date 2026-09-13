@@ -23,6 +23,9 @@ if [ ! -f intel/plm86.exe -o ! -f intel/asm86.exe -o ! -f intel/link.exe \
     cp 8086tools/*.asm       "$root/share/intel"
     cp 8086tools/*.obj       "$root/share/intel"
     cp 8086tools/*.lib       "$root/share/intel"
+#missing intel linker
+    cp "$root/src/intel/link86.exe" "$root/share/intel"
+    cp "$root/src/intel/oh86.exe" "$root/share/intel"
     chmod 644 "$root/share/intel"/*
     rm -rf "$tmp"
     trap - EXIT
