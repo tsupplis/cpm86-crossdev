@@ -201,6 +201,123 @@ INF: HDR(0)TYP(01,CODE)BAS(0000h)MN(0.1k=96) LEN(96)
 INF: HDR(1)TYP(02,DATA)BAS(0000h)MN(0.4k=368)LEN(368)
 ```
 
+### 5.3 GENCMD `Mn` — minimum segment size
+
+GENCMD uses the **highest address** written in the `.h86` file as the segment size,
+rounded up to the next paragraph. Storage reserved with `rb`/`rw`/`rs` contributes
+no bytes to the hex, but if initialized data follows the reservation, GENCMD still
+sees the correct high-water mark.
+
+The problem arises when uninitialized storage is at the **tail** of the segment —
+nothing initialized follows it, so GENCMD never sees those addresses and the CMD
+header minimum is too small. The loader allocates only the initialized size; runtime
+variables at the tail overlap whatever memory the OS placed there.
+
+**`Mn` tells GENCMD: "this segment needs at least N×16 bytes at runtime,
+regardless of where the highest initialized byte is."**
+
+```
+cpm86_gencmd prog.h86 DATA[M34]          ; DATA must be ≥ 34×16 = 832 bytes
+cpm86_gencmd prog.h86 STACK[M75]         ; STACK ≥ 75×16 = 1200 bytes
+cpm86_gencmd prog.h86 DATA[M860]         ; DATA ≥ 860×16 = 34 KB (large buffer)
+cpm86_gencmd prog.h86 EXTRA[M1000]       ; EXTRA ≥ 4096×16 bytes (sort workspace)
+```
+
+Multiple groups on one line:
+```
+cpm86_gencmd prog.h86 STACK[M75] DATA[M34]
+```
+
+**How to compute `Mn`:** add the sizes of all `rb`/`rw`/`rs` reservations in the
+segment, add the initialized data size, add `100h` for the base-page `org` offset,
+then round up to the next paragraph. Convert to paragraphs: total bytes ÷ 16.
+
+**`8080` + `CODE[Mn]`:** single-segment programs that place uninitialized data
+*after* code in `cseg` (using `DATAOFFSET EQU OFFSET$` / `dseg` / `ORG DATAOFFSET`)
+also need `Mn` because the uninitialized data portion isn't in the hex file:
+```
+cpm86_gencmd du.h86   8080 'CODE[MF00]'   ; cseg + uninitialized data tail
+cpm86_gencmd filer.h86 8080 'CODE[M3FF,XF00]'  ; M=minimum, X=maximum
+```
+
+`Xn` sets the **maximum** paragraphs the segment may expand into if free memory
+allows — useful for programs with variable-size working buffers.
+
+### 5.4 Example — tail uninitialized buffer
+
+Source: [`ex7genu.a86`](ex7genu.a86)
+
+Same logic as ex7gend (read line, process, print) but the DATA segment ends with
+`rev_buf rb 200h` — a 512-byte scratch buffer — as its last declaration. Nothing
+initialized follows it.
+
+```
+crlf_msg    db    CR, LF, '$'        ; last initialized → offset 0x168
+rev_buf     rb    REV_SIZE            ; 0x200 bytes tail uninitialized → 0x36B
+```
+
+Without `Mn`:
+```
+INF: HDR(1)TYP(02,DATA)BAS(0000h)MN(0.4k=368)LEN(368)   ← wrong
+```
+368 = highest initialized address (`0x016B`) rounded to paragraph. `rev_buf` invisible.
+
+With `DATA[M37]`:
+```
+INF: HDR(1)TYP(02,DATA)BAS(0000h)MN(0.9k=880)LEN(368)   ← correct
+```
+880 = 55 paragraphs × 16 = covers `org 100h` + initialized + `rb 200h` tail.
+
+**Computing `M37`:**
+```
+rev_buf end   = 0x016B + 0x200 = 0x036B
++1 for size   = 0x036C = 876 bytes
+÷ 16          = 54.75 → round up to 55 paragraphs = 0x37
+```
+
+Build:
+```makefile
+ex7genu.cmd: ex7genu.h86
+	$(GENCMD) $< 'DATA[M37]'
+```
+
+### 5.5 Example — explicit stack segment
+
+Source: [`ex7gens.a86`](ex7gens.a86)
+
+Extends ex7genu with an explicit `sseg`. The stack is entirely `rw` — zero bytes
+in the hex file — so both `DATA[Mn]` and `STACK[Mn]` are required.
+
+```asm
+            sseg
+stk_space   rw      STKSIZE/2       ; 128 bytes, zero bytes in hex
+```
+
+CMD headers produced:
+```
+INF: HDR(0)TYP(01,CODE) BAS(0000h)MN(0.1k=112) LEN(112)
+INF: HDR(1)TYP(02,DATA) BAS(0000h)MN(0.9k=880) LEN(400)
+INF: HDR(3)TYP(04,STACK)BAS(0000h)MN(0.1k=128) LEN(0)
+```
+
+`LEN=0` on the STACK header — no bytes in the hex file, but `MN=128` tells the
+loader to reserve 128 bytes and set SS:SP accordingly. At entry SS and SP are
+already set by the loader; no setup code needed.
+
+**Computing `STACK[M8]`:**
+```
+STKSIZE = 80h = 128 bytes ÷ 16 = 8 paragraphs → STACK[M8]
+```
+
+Build:
+```makefile
+ex7gens.cmd: ex7gens.h86
+	$(GENCMD) $< 'DATA[M37] STACK[M8]'
+```
+
+> The four ex7 examples together cover every GENCMD case:
+> `ex7genc` (8080), `ex7gend` (dual, no Mn), `ex7genu` (DATA[Mn]), `ex7gens` (DATA[Mn] + STACK[Mn]).
+
 ---
 
 ## 6. Code-Macros
@@ -527,3 +644,10 @@ ASM86 does not accept a start label on the `END` directive. Use bare `end` — e
 The CP/M-86 loader reserves DS:0–FFh for the base page (FCBs, command tail, etc.).
 Without `org 100h` in the `dseg`, data starts at DS:0 and overlaps the base page.
 Fix: add `org 100h` immediately after `dseg`, exactly as `cseg org 100h` does for the single-segment model.
+
+**24. GENCMD missing `Mn` for tail uninitialized storage** → program crashes or corrupts memory.
+GENCMD uses the highest address in the `.h86` as segment size. `rb`/`rw`/`rs` at the **end** of a
+segment (no initialized data following them) are invisible to GENCMD — the CMD header minimum is
+too small, and the loader gives the segment less memory than it needs.
+Fix: calculate the full runtime size (highest used offset + 1, from `org` base), divide by 16, pass as
+`DATA[Mn]`, `STACK[Mn]`, or `EXTRA[Mn]` on the GENCMD command line. See §5.3.

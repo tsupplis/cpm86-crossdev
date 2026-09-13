@@ -17,6 +17,8 @@ EXAMPLES = \
 	ex6lib.cmd \
 	ex7genc.cmd \
 	ex7gend.cmd \
+	ex7genu.cmd \
+	ex7gens.cmd \
 	ex8macr.cmd \
 	exhelp.cmd
 
@@ -60,6 +62,29 @@ ex7gend.h86: ex7gend.a86
 
 ex7gend.cmd: ex7gend.h86
 	$(GENCMD) $<
+	$(CMDINFO) $@
+
+ex7genu.h86: ex7genu.a86
+	unix2dos $<
+	$(ASM86) $<
+
+# DATA[M37] = 55 paragraphs = 880 bytes: covers org 100h + data + rb 200h tail
+ex7genu.cmd: ex7genu.h86
+	$(GENCMD) $< 'DATA[M37]'
+	$(CMDINFO) $@
+
+# To see the under-sized header (no Mn), run manually:
+#   cpm86_gencmd ex7genu.h86  →  DATA MN=368  (rev_buf tail missing)
+# vs the correct build above:  DATA MN=880  (full rb 200h covered)
+
+ex7gens.h86: ex7gens.a86
+	unix2dos $<
+	$(ASM86) $<
+
+# STACK[M8] = 8 paragraphs = 128 bytes (STKSIZE=80h, all rw — zero bytes in hex)
+# DATA[M37]  = same as ex7genu (rev_buf tail)
+ex7gens.cmd: ex7gens.h86
+	$(GENCMD) $< 'DATA[M37] STACK[M8]'
 	$(CMDINFO) $@
 
 # ── Example 9: helper library ─────────────────────────────────────────────────

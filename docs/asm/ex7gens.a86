@@ -1,0 +1,142 @@
+            title   'ex7gens — GENCMD STACK[Mn]: explicit stack segment'
+
+; ============================================================
+; ex7gens.a86 — Demonstrates GENCMD STACK[Mn]
+;
+; assembled with: cpm86_asm86 ex7gens.a86
+; packaged with:  cpm86_gencmd ex7gens.h86 'DATA[M37] STACK[M8]'
+;
+; Same read/reverse/print logic as ex7genu, plus an explicit
+; sseg that the program switches to at startup.
+;
+; sseg is 100% uninitialized (rw only — no bytes in hex file).
+; Without STACK[Mn] the CMD header omits the STACK section
+; entirely; the loader never allocates it and SS:SP is wrong.
+;
+; Computing STACK[M8]:
+;   STKSIZE = 80h = 128 bytes = 8 paragraphs → STACK[M8]
+;
+; At entry (multi-segment CMD):
+;   CS = code segment, DS = data segment (set by loader),
+;   SS = stack segment (set by loader from STACK header),
+;   SP = top of stack section (set by loader).
+;   No SS/SP setup needed in code when STACK header present.
+;
+; Build:
+;   make ex7gens.cmd
+;   emu2 ./ex7gens.cmd
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_PRINT    equ     9
+FN_READBUF  equ     10
+CR          equ     0Dh
+LF          equ     0Ah
+BUF_MAX     equ     40              ; max input chars
+REV_SIZE    equ     200h            ; reverse scratch buffer (tail uninit)
+STKSIZE     equ     80h             ; stack size in bytes = 8 paragraphs
+
+; ============================================================
+; STACK segment — entirely uninitialized, zero bytes in hex
+; STACK[M8] required: 80h bytes / 16 = 8 paragraphs
+; ============================================================
+
+            sseg
+
+stk_space   rw      STKSIZE/2       ; STKSIZE bytes of stack (rw = words)
+
+; ============================================================
+; DATA segment
+; ============================================================
+
+            dseg
+            org     100h            ; skip CP/M base-page
+
+; fn 10 input buffer
+inbuf       db      BUF_MAX         ; +0: max len
+inbuf_len   db      0               ; +1: actual len (filled by BDOS)
+inbuf_data  rb      BUF_MAX         ; +2: chars (not null-terminated)
+            db      0               ; null guard
+
+banner      db      'ex7gens: type a line, get it reversed', CR, LF
+            db      '(explicit sseg stack, STACK[M8])', CR, LF
+            db      'Input : $'
+result_hdr  db      CR, LF, 'Reversed: $'
+crlf_msg    db      CR, LF, '$'
+
+; tail uninitialized scratch buffer — needs DATA[M37]
+rev_buf     rb      REV_SIZE
+
+; ============================================================
+; CODE segment
+; ============================================================
+
+            cseg
+
+main:
+            ; At entry: DS = data seg, SS:SP = stack seg (loader set both).
+            ; Just set ES = DS before any ES-relative addressing.
+            mov     cx, ds
+            mov     es, cx
+
+            ; print banner
+            mov     cx, FN_PRINT
+            mov     dx, offset banner
+            int     BDOS
+
+            ; fn 10: read console buffer
+            mov     cx, FN_READBUF
+            mov     dx, offset inbuf
+            int     BDOS
+
+            ; null-terminate inbuf_data at [inbuf_len]
+            mov     al, inbuf_len
+            mov     ah, 0
+            mov     bx, ax
+            mov     al, 0
+            mov     inbuf_data[bx], al
+
+            ; copy inbuf_data → rev_buf reversed
+            mov     al, inbuf_len
+            mov     ah, 0
+            mov     bx, ax
+            mov     si, offset inbuf_data
+            add     si, bx
+            dec     si                      ; SI → last char
+            mov     di, offset rev_buf
+            mov     cx, ax                  ; CX = length
+            cmp     cx, 0
+            je      rev_done
+rev_loop:
+            mov     al, [si]
+            mov     [di], al
+            dec     si
+            inc     di
+            dec     cx
+            jne     rev_loop
+rev_done:
+            ; null-terminate rev_buf, then replace with '$' for fn 9
+            mov     al, inbuf_len
+            mov     ah, 0
+            mov     bx, ax
+            mov     al, '$'
+            mov     rev_buf[bx], al
+
+            ; print result
+            mov     cx, FN_PRINT
+            mov     dx, offset result_hdr
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset rev_buf
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset crlf_msg
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end

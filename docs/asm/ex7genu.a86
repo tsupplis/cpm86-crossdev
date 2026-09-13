@@ -1,0 +1,133 @@
+            title   'ex7genu — GENCMD Mn: uninitialized tail buffer'
+
+; ============================================================
+; ex7genu.a86 — Demonstrates GENCMD Mn for tail uninit data
+;
+; assembled with cpm86_asm86 + cpm86_gencmd DATA[Mn]
+;
+; Same base as ex7gend but the DATA segment ends with a large
+; uninitialized reverse-buffer (rb) AFTER all initialized data.
+;
+; Without DATA[Mn] the CMD header minimum only covers up to
+; the last initialized byte.  The loader under-allocates DS
+; and the rb buffer overlaps memory it doesn't own.
+;
+; The correct Mn = (highest_offset + 1) / 16, rounded up.
+; Here: org 100h + initialized (~61h bytes) + rb 200h = ~361h
+;   → 0x361 / 16 = 54.06 → 55 paragraphs → DATA[M37]
+;
+; Build:
+;   make ex7genu.cmd
+;   emu2 ./ex7genu.cmd
+; ============================================================
+
+BDOS        equ     0E0h
+FN_EXIT     equ     0
+FN_PRINT    equ     9
+FN_READBUF  equ     10
+CR          equ     0Dh
+LF          equ     0Ah
+BUF_MAX     equ     40              ; max input chars
+REV_SIZE    equ     200h            ; reverse buffer — uninitialized tail
+
+; ============================================================
+; DATA segment
+; ============================================================
+
+            dseg
+            org     100h            ; skip CP/M base-page
+
+; ── initialized data ─────────────────────────────────────────
+; fn 10 input buffer
+inbuf       db      BUF_MAX         ; +0: max len
+inbuf_len   db      0               ; +1: actual len (filled by BDOS)
+inbuf_data  rb      BUF_MAX         ; +2..+BUF_MAX+1: chars (not null-term)
+            db      0               ; null guard
+
+banner      db      'ex7genu: type a line, get it reversed', CR, LF
+            db      'Input : $'
+result_hdr  db      CR, LF, 'Reversed: $'
+crlf_msg    db      CR, LF, '$'
+
+; ── uninitialized tail — INVISIBLE to GENCMD without Mn ─────
+; rev_buf is REV_SIZE bytes of uninitialized scratch space.
+; It is the LAST thing in dseg — nothing initialized follows.
+; GENCMD high-water mark stops at crlf_msg+3; rev_buf is lost.
+rev_buf     rb      REV_SIZE        ; ← tail uninitialized buffer
+
+; ============================================================
+; CODE segment
+; ============================================================
+
+            cseg
+
+main:
+            ; DS set by loader from DATA header.
+            mov     cx, ds
+            mov     es, cx
+
+            ; print banner
+            mov     cx, FN_PRINT
+            mov     dx, offset banner
+            int     BDOS
+
+            ; read a line (fn 10)
+            mov     cx, FN_READBUF
+            mov     dx, offset inbuf
+            int     BDOS
+
+            ; null-terminate inbuf_data at [inbuf_len]
+            mov     al, inbuf_len
+            mov     ah, 0
+            mov     bx, ax
+            mov     al, 0
+            mov     inbuf_data[bx], al
+
+            ; copy inbuf_data → rev_buf reversed
+            ; SI = end of inbuf_data (last char), DI = rev_buf start
+            mov     al, inbuf_len
+            mov     ah, 0
+            mov     bx, ax
+            mov     si, offset inbuf_data   ; SI → first char
+            add     si, bx                  ; SI → one past last char
+            dec     si                      ; SI → last char
+            mov     di, offset rev_buf
+            mov     cx, ax                  ; CX = length
+            cmp     cx, 0
+            je      rev_done
+rev_loop:
+            mov     al, [si]
+            mov     [di], al
+            dec     si
+            inc     di
+            dec     cx
+            jne     rev_loop
+rev_done:
+            ; null-terminate rev_buf
+            mov     al, 0
+            mov     [di], al
+
+            ; replace null with '$' for fn 9
+            mov     al, inbuf_len
+            mov     ah, 0
+            mov     bx, ax
+            mov     al, '$'
+            mov     rev_buf[bx], al
+
+            ; print result
+            mov     cx, FN_PRINT
+            mov     dx, offset result_hdr
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset rev_buf
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset crlf_msg
+            int     BDOS
+
+            xor     cx, cx
+            int     BDOS
+
+            end

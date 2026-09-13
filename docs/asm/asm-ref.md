@@ -277,8 +277,8 @@ cpm86_gencmd <filespec> [8080 | CODE[An,Bn,Mn,Xn] DATA[An,Bn,Mn,Xn] STACK[...] E
 |-------|---------|
 | `An`  | Load group at absolute paragraph address `n` |
 | `Bn`  | Begin group at offset `n` in the hex file (needed only when `.h86` is Intel format — `ASM86 $ FI`) |
-| `Mn`  | Group requires minimum `n × 16` bytes (use when group has uninitialized data at end) |
-| `Xn`  | Group can address up to `n × 16` bytes if available |
+| `Mn`  | **Minimum** paragraphs to allocate at runtime. Required whenever the segment contains uninitialized storage (`rb`/`rw`/`rs`) — GENCMD only sees initialized bytes in the hex file. |
+| `Xn`  | **Maximum** paragraphs the segment may expand into if free memory allows. Use for variable-size working buffers. |
 
 `n` is a 1–4 digit hex constant; each paragraph = 16 bytes.
 
