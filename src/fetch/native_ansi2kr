@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Building ansi2kr ...
+if [ ! -f "$root/bin/ansi2kr" ] || [ ! -f "$root/share/drc86cpm/ansi2kr.cmd" ]; then
+    (
+        cd "$root/src/ansi2kr"
+        PATH="$root/bin:$PATH" "${MAKE:-make}"
+        cp ansi2kr "$root/bin/"
+        mkdir -p "$root/share/drc86cpm"
+        cp ansi2kr.cmd "$root/share/drc86cpm/"
+        chmod 644 "$root/share/drc86cpm/ansi2kr.cmd"
+    )
+fi

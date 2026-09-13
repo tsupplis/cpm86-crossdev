@@ -83,6 +83,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | tnylpo | Open source | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
 | NASM | BSD-2-Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT-0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
+| ansi2kr (Masaki Oba) | BSD-2-Clause | [nabeta.tk](http://www.nabeta.tk) |
 | XLISP 1.1 (David Betz) | Public domain | [cpm86-ports](https://github.com/tsupplis/cpm86-ports) |
 | Intel PL/M-86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) |
 | PolyPascal-86 V3.11 (PolyData MicroCenter A/S) | **Unclear** ⚠️ | — |
@@ -183,6 +184,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | tnylpo        | (native)    | CP/M-80 emulator                   |
 | hexcom        | (native)    | HEX to COM translation             |
 | doscat        | (native)    | Truncate files beyond ^Z           |
+| ansi2kr       | (native)    | ANSI C to K&R C converter (native) |
 | nasm          | (native)    | Netwide assembler                  |
 | upx           | (native)    | executable packer                  |
 | intel_plm86   | plm86.exe   | Intel PL/M-86 3.30 compiler        |
@@ -367,10 +369,15 @@ aztec34_sqz helloc.o
 aztec34_link -o helloc.cmd helloc.o -lc86
 cmdinfo helloc.cmd
 </pre></td></tr>
-<tr><td>DR C 1.11</td><td><pre style="margin:0">
+<tr><td>DR C 1.11 (K&R)</td><td><pre style="margin:0">
 drccpm_cc -ohellodrc.obj hellodrc.c
 drccpm_link 'hellodrc.cmd=hellodrc.obj'
 cmdinfo hellodrc.cmd
+</pre></td></tr>
+<tr><td>DR C 1.11 (ANSI mode)</td><td><pre style="margin:0">
+drccpm_cc -e -ohelloans.obj helloans.c
+drccpm_link 'helloans.cmd=helloans.obj'
+cmdinfo helloans.cmd
 </pre></td></tr>
 </table>
 

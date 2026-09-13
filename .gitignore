@@ -21,6 +21,7 @@ bin/bin2cmd
 bin/exe2cmd
 bin/doscat
 bin/hexcom
+bin/ansi2kr
 
 # ── Build artefacts ──────────────────────────────────────────────────────────
 **/*.lock
@@ -67,6 +68,10 @@ src/xlisp/xlisp.cmd
 src/cpmtest/*.out
 src/cpmtest/*.cmd
 src/cpmtest/*.obj
+
+src/ansi2kr/ansi2kr
+src/ansi2kr/*.cmd
+src/ansi2kr/*.obj
 
 docs/**/*.cmd
 docs/**/*-plan.md

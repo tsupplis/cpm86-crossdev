@@ -24,6 +24,7 @@ code-generator pass (`drc861`); the table shows which pass each option affects.
 
 | Option | Pass | Description |
 |--------|------|-------------|
+| `-e` | wrapper | ANSI C mode — pre-processes source with `ansi2kr.cmd` |
 | `-b` | both | Big memory model (default: small) |
 | `-c` | both | Compact memory model |
 | `-M` | both | Medium memory model |

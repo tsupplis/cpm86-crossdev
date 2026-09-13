@@ -21,6 +21,7 @@ cpm86-crossdev/
 │   ├── aztec42-patch/   # patches applied during the aztec42 build step
 │   ├── drtools/         # DR Personal Basic binary (stored in-tree)
 │   ├── mstools/         # Microsoft tools stored in-tree
+│   ├── ansi2kr/         # ANSI C to K&R converter source & Makefile
 │   ├── patch/           # binary patch scripts for cpm86.exe, aztec34 cpp
 │   ├── tools/           # native helper tools (doscat, hexcom) built by make
 │   ├── turbo/           # Turbo Pascal binary/data files stored in-tree
@@ -57,6 +58,7 @@ cpm86-crossdev/
 │   ├── exe2cmd          # compiled native binary (gitignored)
 │   ├── doscat           # compiled native binary (gitignored)
 │   ├── hexcom           # compiled native binary (gitignored)
+│   ├── ansi2kr          # compiled native binary (gitignored)
 │   └── aztec42_cc       # shell wrapper (tracked in git)
 │   └── …               # all other shell wrappers (tracked in git)
 ├── local/               # user scratch area (gitignored)

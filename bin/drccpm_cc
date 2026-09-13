@@ -1,12 +1,14 @@
 #!/bin/sh
-share="`dirname $0`/../share/drc86cpm"
-emu2=`dirname $0`/emu2
+bindir="`dirname $0`"
+share="$bindir/../share/drc86cpm"
+emu2="$bindir/emu2"
 EMU2_CPM_APPEND="D:"
 export EMU2_CPM_APPEND
 EMU2_DRIVE_D="$share"
 export EMU2_DRIVE_D
 
-trap 'rm -f ctemp.tok' EXIT INT TERM
+tmp_src="ctmpansi.c"
+trap 'rm -f ctemp.tok "$tmp_src"' EXIT INT TERM
 
 # Split args between drc860 (preprocessor) and drc861 (parser/code-gen).
 # Routing rules from the DRC C Language Programmer's Guide (Table 2-1):
@@ -25,8 +27,12 @@ cc_args=""
 src_file=""
 preproc_only=0
 has_o=0
+ansi_mode=0
 for arg in "$@"; do
     case "$arg" in
+        # -e / -E: ANSI C mode (preprocess with ansi2kr)
+        -[eE])
+            ansi_mode=1 ;;
         # preprocessor-only options → drc860 only
         -[dD]*|-[iI]*|-[lL]*|-[zZ]*)
             cpp_args="$cpp_args $arg" ;;
@@ -45,7 +51,6 @@ for arg in "$@"; do
             ;;
         # source file → drc860 only; remember it for -o deduction
         *.c|*.C)
-            cpp_args="$cpp_args $arg"
             src_file="$arg" ;;
         # options for both passes: -b -c -m -h -r -v -w
         *)
@@ -61,6 +66,27 @@ if [ $has_o -eq 0 ] && [ -n "$src_file" ] && [ $preproc_only -eq 0 ]; then
     base=`basename "$src_file"`
     objname=`echo "$base" | sed 's/\.[cC]$/.obj/'`
     cc_args="$cc_args -o$objname"
+fi
+
+# In ANSI mode, convert source via CP/M-86 ansi2kr.cmd in share/drc86cpm
+actual_src="$src_file"
+if [ $ansi_mode -eq 1 ] && [ -n "$src_file" ]; then
+    if [ ! -f "$share/ansi2kr.cmd" ]; then
+        echo "ERR: ansi2kr.cmd not found in $share" >&2
+        exit 1
+    fi
+    EMU2_PROGNAME="D:ansi2kr.cmd"
+    export EMU2_PROGNAME
+    "$emu2" "$share/ansi2kr.cmd" -u -e "$src_file" "$tmp_src" >/dev/null 2>&1
+    if [ $? -ne 0 ] || [ ! -f "$tmp_src" ]; then
+        echo "ERR: ansi2kr conversion failed for $src_file" >&2
+        exit 1
+    fi
+    actual_src="$tmp_src"
+fi
+
+if [ -n "$actual_src" ]; then
+    cpp_args="$cpp_args $actual_src"
 fi
 
 EMU2_PROGNAME="D:drc860.cmd"

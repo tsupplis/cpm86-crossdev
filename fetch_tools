@@ -171,6 +171,7 @@ run_fetcher native_upx
 run_fetcher cross_aztec42_build
 run_fetcher cross_aztec_startups
 run_fetcher cross_xlisp
+run_fetcher native_ansi2kr
 
 # ── Finalise permissions ───────────────────────────────────────────────────────
 find "$root/share" -type d -exec chmod 755 {} \;
