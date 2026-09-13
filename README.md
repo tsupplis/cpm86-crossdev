@@ -472,7 +472,7 @@ intel_plm86 hellop.plm debug 'optimize(3)'
 pcdev_linkcmd hellop=scd,hellop '[data[ori[0]]'
 cmdinfo hellop.cmd
 </pre></td></tr>
-<tr><td>DR PL/I-86 1.0 (CP/M-86)</td><td><pre style="margin:0">
+<tr><td><a href="docs/pli/pli-ref.md">DR PL/I-86 1.0 (CP/M-86)</a></td><td><pre style="margin:0">
 drpli_pc hellopi
 drpli_link 'hellopi.cmd=hellopi'
 cmdinfo hellopi.cmd
