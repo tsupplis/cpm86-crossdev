@@ -2,7 +2,7 @@
 
 set -e
 
-echo INF: Building XLISP for CP/M-86 ...
+echo INF: Building Ports for CP/M-86 ...
 mkdir -p "$root/archive"
 if [ ! -d "$root/archive/cpm86-ports" ]; then
     git clone "https://github.com/tsupplis/cpm86-ports.git" "$root/archive/cpm86-ports"
@@ -18,6 +18,20 @@ if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
     mkdir -p "$root/share/xlisp"
     cp "$tmp/xlisp.cmd" "$tmp"/*.lsp "$root/share/xlisp/"
     chmod 644 "$root/share/xlisp"/*
+    rm -rf "$tmp"
+    trap - EXIT
+fi
+if [ ! -f "$root/share/drc86cpm/ansikr.cmd"  ! -f "$root/bin/ansi2kr" ]; then
+    tmp="$root/archive/temp-ansikr"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    cp "$root/archive/cpm86-ports/ansikr"/* "$tmp/"
+    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all
+    mkdir -p "$root/share/ansi2kr"
+    cp "$tmp/ansi2kr.cmd" "$tmp"/*.lsp "$root/share/drc86cpm/"
+    cp "$tmp/ansi2kr" "$tmp"/*.lsp "$root/bin"
+    chmod 644 "$root/share/drc86cpm/ansi2kr.cmd"
     rm -rf "$tmp"
     trap - EXIT
 fi

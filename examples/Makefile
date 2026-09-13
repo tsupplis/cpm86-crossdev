@@ -65,7 +65,8 @@ hellon.bin: hellon.asm
 	$(NASM) $< -fbin -o $@
 
 hellod.obj: hellod.asm
-	$(MASM) $< \;
+	$(MASM) $(basename $@),$(basename $@)\;
+	[ -f $@ ]
 
 hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
