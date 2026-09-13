@@ -309,7 +309,7 @@ Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for 
 
 <table width="100%">
 <tr><th>Variant</th><th>Commands</th></tr>
-<tr><td>DR CBASIC (compiled, CP/M-86)</td><td><pre>
+<tr><td><a href="docs/cbasic/cbasic-ref.md">DR CBASIC (compiled, CP/M-86)</a></td><td><pre>
 drcbcpm_bc hellor.bas
 drcbcpm_link hellor.cmd=hellor.o
 cmdinfo hellor.cmd
@@ -369,12 +369,12 @@ aztec34_sqz helloc.o
 aztec34_link -o helloc.cmd helloc.o -lc86
 cmdinfo helloc.cmd
 </pre></td></tr>
-<tr><td>DR C 1.11 (K&R)</td><td><pre style="margin:0">
+<tr><td><a href="docs/drc/drc-ref.md">DR C 1.11 (K&R)</a></td><td><pre style="margin:0">
 drccpm_cc -ohellodrc.obj hellodrc.c
 drccpm_link 'hellodrc.cmd=hellodrc.obj'
 cmdinfo hellodrc.cmd
 </pre></td></tr>
-<tr><td>DR C 1.11 (ANSI mode)</td><td><pre style="margin:0">
+<tr><td><a href="docs/drc/drc-ref.md">DR C 1.11 (ANSI mode)</a></td><td><pre style="margin:0">
 drccpm_cc -e -ohelloans.obj helloans.c
 drccpm_link 'helloans.cmd=helloans.obj'
 cmdinfo helloans.cmd
@@ -408,12 +408,12 @@ a specific startup with `AZTEC_STARTUP=<obj-in-lib>`.
 
 <table width="100%">
 <tr><th>Variant</th><th>Commands</th></tr>
-<tr><td>RASM-86</td><td><pre style="margin:0">
+<tr><td><a href="docs/asm/asm-ref.md">RASM-86</a></td><td><pre style="margin:0">
 pcdev_rasm86 helloa.a86 '$' pz sz
 pcdev_linkcmd helloa '[$sz]'
 cmdinfo helloa.cmd
 </pre></td></tr>
-<tr><td>ASM-86 (CP/M-80)</td><td><pre style="margin:0">
+<tr><td><a href="docs/asm/asm-ref.md">ASM-86 (CP/M-86)</a></td><td><pre style="margin:0">
 cpm_asm86 hellob.a86
 cpm_gencmd hellob.h86
 cmdinfo hellob.cmd
@@ -430,7 +430,7 @@ nasm hellon.asm -fbin -o hellon.bin
 bin2cmd hellon.bin hellon.cmd
 cmdinfo hellon.cmd
 </pre></td></tr>
-<tr><td>XLT86 (8080→8086) + ASM-86</td><td>Pass basename without extension. XLT86 translates <code>CALL 5</code> to <code>INT 224</code> (0E0h). "Number of Errors: 1" for <code>ORG 100h</code> is expected and harmless.<pre style="margin:0">
+<tr><td><a href="docs/xlt86/xlt86-ref.md">XLT86 (8080→8086)</a> + <a href="docs/asm/asm-ref.md">ASM-86</a></td><td>Pass basename without extension. XLT86 translates <code>CALL 5</code> to <code>INT 224</code> (0E0h). "Number of Errors: 1" for <code>ORG 100h</code> is expected and harmless.<pre style="margin:0">
 cpm_xlt86 hello80
 cpm86_asm86 hello80.a86
 cpm86_gencmd hello80.h86
@@ -448,12 +448,12 @@ ppcpm_ppas
 </pre>
 The editor opens first. Use <code>COMPILE</code> then <code>RUN</code>. <code>PPAS.HLP</code> and <code>PPAS.ERM</code> found automatically on drive D.
 </td></tr>
-<tr><td>Pascal MT+ 3.3 (CP/M-86)</td><td><pre style="margin:0">
+<tr><td><a href="docs/mtpas/mtpas-ref.md">Pascal MT+ 3.3 (CP/M-86)</a></td><td><pre style="margin:0">
 drpmt_pc hellomt
 drpmt_link hellomt.cmd=hellomt,p:paslib/s
 cmdinfo hellomt.cmd
 </pre></td></tr>
-<tr><td>DR Fortran-77 4.0 (CP/M-86, small model)</td><td>
+<tr><td><a href="docs/f77/f77-ref.md">DR Fortran-77 4.0 (CP/M-86, small model)</a></td><td>
 Both compiler passes (<code>f77.cmd</code> + <code>codegen.cmd</code>) run internally; <code>.cil</code>/<code>.cym</code> intermediates cleaned up automatically.<pre style="margin:0">
 drfcpm_f77 hellof.f77
 drfcpm_link 'hellof.cmd=hellof'
