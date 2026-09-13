@@ -1059,18 +1059,23 @@ int option(argc,argv)int argc;char **argv;
            Noregalof = 1; /* for MSX.input "#pragama noregalo" in source code */
            break;
          case 'v':
+         case 'V':
            Voidf = 1;	/* delete "void" */
            break;
          case 'u':
+         case 'U':
            Castf = 1;	/* use cast.(no cut cast)  */
            break;
          case 'e':
+         case 'E':
            Cpmeoff = 0;	/* no output CPMEOF  */
            break;
          case 'c':
+         case 'C':
            Cppcmmtf = 0;	/* no use C++ comment  */
            break;
          case 'm':
+         case 'M':
            /* for MSX-C mode. same -vup option. */
            Voidf = 1;	/* delete "void" */
            Castf = 1;	/* use cast.(no cut cast)  */

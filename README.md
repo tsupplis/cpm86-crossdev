@@ -179,7 +179,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M-86       |
 | drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
 | drcbdos_link  | linkexe.exe | DR cbasic linker for DOS           |
-| cpm86         | cpm86.exe   | CP/M-86 emulator (via emu2)        |
+| cpm86         | cpm86.exe   | CP/M-86 emulator (via emu2+dos)    |
 | emu2          | (native)    | x86 DOS/CP/M-86 emulator           |
 | tnylpo        | (native)    | CP/M-80 emulator                   |
 | hexcom        | (native)    | HEX to COM translation             |
@@ -337,10 +337,12 @@ cmdinfo hellocvt.cmd
 runtime and CP/M-86 library are actively improved. Use `aztec34` only when
 strict K&R compatibility is required or for legacy builds.
 
-`drccpm_cc` is the DR C 1.11 compiler for CP/M-86. It runs the two passes
+`drccpm_cc` is the DR C 1.11 compiler for CP/M-86. It runs two passes
 internally: `drc860.cmd` (preprocessor) produces `ctemp.tok`, then
-`drc861.cmd` (code generator) consumes it. The `ctemp.tok` file is cleaned up
-via a trap regardless of success or failure. The DR C runtime libraries
+`drc861.cmd` (code generator) consumes it. When `-r` is given, a third pass
+(`drc862.cmd`) merges the listing and disassembly into a `<source>.ili`
+interlist file. Temp files are cleaned up via a trap regardless of success or
+failure. The DR C runtime libraries
 (`clearl.l86`, `clears.l86`) and `link86.cmd` are all staged in
 `share/drc86cpm/`. The redundant DISK3 tools (`rasm86.cmd`, `lib86.cmd`,
 `xref86.cmd`) are not staged.

@@ -15,7 +15,7 @@ BIN2CMD=bin2cmd
 EXE2BIN=pcdev_exe2bin
 CMDINFO=cmdinfo
 CBLINK=drcbcpm_link
-BC=drcbcpm_bc
+CBBC=drcbcpm_bc
 NASM=nasm
 MASM=pcdev_masm
 LINK=pcdev_link
@@ -29,6 +29,7 @@ EMU2=emu2
 CPM86=cpm86
 DRCCC=drccpm_cc
 F77=drfcpm_f77
+F77LINK=drfcpm_link
 PMT=drpmt_pc
 PMTLINK=drpmt_link
 XLISP=cpm86_xlisp
@@ -38,7 +39,7 @@ COBOL=mfcobol_cc
 COBRUN=mfcobol_run
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
-	hello80.cmd hellocbl.int hellopli.cmd
+	hello80.cmd hellocbl.int hellopli.cmd hellodra.cmd
 
 all: binaries
 
@@ -46,128 +47,125 @@ binaries: $(TOOLS)
 
 hellon.cmd: hellon.bin
 	$(BIN2CMD) $< $@
-	ls -l $@
 	$(CMDINFO) $@
 
 hellod.cmd: hellod.exe
 	$(EXE2BIN) $< hellod.bin
 	$(BIN2CMD) hellod.bin $@
-	ls -l $@
 	$(CMDINFO) $@
 
-hellor.cmd: hellor.cb
-	$(BC) hellor.cb
-	$(CBLINK) hellor 
-	ls -l $@
+hellor.cmd: hellor.obj
+	$(CBLINK) $@=$(basename $<)
 	$(CMDINFO) $@
 
 hellod.exe: hellod.obj
-	$(LINK) hellod \;
+	$(LINK) $< \;
 
 hellon.bin: hellon.asm
 	$(NASM) $< -fbin -o $@
 
 hellod.obj: hellod.asm
-	$(MASM) hellod \;
+	$(MASM) $< \;
 
 hellob.cmd: hellob.h86
-	$(GENCMD) $^ 8080
-	ls -l $@
+	$(GENCMD) $< 8080
+	$(CMDINFO) $@
+  
+helloans.cmd: helloans.o
+	$(LD) -o $@ $< $(LDFLAGS)
 	$(CMDINFO) $@
 
-helloans.cmd: helloans.c
+helloans.o: helloans.c
 	$(ACC) $(CFLAGS) $<
-	$(ALD) -o $@ helloans.o $(LDFLAGS)
-	ls -l $@
 	$(CMDINFO) $@
 
 helloc.cmd: helloc.o
-	$(LD) -o $@ $^ $(LDFLAGS)
-	ls -l $@
+	$(LD) -o $@ $< $(LDFLAGS)
+	$(CMDINFO) $@
+
+hellof77.cmd: hellof77.obj
+	$(F77LINK) '$@=$<'
+	$(CMDINFO) $@
+
+hellodrc.cmd: hellodrc.obj
+	drccpm_link '$@=$<'
+	$(CMDINFO) $@
+
+hellodrc.obj: hellodrc.c
+	$(DRCCC) -o$@ -l$(@:.obj=.lst) hellodrc.c
+
+hellodra.cmd: hellodra.obj
+	drccpm_link '$@=$(basename $<)'
+	$(CMDINFO) $@
+
+hellodra.obj: hellodra.c
+	$(DRCCC) -e -o$@ -l$(@:.obj=.lst) $<
+
+hellocvt.cmd: hellocvt.obj
+	$(CBLINK) $@=$(basename $<)
+
+hellocvt.cb: hellomsb.bas
+	$(M2CB) $<
+	mv $(<:.bas=.cb) $@
+
+hellopmt.r86: hellopmt.pas
+	$(PMT) $<
+	[ -f $@ ]
+
+hellopmt.cmd: hellopmt.r86
+	$(PMTLINK) $@=$(basename $<),p:paslib/s
+	$(CMDINFO) $@
+
+scd.obj: scd.a86
+	$(IASM86) $<
+
+hellop.obj: hellop.plm
+	$(PLM86) $< debug 'optimize(3)'
+	[ -f $@ ]
+
+hellop.cmd: hellop.obj scd.obj
+	$(LINK86) $@=scd,hellop '[data[ori[0]]'
+	$(CMDINFO) $@
+
+hellopli.cmd: hellopli.obj
+	$(PLILINK) '$@=$(basename $<)'
+	$(CMDINFO) $@
+
+hello80.a86: hello80.asm
+	$(XLT86) hello80 < /dev/null
+	[ -f $@ ]
+
+hello80.cmd: hello80.h86
+	$(GENCMD) $< 8080
 	$(CMDINFO) $@
 
 %.cmd: %.obj
-	$(LINK86) $* '[$$sz]'
-	ls -l $@
+	$(LINK86) $@=$(basename $<) '[$$sz]'
 	$(CMDINFO) $@
 
-%.cmd: %.obj
-	$(LINK86) $* '[$$sz]'
-	ls -l $@
-	$(CMDINFO) $@
+%.obj: %.cb
+	$(CBBC) $<
+	[ -f $@ ]
 
 %.h86: %.a86
 	$(ASM86) $<
-	ls -l $@
+	[ -f $@ ]
 
 %.obj: %.a86
 	$(RASM86) $< $$ pz sz
-	ls -l $@
+	[ -f $@ ]
 
 %.o: %.c
 	$(CC) $(CFLAGS) $<
 	$(STRIP) $@
 
-hellof77.cmd: hellof77.f77
-	$(F77) hellof77.f77
-	drfcpm_link 'hellof77.cmd=hellof77'
-	ls -l $@
-	$(CMDINFO) $@
+%.obj: %.f77
+	$(F77) $<
+	[ -f $@ ]
 
-hellodrc.obj: hellodrc.c
-	$(DRCCC) -o$@ hellodrc.c
-
-hellodrc.cmd: hellodrc.obj
-	drccpm_link 'hellodrc.cmd=hellodrc.obj'
-	ls -l $@
-	$(CMDINFO) $@
-
-hellocvt.cmd: hellocvt.cb
-	$(BC) hellocvt.cb
-	$(CBLINK) hellocvt
-
-hellocvt.cb: hellomsb.bas
-	$(M2CB) hellomsb.bas
-	mv hellomsb.cb hellocvt.cb
-
-hellopmt.r86: hellopmt.pas
-	$(PMT) hellopmt
-	ls -l $@
-
-hellopmt.cmd: hellopmt.r86
-	$(PMTLINK) hellopmt.cmd=hellopmt,p:paslib/s
-	ls -l $@
-	$(CMDINFO) $@
-
-scd.obj: scd.a86
-	$(IASM86) scd.a86
-
-hellop.obj: hellop.plm
-	$(PLM86) hellop.plm debug 'optimize(3)'
-	ls -l $@
-
-hellop.cmd: hellop.obj scd.obj
-	$(LINK86) hellop=scd,hellop '[data[ori[0]]'
-	ls -l $@
-	$(CMDINFO) $@
-
-hellopli.obj: hellopli.pli
-	$(PLI) hellopli
-	ls -l $@
-
-hellopli.cmd: hellopli.obj
-	$(PLILINK) 'hellopli.cmd=hellopli'
-	ls -l $@
-	$(CMDINFO) $@
-
-hello80.a86: hello80.asm
-	$(XLT86) hello80 < /dev/null
-	ls -l $@
-
-hello80.cmd: hello80.h86
-	$(GENCMD) $< 8080
-	ls -l $@
-	$(CMDINFO) $@
+%.obj: %.pli
+	$(PLI) $<
+	[ -f $@ ]
 
 test: emu2-test cpm86-test
 	@echo "--------- TEST: mbasic hellomsb.bas"
@@ -193,7 +191,7 @@ cpm86-test: binaries
 
 hellocbl.int: hellocbl.cbl
 	$(COBOL) hellocbl.cbl
-	ls -l $@
+	[ -f $@ ]
 
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \

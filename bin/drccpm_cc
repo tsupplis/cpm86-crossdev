@@ -8,7 +8,7 @@ EMU2_DRIVE_D="$share"
 export EMU2_DRIVE_D
 
 tmp_src="ctmpansi.c"
-trap 'rm -f ctemp.tok "$tmp_src"' EXIT INT TERM
+trap 'rm -f ctemp.tok "$tmp_src" templist.l templist.d' EXIT INT TERM
 
 # Split args between drc860 (preprocessor) and drc861 (parser/code-gen).
 # Routing rules from the DRC C Language Programmer's Guide (Table 2-1):
@@ -18,8 +18,10 @@ trap 'rm -f ctemp.tok "$tmp_src"' EXIT INT TERM
 #   drc861 only : -o<file> (object name), -f (8087), -j (no jump opt),
 #                 -n (no code opt), -q<n> (nodes), -x (reg save via lib),
 #                 -a[files] (auto-link), -3<drive:> (link86 location)
-#   both        : -b -c -m (memory model), -h (no banner), -r<dev> (interlist),
-#                 -v<n> (verbose), -w<n> (warnings)
+#   both        : -b -c -m (memory model), -h (no banner), -v<n> (verbose),
+#                 -w<n> (warnings)
+#   -r[file]    : interlist — handled separately; drc860 gets -ltemplist.l,
+#                 drc861 gets -itemplist.d, then drc862 merges them
 #   drop        : -0 -1 -2 (module locations — supervisor only, not forwarded)
 #
 cpp_args=""
@@ -28,6 +30,8 @@ src_file=""
 preproc_only=0
 has_o=0
 ansi_mode=0
+do_interlist=0
+ili_dest=""
 for arg in "$@"; do
     case "$arg" in
         # -e / -E: ANSI C mode (preprocess with ansi2kr)
@@ -52,7 +56,11 @@ for arg in "$@"; do
         # source file → drc860 only; remember it for -o deduction
         *.c|*.C)
             src_file="$arg" ;;
-        # options for both passes: -b -c -m -h -r -v -w
+        # -r[file]: interlist — record destination; inject -l/-i into passes
+        -[rR]*)
+            do_interlist=1
+            ili_dest="${arg#??}" ;;
+        # options for both passes: -b -c -m -h -v -w
         *)
             cpp_args="$cpp_args $arg"
             cc_args="$cc_args $arg" ;;
@@ -68,6 +76,24 @@ if [ $has_o -eq 0 ] && [ -n "$src_file" ] && [ $preproc_only -eq 0 ]; then
     cc_args="$cc_args -o$objname"
 fi
 
+# If -r was given, resolve the interlist output filename and inject the
+# listing/disassembly flags.  drc862 expects fixed names templist.l (source
+# listing, written by drc860 via -l) and templist.d (disassembly, written by
+# drc861 via -i).
+if [ $do_interlist -eq 1 ]; then
+    if [ -z "$ili_dest" ]; then
+        # bare -r: derive foo.ili from foo.c
+        if [ -n "$src_file" ]; then
+            base=`basename "$src_file"`
+            ili_dest=`echo "$base" | sed 's/\.[cC]$/.ili/'`
+        else
+            ili_dest="interlist.ili"
+        fi
+    fi
+    cpp_args="$cpp_args -ltemplist.l"
+    cc_args="$cc_args -itemplist.d"
+fi
+
 # In ANSI mode, convert source via CP/M-86 ansi2kr.cmd in share/drc86cpm
 actual_src="$src_file"
 if [ $ansi_mode -eq 1 ] && [ -n "$src_file" ]; then
@@ -77,7 +103,7 @@ if [ $ansi_mode -eq 1 ] && [ -n "$src_file" ]; then
     fi
     EMU2_PROGNAME="D:ansi2kr.cmd"
     export EMU2_PROGNAME
-    "$emu2" "$share/ansi2kr.cmd" -u -e "$src_file" "$tmp_src" >/dev/null 2>&1
+    "$emu2" "$share/ansi2kr.cmd" -u "$src_file" "$tmp_src" >/dev/null 2>&1
     if [ $? -ne 0 ] || [ ! -f "$tmp_src" ]; then
         echo "ERR: ansi2kr conversion failed for $src_file" >&2
         exit 1
@@ -98,6 +124,13 @@ if [ $rc -eq 0 ] && [ $preproc_only -eq 0 ] && [ -f ctemp.tok ]; then
     EMU2_PROGNAME="D:drc861.cmd"
     export EMU2_PROGNAME
     "$emu2" "$share/drc861.cmd" -v1 $cc_args -- PATH=D:\\
+    rc=$?
+fi
+
+if [ $rc -eq 0 ] && [ $do_interlist -eq 1 ]; then
+    EMU2_PROGNAME="D:drc862.cmd"
+    export EMU2_PROGNAME
+    "$emu2" "$share/drc862.cmd" templist.l templist.d -r"$ili_dest" -- PATH=D:\\
     rc=$?
 fi
 

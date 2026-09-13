@@ -25,13 +25,13 @@ code-generator pass (`drc861`); the table shows which pass each option affects.
 | Option | Pass | Description |
 |--------|------|-------------|
 | `-e` | wrapper | ANSI C mode — pre-processes source with `ansi2kr.cmd` |
+| `-r[file]` | wrapper | Generate C/asm interlisting; output to `<file>` (default: `<source>.ili`) |
 | `-b` | both | Big memory model (default: small) |
 | `-c` | both | Compact memory model |
 | `-M` | both | Medium memory model |
 | `-h` | both | Suppress sign-on banner |
 | `-v[n]` | both | Verbose level 1–5 (see below) |
 | `-w[n]` | both | Warning display: `0`=all, `1`=suppress warnings, `2`=suppress all |
-| `-r[dev]` | both | Generate C/asm interlisting; default device: `CON` |
 | `-d<name>` | drc860 | Define `<name>` as `1` (like `#define name 1`) |
 | `-i<drive:>` | drc860 | Search `<drive:>` for `#include` files |
 | `-l[dev]` | drc860 | Generate source listing; default device: `CON` |
@@ -77,6 +77,7 @@ Each level activates all lower levels except `-v2` and `-v3` are mutually exclus
 |------|----------|
 | `<file>.obj` | Intel OMF-86 relocatable object |
 | `<file>.lst` | Source listing (requires `-l`) |
+| `<file>.ili` | C/asm interlist (requires `-r`; filename overridden by `-r<file>`) |
 | `ctemp.tok` | Preprocessor token file (temporary; deleted on success) |
 
 **Typical invocations**
@@ -95,7 +96,19 @@ drccpm_cc -h -iB: foo.c
 
 # Preprocessor only (stop before code generation)
 drccpm_cc -p foo.c
+
+# C/asm interlist (foo.ili): each C source line followed by its 8086 assembly
+drccpm_cc -r foo.c
+
+# Interlist to an explicit file
+drccpm_cc -rmylist.ili foo.c
 ```
+
+> **Note on `-r`:** the wrapper implements interlisting by injecting `-ltemplist.l`
+> into `drc860` and `-itemplist.d` into `drc861`, then running `drc862` to merge
+> them.  The temp files `templist.l` and `templist.d` are removed on exit.
+> Device names (`CON`, `LST`) are not supported as `-r` targets via emu2 — use a
+> filename instead.
 
 Makefile pattern (from `examples/Makefile`):
 ```makefile
