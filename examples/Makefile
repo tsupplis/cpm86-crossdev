@@ -93,14 +93,14 @@ hellodrc.cmd: hellodrc.obj
 	$(CMDINFO) $@
 
 hellodrc.obj: hellodrc.c
-	$(DRCCC) -o$@ -l$(@:.obj=.lst) hellodrc.c
+	$(DRCCC) -v4 -o$@ -l$(@:.obj=.lst) hellodrc.c
 
 hellodra.cmd: hellodra.obj
 	drccpm_link '$@=$(basename $<)'
 	$(CMDINFO) $@
 
 hellodra.obj: hellodra.c
-	$(DRCCC) -e -o$@ -l$(@:.obj=.lst) $<
+	$(DRCCC) -v4 -e -o$@ -l$(@:.obj=.lst) $<
 
 hellocvt.cmd: hellocvt.obj
 	$(CBLINK) $@=$(basename $<)
