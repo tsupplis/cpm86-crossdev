@@ -11,9 +11,8 @@ rm -rf "$root/bin/emu2" "$root/bin/tnylpo" "$root/bin/nasm" "$root/bin/upx"
 rm -rf "$root/bin/cmdinfo" "$root/bin/bin2cmd" "$root/bin/exe2cmd" \
        "$root/bin/doscat" "$root/bin/hexcom" "$root/bin/ansi2kr"
 
-printf 'INF: cleaning src/tools and src/ansi2kr ...\n'
+printf 'INF: cleaning src/tools ...\n'
 (cd "$root/src/tools" && "${MAKE:-make}" clean)
-(cd "$root/src/ansi2kr" && "${MAKE:-make}" clean)
 
 printf 'INF: removing share trees ...\n'
 rm -rf "$root/share/pcdev" "$root/share/emu" "$root/share/aztec"?? \
