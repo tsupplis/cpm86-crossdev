@@ -4,7 +4,8 @@ root=`dirname $0`
 cd "$root"
 root=`pwd`
 
-printf 'INF: clearing tools in %s\n' "$root"
+printf 'INF: clearing examples in %s\n' "$root"
+(cd "$root/examples" && "${MAKE:-make}" clean)
 
 printf 'INF: removing native tool binaries ...\n'
 rm -rf "$root/bin/emu2" "$root/bin/tnylpo" "$root/bin/nasm" "$root/bin/upx"
