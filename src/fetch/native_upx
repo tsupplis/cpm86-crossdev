@@ -6,7 +6,7 @@ echo INF: Checking UPX ...
 mkdir -p "$root/archive"
 if [ ! -d "$root/archive/upx" ];then
     fetch_get "https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz"
-    tar axf "$ARCHIVED_FILE" -C "$root/archive"
+    xz -dc "$ARCHIVED_FILE" | tar xf - -C "$root/archive"
     mv "$root/archive/upx-5.2.1-src" "$root/archive/upx"
 fi
 if [ ! -f "$root/bin/upx" ];then
