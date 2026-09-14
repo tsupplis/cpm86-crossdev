@@ -235,7 +235,7 @@ All the tools are wrapped in the bin directory for direct usage:
 ## Fetching the tools
 
 The development environment can be assembled by using the following steps:
-```
+```sh
 ./fetch_tools
 export PATH="$(pwd -P)"/bin
 ```
@@ -270,7 +270,7 @@ export PATH="$(pwd -P)"/bin
 | TDL BASIC 3.05 (CP/M-80) | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip) |
 
 Clearing the directory is achieved by:
-```
+```sh
 ./clear_tools
 ```
 
@@ -363,7 +363,7 @@ testing; PCE is a very good choice (http://www.hampa.ch/pce/).
 
 Note that the enhanced cpm86 emulator supports padding records with `EOF` instead of `NULL` which may make working with text files easier, but
 because this behavior does not match real CP/M-86, it's disabled by default and only enabled if you set `CPM86_EOF=1`, for example:
-```
+```sh
 env CPM86_EOF=1 cpm86 program.cmd
 ```
 
@@ -377,29 +377,29 @@ A `Dockerfile` is provided for this environment.
 
 To build the container, *from the repository root*, run:
 
-```
+```sh
 docker build --progress=plain --rm=true -t cpm86:latest -f docker/Dockerfile .
 ```
 
-to user the created image, just ensure that the local path where the compilation happens is mounted properly:
+to use the created image, just ensure that the local path where the compilation happens is mounted properly:
 
-```
+```sh
 docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 pcdev_rasm86 helloa.a86
 docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 aztec34_cc helloc.c
 ```
 The only difference on the command line happens with \;
-```
+```sh
 pcdev_masm hellod \;
 ```
 ... becomes ...
-```
+```sh
 docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 pcdev_masm hellod '\\;'
 ```
 
 ## Using the tools
 
 Finally, a simple Makefile with a sample c, assembler for rasm86, assembler for asm86 is provided:
-```
+```sh
 ./test_crossdev
 ```
 
