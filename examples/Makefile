@@ -54,6 +54,10 @@ hellod.cmd: hellod.exe
 	$(BIN2CMD) hellod.bin $@
 	$(CMDINFO) $@
 
+helloab.cmd: helloab.obj
+	$(LINK86) $@=$(basename $<) '[cod[ori[0]],dat[ori[0],max[0]]]'
+	$(CMDINFO) $@
+
 hellor.cmd: hellor.obj
 	$(CBLINK) $@=$(basename $<)
 	$(CMDINFO) $@
