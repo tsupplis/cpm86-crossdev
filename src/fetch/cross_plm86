@@ -9,7 +9,7 @@ if [ ! -f intel/plm86.exe -o ! -f intel/asm86.exe -o ! -f intel/link.exe \
     tmp="$root/archive/temp-plm86"
     rm -rf "$tmp"
     mkdir -p "$root/share/intel" "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.retroarchive.org/dos/lang/PLM8086Tools.zip"
     unzip -L "$ARCHIVED_FILE"
@@ -27,6 +27,6 @@ if [ ! -f intel/plm86.exe -o ! -f intel/asm86.exe -o ! -f intel/link.exe \
     cp "$root/src/intel/link86.exe" "$root/share/intel"
     cp "$root/src/intel/oh86.exe" "$root/share/intel"
     chmod 644 "$root/share/intel"/*
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi
