@@ -8,7 +8,7 @@ if [ ! -f m2cbcpm/m2cbasic.cmd ]; then
     tmp="$root/archive/temp-m2cb"
     rm -rf "$tmp"
     mkdir -p "$root/share/m2cbcpm" "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/m2cbasic.zip"
     unzip -L "$ARCHIVED_FILE"
@@ -17,6 +17,6 @@ if [ ! -f m2cbcpm/m2cbasic.cmd ]; then
     cp m2cbconv.cmd m2cblib.bas m2cbrio.bas m2cbrio.rlo m2cbrio.am "$root/share/m2cbcpm"
     cp ws-fix.cmd read.me "$root/share/m2cbcpm"
     chmod 644 "$root/share/m2cbcpm"/*
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi

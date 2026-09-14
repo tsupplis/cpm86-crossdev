@@ -8,7 +8,7 @@ if [ ! -f drpmtcpm/mt-86.cmd ]; then
     tmp="$root/archive/temp-drpmt"
     rm -rf "$tmp"
     mkdir -p "$root/share/drpmtcpm" "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/mt8633cp.zip"
     unzip -L "$ARCHIVED_FILE"
@@ -21,6 +21,6 @@ if [ ! -f drpmtcpm/mt-86.cmd ]; then
     cp halt.r86 pasint.r86 ioerrors.r86 iomod4.r86 ovlmgr4.r86 "$root/share/drpmtcpm"
     cp mterrs.txt asmers.txt fibdef.lib "$root/share/drpmtcpm"
     chmod 644 "$root/share/drpmtcpm"/*
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi

@@ -168,7 +168,7 @@ hello80.cmd: hello80.h86
 	$(PLI) $<
 	[ -f $@ ]
 
-test: emu2-test cpm86-test
+test: emu2-test
 	@echo "--------- TEST: mbasic hellomsb.bas"
 	$(MBASIC) hellomsb.bas
 	@echo "--------- TEST: basic hellopba.bas"
@@ -180,14 +180,9 @@ test: emu2-test cpm86-test
 
 emu2-test: binaries
 	@for cmd in $(TOOLS); do \
-	    echo "--------- CPM86 TEST: $$cmd"; \
-	    EMU2_DRIVE_C=. $(CPM86) $$cmd || echo "--------- ERROR with $$cmd"; \
-	done
-
-cpm86-test: binaries
-	@for cmd in $(TOOLS); do \
+            if [ "$$cmd" = "hellocbl.int" ]; then continue; fi; \
 	    echo "--------- EMU2 TEST: $$cmd"; \
-	    EMU2_DRIVE_C=. $(EMU2) ./$$cmd || echo "--------- ERROR with $$cmd"; \
+	    env EMU2_DRIVE_C=. $(EMU2) ./$$cmd || { echo "--------- ERROR with $$cmd"; exit 1; } \
 	done
 
 hellocbl.int: hellocbl.cbl

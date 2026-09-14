@@ -8,8 +8,11 @@ if [ ! -f "$root/share/aztec42/unpacked" ]; then
 fi
 echo INF: Patching Aztec 4.2 ...
 if [ ! -f "$root/share/aztec42/patched" ]; then
+    set -x
     (cd "$root/share/aztec42" && tar zxvf "$root/src/aztec42-patch/patches.tar.gz")
     (cd "$root/share/aztec42" && "$root/src/aztec42-patch/apply_patches")
+    (cd "$root/share/aztec42" && sed 's|make |$(MAKE) |' src/makefile > src/makefile.sed && mv -f src/makefile.sed src/makefile || true)
+    (cd "$root/share/aztec42" && sed 's|make |"${MAKE:-make}" |' src/build > src/build.sed && mv -f src/build.sed src/build || true)
 fi
 echo INF: Building Aztec 4.2 ...
 if [ ! -f "$root/share/aztec42/built" ]; then

@@ -8,23 +8,11 @@ if [ ! -f plicpm/pli.cmd ]; then
     tmp="$root/archive/temp-pli"
     rm -rf "$tmp"
     mkdir -p "$root/share/plicpm" "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/pli86.zip"
-    #
-    # A bit of an odd one ... compression of pli86 too high for freebsd unzip ..
-    #
-    if [ `uname -s` = 'FreeBSD' ];then
-        if [ ! -x /usr/local/bin/unzip ]; then
-            echo "INF: Stock unzip on FreeBSD doe not work in this fetcher, please pkg install unzip"
-            exit 1
-        fi
-        /usr/local/bin/unzip -L "$ARCHIVED_FILE"
-        /usr/local/bin/unzip -L pli86-1.zip
-    else
-        unzip -L "$ARCHIVED_FILE"
-        unzip -L pli86-1.zip
-    fi
+    unzip -L "$ARCHIVED_FILE"
+    unzip -L pli86-1.zip
     cp pli.cmd pli0.ovr pli1.ovr pli2.ovr "$root/share/plicpm"
     cp link86.cmd lib86.cmd xref86.cmd "$root/share/plicpm"
     cp plilib.l86 "$root/share/plicpm"
@@ -32,6 +20,6 @@ if [ ! -f plicpm/pli.cmd ]; then
     cp cpmdio.a86 div2.a86 fdiv2.a86 "$root/share/plicpm"
     cp "$root/share/pcdev/linkcmd.exe" "$root/share/plicpm"
     chmod 644 "$root/share/plicpm"/*
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi

@@ -83,6 +83,42 @@ test -d "/usr/pkg/gnu/bin" && {
 
 ################################################################################
 
+test -d "/usr/pkg/bin" && {
+  export PATH="/usr/pkg/bin:${PATH:-}"
+}
+
+################################################################################
+
+# On FreeBSD, always ensure /usr/local/bin comes first in PATH if existing
+
+test "$(uname -s 2> /dev/null)" = "FreeBSD" && {
+  test -d "/usr/local/bin" && {
+    export PATH="/usr/local/bin:${PATH:-}"
+  }
+}
+
+################################################################################
+
+# Prefer gmake if available and MAKE is unset
+
+test -z "${MAKE:-}" && {
+  command -v "gmake" > /dev/null 2>&1 && {
+    export MAKE="$(command -v gmake)"
+  }
+}
+
+################################################################################
+
+# Prefer gpatch if available and PATCH is unset
+
+test -z "${PATCH:-}" && {
+  command -v "gpatch" > /dev/null 2>&1 && {
+    export PATCH="$(command -v gpatch)"
+  }
+}
+
+################################################################################
+
 test -z "${CC:-}" && {
   CC=$(command -v cc 2> /dev/null || \
        command -v gcc 2> /dev/null || \
@@ -101,12 +137,32 @@ find_command \
     "dos2unix" \
     "git" \
     "gzip" \
-    "patch" \
+    "${PATCH:-patch}" \
     "screen" \
     "tar" \
     "unzip" \
     "wget" \
     "xz" || exit 1
+
+################################################################################
+
+unzip -h 2>&1 | grep -q 'Info-ZIP' 2> /dev/null || {
+  printf 'WARNING: %s\n' \
+    "$(command -v unzip) is not Info-ZIP unzip and is NOT supported!"
+  printf '%s\n' "[Continuing in 5 seconds...]"
+  sleep 5 2> /dev/null
+}
+
+################################################################################
+
+"${PATCH:-patch}" -v 2>&1 | grep -q 'GNU patch' 2> /dev/null || {
+  printf 'WARNING: %s\n' \
+    "$(command -v ${PATCH:-patch}) is not GNU patch and is NOT supported!"
+  printf '%s\n' "[Continuing in 5 seconds...]"
+  sleep 5 2> /dev/null
+}
+
+################################################################################
 
 # ── Enable strict error checking ──────────────────────────────────────────────
 
@@ -128,7 +184,8 @@ run_fetcher() {
     _file="$root/src/fetch/$_name"
     printf 'INF: [%s] starting ...\n' "$_name"
     printf '\n=== %s ===\n' "$_name" >> "$fetch_log"
-    if env -i HOME="$HOME" PATH="$PATH" root="$root" \
+    if env -i PATCH="${PATCH:-patch}" MAKE="${MAKE:-make}" HOME="${HOME:?}" \
+              PATH="${PATH:?}" root="${root:?}" CC="${CC:-cc}" CXX="${CXX:-c++}" \
         sh -c '. "$root/src/fetch/_archive"; cd "$root"; . "$root/src/fetch/'"$_name"'"' \
         >> "$fetch_log" 2>&1 </dev/null; then
         printf 'INF: [%s] ok\n' "$_name"

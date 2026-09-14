@@ -8,7 +8,7 @@ if [ ! -f drc86cpm/drc860.cmd ]; then
     tmp="$root/archive/temp-drc"
     rm -rf "$tmp"
     mkdir -p "$root/share/drc86cpm" "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/drc_86.zip"
     unzip -L "$ARCHIVED_FILE"
@@ -22,7 +22,7 @@ if [ ! -f drc86cpm/drc860.cmd ]; then
     cp v1-11/disk3/link86.cmd "$root/share/drc86cpm"
     cp "$root/share/pcdev/linkcmd.exe" "$root/share/drc86cpm"
     chmod 644 "$root/share/drc86cpm"/*
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi
 echo INF: Checking DR C 86 1.11 extra headers ...
@@ -31,7 +31,7 @@ if [ ! -f drc86cpm/alloc.h ]; then
     tmp="$root/archive/temp-drc"
     rm -rf "$tmp"
     mkdir -p "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/drc86111.zip"
     unzip -L "$ARCHIVED_FILE"
@@ -39,7 +39,7 @@ if [ ! -f drc86cpm/alloc.h ]; then
     cp pcbios.a86 "$root/share/drc86cpm"
     chmod 644 "$root/share/drc86cpm/alloc.h" "$root/share/drc86cpm/dos.h" "$root/share/drc86cpm/bios.h" \
               "$root/share/drc86cpm/float.h" "$root/share/drc86cpm/conio.h" "$root/share/drc86cpm/pcbios.a86"
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi
 echo INF: Assembling DR C 86 1.11 pcbios ...

@@ -8,7 +8,7 @@ if [ ! -f f77cpm/f77.cmd ]; then
     tmp="$root/archive/temp-f77"
     rm -rf "$tmp"
     mkdir -p "$root/share/f77cpm" "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/f77-86.zip"
     unzip -L "$ARCHIVED_FILE"
@@ -17,7 +17,7 @@ if [ ! -f f77cpm/f77.cmd ]; then
     cp pkmemras.a86 "$root/share/f77cpm"
     cp "$root/share/pcdev/linkcmd.exe" "$root/share/f77cpm"
     chmod 644 "$root/share/f77cpm"/*
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi
 echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...

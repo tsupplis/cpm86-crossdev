@@ -6,10 +6,11 @@ echo INF: Checking UPX ...
 mkdir -p "$root/archive"
 if [ ! -d "$root/archive/upx" ];then
     fetch_get "https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz"
-    tar axf "$ARCHIVED_FILE" -C "$root/archive"
+    xz -dc "$ARCHIVED_FILE" | tar xf - -C "$root/archive"
     mv "$root/archive/upx-5.2.1-src" "$root/archive/upx"
 fi
 if [ ! -f "$root/bin/upx" ];then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    (cd "$root/archive/upx";"${MAKE:-make}" -j"$ncpus";cp ./build/release/upx "$root/bin")
+    export CMAKE_BUILD_PARALLEL_LEVEL="${ncpus:?}"
+    (cd "$root/archive/upx";sed 's|UPX_CMAKE_BUILD_FLAGS += --parallel||' Makefile > Makefile.sed;mv -f Makefile.sed Makefile;sed 's|$(CTEST_JOBS)||' Makefile > Makefile.sed;mv -f Makefile.sed Makefile;"${MAKE:-make}";cp ./build/release/upx "$root/bin")
 fi
