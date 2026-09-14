@@ -9,7 +9,7 @@ if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
     tmp="$root/archive/temp-cb86"
     rm -rf "$tmp"
     mkdir -p "$root/share/cb86cpm" "$root/share/cb86dos" "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/cbasic86.zip"
     unzip -L "$ARCHIVED_FILE"
@@ -34,6 +34,6 @@ if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
     cp "$root/share/pcdev/rasm86.exe" "$root/share/cb86dos/rasm86.exe"
     chmod 644 "$root/share/cb86cpm"/*.*
     chmod 644 "$root/share/cb86dos"/*.*
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi
