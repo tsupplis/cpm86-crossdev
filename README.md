@@ -242,6 +242,48 @@ Clearing the directory is achieved by:
 ./clear_tools
 ```
 
+#### Platform notes
+
+* The build has been tested on **IBM AIX** (7.2 TL5 or later), **GNU/Linux**, **NetBSD**,
+  **FreeBSD**, and **OpenBSD**.  No special build steps (other than installing the
+  appropriate prerequisites) are required for any platform *except for IBM AIX*.
+
+* On IBM AIX you must invoke `fetch_tools` as `env CC=gcc-13 CXX=g++-13 ./fetch_tools`.
+  (If you have a version of GCC later than 13, adjust your invocations accordingly.)
+
+  1. It is know that UPX 5.2.1 initially fails to build.  As a workaround:
+
+     ```sh
+     cd archive/upx
+     rm -rf build/release
+     ```
+
+  2. Edit the `src/work.cpp` file and (around line 159) change:
+
+     ```c
+     // POSIX.1-2008
+     times[0] = st->st_atim;
+     times[1] = st->st_mtim;
+     ```
+
+     to this:
+
+     ```c
+     times[0].tv_sec  = st->st_atim.tv_sec;
+     times[0].tv_nsec = st->st_atim.tv_nsec;
+     times[1].tv_sec  = st->st_mtim.tv_sec;
+     times[1].tv_nsec = st->st_mtim.tv_nsec;
+     ```
+
+  3. Then rebuild UPX using the following command:
+
+     ```sh
+     sh -xc 'export PATH="/opt/freeware/bin:$PATH" && env OBJECT_MODE=64 CC="gcc-13 -maix64 -Wl,-b64 -D_ALL_SOURCE" CXX="g++-13 -maix64 -Wl,-b64 -D_ALL_SOURCE" gmake -j $(nproc) VERBOSE=1'
+     cd ../..
+     ```
+
+  Once the steps above successfully complete, run `env CC=gcc-13 CXX=g++-13 ./fetch_tool` again the build will run to completion.
+
 ### Download archive / offline rebuilds
 
 Every file downloaded by `fetch_tools` (the Aztec, DR, CB86 and NASM archives,
