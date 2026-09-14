@@ -70,7 +70,6 @@ The entire argument **must be single-quoted** in the shell / Makefile so that
 |--------|------|---------|
 | `[$sz]` | — | Suppress "NO STACK SEGMENT" warning (use for pure-asm programs) |
 | `[map]` | `[m]` | Produce `<out>.map` segment-layout file |
-| `[noprefix]` | `[nop]` | Omit high-level-language startup prefix (pure asm only) |
 | `[data[add[N]]]` | `[d[ad[N]]]` | Add `N` paragraphs of runtime data space to DATA section header |
 | `[data[ori[N]]]` | `[d[ori[N]]]` | Set DATA section origin to `N` paragraphs |
 | `[stack[N]]` | — | Reserve `N` paragraphs of stack |
