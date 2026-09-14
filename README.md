@@ -348,7 +348,7 @@ This keeps the build environment reproducible even if an upstream disappears:
 - If a download fails, `fetch_tools` falls back to the cached copy in `archive/`.
 - Set `ARCHIVE_FIRST=1` to rebuild entirely from `archive/` without touching the
   network (e.g. offline, or to pin exact versions):
-  ```
+  ```sh
   env ARCHIVE_FIRST=1 ./fetch_tools
   ```
 - `clear_tools` will **not** remove the `archive/`, so a cleared tree can always
