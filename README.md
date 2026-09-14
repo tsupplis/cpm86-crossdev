@@ -278,16 +278,34 @@ Clearing the directory is achieved by:
 
 ##### Tested platforms
 
-* The build has been tested on **IBM AIX** (7.2 TL5 or later), **GNU/Linux**, **NetBSD**,
-  **FreeBSD**, and **OpenBSD**.  No special build steps (other than installing the
-  appropriate prerequisites) are required for any platform *except for IBM AIX*.
+* The build has been tested on **IBM AIX** (7.2 TL5+), **GNU/Linux**, **NetBSD**,
+  **FreeBSD**, **OpenBSD**, **OpenIndiana** (illumos), and **Solaris** (11.4 SRU 81+).
+  No special build steps (other than installing the appropriate prerequisites) are
+  required most platforms.
+
+* See special build instructions below for **IBM AIX** and **Solaris**.
+
+##### Solaris and OpenIndiana
+
+* On both Solaris 11.4 SRU 81+ and current OpenIndiana (illumos) systems, you must
+  have GNU `tar` available as `gtar` and also provide your own
+  [dos2unix](https://dos2unix.sourceforge.io/) in the PATH.
+  Invoke `fetch_tools` as follows:
+  ```sh
+  env PATH="/path/to/dos2unix:$(getconf PATH):$PATH" CC=gcc CXX=g++ ./fetch_tools
+  ```
+  Replace `/path/to/dos2unix` with the actual path where you built the software.
 
 ##### IBM AIX notes
 
-* On IBM AIX you must invoke `fetch_tools` as `env CC=gcc-13 CXX=g++-13 ./fetch_tools`.
+* On IBM AIX you must invoke `fetch_tools` as:
+  ```sh
+  env CC=gcc-13 CXX=g++-13 ./fetch_tools
+  ```
+
   (If you have a version of GCC later than 13, adjust your invocations accordingly.)
 
-  1. It is know that UPX 5.2.1 initially fails to build.  As a workaround:
+  1. It is known that UPX 5.2.1 initially fails to build.  As a workaround:
 
      ```sh
      cd archive/upx
@@ -311,7 +329,7 @@ Clearing the directory is achieved by:
      times[1].tv_nsec = st->st_mtim.tv_nsec;
      ```
 
-  3. Edit the `src/util/xspan.h` file and (around line 221) change:
+  3. Edit the `src/util/xspan.h` file and (around line 33) change:
 
      ```c
      #ifndef WITH_XSPAN
