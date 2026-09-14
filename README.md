@@ -2,6 +2,7 @@
 
 <!-- toc -->
 
+- [Overview](#overview)
 - [Thanks](#thanks)
 - [Where to find CP/M-86?](#where-to-find-cpm-86)
 - [Key tools for CP/M-86 development](#key-tools-for-cpm-86-development)
@@ -28,6 +29,8 @@
 <!-- tocstop -->
 
 ---
+
+## Overview
 
 This project regroups a simple method to create a cross development environment for CP/M-86. It happens that all DOS based tools can also be used for building DOS programs.
 This project was developed for myself in a nerdy spirit and for a lot of fun. Just sharing without any guarantees.
@@ -125,7 +128,7 @@ Install any missing prerequisites with your favorite package manager.
 
 | | Prerequisites |
 |---|---|
-| **Required** | C/C++ toolchain (C99/C++14): [GCC](https://gcc.gnu.org/) or [Clang](https://clang.llvm.org/) · [`curl`](https://curl.se/) · [CMake](https://cmake.org/) · [`dos2unix`](https://dos2unix.sourceforge.io/) · [`git`](https://git-scm.com/) · [Bash](https://www.gnu.org/software/bash/) · [Coreutils](https://www.gnu.org/software/coreutils/) · [Gzip](https://www.gnu.org/software/gzip/) · [Make](https://www.gnu.org/software/make/) · GNU&nbsp;[`patch`](https://savannah.gnu.org/projects/patch/) · [Screen](https://www.gnu.org/software/screen/) · [`tar`](https://www.gnu.org/software/tar/) · [Wget](https://www.gnu.org/software/wget/) · Info‑ZIP&nbsp;[Unzip](https://infozip.sourceforge.net/UnZip.html) · [ncurses](https://invisible-island.net/ncurses/) · [XZ Utils](https://tukaani.org/xz/) |
+| **Required** | · C/C++ toolchain (C99/C++14): [GCC](https://gcc.gnu.org/) or [Clang](https://clang.llvm.org/)<br> · [`curl`](https://curl.se/)<br> · [CMake](https://cmake.org/) · [`dos2unix`](https://dos2unix.sourceforge.io/)<br> · [`git`](https://git-scm.com/)<br> · GNU&nbsp;[Coreutils](https://www.gnu.org/software/coreutils/)<br> · [Gzip](https://www.gnu.org/software/gzip/)<br> · GNU&nbsp;[Make](https://www.gnu.org/software/make/)<br> · GNU&nbsp;[`patch`](https://savannah.gnu.org/projects/patch/)<br> · [Screen](https://www.gnu.org/software/screen/)<br> · [`tar`](https://www.gnu.org/software/tar/) · [Wget](https://www.gnu.org/software/wget/)<br> · Info‑ZIP&nbsp;[Unzip](https://infozip.sourceforge.net/UnZip.html)<br> · [ncurses](https://invisible-island.net/ncurses/)<br> · [XZ Utils](https://tukaani.org/xz/) |
 | **Optional** | [Docker](https://www.docker.com/), [Podman](https://podman.io/), or equivalent (for containerised builds) |
 
 ## Script Mapping
@@ -346,7 +349,7 @@ This keeps the build environment reproducible even if an upstream disappears:
 - Set `ARCHIVE_FIRST=1` to rebuild entirely from `archive/` without touching the
   network (e.g. offline, or to pin exact versions):
   ```
-  ARCHIVE_FIRST=1 ./fetch_tools
+  env ARCHIVE_FIRST=1 ./fetch_tools
   ```
 - `clear_tools` will **not** remove the `archive/`, so a cleared tree can always
   be rebuilt from the local cache.
