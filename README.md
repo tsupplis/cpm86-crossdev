@@ -1,5 +1,34 @@
 # CP/M-86 & MS-DOS Cross Development Environment
 
+<!-- toc -->
+
+- [Thanks](#thanks)
+- [Where to find CP/M-86?](#where-to-find-cpm-86)
+- [Key tools for CP/M-86 development](#key-tools-for-cpm-86-development)
+  * [Compilers and language tools](#compilers-and-language-tools)
+  * [Assemblers](#assemblers)
+  * [Emulators and utilities](#emulators-and-utilities)
+- [License Considerations](#license-considerations)
+- [Prerequisites](#prerequisites)
+- [Script Mapping](#script-mapping)
+- [Fetching the tools](#fetching-the-tools)
+    + [Platform notes](#platform-notes)
+      - [Tested platforms](#tested-platforms)
+      - [IBM AIX notes](#ibm-aix-notes)
+  * [Download archive / offline rebuilds](#download-archive--offline-rebuilds)
+- [Testing](#testing)
+- [Docker image](#docker-image)
+- [Using the tools](#using-the-tools)
+  * [Basic Programs](#basic-programs)
+  * [C Programs](#c-programs)
+    + [C runtime startup](#c-runtime-startup)
+  * [Assembler Programs](#assembler-programs)
+  * [Misc Languages](#misc-languages)
+
+<!-- tocstop -->
+
+---
+
 This project regroups a simple method to create a cross development environment for CP/M-86. It happens that all DOS based tools can also be used for building DOS programs.
 This project was developed for myself in a nerdy spirit and for a lot of fun. Just sharing without any guarantees.
 
@@ -96,7 +125,7 @@ Install any missing prerequisites with your favorite package manager.
 
 | | Prerequisites |
 |---|---|
-| **Required** | C/C++ toolchain (C99/C++14): [GCC](https://gcc.gnu.org/) or [Clang](https://clang.llvm.org/) · [`curl`](https://curl.se/) · [CMake](https://cmake.org/) · [`dos2unix`](https://dos2unix.sourceforge.io/) · [`git`](https://git-scm.com/) · [Bash](https://www.gnu.org/software/bash/) · [Coreutils](https://www.gnu.org/software/coreutils/) · [Gzip](https://www.gnu.org/software/gzip/) · [Make](https://www.gnu.org/software/make/) · GNU [`patch`](https://savannah.gnu.org/projects/patch/) · [Screen](https://www.gnu.org/software/screen/) · [`tar`](https://www.gnu.org/software/tar/) · [Wget](https://www.gnu.org/software/wget/) · Info-ZIP [Unzip](https://infozip.sourceforge.net/UnZip.html) · [ncurses](https://invisible-island.net/ncurses/) · [XZ Utils](https://tukaani.org/xz/) |
+| **Required** | C/C++ toolchain (C99/C++14): [GCC](https://gcc.gnu.org/) or [Clang](https://clang.llvm.org/) · [`curl`](https://curl.se/) · [CMake](https://cmake.org/) · [`dos2unix`](https://dos2unix.sourceforge.io/) · [`git`](https://git-scm.com/) · [Bash](https://www.gnu.org/software/bash/) · [Coreutils](https://www.gnu.org/software/coreutils/) · [Gzip](https://www.gnu.org/software/gzip/) · [Make](https://www.gnu.org/software/make/) · GNU&nbsp;[`patch`](https://savannah.gnu.org/projects/patch/) · [Screen](https://www.gnu.org/software/screen/) · [`tar`](https://www.gnu.org/software/tar/) · [Wget](https://www.gnu.org/software/wget/) · Info‑ZIP&nbsp;[Unzip](https://infozip.sourceforge.net/UnZip.html) · [ncurses](https://invisible-island.net/ncurses/) · [XZ Utils](https://tukaani.org/xz/) |
 | **Optional** | [Docker](https://www.docker.com/), [Podman](https://podman.io/), or equivalent (for containerised builds) |
 
 ## Script Mapping
@@ -244,9 +273,13 @@ Clearing the directory is achieved by:
 
 #### Platform notes
 
+##### Tested platforms
+
 * The build has been tested on **IBM AIX** (7.2 TL5 or later), **GNU/Linux**, **NetBSD**,
   **FreeBSD**, and **OpenBSD**.  No special build steps (other than installing the
   appropriate prerequisites) are required for any platform *except for IBM AIX*.
+
+##### IBM AIX notes
 
 * On IBM AIX you must invoke `fetch_tools` as `env CC=gcc-13 CXX=g++-13 ./fetch_tools`.
   (If you have a version of GCC later than 13, adjust your invocations accordingly.)
