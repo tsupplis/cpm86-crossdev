@@ -173,7 +173,7 @@ if dos2unix /dev/null /dev/null /dev/null 2>&1 | \
     printf '%s\n' "[Continuing in 5 seconds...]"
     sleep 5 2> /dev/null
 
-elif ! dos2unix --version < /dev/null 2> /dev/null 2>&1 | \
+elif ! dos2unix --version < /dev/null 2>&1 | \
   grep -q 'dos2unix '; then
     printf 'WARNING: %s\n' \
       "$(command -v dos2unix) is an old/unknown version and is NOT supported!"
