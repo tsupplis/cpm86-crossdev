@@ -4,6 +4,28 @@ root=`dirname $0`
 cd "$root"
 root=`pwd`
 
+################################################################################
+
+# On FreeBSD, always ensure /usr/local/bin comes first in PATH if existing
+
+test "$(uname -s 2> /dev/null)" = "FreeBSD" && {
+  test -d "/usr/local/bin" && {
+    export PATH="/usr/local/bin:${PATH:-}"
+  }
+}
+
+################################################################################
+
+# Prefer gmake if available and MAKE is unset
+
+test -z "${MAKE:-}" && {
+  command -v "gmake" > /dev/null 2>&1 && {
+    export MAKE="$(command -v gmake)"
+  }
+}
+
+################################################################################
+
 printf 'INF: clearing examples in %s\n' "$root"
 (cd "$root/examples" && "${MAKE:-make}" clean)
 
