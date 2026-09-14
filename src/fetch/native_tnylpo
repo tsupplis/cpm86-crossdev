@@ -10,8 +10,10 @@ if [ ! -d "$root/archive/tnylpo" ];then
 fi
 if [ ! -f "$root/bin/tnylpo" ];then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
-    # For illumos systems, we use the Linux tnylpo build configuration.
-    test "$(uname -o 2> /dev/null || true)" = "illumos" && {
+    # As we only support new Solaris (11.4 SRU 81+) and current illumos systems.
+    # we use the Linux tnylpo build configuration, which works as expected.
+    test "$(uname -o 2> /dev/null || true)" = "illumos" -o \
+         "$(uname -o 2> /dev/null || true)" = "Solaris" && {
         (cd "$root/archive/tnylpo" && sed 's|-I /usr/include/ncursesw|-I /usr/include/ncursesw -I /usr/include/ncurses|' makefile > makefile.sed && mv -f makefile.sed makefile)
         EXTRA_FLAG='SYSTEM=Linux'
     } || true
