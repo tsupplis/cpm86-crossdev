@@ -33,11 +33,8 @@ if [ ! -f "$root/share/cpm/asm86.com" ] || [ ! -f "$root/share/cpm/gencmd.com" ]
 fi
 echo INF: Checking CP/M-86 DR tools ...
 if [ ! -f "$root/share/cpm/asm86.cmd" ] || [ ! -f "$root/share/cpm/gencmd.cmd" ]; then
-    mkdir -p "$root/share/cpm"
-    fetch_get "https://github.com/tsupplis/cpm86-kernel/raw/refs/heads/main/base/asm86.cmd" "asm86.cmd"
-    cp "$ARCHIVED_FILE" "$root/share/cpm/asm86.cmd"
-    fetch_get "https://github.com/tsupplis/cpm86-kernel/raw/refs/heads/main/base/gencmd.cmd" "gencmd.cmd"
-    cp "$ARCHIVED_FILE" "$root/share/cpm/gencmd.cmd"
+    cp "$root/src/drtools/asm86.cmd" "$root/share/cpm/asm86.cmd"
+    cp "$root/src/drtools/gencmd.cmd" "$root/share/cpm/gencmd.cmd"
     chmod 644 "$root/share/cpm/asm86.cmd" "$root/share/cpm/gencmd.cmd"
 fi
 echo INF: Checking Personal Basic 86 1.2 ...
