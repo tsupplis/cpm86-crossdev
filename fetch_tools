@@ -97,7 +97,6 @@ export FIND_COMMAND_FATAL=1
 find_command \
     "${MAKE:-make}" \
     "${CC:?}" \
-    "bash" \
     "cmake" \
     "dos2unix" \
     "git" \
