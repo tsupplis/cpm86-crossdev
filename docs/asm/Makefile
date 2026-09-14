@@ -34,6 +34,11 @@ all: $(EXAMPLES)
 	$(LINK86) $* '[$$sz]'
 	$(CMDINFO) $@
 
+# ── Example 1: single code segment ──────────────────────────────────────────────
+
+ex1sing.cmd: ex1sing.obj
+	$(LINK86) 'ex1sing=ex1sing [cod[ori[0]],dat[ori[0],max[0]],$$sz]'
+
 # ── Example 5: multi-module ────────────────────────────────────────────────────
 
 ex5main.cmd: ex5main.obj ex5util.obj

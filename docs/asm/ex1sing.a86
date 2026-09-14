@@ -22,19 +22,8 @@ CR          equ     0Dh
 LF          equ     0Ah
 
             cseg
+            
             org     100h
-
-            jmp     main
-
-; ============================================================
-; DATA — before code so all symbols resolve in pass 1
-; ============================================================
-
-greeting    db      'CP/M-86 single-segment example', CR, LF, '$'
-prompt      db      'Press a key: $'
-echo_pre    db      CR, LF, 'You pressed: $'
-crlf_str    db      CR, LF, '$'
-key_char    rb      1               ; save key here — BX is clobbered by BDOS
 
 ; ============================================================
 ; CODE
@@ -84,5 +73,15 @@ main:
             ; Exit (fn 0 = warm boot)
             xor     cx, cx
             int     BDOS
+
+; ============================================================
+; DATA — before code so all symbols resolve in pass 1
+; ============================================================
+
+greeting    db      'CP/M-86 single-segment example', CR, LF, '$'
+prompt      db      'Press a key: $'
+echo_pre    db      CR, LF, 'You pressed: $'
+crlf_str    db      CR, LF, '$'
+key_char    rb      2              ; save key here — BX is clobbered by BDOS
 
             end     main

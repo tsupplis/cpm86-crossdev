@@ -105,6 +105,9 @@ Drive: `A`–`P` = disk; `X` = console; `Y` = printer; `Z` = suppress.
 # Single object → .cmd, suppress stack warning
 pcdev_linkcmd 'foo [$sz]'
 
+# Single object -> .cmd, simple segment, suppress stack warning
+pcdev_linkcmd 'foo [cod[ori[0]],dat[ori[0],max[0]]]'
+
 # Multi-object link
 pcdev_linkcmd 'main=main,util,helper [$sz]'
 
