@@ -185,7 +185,7 @@ run_fetcher() {
     printf 'INF: [%s] starting ...\n' "$_name"
     printf '\n=== %s ===\n' "$_name" >> "$fetch_log"
     if env -i PATCH="${PATCH:-patch}" MAKE="${MAKE:-make}" HOME="${HOME:?}" \
-              PATH="${PATH:?}" root="${root:?}" \
+              PATH="${PATH:?}" root="${root:?}" CC="${CC:-cc}" CXX="${CXX:-c++}" \
         sh -c '. "$root/src/fetch/_archive"; cd "$root"; . "$root/src/fetch/'"$_name"'"' \
         >> "$fetch_log" 2>&1 </dev/null; then
         printf 'INF: [%s] ok\n' "$_name"
