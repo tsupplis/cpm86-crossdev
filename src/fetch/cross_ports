@@ -21,17 +21,18 @@ if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
     rm -rf "$tmp"
     trap - EXIT
 fi
-if [ ! -f "$root/share/drc86cpm/ansikr.cmd"  ! -f "$root/bin/ansi2kr" ]; then
-    tmp="$root/archive/temp-ansikr"
+if [ ! -f "$root/share/drc86cpm/ansi2kr.cmd" ] && [  ! -f "$root/bin/ansi2kr" ]; then
+    tmp="$root/archive/temp-ansi2kr"
     rm -rf "$tmp"
     mkdir -p "$tmp"
     trap 'rm -rf "$tmp"' EXIT
-    cp "$root/archive/cpm86-ports/ansikr"/* "$tmp/"
-    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all
-    mkdir -p "$root/share/ansi2kr"
-    cp "$tmp/ansi2kr.cmd" "$tmp"/*.lsp "$root/share/drc86cpm/"
-    cp "$tmp/ansi2kr" "$tmp"/*.lsp "$root/bin"
+    cp "$root/archive/cpm86-ports/ansi2kr"/*.c "$root/archive/cpm86-ports/ansi2kr"/Makefile "$tmp/"
+    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all 
+    mkdir -p "$root/share/drc86cpm"
+    cp "$tmp/ansi2kr.cmd" "$root/share/drc86cpm/"
+    cp "$tmp/ansi2kr" "$root/bin"
     chmod 644 "$root/share/drc86cpm/ansi2kr.cmd"
     rm -rf "$tmp"
     trap - EXIT
 fi
+
