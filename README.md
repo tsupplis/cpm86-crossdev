@@ -275,7 +275,25 @@ Clearing the directory is achieved by:
      times[1].tv_nsec = st->st_mtim.tv_nsec;
      ```
 
-  3. Then rebuild UPX using the following command:
+  3. Edit the `src/util/xspan.h` file and (around line 221) change:
+
+     ```c
+     #ifndef WITH_XSPAN
+     #define WITH_XSPAN 2
+     #endif
+     ```
+
+     to this:
+
+     ```c
+     #undef WITH_XSPAN
+     #define WITH_XSPAN 1
+     ```
+
+  4. Edit the `src/check/dt_xspan.cpp` file and (around line 29), after the
+     `#include "../conf.h"` line, *delete all lines* until the end of the file.
+
+  5. Then rebuild UPX using the following command:
 
      ```sh
      sh -xc 'export PATH="/opt/freeware/bin:$PATH" && env OBJECT_MODE=64 CC="gcc-13 -maix64 -Wl,-b64 -D_ALL_SOURCE" CXX="g++-13 -maix64 -Wl,-b64 -D_ALL_SOURCE" gmake -j $(nproc) VERBOSE=1'
