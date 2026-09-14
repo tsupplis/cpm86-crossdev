@@ -8,7 +8,7 @@ if [ ! -f plicpm/pli.cmd ]; then
     tmp="$root/archive/temp-pli"
     rm -rf "$tmp"
     mkdir -p "$root/share/plicpm" "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
+    trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "http://www.cpm.z80.de/download/pli86.zip"
     unzip -L "$ARCHIVED_FILE"
@@ -20,6 +20,6 @@ if [ ! -f plicpm/pli.cmd ]; then
     cp cpmdio.a86 div2.a86 fdiv2.a86 "$root/share/plicpm"
     cp "$root/share/pcdev/linkcmd.exe" "$root/share/plicpm"
     chmod 644 "$root/share/plicpm"/*
-    rm -rf "$tmp"
+    cd .. && rm -rf "$tmp"
     trap - EXIT
 fi
