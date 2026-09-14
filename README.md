@@ -15,6 +15,7 @@
 - [Fetching the tools](#fetching-the-tools)
     + [Platform notes](#platform-notes)
       - [Tested platforms](#tested-platforms)
+      - [Solaris and OpenIndiana](#solaris-and-openindiana)
       - [IBM AIX notes](#ibm-aix-notes)
   * [Download archive / offline rebuilds](#download-archive--offline-rebuilds)
 - [Testing](#testing)
