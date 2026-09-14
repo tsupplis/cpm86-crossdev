@@ -83,6 +83,12 @@ test -d "/usr/pkg/gnu/bin" && {
 
 ################################################################################
 
+test -d "/usr/pkg/bin" && {
+  export PATH="/usr/pkg/bin:${PATH:-}"
+}
+
+################################################################################
+
 # On FreeBSD, always ensure /usr/local/bin comes first in PATH if existing
 
 test "$(uname -s 2> /dev/null)" = "FreeBSD" && {
