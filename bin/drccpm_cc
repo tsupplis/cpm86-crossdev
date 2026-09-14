@@ -24,6 +24,12 @@ trap 'rm -f ctemp.tok "$tmp_src" templist.l templist.d' EXIT INT TERM
 #                 drc861 gets -itemplist.d, then drc862 merges them
 #   drop        : -0 -1 -2 (module locations — supervisor only, not forwarded)
 #
+echo "--------------------------------------------------"
+echo "Digital Research C       04/17/84     Version 1.11"
+echo "Serial No. 3073-0000-001282    All Rights Reserved"
+echo "Copyright (c) 1983,1984     Digital Research, Inc."
+echo "--------------------------------------------------"
+
 cpp_args=""
 cc_args=""
 src_file=""
