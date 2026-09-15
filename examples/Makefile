@@ -10,8 +10,10 @@ ALD=aztec42_link
 LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
 ASM86=cpm86_asm86
+ASM80=cpm_asm80
 GENCMD=cpm86_gencmd
 BIN2CMD=bin2cmd
+HEXCOM=hexcom
 EXE2BIN=pcdev_exe2bin
 CMDINFO=cmdinfo
 CBLINK=drcbcpm_link
@@ -136,9 +138,17 @@ hellopli.cmd: hellopli.obj
 	$(PLILINK) '$@=$(basename $<)'
 	$(CMDINFO) $@
 
+hello80.com: hello80.hex
+	$(HEXCOM) $<
+
+hello80.hex: hello80.asm
+	$(ASM80) $(basename $<)
+	[ -f $@ ]
+
 hello86.a86: hello80.asm
 	$(XLT86) hello80 < /dev/null
-	mv hello80.a86 hello86.a86
+	doscat hello80.a86 | sed -e 's/asm 8080/asm 8086/g' > hello86.a86
+	rm -f hello80.a86
 	[ -f $@ ]
 
 hello86.cmd: hello86.h86
@@ -196,7 +206,7 @@ hellocbl.int: hellocbl.cbl
 
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
-		  *.mp2 *exe *.map *.err *.int \
+		  *.mp2 *exe *.map *.err *.int *.prn *.hex *.com \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello86.a86 \
 	      $(TOOLS)
