@@ -42,10 +42,11 @@ COBRUN=mfcobol_run
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
 	hello86.cmd hellocbl.int hellopli.cmd hellodra.cmd
+EXTRAS=hello80.com
 
 all: binaries
 
-binaries: $(TOOLS) 
+binaries: $(TOOLS) $(EXTRAS)
 
 hellon.cmd: hellon.bin
 	$(BIN2CMD) $< $@
@@ -206,8 +207,8 @@ hellocbl.int: hellocbl.cbl
 
 clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
-		  *.mp2 *exe *.map *.err *.int *.prn *.hex *.com \
+		  *.mp2 *exe *.map *.err *.int *.prn *.hex \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello86.a86 \
-	      $(TOOLS)
+	      $(TOOLS) $(EXTRAS)
 
