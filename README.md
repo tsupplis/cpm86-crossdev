@@ -146,92 +146,92 @@ For example, `cpm86_asm86` (CP/M‑86, tier 3) is preferred over `cpm_asm86`
 
 All the tools are wrapped in the bin directory for direct usage:
 
-| tool          | program     | quick description                  |
-|---------------|-------------|------------------------------------|
-| cpm_asm86     | asm86.com   | DR assembler (CP/M‑80 tool)        |
-| cpm_gencmd    | gencmd.com  | DR H86 converter (CP/M‑80 tool)    |
-| cpm_xlt86     | xlt86.com   | DR 8080→8086 translator (CP/M‑80, via tnylpo) |
-| cpm_mbasic    | mbasic.com  | Microsoft Basic 5.21 (8080 CP/M‑80, via tnylpo) |
-| cpm_obasic    | obasic.com  | Microsoft Basic 4.51 (8080 CP/M‑80, via tnylpo) |
-| cpm_tdlbasic  | tdlbasic.com | TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)       |
-| cpm86_asm86   | asm86.cmd   | DR assembler (CP/M‑86, via emu2, not working yet)   |
-| cpm86_gencmd  | gencmd.cmd  | DR H86 converter (CP/M‑86, via emu2, not working yet) |
-| cpm86_basic   | basic.cmd   | DR Personal Basic 1.2 (via cpm86)  |
-| cpm86_mbasic  | mbasic86.cmd | Microsoft Basic 5.22 (CP/M‑86, via emu2) |
-| pcdev_mbasic  | mbasic86.com | Microsoft Basic 5.28 (DOS, via emu2)     |
-| pcdev_rasm86  | rasm86.exe  | DR assembler                      |
-| pcdev_linkcmd | linkcmd.exe | DR linker for CP/M‑86              |
-| pcdev_link86  | linkcmd.exe | "  "  "  "  "  "                   |
-| pcdev_linkexe | linkexe.exe | DR linker for DOS                  |
-| pcdev_lib86   | lib86.exe   | DR librarian                       |
-| pcdev_masm    | masm.exe    | Microsoft assembler                |
-| pcdev_link    | link.exe    | Microsoft linker                   |
-| pcdev_exe2bin | exe2bin.exe | Microsoft EXE converter            |
-| pcdev_hex2bin | hex2bin.com | Microsoft HEX converter            |
-| pcdev_asm     | asm.com     | Microsoft/86‑DOS assembler         |
-| cmdinfo       | (native)    | CMD info tool (native)             |
-| bin2cmd       | (native)    | CMD converter (native)             |
-| exe2cmd       | (native)    | EXE to CMD converter (native)      |
-| pcdev_cmdinfo | ‑           | obsolete alias for cmdinfo         |
-| pcdev_bin2cmd | ‑           | obsolete alias for bin2cmd         |
-| pcdev_exe2cmd | ‑           | obsolete alias for exe2cmd         |
-| aztec34_as    | as.exe      | Aztec Assembler.                   |
-| aztec34_cc    | cc.exe      | Aztec K&R C compiler               |
-| aztec34_sqz   | sqz.exe     | Aztec C object optimizer           |
-| aztec34_link  | ln.exe      | Aztec C linker                     |
-| aztec34_lib   | lb.exe      | Aztec C lib                        |
-| aztec34_ord   | ord.exe     | Aztec C library ordering helper    |
-| aztec34_obd   | obd.exe     | Aztec C object dump                |
-| aztec34_obj   | obj.exe     | Aztec C object lister              |
-| aztec34_hex86 | hex86.exe   | Aztec C H86 generator              |
-| aztec42_as    | as.exe      | Aztec Assembler.                   |
-| aztec42_cc    | cc.exe      | Aztec ANSI C compiler              |
-| aztec42_sqz   | sqz.exe     | Aztec C object optimizer           |
-| aztec42_link  | ln.exe      | Aztec C linker                     |
-| aztec42_lib   | lb.exe      | Aztec C lib                        |
-| aztec42_ord   | ord.exe     | Aztec C library ordering helper    |
-| aztec42_obd   | obd.exe     | Aztec C object dump                |
-| aztec42_obj   | obj.exe     | Aztec C object lister              |
-| aztec42_hex86 | hex86.exe   | Aztec C H86 generator              |
-| ppcpm_ppas    | ppas.cmd       | PolyPascal‑86 V3.11 compiler+editor (CP/M‑86) |
-| ppcpm_ppbs    | ppbs.cmd       | PolyPascal‑86 V3.11 BCD business variant (CP/M‑86) |
-| ppcpm_pp87    | pp87.cmd       | PolyPascal‑86 V3.11 8087 FPU variant (CP/M‑86) |
-| ppdos_ppas    | ppas.com       | PolyPascal‑86 V3.11 compiler+editor (DOS) |
-| ppdos_ppbs    | ppbs.com       | PolyPascal‑86 V3.11 BCD business variant (DOS) |
-| ppdos_pp87    | pp87.com       | PolyPascal‑86 V3.11 8087 FPU variant (DOS) |
-| cpm86_turbo   | turbo.cmd      | Turbo Pascal 3.01 (CP/M‑86)             |
-| drpmt_pc      | mt+86.cmd      | Pascal MT+ 3.3 compiler                 |
-| drpmt_link    | linkmt.cmd     | Pascal MT+ 3.3 linker                   |
-| drpmt_asm     | asmt86.cmd     | Pascal MT+ 3.3 assembler                |
-| drfcpm_f77    | f77.cmd        | DR Fortran‑77 4.0 compiler              |
-| drfcpm_link   | linkcmd.exe     | DR Fortran‑77 4.0 linker                |
-| drccpm_cc     | drc860+861.cmd | DR C 1.11 compiler (two‑pass)           |
-| drccpm_link   | linkcmd.exe     | DR C 1.11 linker                        |
-| m2cb_cvt      | m2cbasic.cmd | M2CBASIC 1.4 MBASIC to CBASIC converter |
-| drcbcpm_bc    | cb86.exe    | DR cbasic compiler for CP/M‑86     |
-| drcbcpm_link  | link86.exe  | DR cbasic linker for CP/M‑86       |
-| drcbdos_bc    | cb86.exe    | DR cbasic compiler for DOS         |
-| drcbdos_link  | linkexe.exe | DR cbasic linker for DOS           |
-| cpm86         | cpm86.exe   | CP/M‑86 emulator (via emu2+dos)    |
-| emu2          | (native)    | x86 DOS/CP/M‑86 emulator           |
-| tnylpo        | (native)    | CP/M‑80 emulator                   |
-| hexcom        | (native)    | HEX to COM translation             |
-| doscat        | (native)    | Truncate files beyond ^Z           |
-| ansi2kr       | (native)    | ANSI C to K&R C converter (native) |
-| nasm          | (native)    | Netwide assembler                  |
-| upx           | (native)    | executable packer                  |
-| intel_plm86   | plm86.exe   | Intel PL/M‑86 3.30 compiler        |
-| intel_asm86   | asm86.exe   | Intel ASM‑86 assembler             |
-| intel_link    | link.exe    | Microsoft linker                       |
-| intel_link86  | link86.exe  | Intel linker                       |
-| intel_lib86   | lib86.exe   | Intel librarian                    |
-| intel_loc86   | loc86.exe   | Intel locator                      |
-| intel_oh86   | oh86.exe   | Intel object to hex converter      |
-| drpli_pc      | pli.cmd     | DR PL/I‑86 1.0 compiler                     |
-| drpli_link    | linkcmd.exe  | DR PL/I‑86 1.0 linker                        |
-| cpm86_xlisp   | xlisp.cmd   | XLISP 1.1 interpreter (built from source) |
-| mfcobol_cc    | cobol.cmd   | Micro Focus Level II COBOL compiler (CP/M‑86) |
-| mfcobol_run   | run.cmd     | Micro Focus Level II COBOL runtime (CP/M‑86)  |
+| category                  | tool          | program          | quick description                                      |
+|---------------------------|---------------|------------------|--------------------------------------------------------|
+| Assembler                 | cpm_asm86     | asm86.com        | DR assembler (CP/M‑80 tool)                            |
+| Assembler                 | cpm_gencmd    | gencmd.com       | DR H86 converter (CP/M‑80 tool)                        |
+| Assembler                 | cpm_xlt86     | xlt86.com        | DR 8080→8086 translator (CP/M‑80, via tnylpo)          |
+| Assembler                 | cpm86_asm86   | asm86.cmd        | DR assembler (CP/M‑86, via emu2, not working yet)      |
+| Assembler                 | cpm86_gencmd  | gencmd.cmd       | DR H86 converter (CP/M‑86, via emu2, not working yet)  |
+| Assembler                 | nasm          | (native)         | Netwide assembler                                      |
+| Assembler                 | pcdev_asm     | asm.com          | Microsoft/86‑DOS assembler                             |
+| Assembler                 | pcdev_masm    | masm.exe         | Microsoft assembler                                    |
+| Assembler                 | pcdev_rasm86  | rasm86.exe       | DR assembler                                           |
+| Linkers / Librarians      | bin2cmd       | (native)         | CMD converter (native)                                 |
+| Linkers / Librarians      | exe2cmd       | (native)         | EXE to CMD converter (native)                          |
+| Linkers / Librarians      | hexcom        | (native)         | HEX to COM translation                                 |
+| Linkers / Librarians      | pcdev_bin2cmd | ‑                | obsolete alias for bin2cmd                             |
+| Linkers / Librarians      | pcdev_exe2bin | exe2bin.exe      | Microsoft EXE converter                                |
+| Linkers / Librarians      | pcdev_exe2cmd | ‑                | obsolete alias for exe2cmd                             |
+| Linkers / Librarians      | pcdev_hex2bin | hex2bin.com      | Microsoft HEX converter                                |
+| Linkers / Librarians      | pcdev_lib86   | lib86.exe        | DR librarian                                           |
+| Linkers / Librarians      | pcdev_link    | link.exe         | Microsoft linker                                       |
+| Linkers / Librarians      | pcdev_link86  | linkcmd.exe      | DR linker for CP/M‑86 (alias)                          |
+| Linkers / Librarians      | pcdev_linkcmd | linkcmd.exe      | DR linker for CP/M‑86                                  |
+| Linkers / Librarians      | pcdev_linkexe | linkexe.exe      | DR linker for DOS                                      |
+| Basic      | cpm_mbasic    | mbasic.com       | Microsoft Basic 5.21 (8080 CP/M‑80, via tnylpo)        |
+| Basic      | cpm_obasic    | obasic.com       | Microsoft Basic 4.51 (8080 CP/M‑80, via tnylpo)        |
+| Basic      | cpm_tdlbasic  | tdlbasic.com     | TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)             |
+| Basic      | cpm86_basic   | basic.cmd        | DR Personal Basic 1.2 (via cpm86)                      |
+| Basic      | cpm86_mbasic  | mbasic86.cmd     | Microsoft Basic 5.22 (CP/M‑86, via emu2)               |
+| Basic      | drcbcpm_bc    | cb86.exe         | DR CBASIC compiler for CP/M‑86                         |
+| Basic      | drcbcpm_link  | link86.exe       | DR CBASIC linker for CP/M‑86                           |
+| Basic      | drcbdos_bc    | cb86.exe         | DR CBASIC compiler for DOS                             |
+| Basic      | drcbdos_link  | linkexe.exe      | DR CBASIC linker for DOS                               |
+| Basic      | m2cb_cvt      | m2cbasic.cmd     | M2CBASIC 1.4 MBASIC to CBASIC converter                |
+| Basic      | pcdev_mbasic  | mbasic86.com     | Microsoft Basic 5.28 (DOS, via emu2)                   |
+| C          | ansi2kr       | (native)         | ANSI C to K&R C converter (native)                     |
+| C          | aztec34_as    | as.exe           | Aztec assembler (v3.4)                                 |
+| C          | aztec34_cc    | cc.exe           | Aztec K&R C compiler (v3.4)                            |
+| C          | aztec34_hex86 | hex86.exe        | Aztec C H86 generator (v3.4)                           |
+| C          | aztec34_lib   | lb.exe           | Aztec C lib (v3.4)                                     |
+| C          | aztec34_link  | ln.exe           | Aztec C linker (v3.4)                                  |
+| C          | aztec34_obd   | obd.exe          | Aztec C object dump (v3.4)                             |
+| C          | aztec34_obj   | obj.exe          | Aztec C object lister (v3.4)                           |
+| C          | aztec34_ord   | ord.exe          | Aztec C library ordering helper (v3.4)                 |
+| C          | aztec34_sqz   | sqz.exe          | Aztec C object optimizer (v3.4)                        |
+| C          | aztec42_as    | as.exe           | Aztec assembler (v4.2)                                 |
+| C          | aztec42_cc    | cc.exe           | Aztec ANSI C compiler (v4.2)                           |
+| C          | aztec42_hex86 | hex86.exe        | Aztec C H86 generator (v4.2)                           |
+| C          | aztec42_lib   | lb.exe           | Aztec C lib (v4.2)                                     |
+| C          | aztec42_link  | ln.exe           | Aztec C linker (v4.2)                                  |
+| C          | aztec42_obd   | obd.exe          | Aztec C object dump (v4.2)                             |
+| C          | aztec42_obj   | obj.exe          | Aztec C object lister (v4.2)                           |
+| C          | aztec42_ord   | ord.exe          | Aztec C library ordering helper (v4.2)                 |
+| C          | aztec42_sqz   | sqz.exe          | Aztec C object optimizer (v4.2)                        |
+| C          | drccpm_cc     | drc860+861.cmd   | DR C 1.11 compiler (two‑pass)                          |
+| C          | drccpm_link   | linkcmd.exe      | DR C 1.11 linker                                       |
+| COBOL      | mfcobol_cc    | cobol.cmd        | Micro Focus Level II COBOL compiler (CP/M‑86)          |
+| COBOL      | mfcobol_run   | run.cmd          | Micro Focus Level II COBOL runtime (CP/M‑86)           |
+| Emulation  | cpm86         | cpm86.exe        | CP/M‑86 emulator (via emu2+dos)                        |
+| Emulation  | emu2          | (native)         | x86 DOS/CP/M‑86 emulator                               |
+| Emulation  | tnylpo        | (native)         | CP/M‑80 emulator                                       |
+| Fortran    | drfcpm_f77    | f77.cmd          | DR Fortran‑77 4.0 compiler                             |
+| Fortran    | drfcpm_link   | linkcmd.exe      | DR Fortran‑77 4.0 linker                               |
+| Lisp       | cpm86_xlisp   | xlisp.cmd        | XLISP 1.1 interpreter (built from source)              |
+| Pascal     | cpm86_turbo   | turbo.cmd        | Turbo Pascal 3.01 (CP/M‑86)                            |
+| Pascal     | drpmt_asm     | asmt86.cmd       | Pascal MT+ 3.3 assembler                               |
+| Pascal     | drpmt_link    | linkmt.cmd       | Pascal MT+ 3.3 linker                                  |
+| Pascal     | drpmt_pc      | mt+86.cmd        | Pascal MT+ 3.3 compiler                                |
+| Pascal     | ppcpm_pp87    | pp87.cmd         | PolyPascal‑86 V3.11 8087 FPU variant (CP/M‑86)         |
+| Pascal     | ppcpm_ppas    | ppas.cmd         | PolyPascal‑86 V3.11 compiler+editor (CP/M‑86)          |
+| Pascal     | ppcpm_ppbs    | ppbs.cmd         | PolyPascal‑86 V3.11 BCD business variant (CP/M‑86)     |
+| Pascal     | ppdos_pp87    | pp87.com         | PolyPascal‑86 V3.11 8087 FPU variant (DOS)             |
+| Pascal     | ppdos_ppas    | ppas.com         | PolyPascal‑86 V3.11 compiler+editor (DOS)              |
+| Pascal     | ppdos_ppbs    | ppbs.com         | PolyPascal‑86 V3.11 BCD business variant (DOS)         |
+| PL/I       | drpli_link    | linkcmd.exe      | DR PL/I‑86 1.0 linker                                  |
+| PL/I       | drpli_pc      | pli.cmd          | DR PL/I‑86 1.0 compiler                                |
+| PL/M       | intel_asm86   | asm86.exe        | Intel ASM‑86 assembler                                 |
+| PL/M       | intel_lib86   | lib86.exe        | Intel librarian                                        |
+| PL/M       | intel_link    | link.exe         | Intel/Microsoft linker                                 |
+| PL/M       | intel_link86  | link86.exe       | Intel linker                                           |
+| PL/M       | intel_loc86   | loc86.exe        | Intel locator                                          |
+| PL/M       | intel_oh86    | oh86.exe         | Intel object to hex converter                          |
+| PL/M       | intel_plm86   | plm86.exe        | Intel PL/M‑86 3.30 compiler                            |
+| Misc       | cmdinfo       | (native)         | CMD info tool (native)                                 |
+| Misc       | doscat        | (native)         | Truncate files beyond ^Z                               |
+| Misc       | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
+| Misc       | upx           | (native)         | executable packer                                      |
 
 ## Fetching the tools
 
