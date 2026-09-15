@@ -90,7 +90,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | RASM‑86 / LINK‑86 / LIB‑86 | 1.4a / 2.02 / 1.3 | DR DOS assembler toolchain |
 | ASM‑86 + GENCMD | 1.1 | DR assembler; CP/M‑80 and CP/M‑86 versions |
 | XLT86 | 1.3 | DR 8080/8085 → 8086 translator; `xlt86.com` + overlays; run via `tnylpo` |
-| MASM / LINK / ASM / EXE2BIN / HEX2BIN | 1.10 / 2.0 / 2.44a / 1.1 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 |
+| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 |
 | NASM | 3.02 | Netwide assembler (native) |
 | Intel ASM‑86 | 2.1 | Part of Intel PL/M‑86 toolchain (`asm86.exe`) |
 
@@ -168,6 +168,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Linkers / Librarians      | pcdev_hex2bin | hex2bin.com      | Microsoft HEX converter                                |
 | Linkers / Librarians      | pcdev_lib86   | lib86.exe        | DR librarian                                           |
 | Linkers / Librarians      | pcdev_link    | link.exe         | Microsoft linker                                       |
+| Linkers / Librarians      | pcdev_lib     | lib.exe          | Microsoft librarian                                    |
 | Linkers / Librarians      | pcdev_link86  | linkcmd.exe      | DR linker for CP/M‑86 (alias)                          |
 | Linkers / Librarians      | pcdev_linkcmd | linkcmd.exe      | DR linker for CP/M‑86                                  |
 | Linkers / Librarians      | pcdev_linkexe | linkexe.exe      | DR linker for DOS                                      |
