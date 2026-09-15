@@ -4,3 +4,4 @@ set -e
 
 echo Testing ...
 (PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean helloc.cmd)
+(PATH=`pwd`/../bin:$PATH;emu2 helloc.cmd)

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+echo Testing ...
+(PATH=`pwd`/../bin:$PATH;cpm_obasic hellomsb.bas)
+(PATH=`pwd`/../bin:$PATH;cpm_mbasic hellomsb.bas)
+(PATH=`pwd`/../bin:$PATH;cpm86_mbasic hellomsb.bas)
+#(PATH=`pwd`/../bin:$PATH;pcdev_mbasic hellomsb.bas)

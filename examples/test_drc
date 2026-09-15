@@ -4,3 +4,5 @@ set -e
 
 echo Testing ...
 (PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean hellodrc.cmd hellodra.cmd)
+(PATH=`pwd`/../bin:$PATH;emu2 hellodrc.cmd)
+(PATH=`pwd`/../bin:$PATH;emu2 hellodra.cmd)

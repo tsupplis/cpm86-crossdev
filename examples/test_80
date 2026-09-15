@@ -3,4 +3,6 @@
 set -e
 
 echo Testing ...
-(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean hello80.cmd)
+(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean hello86.cmd)
+(PATH=`pwd`/../bin:$PATH;tnylpo hello80.com)
+(PATH=`pwd`/../bin:$PATH;emu2 hello86.cmd)
