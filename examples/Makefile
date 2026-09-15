@@ -39,7 +39,7 @@ COBOL=mfcobol_cc
 COBRUN=mfcobol_run
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
 	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
-	hello80.cmd hellocbl.int hellopli.cmd hellodra.cmd
+	hello86.cmd hellocbl.int hellopli.cmd hellodra.cmd
 
 all: binaries
 
@@ -136,11 +136,12 @@ hellopli.cmd: hellopli.obj
 	$(PLILINK) '$@=$(basename $<)'
 	$(CMDINFO) $@
 
-hello80.a86: hello80.asm
+hello86.a86: hello80.asm
 	$(XLT86) hello80 < /dev/null
+	mv hello80.a86 hello86.a86
 	[ -f $@ ]
 
-hello80.cmd: hello80.h86
+hello86.cmd: hello86.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
 
@@ -197,6 +198,6 @@ clean:
 	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
 		  *.mp2 *exe *.map *.err *.int \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
-	      hello80.a86 \
+	      hello86.a86 \
 	      $(TOOLS)
 

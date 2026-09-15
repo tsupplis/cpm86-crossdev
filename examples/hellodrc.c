@@ -4,7 +4,7 @@ int main(argc, argv)
     int argc;
     char **argv;
 {
-    printf("Hello from c (digital c)");
+    printf("Hello from drc");
     return 0;
 }
 
