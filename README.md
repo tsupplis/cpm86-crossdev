@@ -157,7 +157,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | pcdev_asm     | asm.com          | Microsoft/86‑DOS assembler                             |
 | Assembler                 | pcdev_masm    | masm.exe         | Microsoft assembler                                    |
 | Assembler                 | pcdev_rasm86  | rasm86.exe       | DR assembler                                           |
-| Assembler                 | cpm_asm89     | asm89.com        | DR 8008 assembler (CP/M‑80 tool) to support xlt86      |
+| Assembler                 | cpm_asm80     | asm80.com        | DR 8008 assembler (CP/M‑80 tool) to support xlt86      |
 | Linkers / Librarians      | bin2cmd       | (native)         | CMD converter (native)                                 |
 | Linkers / Librarians      | exe2cmd       | (native)         | EXE to CMD converter (native)                          |
 | Linkers / Librarians      | hexcom        | (native)         | HEX to COM translation                                 |
