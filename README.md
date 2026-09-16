@@ -39,7 +39,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 | Language   | Compilers / Interpreters                                                      |
 |-----------:|:------------------------------------------------------------------------------|
 | C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated)  |
-| Assembler  | RASM‑86, ASM‑86, MASM 1.10, NASM 3.02                                         |
+| Assembler  | RASM‑86, ASM‑86 1.1, MASM 5.10, NASM 3.02                                         |
 | Basic      | DR CBASIC 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.22/5.28, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0                                                             |
