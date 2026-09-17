@@ -87,7 +87,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 
 | Tool                                        | Version                              | Description                                                              |
 |--------------------------------------------:|:-------------------------------------|:-------------------------------------------------------------------------|
-| RASM‑86 / LINK‑86 / LIB‑86                  | 1.4a / 2.02 / 1.3                    | DR DOS assembler toolchain                                               |
+| RASM‑86 / LINK‑86 / LIB‑86  XREF-86         | 1.4a / 2.02 / 1.3 / 1.1              | DR DOS assembler toolchain                                               |
 | ASM‑86 + GENCMD                             | 1.1                                  | DR assembler; CP/M‑80 and CP/M‑86 versions                               |
 | XLT86                                       | 1.3                                  | DR 8080/8085 → 8086 translator; `xlt86.com` + overlays; run via `tnylpo` |
 | MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2               |
@@ -158,6 +158,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | pcdev_asm     | asm.com          | Microsoft/86‑DOS assembler                             |
 | Assembler                 | pcdev_masm    | masm.exe         | Microsoft assembler                                    |
 | Assembler                 | pcdev_rasm86  | rasm86.exe       | DR assembler                                           |
+| Assembler                 | pcdev_xref86  | xref86.exe       | DR cross referencer                                    |
 | Assembler                 | cpm_asm80     | asm80.com        | DR 8008 assembler (CP/M‑80 tool) to support xlt86      |
 | Linkers / Librarians      | bin2cmd       | (native)         | CMD converter (native)                                 |
 | Linkers / Librarians      | exe2cmd       | (native)         | EXE to CMD converter (native)                          |
