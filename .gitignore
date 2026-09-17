@@ -22,6 +22,7 @@ bin/exe2cmd
 bin/doscat
 bin/hexcom
 bin/ansi2kr
+bin/drpli_objfix
 
 # ── Build artefacts ──────────────────────────────────────────────────────────
 **/*.lock
