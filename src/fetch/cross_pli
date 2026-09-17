@@ -23,3 +23,7 @@ if [ ! -f plicpm/pli.cmd ]; then
     cd .. && rm -rf "$tmp"
     trap - EXIT
 fi
+if [ ! -f "$root/bin/drpli_objfix" ];then
+   echo WOW
+   (cd $root/src/plitools;"${MAKE:-make}" clean all) 
+fi

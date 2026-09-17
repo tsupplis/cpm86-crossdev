@@ -118,6 +118,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
 | XLISP 1.1 (David Betz) | Public domain | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) |
+| PL/I Object Fixer | GPL-3.0 | [ccpm objfix](https://gitlab.com/ccpm-86/ccpm/-/blob/master/scripts/fixobj.py) |
 | Intel PL/M‑86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) |
 | PolyPascal‑86 V3.11 (PolyData MicroCenter A/S) | **Unclear** ⚠️ | — |
 | Micro Focus Level II COBOL V2.1 | **Unclear** ⚠️ | — |
@@ -223,6 +224,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Pascal                    | ppdos_ppbs    | ppbs.com         | PolyPascal‑86 V3.11 BCD business variant (DOS)         |
 | PL/I                      | drpli_link    | linkcmd.exe      | DR PL/I‑86 1.0 linker                                  |
 | PL/I                      | drpli_pc      | pli.cmd          | DR PL/I‑86 1.0 compiler                                |
+| PL/I                      | drpli_objfix   | (native)        | PL/I Object Compatibility Fix for DR Linker                                |
 | PL/M                      | intel_asm86   | asm86.exe        | Intel ASM‑86 assembler                                 |
 | PL/M                      | intel_lib86   | lib86.exe        | Intel librarian                                        |
 | PL/M                      | intel_link    | link.exe         | Intel/Microsoft linker                                 |
