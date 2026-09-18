@@ -6,31 +6,18 @@ echo INF: Checking DOS DR tools ...
 if [ ! -f "$root/share/pcdev/linkcmd.exe" ] || [ ! -f "$root/share/pcdev/rasm86.exe" ] \
    || [ ! -f "$root/share/pcdev/linkexe.exe" ] || [ ! -f "$root/share/pcdev/lib86.exe" ] \
    || [ ! -f "$root/share/pcdev/xref86.exe" ]; then
-    tmp="$root/archive/temp-drtools"
-    rm -rf "$tmp"
-    mkdir -p "$tmp" "$root/share/pcdev"
-    trap 'rm -rf "$tmp"' EXIT
-    (cd "$tmp" && fetch_get "http://www.cpm.z80.de/download/tools86.zip" \
-        && unzip -L "$ARCHIVED_FILE" && unzip -L dos86pr2.zip)
-    cp "$tmp/linkcmd.exe" "$tmp/rasm86.exe" "$tmp/linkexe.exe" "$tmp/lib86.exe" "$tmp/xref86.exe" \
-       "$root/share/pcdev"
+    mkdir -p "$root/share/pcdev"
+    cp "$root/src/drtools/linkcmd.exe" "$root/src/drtools/rasm86.exe" \
+       "$root/src/drtools/linkexe.exe" "$root/src/drtools/lib86.exe" \
+       "$root/src/drtools/xref86.exe" "$root/share/pcdev"
     chmod 644 "$root/share/pcdev"/*.*
-    rm -rf "$tmp"
-    trap - EXIT
 fi
 echo INF: Checking CP/M-80 DR tools ...
 if [ ! -f "$root/share/cpm/asm86.com" ] || [ ! -f "$root/share/cpm/gencmd.com" ]; then
-    tmp="$root/archive/temp-drtools"
-    rm -rf "$tmp"
-    mkdir -p "$tmp" "$root/share/cpm"
-    trap 'rm -rf "$tmp"' EXIT
-    (cd "$tmp" && fetch_get "http://www.cpm.z80.de/download/mpm862sr.zip" \
-        && unzip -L "$ARCHIVED_FILE")
-    cp "$tmp/03/a86.cpm"    "$root/share/cpm/asm86.com"
-    cp "$tmp/03/gencmd.cpm" "$root/share/cpm/gencmd.com"
+    mkdir -p "$root/share/cpm"
+    cp "$root/src/drtools/asm86.com" "$root/share/cpm/asm86.com"
+    cp "$root/src/drtools/gencmd.com" "$root/share/cpm/gencmd.com"
     chmod 644 "$root/share/cpm/asm86.com" "$root/share/cpm/gencmd.com"
-    rm -rf "$tmp"
-    trap - EXIT
 fi
 echo INF: Checking CP/M-86 DR tools ...
 if [ ! -f "$root/share/cpm/asm86.cmd" ] || [ ! -f "$root/share/cpm/gencmd.cmd" ] || \

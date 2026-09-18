@@ -250,8 +250,8 @@ export PATH="$(pwd -P)"/bin
 |--------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------|
 | Aztec C 4.2                                       | [AztecC86.zip](https://www.aztecmuseum.ca/AztecC86.zip)                                                                          |
 | Aztec C 3.4                                       | [az8634b.zip](https://www.aztecmuseum.ca/az8634b.zip)                                                                            |
-| RASM‑86, LINK‑86, LIB‑86                          | [tools86.zip](http://www.cpm.z80.de/download/tools86.zip)                                                                        |
-| ASM‑86 + GENCMD (CP/M‑80)                         | [mpm862sr.zip](http://www.cpm.z80.de/download/mpm862sr.zip)                                                                      |
+| RASM‑86, LINK‑86, LIB‑86                          | [tools86.zip](http://www.cpm.z80.de/download/tools86.zip) (stored in `src/drtools`)                                              |
+| ASM‑86 + GENCMD (CP/M‑80)                         | [mpm862sr.zip](http://www.cpm.z80.de/download/mpm862sr.zip) (stored in `src/drtools`)                                            |
 | XLT86 1.3                                         | [xlt86.zip](http://www.cpm.z80.de/download/xlt86.zip)                                                                            |
 | ASM‑86 + GENCMD (CP/M‑86)                         | [cpm86‑kernel](https://github.com/tsupplis/cpm86-kernel) (GitHub)                                                                |
 | DR C 1.11 + extra headers                         | [drc_86.zip](http://www.cpm.z80.de/download/drc_86.zip) · [drc86111.zip](http://www.cpm.z80.de/download/drc86111.zip)            |

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking Aztec 5.2 tools ...
+if [ ! -f "$root/share/aztec42/bin/aztec52" ]; then
+    fetch_get "https://www.aztecmuseum.ca/az8652a.zip"
+    tmp="$root/archive/temp-aztec42"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    (cd "$tmp" && unzip -L "$ARCHIVED_FILE")
+    mkdir -p "$root/share/aztec42/src"
+    cp -f -R "$tmp/az8652a/bin/*"     "$root/share/aztec42/bin"
+    touch "$root/share/aztec42/bin/aztec52"
+    rm -rf "$tmp"
+    trap - EXIT
+fi
