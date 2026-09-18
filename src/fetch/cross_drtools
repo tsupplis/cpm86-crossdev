@@ -13,20 +13,23 @@ if [ ! -f "$root/share/pcdev/linkcmd.exe" ] || [ ! -f "$root/share/pcdev/rasm86.
     chmod 644 "$root/share/pcdev"/*.*
 fi
 echo INF: Checking CP/M-80 DR tools ...
-if [ ! -f "$root/share/cpm/asm86.com" ] || [ ! -f "$root/share/cpm/gencmd.com" ]; then
+if [ ! -f "$root/share/cpm/asm86.com" ] || [ ! -f "$root/share/cpm/gencmd.com" ] || \
+    [ ! -f "$root/share/cpm/asm80.com" ]; then
     mkdir -p "$root/share/cpm"
     cp "$root/src/drtools/asm86.com" "$root/share/cpm/asm86.com"
     cp "$root/src/drtools/gencmd.com" "$root/share/cpm/gencmd.com"
-    chmod 644 "$root/share/cpm/asm86.com" "$root/share/cpm/gencmd.com"
+    cp "$root/src/drtools/asm80.com" "$root/share/cpm/asm80.com"
+    chmod 644 "$root/share/cpm/asm86.com" "$root/share/cpm/gencmd.com" \
+        "$root/share/cpm/asm80.com"
 fi
 echo INF: Checking CP/M-86 DR tools ...
 if [ ! -f "$root/share/cpm/asm86.cmd" ] || [ ! -f "$root/share/cpm/gencmd.cmd" ] || \
-    [ ! -f "$root/share/cpm/asm80.com" ]; then
-    cp "$root/src/drtools/asm80.com" "$root/share/cpm/asm80.com"
+   [ ! -f "$root/share/cpm/asm86.cmd" ]; then
     cp "$root/src/drtools/asm86.cmd" "$root/share/cpm/asm86.cmd"
     cp "$root/src/drtools/gencmd.cmd" "$root/share/cpm/gencmd.cmd"
+    cp "$root/src/drtools/lu.cmd" "$root/share/cpm/lu.cmd"
     chmod 644 "$root/share/cpm/asm86.cmd" "$root/share/cpm/gencmd.cmd" \
-        "$root/share/cpm/asm80.com"
+        "$root/share/cpm/lu.cmd"
 fi
 echo INF: Checking Personal Basic 86 1.2 ...
 if [ ! -f "$root/share/cpm/basic.cmd" ]; then
