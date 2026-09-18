@@ -49,6 +49,7 @@ bin/drpli_objfix
 !src/mspackages/**/*.lib
 !src/mspackages/**/*.obj
 !src/drpackages/**/*.lib
+!src/drpackages/**/*.r86
 !src/drpackages/**/*.obj
 !src/inteltools/**/*.lib
 !src/inteltools/**/*.obj
