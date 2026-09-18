@@ -111,7 +111,8 @@ No guarantees are made for any component. Use each at your own risk subject to t
 |----------:|:-----------------|:----------|
 | MS‑DOS tools (DOS 1.1, Basic 86) | MITS license | [LICENSE](https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md) |
 | Aztec C | Freeware (conditions apply) | [aztecmuseum.ca](https://www.aztecmuseum.ca/intro.htm#intro) |
-| DR tools (RASM‑86, ASM‑86, CBASIC, DR C, Fortran‑77, Pascal MT+, Personal Basic, PL/I‑86, XLT86, M2CBASIC) | DR/Caldera open‑source license | [license](http://www.cpm.z80.de/license.html) · [faq](http://www.cpm.z80.de/faq.html) |
+| DR tools (RASM‑86, ASM‑86, CBASIC, DR C, Fortran‑77, Pascal MT+, Personal Basic, PL/I‑86, XLT86) | DR/Caldera open‑source license | [license](http://www.cpm.z80.de/license.html) · [faq](http://www.cpm.z80.de/faq.html) |
+| M2CBASIC (Comeau) | **Unclear** ⚠️ | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip) |
 | Turbo Pascal 3.01A (Borland) | Freely usable, not open source | [RC750 image](https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2) |
 | emu2 / emu2‑cpm86 | GPL‑2.0 | [emu2](https://github.com/dmsc/emu2/blob/master/LICENSE) · [emu2‑cpm86](https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE) |
 | tnylpo | Open source | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
