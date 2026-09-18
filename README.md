@@ -38,7 +38,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 
 | Language   | Compilers / Interpreters                                                      |
 |-----------:|:------------------------------------------------------------------------------|
-| C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated)  |
+| C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), MSC 5.1 |
 | Assembler  | RASM‑86, ASM‑86 1.1, MASM 5.10, NASM 3.02                                         |
 | Basic      | DR CBASIC 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.22/5.28, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
@@ -68,6 +68,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | Aztec C           | 4.2/4.10d                         | Almost‑ANSI C89; `c86.lib` patched & improved, `d11.lib` for DOS 1.1         |
 | Aztec C           | 3.4/3.40a                         | K&R/Legacy/"C86" C; `c86.lib` patched, patched preprocessor, otherwise as‑is |
 | DR C              | 1.11                              | CP/M‑86 C compiler; passes `drc860`–`drc862`, runtime `clearl/clears.l86`    |
+| MSC               | 5.1                                | Microsoft C compiler for DOS;  |
 | DR Fortran‑77     | 4.0                               | CP/M‑86; compiler `f77.cmd`+`codegen.cmd`, runtime `f32s/l.obj`, `8087.sim`  |
 | Pascal MT+        | 3.3                               | CP/M‑86; compiler `mt+86.cmd`, linker `linkmt.cmd`, assembler `asmt86.cmd`   |
 | Turbo Pascal      | 3.02                              | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
@@ -110,6 +111,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | Component | License / Status | Reference |
 |----------:|:-----------------|:----------|
 | MS‑DOS tools (DOS 1.1, Basic 86) | MITS license | [LICENSE](https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md) |
+| MSC 5.1 (Microsoft C) | MIT license (same source as MASM) | [LICENSE](https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md) |
 | Aztec C | Freeware (conditions apply) | [aztecmuseum.ca](https://www.aztecmuseum.ca/intro.htm#intro) |
 | DR tools (RASM‑86, ASM‑86, CBASIC, DR C, Fortran‑77, Pascal MT+, Personal Basic, PL/I‑86, XLT86) | DR/Caldera open‑source license | [license](http://www.cpm.z80.de/license.html) · [faq](http://www.cpm.z80.de/faq.html) |
 | M2CBASIC (Comeau) | **Unclear** ⚠️ | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip) |
@@ -211,6 +213,10 @@ All the tools are wrapped in the bin directory for direct usage:
 | C                         | aztec42_sqz   | sqz.exe          | Aztec C object optimizer (v4.2)                        |
 | C                         | drccpm_cc     | drc860+861.cmd   | DR C 1.11 compiler (two‑pass)                          |
 | C                         | drccpm_link   | linkcmd.exe      | DR C 1.11 linker                                       |
+| C                         | msc5_cl       | cl.exe           | Microsoft C 5.1 compiler                               |
+| C                         | msc5_exepack  | exepack.exe      | Microsoft C 5.1 EXE compressor                         |
+| C                         | msc5_lib      | lib.exe          | Microsoft C 5.1 librarian                              |
+| C                         | msc5_link     | link.exe         | Microsoft C 5.1 linker                                 |
 | COBOL                     | mfcobol_cc    | cobol.cmd        | Micro Focus Level II COBOL compiler (CP/M‑86)          |
 | COBOL                     | mfcobol_run   | run.cmd          | Micro Focus Level II COBOL runtime (CP/M‑86)           |
 | Emulation                 | cpm86         | cpm86.exe        | CP/M‑86 emulator (via emu2+dos)                        |
@@ -279,6 +285,7 @@ export PATH="$(pwd -P)"/bin
 | tnylpo                                            | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab)                                                                          |
 | Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`)                           |
 | DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) (stored in `src/drpackages/drplicpm`)                                       |
+| MSC 5.1                                           | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub, stored in `src/mspackages/msc51`)                                          |
 | ARC86 / LU86                                      | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`)      |
 | XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |
@@ -511,6 +518,11 @@ cmdinfo hellodrc.cmd
 drccpm_cc -e -ohelloans.obj helloans.c
 drccpm_link 'helloans.cmd=helloans.obj'
 cmdinfo helloans.cmd
+</pre></td></tr>
+<tr><td>Microsoft C 5.1 (DOS)</td><td><pre style="margin:0">
+msc5_cl -c hellomsc.obj hellomsc.c
+msc5_link hellomsc.obj \;
+emu2 hellomsc.exe
 </pre></td></tr>
 </table>
 
