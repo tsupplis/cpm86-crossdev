@@ -45,6 +45,14 @@ bin/drpli_objfix
 # badgencm.h86 is a committed negative-test fixture, not a build artefact
 !examples/badgencm.h86
 
+# vendor package libs/objs are shipped package content, not build output
+!src/mspackages/**/*.lib
+!src/mspackages/**/*.obj
+!src/drpackages/**/*.lib
+!src/drpackages/**/*.obj
+!src/inteltools/**/*.lib
+!src/inteltools/**/*.obj
+
 # ── CP/M disk images ─────────────────────────────────────────────────────────
 **/hack*.img
 **/cpmtest.img

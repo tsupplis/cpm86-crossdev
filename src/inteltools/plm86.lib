@@ -1,0 +1,64 @@
+
+LQ_DWORD_MUL    PROC    FAR
+
+                ;Perform DX:AX = DX:AX * DI:CX
+
+                MOV     BX,AX
+                MOV     AX,DX
+                MUL     AX,CX
+                MOV     SI,AX
+                MOV     AX,DI
+                MUL     AX,BX
+                ADD     SI,AX
+                MOV     AX,CX
+                MUL     AX,BX
+                ADD     DX,SI
+                RET
+
+LQ_DWORD_MUL    ENDP
+
+LQ_DWORD_DIV    PROC    FAR
+
+                ;Perform DX:AX = DX:AX / DI:CX
+
+                OR      DI,DI
+                JNE     label_2
+                CMP     CX,DX
+                JBE     label_1
+                DIV     AX,CX
+                XOR     SI,SI
+                MOV     DI,DX
+                XOR     DX,DX
+                RET
+label_1:        MOV     DI,AX
+                MOV     AX,DX
+                XOR     DX,DX
+                DIV     AX,CX
+                XCHG    AX,DI
+                DIV     AX,CX
+                XCHG    DX,DI
+                XOR     SI,SI
+                RET
+label_2:        PUSH    BP
+                MOV     BP,CX
+                MOV     BX,DI
+                XOR     SI,SI
+                MOV     DI,SI
+                MOV     CX,10H
+label_3:        SAL     DI,1H
+                RCL     SI,1H
+                SAL     AX,1H
+                RCL     DX,1H
+                ADC     DI,0H
+                SUB     DI,BP
+                SBB     SI,BX
+                INC     AX
+                JAE     label_4
+                ADD     DI,BP
+                ADC     SI,BX
+                DEC     AX
+label_4:        LOOP    label_3
+                POP     BP
+                RET
+
+
