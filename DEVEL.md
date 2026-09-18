@@ -314,8 +314,8 @@ if [ -z "$*" ]; then
 fi
 ```
 
-Examples: [`bin/drpmt_pc`](bin/drpmt_pc), [`bin/drpmt_asm`](bin/drpmt_asm),
-[`bin/drpmt_link`](bin/drpmt_link), [`bin/drpli_pc`](bin/drpli_pc),
+Examples: [`bin/drpmtcpm_pc`](bin/drpmtcpm_pc), [`bin/drpmtcpm_asm`](bin/drpmtcpm_asm),
+[`bin/drpmtcpm_link`](bin/drpmtcpm_link), [`bin/drplicpm_pc`](bin/drplicpm_pc),
 [`bin/m2cb_cvt`](bin/m2cb_cvt).
 
 ---
@@ -404,7 +404,7 @@ exit $rc
 ```
 
 Examples: [`bin/drccpm_cc`](bin/drccpm_cc) (DR C two-pass compiler),
-[`bin/drfcpm_f77`](bin/drfcpm_f77) (DR Fortran-77 two-pass compiler).
+[`bin/drfcpm_fc`](bin/drfcpm_fc) (DR Fortran-77 two-pass compiler).
 
 ---
 

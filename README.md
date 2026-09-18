@@ -210,22 +210,22 @@ All the tools are wrapped in the bin directory for direct usage:
 | Emulation                 | cpm86         | cpm86.exe        | CP/M‑86 emulator (via emu2+dos)                        |
 | Emulation                 | emu2          | (native)         | x86 DOS/CP/M‑86 emulator                               |
 | Emulation                 | tnylpo        | (native)         | CP/M‑80 emulator                                       |
-| Fortran                   | drfcpm_f77    | f77.cmd          | DR Fortran‑77 4.0 compiler                             |
+| Fortran                   | drfcpm_fc     | f77.cmd          | DR Fortran‑77 4.0 compiler                             |
 | Fortran                   | drfcpm_link   | linkcmd.exe      | DR Fortran‑77 4.0 linker                               |
 | Lisp                      | cpm86_xlisp   | xlisp.cmd        | XLISP 1.1 interpreter (built from source)              |
 | Pascal                    | cpm86_turbo   | turbo.cmd        | Turbo Pascal 3.01 (CP/M‑86)                            |
-| Pascal                    | drpmt_asm     | asmt86.cmd       | Pascal MT+ 3.3 assembler                               |
-| Pascal                    | drpmt_link    | linkmt.cmd       | Pascal MT+ 3.3 linker                                  |
-| Pascal                    | drpmt_pc      | mt+86.cmd        | Pascal MT+ 3.3 compiler                                |
+| Pascal                    | drpmtcpm_asm  | asmt86.cmd       | Pascal MT+ 3.3 assembler                               |
+| Pascal                    | drpmtcpm_link | linkmt.cmd       | Pascal MT+ 3.3 linker                                  |
+| Pascal                    | drpmtcpm_pc   | mt+86.cmd        | Pascal MT+ 3.3 compiler                                |
 | Pascal                    | ppcpm_pp87    | pp87.cmd         | PolyPascal‑86 V3.11 8087 FPU variant (CP/M‑86)         |
 | Pascal                    | ppcpm_ppas    | ppas.cmd         | PolyPascal‑86 V3.11 compiler+editor (CP/M‑86)          |
 | Pascal                    | ppcpm_ppbs    | ppbs.cmd         | PolyPascal‑86 V3.11 BCD business variant (CP/M‑86)     |
 | Pascal                    | ppdos_pp87    | pp87.com         | PolyPascal‑86 V3.11 8087 FPU variant (DOS)             |
 | Pascal                    | ppdos_ppas    | ppas.com         | PolyPascal‑86 V3.11 compiler+editor (DOS)              |
 | Pascal                    | ppdos_ppbs    | ppbs.com         | PolyPascal‑86 V3.11 BCD business variant (DOS)         |
-| PL/I                      | drpli_link    | linkcmd.exe      | DR PL/I‑86 1.0 linker                                  |
-| PL/I                      | drpli_pc      | pli.cmd          | DR PL/I‑86 1.0 compiler                                |
-| PL/I                      | drpli_objfix   | (native)        | PL/I Object Compatibility Fix for DR Linker                                |
+| PL/I                      | drplicpm_link | linkcmd.exe      | DR PL/I‑86 1.0 linker                                  |
+| PL/I                      | drplicpm_pc   | pli.cmd          | DR PL/I‑86 1.0 compiler                                |
+| PL/I                      | drpli_objfix    | (native)       | PL/I Object Compatibility Fix for DR Linker                                |
 | PL/M                      | intel_asm86   | asm86.exe        | Intel ASM‑86 assembler                                 |
 | PL/M                      | intel_lib86   | lib86.exe        | Intel librarian                                        |
 | PL/M                      | intel_link    | link.exe         | Intel/Microsoft linker                                 |
@@ -573,13 +573,13 @@ ppcpm_ppas
 The editor opens first. Use <code>COMPILE</code> then <code>RUN</code>. <code>PPAS.HLP</code> and <code>PPAS.ERM</code> found automatically on drive D.
 </td></tr>
 <tr><td><a href="docs/mtpas/mtpas-ref.md">Pascal MT+ 3.3 (CP/M‑86)</a></td><td><pre style="margin:0">
-drpmt_pc hellomt
-drpmt_link hellomt.cmd=hellomt,p:paslib/s
+drpmtcpm_pc hellomt
+drpmtcpm_link hellomt.cmd=hellomt,p:paslib/s
 cmdinfo hellomt.cmd
 </pre></td></tr>
 <tr><td><a href="docs/f77/f77-ref.md">DR Fortran‑77 4.0 (CP/M‑86, small model)</a></td><td>
 Both compiler passes (<code>f77.cmd</code> + <code>codegen.cmd</code>) run internally; <code>.cil</code>/<code>.cym</code> intermediates cleaned up automatically.<pre style="margin:0">
-drfcpm_f77 hellof.f77
+drfcpm_fc hellof.f77
 drfcpm_link 'hellof.cmd=hellof'
 cmdinfo hellof.cmd
 </pre></td></tr>
@@ -597,8 +597,8 @@ pcdev_linkcmd hellop=scd,hellop '[data[ori[0]]'
 cmdinfo hellop.cmd
 </pre></td></tr>
 <tr><td><a href="docs/pli/pli-ref.md">DR PL/I‑86 1.0 (CP/M‑86)</a></td><td><pre style="margin:0">
-drpli_pc hellopi
-drpli_link 'hellopi.cmd=hellopi'
+drplicpm_pc hellopi
+drplicpm_link 'hellopi.cmd=hellopi'
 cmdinfo hellopi.cmd
 </pre></td></tr>
 <tr><td>XLISP 1.1 (CP/M‑86)</td><td>
