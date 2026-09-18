@@ -248,6 +248,7 @@ run_fetcher cross_aztec42_build
 run_fetcher cross_aztec_startups
 run_fetcher native_cmdtools
 run_fetcher cross_ports
+run_fetcher cross_freetools
 
 # ── Finalise permissions ───────────────────────────────────────────────────────
 find "$root/share" -type d -exec chmod 755 {} \;

@@ -101,6 +101,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | emu2‑cpm86 | v2026.09‑C | DOS/CP/M‑86 emulator (fork of emu2 with CP/M‑86 support) |
 | tnylpo | — | CP/M‑80 emulator; used for `asm86.com`, `gencmd.com`, XLT86, MS Basic 80 |
 | upx | 5.2.1 | Executable packer |
+| ARC86 / LU86 | 1.0 / 4.05 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
 
 ## License Considerations
 
@@ -117,6 +118,8 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
+| ARC86 (Reimer Mellin; CP/M‑86 port by D. J. Weatherall) | Public domain source; private non-commercial use only for the CP/M‑86 modifications | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) |
+| LU86 (Paul J. Homchick) | **Unclear** ⚠️ | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) |
 | XLISP 1.1 (David Betz) | Public domain | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) |
 | PL/I Object Fixer | GPL-3.0 | [ccpm objfix](https://gitlab.com/ccpm-86/ccpm/-/blob/master/scripts/fixobj.py) |
 | Intel PL/M‑86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) |
@@ -238,7 +241,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | cmdinfo       | (native)         | CMD info tool (native)                                 |
 | Misc                      | doscat        | (native)         | Truncate files beyond ^Z                               |
 | Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
-| Misc                      | cpm86_lu      | lu.cmd           | LU86 library utility for CP/M‑86 `.LBR` files          |
+| Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
+| Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
 | Misc                      | upx           | (native)         | executable packer                                      |
 
 ## Fetching the tools
@@ -274,6 +278,7 @@ export PATH="$(pwd -P)"/bin
 | tnylpo                                            | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab)                                                                          |
 | Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)                                                        |
 | DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) (stored in `src/drpackages/drplicpm`)                                       |
+| ARC86 / LU86                                      | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip)                                  |
 | XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |
 | TDL BASIC 3.05 (CP/M‑80)                          | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip)                                                      |
