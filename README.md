@@ -173,6 +173,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | Linkers / Librarians      | pcdev_link86  | linkcmd.exe      | DR linker for CP/M‑86 (alias)                          |
 | Linkers / Librarians      | pcdev_linkcmd | linkcmd.exe      | DR linker for CP/M‑86                                  |
 | Linkers / Librarians      | pcdev_linkexe | linkexe.exe      | DR linker for DOS                                      |
+| Debuggers                 | cpm86_ddt86   | ddt86.cmd        | DDT‑86 debugger for CP/M‑86; support is WIP            |
+| Debuggers                 | cpm86_sid86   | sid86.cmd        | SID‑86 symbolic debugger/disassembler for CP/M‑86; support is WIP |
 | Basic                     | cpm_mbasic    | mbasic.com       | Microsoft Basic 5.21 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_obasic    | obasic.com       | Microsoft Basic 4.51 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_tdlbasic  | tdlbasic.com     | TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)              |
@@ -236,6 +238,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | cmdinfo       | (native)         | CMD info tool (native)                                 |
 | Misc                      | doscat        | (native)         | Truncate files beyond ^Z                               |
 | Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
+| Misc                      | cpm86_lu      | lu.cmd           | LU86 library utility for CP/M‑86 `.LBR` files          |
 | Misc                      | upx           | (native)         | executable packer                                      |
 
 ## Fetching the tools
