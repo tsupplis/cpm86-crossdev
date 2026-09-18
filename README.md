@@ -110,8 +110,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 
 | Component | License / Status | Reference |
 |----------:|:-----------------|:----------|
-| MS‑DOS tools (DOS 1.1, Basic 86) | MITS license | [LICENSE](https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md) |
-| MSC 5.1 (Microsoft C) | MIT license (same source as MASM) | [LICENSE](https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md) |
+| MS‑DOS tools (Assembler, Linker, DOS, Basic 86, MSC 5.1) | MIT license | [LICENSE](https://github.com/microsoft/MS-DOS/blob/main/LICENSE) |
 | Aztec C | Freeware (conditions apply) | [aztecmuseum.ca](https://www.aztecmuseum.ca/intro.htm#intro) |
 | DR tools (RASM‑86, ASM‑86, CBASIC, DR C, Fortran‑77, Pascal MT+, Personal Basic, PL/I‑86, XLT86) | DR/Caldera open‑source license | [license](http://www.cpm.z80.de/license.html) · [faq](http://www.cpm.z80.de/faq.html) |
 | M2CBASIC (Comeau) | **Unclear** ⚠️ | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip) |
