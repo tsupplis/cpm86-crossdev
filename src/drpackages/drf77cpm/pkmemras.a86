@@ -1,0 +1,145 @@
+;Title	Fortran Peek and Poke Memory Subroutine
+
+;Subttl	Function Peek
+
+;  This is a sample DR RASM86 assembler source file.
+;  RASM86 is available in the DR Assembler Plus Tools product,
+;  and is not included with DR FORTRAN-77.
+
+;  Simple access to examine memory locations -
+;  Assembly Routine provided to Fortran as follows:
+;  Integer Function PEEK(ISegment, IOffset) /* 2 byte integers */
+;  Note that this routine is set up to be in a different code segement
+;  and does a far return - this can be altered as noted below for
+;  Small model where it is to be in the same segment and use short calls.
+
+	CSEG 
+
+PUBLIC	PEEK
+
+	; NOTE: Upon entry, after pushing Ds & Bp,
+	;	expect stack as follows -	Large		Small
+	; TOS = Pushed Callers frame pointer	Sp + 0		Sp + 0
+	; 	Return address to caller	Sp + 4		Sp + 2
+	;	Parameters:	SegVal		Sp + 8		Sp + 4
+	;			OffVal		Sp + 12		Sp + 6
+	; After pushing Bp onto the stack everything is referenced relative
+	; to Sp put in Bp, i.e. <Offset as above>[Bp].
+
+PEEK:	Push	Ds		; Save the current Data Segment register
+	Push	Bp		; Save the frame pointer
+	; No locals used so no adjustment of the stack is made
+	Mov	Bp, Sp		; Get access to parameters
+	Les	Bx, 8[Bp]	; Get desired data segment
+	Mov	Ax, Es:[Bx]	; Actual value from Fortran reference param.
+	Les	Bx, 12[Bp]	; Get desired offset
+	Mov	Bx, Es:[Bx]	; Actual value from Fortran reference param.
+	Mov	Ds, Ax		; Establish addressing
+	Mov	Ax, [Bx]	; Get the word
+	Pop	Bp		; Get back callers frame pointer into Bp
+	Pop	Ds		; Recover original addressing
+	Retf			; Use Ret for Small model
+
+
+;Subttl	Procedure Poke
+
+;  Simple access to altering memory locations -
+;  Assembly Routine provided to Fortran as follows:
+; Subroutine POKE(ISegment, IOffset, ITheValue) /* 2 byte integers */
+
+PUBLIC	POKE
+
+	; NOTE: Upon entry, after pushing Ds & Bp,
+	;	expect stack as follows -	Large		Small
+	; TOS = Pushed Callers frame pointer	Sp + 0		Sp + 0
+	; 	Return address to caller	Sp + 4		Sp + 2
+	;	Parameters:	SegVal		Sp + 8		Sp + 4
+	;			OffVal		Sp + 12		Sp + 6
+	;			TheVal		Sp + 16		Sp + 8
+	; After pushing Bp onto the stack everything is referenced relative
+	; to Sp put in Bp, i.e. <Offset as above>[Bp].
+
+POKE:	Push	Ds		; Save the current Data Segment register
+	Push	Bp		; Save the frame pointer
+	; No locals used so no adjustment of the stack is made
+	Mov	Bp, Sp		; Get access to parameters
+	Les	Bx, 16[Bp]	; Get the value
+	Mov	Cx, Es: [Bx]	; Actual value from Fortran reference param.
+	Les	Bx, 8[Bp]	; Get desired data segment
+	Mov	Ax, Es: [Bx]	; Actual value from Fortran reference param.
+	Les	Bx, 12[Bp]	; Get desired offset
+	Mov	Bx, Es: [Bx]	; Actual value from Fortran reference param.
+	Mov	Ds, Ax		; Establish addressing
+	Mov	[Bx], Cx	; Put the value in
+	Pop	Bp		; Get back callers frame pointer into Bp
+	Pop	Ds		; Recover original addressing
+	Retf			; Use Ret for Small model
+
+;Subttl	Function Clock
+
+;  Simple access to system clock -
+;  Assembly Routine provided to Fortran as follows:
+; Integer Function CLOCK /* 2 byte integers */
+
+PUBLIC	CLOCK
+
+;	Note this example shows how simple it can be if no
+;	parameters are used and just desiring a return value.
+;
+	cseg
+	public	CLOCK		; EXTERNAL  CLOCK
+				; INTEGER*4 CLOCK
+				; CLOCK() returns the time in milliseconds.
+CLOCK:	push	bp
+	sub	sp,6
+	mov	dx,sp
+	mov	cl,155		; Concurrent CP/M Date and Time
+	push	es		; For small model
+	int	224		; SS:SP -> Day(2)/HH/MM/SS.
+				; Day is in binary, HH/MM/SS are in BCD
+	pop	es
+	pop	ax		; AX = Day (discarded)
+	pop	ax		; AL/AH = HH/MM
+	xchg	ah,al		; AL/AH = MM/HH
+	push	ax		; Push MMxx where xx is garbage (HH)
+	mov	al,ah		; AL/AH = HH/xx where xx is garbage (HH).
+	push	ax		; SS:SP -> HHxx/MMxx/SSxx where xx is garbage.
+	sub	ax,ax		; AX = 0
+	mov	bx,60		; BX = 60
+	call	add_bcd		; AX+= binary of 2 BCD digits popped off stack.
+	mul	bl		; AX = 60 * Hour = Hours in minutes
+	call	add_bcd		; AX+= binary of 2 BCD digits popped off stack.
+	mul	bl		; DX/AX = 60 * Minutes = Minutes in seconds
+	call	add_bcd		; CX = binary of 2 BCD digits popped off stack.
+	mov	cx,0		; CX = 0
+	adc	cx,0		; Save possible carry in CX
+	mov	bx,1000
+	mul	bx		; Convert to milliseconds
+	mov	bx,dx		; Return result in AX/BX
+	jcxz	done		; No carry.
+	add	bx,1000		; Carry.
+;
+done:	pop	bp
+	ret
+;
+;	Pop BCD byte off stack, convert to binary, and add to AX.
+;
+add_bcd:
+	pop	cx		; Pop return address
+	pop	dx		; DL = 2 BCD digits = UL
+	push	cx		; Push return address
+	mov	dh,dl		; DH = UL
+	and	dx,0f00fh	; DL = 0L = lower BCD digit
+				; DH = U0 = upper BCD digit * 16
+	shr	dh,1		; DH = U * 8
+	mov	bh,dh		; BH = U * 8
+	shr	dh,1		; DH = U * 4
+	shr	dh,1		; DH = U * 2
+	add	dh,bh		; DH = U * 10
+	add	dl,dh		; DL = U * 10 + L = number in binary
+	sub	dh,dh
+	add	ax,dx		; AX += BCD number in binary
+	ret
+;
+	end
+	

@@ -1,0 +1,108 @@
+Internal Compiler Error
+Not Implemented
+Cannot open file for input
+Error on output file
+No memory
+Unrecognizable option
+Superflous input ignored
+Undefined DO-loop end label -
+Duplicate IO key
+Expected -
+Memory overflow, no more room
+Character type cannot mix with other types in common
+Internal Error: TypeStack
+Not Explicitly Defined -
+Conflicts with previous use or definition -
+Unknown symbol type -
+Variable already in common -
+Symbol multiply defined -
+Array multiply defined -
+Unknown action number, opcode -
+Illegal DO-loop reference to label -
+Format error -
+Syntax error, found:
+Expression too complex
+Label stack overflow
+Constant Expression stack underflow
+Constant expression too complicated
+Expression type stack underflow
+Expression too complicated
+Procedure name stack underflow
+Function calls nested too deeply
+Array reference stack underflow
+Array references nested too deeply
+Internal error in ACTION(numlen)
+Internal -- Unsupported numeric constant size
+Internal -- Unsupported numeric data size
+Internal -- Bad token number from Lexer
+Symbol table overflow
+Macro reference error
+Interlist already occuring
+Invalid size parameter ignored
+Cannot begin unit with continuation line
+Include nested too deep
+Integer constant too large
+Missing ending period
+Illegal character
+Unknown type in ACTION(Typespec)
+Argument type invalid for intrinsic
+Wrong number of arguments for intrinsic
+Missing first part of complex constant
+Missing second part of complex constant
+Missing close parenthesis on complex constant
+Columns 1 through 5 must be blank on continuation
+Label expected in columns 1 through 5
+Undefined loop variable
+Invalid substring index
+Wrong number of array indeces
+Extra constants in data list
+Data list too short
+Data variable must be static
+Cannot initialize variable in blank common
+Type conflict in data statement
+Integer size too large for data statement
+Unsupported complex constant size
+String variable requires string constant
+Logical variable requires logical value
+Cannot equivalence two common elements
+Subscript out of range in data or equivalence statement
+Exponent must be positive integer
+Unsupported operator in constant expression
+Individual lengths for character id's only
+Illegal integer size
+Illegal real number size
+Illegal complex number size
+Not an intrinsic function
+Not allowed as dummy function
+Expected logical expression
+Expected string expression
+Expected numeric expression
+Invalid numeric expression
+Invalid constant expression
+Invalid arithmetic expression
+Invalid logical expression
+Return label allowed only in subroutine
+Return statement allowed only in functions and subroutines
+Return <expression> allowed only in subroutines
+Expected integer expression
+Specification statement not allowed
+Duplicate label definition
+Non-string in string expression
+Logical operators require logical operands
+Incompatible types in relational expression
+Non-numeric type in numeric expression
+Expression type clashes with function type
+Type clash in assignment
+Unlabelled format statement
+I/O statement requires unit specification
+Unit or file specification needed
+Unit and file not allowed together in inquire statement
+Unknown operator
+Duplicate formal parameter name
+Undefined label
+Too many dimensions in array declaration
+Label variable must be an integer
+Label variable size too small
+Number of dimensions does not match declarations
+Illegal based constant value
+

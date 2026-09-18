@@ -1,0 +1,680 @@
+;		Direct CP/M Calls From PL/I-86
+
+;***********************************************************
+;*                                                         *
+;*	cp/m calls from pl/i for direct i/o                *
+;*                                                         *
+;***********************************************************
+
+	dseg
+vermsg	db	cr,lf,'Later CP/M or MP/M Version Required$'
+	extrn	?begin:word	;beginning of free list
+
+	cseg
+
+	public	memptr	;return pointer to base of free mem
+	public	memsiz	;return size of memory in bytes
+	public	memwds	;return size of memory in words
+	public	dfcb0	;return address of default fcb 0
+	public	dfcb1	;return address of default fcb 1
+	public	dbuff	;return address of default buffer
+	public	reboot	;system reboot (#0)
+	public	rdcon	;read console character (#1)
+	public	wrcon	;write console character(#2)
+	public	rdrdr	;read reader character (#3)
+	public	wrpun	;write punch character (#4)
+	public	wrlst	;write list character (#5)
+	public	coninp	;direct console input (#6a)
+	public	conout	;direct console output (#6c)
+	public	rdstat	;read console status (#6b)
+	public	getio	;get io byte (#7)
+	public	setio	;set i/o byte (#8)
+	public	wrstr	;write string (#9)
+	public	rdbuf	;read console buffer (#10)
+	public	break	;get console status (#11)
+	public	vers	;get version number (#12)
+	public	reset	;reset disk system (#13)
+	public	select	;select disk (#14)
+	public	open	;open file (#15)
+	public	close	;close file (#16)
+	public	sear	;search for file (#17)
+	public	searn	;search for next (#18)
+	public	delete	;delete file (#19)
+	public	rdseq	;read file sequential mode (#20)
+	public	wrseq	;write file sequential mode (#21)
+	public	make	;create file (#22)
+	public	rename	;rename file (#23)
+	public	logvec	;return login vector (#24)
+	public	curdsk	;return current disk number (#25)
+	public	setdma	;set DMA address (#26)
+	public	allvec	;return address of alloc vector (#27)
+	public	wpdisk	;write protect disk (#28)
+	public	rovec	;return read/only vector (#29)
+	public	filatt	;set file attributes (#30)
+	public	getdpb	;get base of disk parm block (#31)
+	public	getusr	;get user code (#32a)
+	public	setusr	;set user code (#32b)
+	public	rdran	;read random (#33)
+	public	wrran	;write random (#34)
+	public	filsiz	;random file size (#35)
+	public	setrec	;set random record pos (#36)
+	public	resdrv	;reset drive (#37)
+	public	wrranz	;write random, zero fill (#40)
+	public	movgtl	;move from arbitrary addr to local area
+	public	movltg	;move from local area to arbitrary addr
+	public	movgtg	;move from arbitrary addr to arbitrary location
+
+	extrn	?bdos:near	;bdos entry point
+
+;***********************************************************
+;*                                                         *
+;*        equates for interface to cp/m bdos               *
+;*                                                         *
+;***********************************************************
+
+cr	equ	0dh	;carriage return
+lf	equ	0ah	;line feed
+eof	equ	1ah	;end of file
+
+readc	equ	1	;read character from console
+writc	equ	2	;write console character
+rdrf	equ	3	;reader input
+punf	equ	4	;punch output
+listf	equ	5	;list output function
+diof	equ	6	;direct i/o, version 2.0
+getiof	equ	7	;get i/o byte
+setiof	equ	8	;set i/o byte
+printf	equ	9	;print string function
+rdconf	equ	10	;read console buffer
+statf	equ	11	;return console status
+versf	equ	12	;get version number
+resetf	equ	13	;system reset
+seldf	equ	14	;select disk function
+openf	equ	15	;open file function
+closef	equ	16	;close file
+serchf	equ	17	;search for file
+serchn	equ	18	;search next
+deletf	equ	19	;delete file
+readf	equ	20	;read next record
+writf	equ	21	;write next record
+makef	equ	22	;make file
+renamf	equ	23	;rename file
+loginf	equ	24	;get login vector
+cdiskf	equ	25	;get current disk number
+setdmf	equ	26	;set dma function
+getalf	equ	27	;get allocation base
+wrprof	equ	28	;write protect disk
+getrof	equ	29	;get r/o vector
+setatf	equ	30	;set file attributes
+getdpf	equ	31	;get disk parameter block
+userf	equ	32	;set/get user code
+rdranf	equ	33	;read random
+wrranf	equ	34	;write random
+filszf	equ	35	;compute file size
+setrcf	equ	36	;set random record position
+rsdrvf	equ	37	;reset drive function
+wrrnzf	equ	40	;write random zero fill
+
+;	utility functions
+;***********************************************************
+;*                                                         *
+;*       general purpose routines used upon entry          *
+;*                                                         *
+;***********************************************************
+
+getp1:	;get single byte parameter to register DL
+	mov	bx,[bx]		;BX = .char
+	mov	dl,[bx]		;to register DL
+	ret
+
+getp2:	;get single word value to DX
+getp2i:	;(equivalent to getp2)
+	mov	bx,[bx]
+	mov	dx,[bx]
+	ret
+
+getver:	;get cp/m or mp/m version number
+	push	bx		;save possible data addr
+	mov	cl,versf
+	call	?bdos
+	pop	bx		;recall data addr
+	ret
+
+chkv20:	;check for version 2.0 or greater
+	call	getver
+	cmp	al,20h
+	jb	vererr		;version error
+	ret			;return if > 2.0
+
+chkv22:	;check for version 2.2 or greater
+	call	getver
+	cmp	al,22h
+	jb	vererr		;error if < 2.2
+	ret
+vererr:
+	;version error, report and terminate
+	mov	dx,offset vermsg
+	mov	cl,printf
+	call	?bdos		;write message
+	jmp	reboot		;and reboot
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+memptr:	;return pointer to base of free storage
+	mov	bx,?begin
+	ret
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+memsiz:	;return size of free memory in bytes
+	mov	bx,word ptr .6	;top of available memory
+	sub	bx,?begin	;subtract beginning of free storage
+	ret
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+memwds:	;return size of free memory in words
+	call	memsiz		;BX = size in bytes
+	shr	bx,1		;BX = size in words
+	ret			;with words in BX
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+dfcb0:	;return address of default fcb 0
+	mov	bx,5ch
+	ret
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+dfcb1:	;return address of default fcb 1
+	mov	bx,6ch
+	ret
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+dbuff:	;return address of default buffer
+	mov	bx,80h
+	ret
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+reboot:	;system reboot (#0)
+	xor	cl,cl		;Reboot code.
+;	mov	dl,cl		;Abort code (00h in this case)
+;				;	if needed. 
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+rdcon:	;read console character (#1)
+	;return character value to stack
+	mov	cl,readc
+	jmps	chrin		;common code to read char
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+wrcon:	;write console character(#2)
+	;1->char(1)
+	mov	cl,writc	;console write function
+	jmps	chrout		;to write the character
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+rdrdr:	;read reader character (#3)
+	mov	cl,rdrf		;reader function
+chrin:
+	;common code for character input
+	call	?bdos		;value returned to AL
+	pop	bx		;return address
+	mov	ah,al		;char to AH
+	push	ax		;character to stack
+	inc	sp		;delete garbage byte
+	mov	al,1		;character length is 1
+	jmp	bx		;back to calling routine
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+wrpun:	;write punch character (#4)
+	;1->char(1)
+	mov	cl,punf		;punch output function
+	jmps	chrout		;common code to write chr
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+wrlst:	;write list character (#5)
+	;1->char(1)
+	mov	cl,listf	;list output function
+chrout:
+	;common code to write character
+	;1-> character to write
+	call	getp1		;output char to register DL
+	jmp	?bdos		;to write and return
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+coninp:	;perform console input, char returned in stack (#6a)
+	call	rdstat		;Keep testing status
+	test	al,al		;   until char is ready.
+	jz	coninp
+	mov	cl,diof
+	mov	dl,0ffh
+	jmps	chrin
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+conout:	;direct console output (#6c)
+	;1->char(1)
+	call	getp1		;get parameter
+	mov	cl,diof		;direct console I/O
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+rdstat:	;direct console status read (#6b)
+	mov	dl,0feh
+	mov	cl,diof
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+getio:	;get io byte (#7)
+	mov	cl,getiof
+	jmp	?bdos		;value returned to AL
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+setio:	;set i/o byte (#8)
+	;1->i/o byte
+	call	getp1		;new i/o byte to DL
+	mov	cl,setiof
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+wrstr:	;write string (#9)
+	;1->addr(string)
+	call	getp2		;get parameter value to DX
+	mov	cl,printf	;print string function
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+rdbuf:	;read console buffer (#10)
+	;1->addr(buff)
+	call	getp2i		;DX = .buff
+	mov	cl,rdconf	;read console function
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+break:	;get console status (#11)
+	mov	cl,statf
+	call	?bdos		;return through bdos
+	add	al,0ffh		;return clean true or false values
+	sbb	al,al		;AL = 0 or 0ffh
+	ret
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+vers:	;get version number (#12)
+	mov	cl,versf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+reset:	;reset disk system (#13)
+	mov	cl,resetf
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+select:	;select disk (#14)
+	;1->fixed(7) drive number
+	call	getp1		;disk number to DL
+	mov	cl,seldf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+open:	;open file (#15)
+	;1-> addr(fcb)
+	call	getp2i		;fcb address to DX
+	mov	cl,openf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+close:	;close file (#16)
+	;1-> addr(fcb)
+	call	getp2i		;.fcb to DX
+	mov	cl,closef
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+sear:	;search for file (#17)
+	;1-> addr(fcb)
+	call	getp2i		;.fcb to DX
+	mov	cl,serchf
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+searn:	;search for next (#18)
+	mov	cl,serchn	;search next function
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+delete:	;delete file (#19)
+	;1-> addr(fcb)
+	call	getp2i		;.fcb to DX
+	mov	cl,deletf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+rdseq:	;read file sequential mode (#20)
+	;1-> addr(fcb)
+	call	getp2i		;.fcb to DX
+	mov	cl,readf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+wrseq:	;write file sequential mode (#21)
+	;1-> addr(fcb)
+	call	getp2i		;.fcb to DX
+	mov	cl,writf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+make:	;create file (#22)
+	;1-> addr(fcb)
+	call	getp2i		;.fcb to DX
+	mov	cl,makef
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+rename:	;rename file (#23)
+	;1-> addr(fcb)
+	call	getp2i		;.fcb to DX
+	mov	cl,renamf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+logvec:	;return login vector (#24)
+	mov	cl,loginf
+	jmp	?bdos		;return through BDOS
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+curdsk:	;return current disk number (#25)
+	mov	cl,cdiskf
+	jmp	?bdos		;return value in AL
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+setdma:	;set DMA address (#26)
+	;1-> pointer (dma address)
+	call	getp2		;dma address to DX
+	mov	cl,setdmf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+allvec:	;return address of allocation vector (#27)
+	;Place offset and segment in first two word-length
+	;	elements of array passed as a parameter.
+	mov	cl,getalf	;Select function.
+bxes:
+	push	es		;Free ES to receive segment base.
+	push	word ptr [bx]	;Save parameter.
+	int	0E0h		;Go get values in BX & ES.
+	pop	si		;Index parameter via SI.
+	mov	[si],bx		;Set up return values.
+	mov	2[si],es
+	pop	es		;Restore original setting.
+	ret
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+wpdisk:	;write protect disk (#28)
+	call	chkv20		;must be 2.0 or greater
+	mov	cl,wrprof
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+rovec:	;return read/only vector (#29)
+	call	chkv20		;must be 2.0 or greater
+	mov	cl,getrof
+	jmp	?bdos		;value returned in BX
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+filatt:	;set file attributes (#30)
+	;1-> addr(fcb)
+	call	chkv20		;must be 2.0 or greater
+	call	getp2i		;.fcb to DX
+	mov	cl,setatf
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+getdpb:	;get base of current disk parm block (#31)
+	;Place offset and segment in first two word-length
+	;	elements of array passed as a parameter.
+	call	chkv20		;check for 2.0 or greater
+	mov	cl,getdpf
+	jmps	bxes		;Go get values in BX & ES.
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+getusr:	;get user code to register AL
+	call	chkv20		;check for 2.0 or greater
+	mov	dl,0ffh		;to get user code
+	mov	cl,userf
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+setusr:	;set user code
+	call	chkv20		;check for 2.0 or greater
+	call	getp1		;code to DL
+	mov	cl,userf
+	jmp	?bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+rdran:	;read random (#33)
+	;1-> addr(fcb)
+	call	chkv20		;check for 2.0 or greater
+	call	getp2i		;.fcb to DX
+	mov	cl,rdranf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+wrran:	;write random (#34)
+	;1-> addr(fcb)
+	call	chkv20		;check for 2.0 or greater
+	call	getp2i		;.fcb to DX
+	mov	cl,wrranf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+filsiz:	;compute file size (#35)
+	call	chkv20		;must be 2.0 or greater
+	call	getp2		;.fcb to DX
+	mov	cl,filszf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+setrec:	;set random record position (#36)
+	call	chkv20		;must be 2.0 or greater
+	call	getp2		;.fcb to DX
+	mov	cl,setrcf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+resdrv:	;reset drive function (#37)
+	;1->drive vector - bit(16)
+	call	chkv22		;must be 2.2 or greater
+	call	getp2		;drive reset vector to DX
+	mov	cl,rsdrvf
+	jmp	?bdos		;return through bdos
+
+;***********************************************************
+;*                                                         *
+;***********************************************************
+wrranz:	;write random, zero fill function (#40)
+	;1-> addr(fcb)
+	call	chkv22	;must be 2.2 or greater
+	call	getp2i		;.fcb to DX
+	mov	cl,wrrnzf
+	jmp	?bdos
+
+;****************************************************************
+;*								*
+;*  MOVGTL:  Move string with global addr to local area		*
+;*  MOVLTG:  Move string with local addr to global addr		*
+;*  MOVGTG:  Move string with global addr to global addr	*
+;*								*
+;*  These routines are needed to make effective use of ALLVEC	*
+;*  and GETDPB.							*
+;*								*
+;*  First parameter is length in bytes of string to be moved	*
+;*  and is FIXED BINARY(15).					*
+;*  Second parameter is source string.				*
+;*  Third parameter is target addr.				*
+;*								*
+;*  A global addr is passed as a two-element array of pointers;	*
+;*  first element is offset; second element is segment.		*
+;*  (This is the type of addr returned by ALLVEC and GETDPB.)	*
+;*								*
+;*  A local addr is passed as a scalar pointer.			*
+;*								*
+;****************************************************************
+movgtl:		;Move string with arbitrary addr to local area.
+	mov	si,2[bx]	;Retrieve source.
+	push	word ptr 2[si]	;Stack segment(source).
+	push	word ptr [si]	;Stack offset(source).
+	mov	di,4[bx]	;Retrieve destination.
+	push	ds		;Stack segment(destination).
+	jmps	moov
+
+movltg:		;Move string in local area to arbitrary addr.
+	mov	si,2[bx]	;Retrieve source.
+	push	ds		;Stack segment(source).
+	jmps	threst
+
+movgtg:		;Move string with arbitrary addr to arbitrary location.
+	mov	si,2[bx]	;Retrieve source.
+	push	word ptr 2[si]	;Stack segment(source).
+threst:
+	push	word ptr [si]	;Stack offset(source).
+	mov	di,4[bx]	;Retrieve destination.
+	push	word ptr 2[di]	;Stack segment(destination).
+moov:
+	mov	ax,[di]		;Retrieve offset(destination).
+	mov	cx,16		;Keep divisor of 16 handy.
+	xor	dx,dx		;Prepare for word division.
+	div	cx		;Compute adjustment to segment & offset.
+	mov	di,dx		;DI := new destination offset.
+	pop	bp		;BP := new destination segment.
+	add	bp,ax
+	pop	ax		;Restore offset(source).
+	xor	dx,dx		;Compute adjustment to segment & offset
+	div	cx		;	of source.
+	mov	si,dx		;SI := new source offset.
+	pop	dx		;Restore segment(source).
+	push	es		;Save original ES.
+	xchg	ax,bp		;BP := adjustment to source segment.
+	mov	es,ax		;ES := new destination segment.
+	mov	bx,[bx]		;Retrieve length.
+	mov	cx,[bx]
+	push	ds		;Save original DS.
+	xor	bx,bx		;Initialize adjustment for word move.
+	add	dx,bp		;DS := new source segment.
+	mov	ds,dx
+	cmp	dx,ax		;CMP source segment, destination segment.
+	jne	gnown		;If source precedes destination
+	cmp	si,di		;	in memory,
+gnown:
+	jnb	ortho		;  then will perform backward move,
+	std			;  otherwise
+	add	si,cx		;	will perform forward move.
+	dec	si
+	add	di,cx
+	dec	di
+	inc	bx		;Set word move adjustment to 1.
+ortho:
+	shr	cx,1		;Compute #words to move,
+	jnc	grad		;	determine if odd byte.
+	movsb			;Move odd byte if any,
+grad:
+	sub	si,bx		;	adjust for word move,
+	sub	di,bx
+	rep movsw		;	then move zero or more words.
+	cld			;Restore direction flag
+	pop	ds		;	and seg regs.
+	pop	es
+	ret
+
+    
+	end
+
