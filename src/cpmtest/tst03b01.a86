@@ -1,0 +1,123 @@
+            title   'tst03b01 - fn 03Bh P_LOAD launcher'
+
+; Test fn 03Bh: P_LOAD - load a program without running it
+; Sub-tests:
+;   03b.01  load sub03b02.cmd, far-jump to its entry point, regain control
+;           when it executes RETF
+;           if P_LOAD reports AL=0FFh (load failed), print ERR and exit
+;
+; Protocol: DX = offset of an FCB naming the .CMD file (do not pre-open it);
+; fn 03Bh loads the program without running it and returns the base page
+; segment in BX (AL=0FFh on failure).  The entry point is taken from the base
+; page: CS = word at offset 3, IP = byte at offset 5 shifted left 8.
+; Unlike P_CHAIN this launcher stays resident: it pushes a far return address,
+; jumps into the loaded program, and continues when that program does a RETF.
+
+BDOS        equ     0E0h
+FN_EXIT     equ     000h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+FN_PLOAD    equ     03Bh
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_03b_01s db  'INF: test 03b.01 started (p_load)', CR, LF, '$'
+msg_03b_01g db  'INF: test 03b.01 successful (p_load target returned)', CR, LF, '$'
+msg_03b_01f db  'ERR: test 03b.01 failed (p_load reported an error)', CR, LF, '$'
+
+; far pointer to the loaded program's entry point; filled in from its base page
+entry_off   dw  0
+entry_seg   dw  0
+
+; FCB for sub03b02.cmd (drive 0 = current, 8+3 space-padded)
+fcb_sub     db  0               ; drive
+            db  'SUB03B02'      ; filename
+            db  'CMD'           ; extension
+            db  0,0,0,0         ; EX S1 S2 RC
+            db  0,0,0,0,0,0,0,0 ; D0-D7
+            db  0,0,0,0,0,0,0,0 ; D8-D15
+            db  0               ; CR
+            db  0,0,0           ; R0 R1 R2
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+; ============================================================
+; test 03b.01: load sub03b02 and jump to it
+; ============================================================
+t03b_01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_03b_01s
+            int     BDOS
+
+            mov     cx, FN_PLOAD
+            mov     dx, offset fcb_sub
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01
+
+            ; BX = base page segment of the loaded program
+            push    bx
+            mov     es, bx
+            mov     bx, 3               ; base page +3: code segment
+            mov     ax, es:[bx]
+            mov     entry_seg, ax
+            mov     bx, 5               ; base page +5: entry offset, high byte
+            mov     al, es:[bx]
+            mov     ah, 0
+            mov     cl, 8
+            shl     ax, cl
+            mov     entry_off, ax
+            pop     bx
+
+            ; enter the program the way the CCP does: ES = base page.
+            ; DS stays on the launcher so the far pointer below stays
+            ; addressable; sub03b02 sets its own DS from CS on entry.
+            mov     es, bx
+
+            ; push the far return address the target pops with its RETF,
+            ; then jump into the loaded program
+            push    cs
+            mov     ax, offset back01
+            push    ax
+            jmpf    dword ptr entry_off
+
+back01:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_03b_01g
+            int     BDOS
+            jmp     done
+
+fail01:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_03b_01f
+            int     BDOS
+
+done:
+            xor     cx, cx
+            int     BDOS
+
+            end     main

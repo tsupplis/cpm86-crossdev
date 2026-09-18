@@ -41,15 +41,19 @@ TESTS = \
 	tst03701.cmd \
 	tst03901.cmd \
 	tst03a01.cmd \
+	tst03b01.cmd \
 	tst09801.cmd
 
 # helpers - built by 'make all' but not listed in TESTS
-HELPERS = sub02f02.cmd pause.cmd
+HELPERS = sub02f02.cmd sub03b02.cmd pause.cmd
 
 all: $(TESTS) $(HELPERS)
 
 # tst02f01 needs its chain target present before it can run
 tst02f01.cmd: sub02f02.cmd
+
+# tst03b01 needs its load target present before it can run
+tst03b01.cmd: sub03b02.cmd
 
 %.obj: %.a86
 	unix2dos $<

@@ -1,0 +1,42 @@
+            title   'sub03b02 - fn 03Bh P_LOAD target'
+
+; P_LOAD support binary - loaded (not run) by tst03b01, which then far-jumps
+; to its entry point.  Built by 'make all' but NOT listed in TESTS.
+; Returns to the launcher with RETF instead of terminating via the BDOS.
+
+BDOS        equ     0E0h
+FN_PRTSTR   equ     009h
+FN_DMASEG   equ     033h
+
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+msg_arrive  db  'INF: test 03b.01 running (p_load target entered)', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_DMASEG
+            mov     dx, cs
+            int     BDOS
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_arrive
+            int     BDOS
+
+            ; hand control back to the launcher (far return address pushed by it)
+            retf
+
+            end     main

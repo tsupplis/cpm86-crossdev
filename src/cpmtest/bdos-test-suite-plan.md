@@ -81,11 +81,14 @@ Exit always via fn 000h (`xor cx,cx` / `int 0E0h`).
 | tst03701 | 037h | MC_ALLOC | 2 | — | ✅ pass |
 | tst03901 | 039h | MC_FREE | 2 | — | ✅ pass |
 | tst03a01 | 03Ah | MC_ALLFREE | 1 | — | ✅ pass |
+| tst03b01 | 03Bh | P_LOAD | 1 | — | ✅ pass |
 | tst09801 | 098h | F_PARSE | 4 | — | ✅ pass |
 
-**Total: 36/36 passing**
+**Total: 37/37 passing**
 
 > Helper: `sub02f02.cmd` — P_CHAIN target (built by `make all` via `HELPERS`, not in `TESTS`; `tst02f01.cmd` depends on it)
+>
+> Helper: `sub03b02.cmd` — P_LOAD target (same arrangement; `tst03b01.cmd` depends on it). Unlike the P_CHAIN target it returns to the launcher with `retf` instead of terminating.
 
 ## Deferred / Not Implemented in emu2
 
