@@ -5,7 +5,24 @@ EMU2_DRIVE_D="`dirname $0`/../share/cpm"
 export EMU2_DRIVE_D
 EMU2_PROGNAME="D:$prog"
 export EMU2_PROGNAME
-"$emu2" "$EMU2_DRIVE_D/$prog" "$@"
-if [ -z "$*" ];then
+if [ -z "$*" ]; then
+    "$emu2" "$EMU2_DRIVE_D/$prog" "$@"
     echo ""
+    exit 1
+fi
+
+# GENCMD has no usable exit code under CP/M-86; a bad .h86 or a bad segment
+# keyword still produces a .cmd file, so scan the console output and remove it.
+base=`echo "$1" | sed -e 's/\.[Hh]86$//'`
+tmp="${TMPDIR:-/tmp}/cpm86_gencmd.`date +%s`.$$"
+trap 'rm -f "$tmp"' EXIT INT TERM
+"$emu2" "$EMU2_DRIVE_D/$prog" "$@" 2>&1 | tee "$tmp"
+# INVALID HEX DIGIT / CHECK SUM ERROR / INSUFFICIENT MEMORY / ERROR: are the
+# fatal messages GENCMD's PL/M source prints; a bad segment keyword instead
+# echoes the command tail ending in a bare '?' with no ERROR text at all.
+if grep -qE 'INVALID HEX DIGIT|CHECK SUM ERROR|INSUFFICIENT MEMORY TO CREATE CMD FILE|ERROR:' "$tmp" \
+   || tail -n1 "$tmp" | grep -q '?[[:space:]]*$'; then
+    echo "ERR: cpm86_gencmd: fatal error detected; removing $base.cmd" >&2
+    rm -f "$base.cmd"
+    exit 1
 fi

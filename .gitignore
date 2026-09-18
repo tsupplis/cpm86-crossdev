@@ -42,6 +42,9 @@ bin/drpli_objfix
 **/*.prn
 **/*.hex
 
+# badgencm.h86 is a committed negative-test fixture, not a build artefact
+!examples/badgencm.h86
+
 # ── CP/M disk images ─────────────────────────────────────────────────────────
 **/hack*.img
 **/cpmtest.img

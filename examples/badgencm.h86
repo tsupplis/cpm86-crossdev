@@ -1,0 +1,6 @@
+; badgencm.h86 - intentionally malformed DR hex record (embeds the letter
+; 'h' where a hex digit is expected) so cpm86_gencmd reports "INVALID HEX
+; DIGIT" (a real error). Used to verify the wrapper removes badgencm.cmd
+; instead of leaving a bad file behind.
+:0A0100000E0h0000000000000000FF
+:00000001FF

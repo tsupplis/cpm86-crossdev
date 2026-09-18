@@ -39,14 +39,22 @@ PLI=drplicpm_pc
 PLILINK=drplicpm_link
 COBOL=mfcobol_cc
 COBRUN=mfcobol_run
+MSCCL=msc5_cl
+MSCLINK=msc5_link
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
-	helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
+	hellomsc.exe helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
 	hello86.cmd hellocbl.int hellopli.cmd hellodra.cmd
 EXTRAS=hello80.com
 
 all: binaries
 
 binaries: $(TOOLS) $(EXTRAS)
+
+hellomsc.exe: hellomsc.obj
+	$(MSCLINK) $< \;
+
+hellomsc.obj: hellomsc.c
+	$(MSCCL) -c $@ $< 
 
 hellon.cmd: hellon.bin
 	$(BIN2CMD) $< $@
@@ -193,6 +201,25 @@ test: emu2-test
 	$(XLISP) hello.lsp
 	@echo "--------- TEST: cobol hellocbl.cbl"
 	$(COBRUN) hellocbl.int
+	$(MAKE) test-negative
+
+test-negative:
+	@echo "--------- NEG TEST: cpm86_asm86 badasm86.a86 (expect failure, badasm86.h86 removed)"
+	@rm -f badasm86.h86 badasm86.lst badasm86.sym
+	@if $(ASM86) badasm86.a86; then \
+		echo "--------- ERROR: cpm86_asm86 badasm86.a86 unexpectedly succeeded"; exit 1; \
+	fi
+	@if [ -f badasm86.h86 ]; then \
+		echo "--------- ERROR: badasm86.h86 was not removed after a failed assembly"; exit 1; \
+	fi
+	@echo "--------- NEG TEST: cpm86_gencmd badgencm.h86 (expect failure, badgencm.cmd removed)"
+	@rm -f badgencm.cmd
+	@if $(GENCMD) badgencm.h86; then \
+		echo "--------- ERROR: cpm86_gencmd badgencm.h86 unexpectedly succeeded"; exit 1; \
+	fi
+	@if [ -f badgencm.cmd ]; then \
+		echo "--------- ERROR: badgencm.cmd was not removed after a failed gencmd run"; exit 1; \
+	fi
 
 emu2-test: binaries
 	@for cmd in $(TOOLS); do \
@@ -206,9 +233,13 @@ hellocbl.int: hellocbl.cbl
 	[ -f $@ ]
 
 clean:
-	$(RM) *.prt *.prn *.o *.h86 *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
+	$(RM) *.prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
 		  *.mp2 *exe *.map *.err *.int *.prn *.hex \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello86.a86 \
+	      badasm86.cmd badgencm.cmd \
 	      $(TOOLS) $(EXTRAS)
+	@for f in *.h86; do \
+		case "$$f" in badgencm.h86) ;; *) rm -f "$$f" ;; esac; \
+	done
 

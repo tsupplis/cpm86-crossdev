@@ -1,0 +1,12 @@
+            title   'Negative test - undefined symbol reference'
+
+; Intentionally broken ASM86 source: "undefinedlabel" is never defined, so
+; ASM86 reports "** ERROR NO: 10 ** ... UNDEFINED ELEMENT OF EXPRESSION"
+; (a real, non-"IGNORED" error). Used to verify that cpm86_asm86 detects
+; the failure and removes badasm86.h86 instead of leaving a bad file behind.
+
+            cseg
+            org     100h
+            mov     ax,undefinedlabel
+            int     0E0h
+            end
