@@ -1,0 +1,99 @@
+$DEBUG
+$OT(0)
+$CODE
+$XREF
+
+   /*----------------------------------
+     Program : START.PLM
+     Title   : Main module for PLM86
+     Author  : Mr S.C.Agate FCD x4667
+     Date    : 16-SEP-90
+   ----------------------------------*/
+
+start:DO;
+
+                /******************* Literals ******************/
+
+                DECLARE true  LITERALLY '01H';
+
+                /******************* Globals *******************/
+
+                DECLARE clock STRUCTURE ( year    WORD,
+                                          month   BYTE,
+                                          day     BYTE,
+                                          dow     BYTE,
+                                          hour    BYTE,
+                                          minute  BYTE,
+                                          second  BYTE,
+                                          csecond BYTE);
+
+                DECLARE param_count BYTE EXTERNAL;
+                DECLARE param_list(*) POINTER EXTERNAL;
+
+                DECLARE mesg(*) BYTE DATA('Number of parameters passed = ',0);
+                DECLARE string(5) BYTE;
+
+                /************** External Procedures ************/
+
+$INCLUDE(plm_lib.inc)
+
+                /************** Internal Procedures ************/
+
+main:           PROCEDURE BYTE PUBLIC;
+                   DECLARE exit_code BYTE;
+                   DECLARE i    BYTE,
+                           temp BYTE;
+
+                   DECLARE error_code WORD;
+                   DECLARE handle WORD;
+
+/*                 TEST FOR WORD MULTIPLICATION
+
+                   DECLARE (x,y,z) DWORD;
+                   x=1;y=12345678H;
+                   z=x+y-1;
+                   z=x*y;                               */
+
+                   IF param_count=0 THEN
+                   DO;
+                      CALL put_string(@('No parameters Passed',13,10,0));
+                   END;
+                   ELSE
+                   DO;
+                      CALL put_string(@mesg);
+                      exit_code=put_dec_num(param_count);
+                      CALL new_line;
+                      DO i=0 TO param_count-1;
+                         CALL put_string(@('Param ',0));
+                         temp=put_dec_num(i);
+                         CALL put_string(@(' : "',0));
+                         CALL upper(param_list(i));
+                         CALL put_string(param_list(i));
+                         CALL put_string(@('"',13,10,0));
+                      END;
+                   END;
+
+                   handle=asm_openf(@('A:wank.txt',0),0,@error_code);
+                   IF error_code=0 THEN
+                   DO;
+                      CALL put_string(@('Handle = ',0));
+                      temp=put_dec_num(handle);
+                      CALL asm_closef(handle,@error_code);
+/*                    CALL asm_rfile(@('wank.aaa',0),@('wank.txt',0),@error_code); */
+                      CALL asm_dfile(@('a:\wank.txt',0),@error_code);
+                   END;
+                   ELSE
+                   DO;
+                      CALL put_string(@('Error occured.',0));
+                   END;
+
+                   RETURN error_code;
+                END main;
+
+                /*************** Module level code *************/
+
+                /* None */
+
+END start;
+
+

@@ -1,0 +1,81 @@
+$DEBUG
+$OT(0)
+$CODE
+$XREF
+
+   /*----------------------------------
+     Program : START.PLM
+     Title   : Main module for PLM86
+     Author  : Mr S.C.Agate FCD x4667
+     Date    : 17-SEP-90
+   ----------------------------------*/
+
+start:DO;
+
+                /******************* Literals ******************/
+
+                DECLARE true  LITERALLY '01H';
+
+                /******************* Globals *******************/
+
+                DECLARE param_count BYTE EXTERNAL;
+                DECLARE param_list(*) POINTER EXTERNAL;
+
+                DECLARE mesg(*) BYTE DATA('Filename not specified',13,10,0);
+
+                /************** External Procedures ************/
+
+$INCLUDE(plm_lib.inc)
+
+                /************** Internal Procedures ************/
+
+main:           PROCEDURE BYTE PUBLIC;
+                   DECLARE error_code WORD;
+                   DECLARE handle WORD;
+                   DECLARE value BYTE;
+                   DECLARE temp WORD;
+                   DECLARE dtemp DWORD;
+                   IF param_count=0 THEN
+                   DO;
+                      CALL put_string(@mesg);
+                   END;
+                   ELSE
+                   DO;
+                      handle=asm_openf(param_list(0),2,@error_code);
+                      IF error_code=0 THEN
+                      DO;
+                         dtemp=asm_set_loc(handle,2,0FFFFFFFFH,@error_code);
+                         IF error_code=0 THEN
+                         DO;
+                            temp=asm_rd_chrs(handle,@value,1,@error_code);
+                            IF error_code=0 AND temp=1 THEN
+                            DO;
+                               IF value=1AH THEN
+                               DO;
+                                  dtemp=asm_set_loc(handle,2,0FFFFFFFFH,@error_code);
+                                  temp=asm_wr_chrs(handle,@value,0,@error_code);
+                                  IF error_code=0 THEN
+                                  DO;
+                                     CALL asm_closef(handle,@error_code);
+                                     CALL put_string(@('EOF removed sucessfully',13,10,0));
+                                  END;
+                                  ELSE CALL put_string(@('Cannot truncate file',13,10,0));
+                               END;
+                               ELSE CALL put_string(@('No EOF marker found',13,10,0));
+                            END;
+                            ELSE CALL put_string(@('Cannot read file',13,10,0));
+                         END;
+                         ELSE CALL put_string(@('Invalid location',13,10,0));
+                      END;
+                      ELSE CALL put_string(@('File not found',13,10,0));
+                   END;
+                   RETURN error_code;
+                END main;
+
+                /*************** Module level code *************/
+
+                /* None */
+
+END start;
+
+

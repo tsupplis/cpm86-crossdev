@@ -6,27 +6,7 @@ echo INF: Checking PL/M-86 3.30 tools ...
 cd "$root/share"
 if [ ! -f intel/plm86.exe -o ! -f intel/asm86.exe -o ! -f intel/link.exe \
     -o ! -f intel/lib86.exe -o ! -f intel/loc86.exe ]; then
-    tmp="$root/archive/temp-plm86"
-    rm -rf "$tmp"
-    mkdir -p "$root/share/intel" "$tmp"
-    trap 'cd .. && rm -rf "$tmp"' EXIT
-    cd "$tmp"
-    fetch_get "http://www.retroarchive.org/dos/lang/PLM8086Tools.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp 8086tools/plm86.exe   "$root/share/intel"
-    cp 8086tools/asm86.exe   "$root/share/intel"
-    cp 8086tools/link.exe    "$root/share/intel"
-    cp 8086tools/lib86.exe   "$root/share/intel"
-    cp 8086tools/loc86.exe   "$root/share/intel"
-    cp 8086tools/*.plm       "$root/share/intel"
-    cp 8086tools/*.inc       "$root/share/intel"
-    cp 8086tools/*.asm       "$root/share/intel"
-    cp 8086tools/*.obj       "$root/share/intel"
-    cp 8086tools/*.lib       "$root/share/intel"
-#missing intel linker
-    cp "$root/src/intel/link86.exe" "$root/share/intel"
-    cp "$root/src/intel/oh86.exe" "$root/share/intel"
+    mkdir -p "$root/share/intel"
+    cp "$root/src/inteltools"/* "$root/share/intel"
     chmod 644 "$root/share/intel"/*
-    cd .. && rm -rf "$tmp"
-    trap - EXIT
 fi

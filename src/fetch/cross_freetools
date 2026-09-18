@@ -4,15 +4,8 @@ set -e
 
 echo INF: Checking CP/M-86 free tools ...
 if [ ! -f "$root/share/cpm/lu86.cmd" ] || [ ! -f "$root/share/cpm/arc86.cmd" ]; then
-    fetch_get "http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip" "86arkive.zip"
-    tmp="$root/archive/temp-freetools"
-    rm -rf "$tmp"
-    mkdir -p "$tmp" "$root/share/cpm"
-    trap 'rm -rf "$tmp"' EXIT
-    (cd "$tmp" && unzip -L "$ARCHIVED_FILE")
-    cp "$tmp/LU86.CMD" "$root/share/cpm/lu86.cmd"
-    cp "$tmp/ARC86.CMD" "$root/share/cpm/arc86.cmd"
+    mkdir -p "$root/share/cpm"
+    cp "$root/src/freetools/lu86.cmd" "$root/share/cpm/lu86.cmd"
+    cp "$root/src/freetools/arc86.cmd" "$root/share/cpm/arc86.cmd"
     chmod 644 "$root/share/cpm/lu86.cmd" "$root/share/cpm/arc86.cmd"
-    rm -rf "$tmp"
-    trap - EXIT
 fi

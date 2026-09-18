@@ -118,11 +118,11 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
-| ARC86 (Reimer Mellin; CP/M‑86 port by D. J. Weatherall) | Public domain source; private non-commercial use only for the CP/M‑86 modifications | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) |
-| LU86 (Paul J. Homchick) | **Unclear** ⚠️ | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) |
+| ARC86 (Reimer Mellin; CP/M‑86 port by D. J. Weatherall) | Public domain source; private non-commercial use only for the CP/M‑86 modifications | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
+| LU86 (Paul J. Homchick) | **Unclear** ⚠️ | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
 | XLISP 1.1 (David Betz) | Public domain | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) |
 | PL/I Object Fixer | GPL-3.0 | [ccpm objfix](https://gitlab.com/ccpm-86/ccpm/-/blob/master/scripts/fixobj.py) |
-| Intel PL/M‑86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) |
+| Intel PL/M‑86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`) |
 | PolyPascal‑86 V3.11 (PolyData MicroCenter A/S) | **Unclear** ⚠️ | — |
 | Micro Focus Level II COBOL V2.1 | **Unclear** ⚠️ | — |
 | TDL BASIC 3.05 (Technical Design Labs) | **Unclear** ⚠️ | — |
@@ -276,9 +276,9 @@ export PATH="$(pwd -P)"/bin
 | UPX                                               | [UPX releases](https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz) (GitHub)                                |
 | emu2‑cpm86                                        | [emu2‑cpm86](https://gitlab.com/johnsonjh/emu2-cpm86) (GitLab, fork of [emu2](https://github.com/dmsc/emu2))                     |
 | tnylpo                                            | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab)                                                                          |
-| Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)                                                        |
+| Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`)                           |
 | DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) (stored in `src/drpackages/drplicpm`)                                       |
-| ARC86 / LU86                                      | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip)                                  |
+| ARC86 / LU86                                      | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`)      |
 | XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |
 | TDL BASIC 3.05 (CP/M‑80)                          | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip)                                                      |

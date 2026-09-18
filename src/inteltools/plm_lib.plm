@@ -1,0 +1,183 @@
+$DEBUG
+$OT(0)
+$CODE
+$XREF
+
+   /*----------------------------------
+     Program : PLM_LIB.PLM
+     Title   : Subroutines
+     Author  : Mr S.C.Agate FCD x4667
+     Date    : 09-Aug-90
+   ----------------------------------*/
+
+plm_lib:DO;
+
+                /******************* Literals ******************/
+
+                DECLARE true  LITERALLY '01H';
+
+                /******************* Globals *******************/
+
+                /* None */
+
+                /************** External Procedures ************/
+
+asm_get_chr:    PROCEDURE BYTE EXTERNAL;
+                END asm_get_chr;
+
+asm_put_chr:    PROCEDURE (chr) EXTERNAL;
+                   DECLARE chr BYTE;
+                END asm_put_chr;
+
+asm_get_date:   PROCEDURE (ptr) EXTERNAL;
+                   DECLARE ptr POINTER;
+                END asm_get_date;
+
+asm_get_time:   PROCEDURE (ptr) EXTERNAL;
+                   DECLARE ptr POINTER;
+                END asm_get_time;
+
+                /************** Internal Procedures ************/
+
+get_clock:      PROCEDURE (ptr) PUBLIC;
+                   DECLARE ptr POINTER;
+                   DECLARE actual BASED ptr STRUCTURE (year    WORD,
+                                                       month   BYTE,
+                                                       day     BYTE,
+                                                       dow     BYTE,
+                                                       hour    BYTE,
+                                                       minute  BYTE,
+                                                       second  BYTE,
+                                                       csecond BYTE);
+                   CALL asm_get_date(@actual);
+                   CALL asm_get_time(@actual);
+                END get_clock;
+
+new_line:       PROCEDURE PUBLIC;
+                   CALL asm_put_chr(0DH);
+                   CALL asm_put_chr(0AH);
+                END new_line;
+
+get_string:     PROCEDURE (string_add,max_len) BYTE PUBLIC;
+                   DECLARE string_add POINTER;
+                   DECLARE max_len BYTE;
+                   DECLARE actual_string BASED string_add(*) BYTE;
+                   DECLARE length WORD,
+                           chr    WORD;
+                   length=0;
+                   chr=0;
+                   DO WHILE chr<>13;
+                      chr=asm_get_chr;
+                      IF chr<>13 THEN
+                      DO;
+                         IF chr=8 THEN
+                         DO;
+                            IF length<>0 THEN
+                            DO;
+                               length=length-1;
+                               CALL asm_put_chr(8);
+                               CALL asm_put_chr(32);
+                               CALL asm_put_chr(8);
+                            END;
+                         END;
+                         ELSE
+                         DO;
+                            IF length<>(max_len-1) THEN
+                            DO;
+                               CALL asm_put_chr(chr);
+                               actual_string(length)=chr;
+                               length=length+1;
+                            END;
+                         END;
+                      END;
+                   END;
+                   length=length+1;
+                   actual_string(length)=0;
+                   RETURN length;
+                END get_string;
+
+put_string:     PROCEDURE (string_add) PUBLIC;
+                   DECLARE string_add POINTER;
+                   DECLARE actual_string BASED string_add(*) BYTE;
+                   DECLARE count WORD,
+                           chr   BYTE;
+                   count=0;
+                   chr=actual_string(count);
+                   IF chr<>0 THEN
+                   DO WHILE chr<>0;
+                      CALL asm_put_chr(chr);
+                      count=count+1;
+                      chr=actual_string(count);
+                   END;
+                END put_string;
+
+put_hex_num:    PROCEDURE (value,digits) PUBLIC;
+                   DECLARE value  WORD,
+                           digits BYTE,
+                           i      INTEGER,
+                           temp   BYTE;
+                   IF digits<>0 THEN
+                   DO i=(digits-1) TO 0 BY -1;
+                      temp=(SHR(value,BYTE(i)*4) AND 01111B);
+                      IF temp>9 THEN temp=temp+7;
+                      CALL asm_put_chr(temp+30H);
+                   END;
+                END put_hex_num;
+
+put_dec_num:    PROCEDURE (value) BYTE PUBLIC;
+                   DECLARE value  WORD,
+                           digits BYTE,
+                           i      BYTE,
+                           temp   BYTE,
+                           exp    WORD;
+                   digits=0;
+                   exp=10000;
+                   DO i=1 TO 5;
+                      temp=value/exp;
+                      IF temp<>0 OR digits<>0 OR i=5 THEN
+                      DO;
+                         CALL asm_put_chr(temp+30H);
+                         value=value-temp*exp;
+                         digits=digits+1;
+                      END;
+                      exp=exp/10;
+                   END;
+                   RETURN digits;
+                END put_dec_num;
+
+get_dec_num:    PROCEDURE WORD PUBLIC;
+                   DECLARE string(6) BYTE;
+                   DECLARE value  WORD,
+                           i      BYTE,
+                           digits BYTE;
+                   digits=get_string(@string,6);
+                   value=0;
+                   IF digits>1 THEN
+                   DO i=0 to digits-2;
+                      value=value*10+WORD(string(i)-48);
+                   END;
+                   RETURN value;
+                END get_dec_num;
+
+upper:          PROCEDURE (string_add) PUBLIC;
+                   DECLARE string_add POINTER;
+                   DECLARE actual_string BASED string_add(*) BYTE;
+                   DECLARE count WORD,
+                           chr   BYTE;
+                   count=0;
+                   chr=actual_string(count);
+                   IF chr<>0 THEN
+                   DO WHILE chr<>0;
+                      IF (chr>96 and chr<123) THEN actual_string(count)=chr-32;
+                      count=count+1;
+                      chr=actual_string(count);
+                   END;
+                END upper;
+
+                /*************** Module level code *************/
+
+                /* None */
+
+END plm_lib;
+
+
