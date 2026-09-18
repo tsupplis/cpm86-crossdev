@@ -4,8 +4,8 @@ set -e
 
 echo INF: Checking Microsoft C 5.1 for DOS ...
 cd "$root/share"
-if [ ! -f msc51/cl.exe ]; then
-    mkdir -p "$root/share/msc51"
+mkdir -p "$root/share/msc51"
+if [ ! -f "$root/share/msc51/cl.exe" ]; then
     cp -R "$root/src/mspackages/msc51"/* "$root/share/msc51"
     chmod 644 "$root/share/msc51"/*
 fi
