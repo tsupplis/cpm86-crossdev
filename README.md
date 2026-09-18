@@ -252,14 +252,14 @@ export PATH="$(pwd -P)"/bin
 | Aztec C 3.4                                       | [az8634b.zip](https://www.aztecmuseum.ca/az8634b.zip)                                                                            |
 | RASM‑86, LINK‑86, LIB‑86                          | [tools86.zip](http://www.cpm.z80.de/download/tools86.zip) (stored in `src/drtools`)                                              |
 | ASM‑86 + GENCMD (CP/M‑80)                         | [mpm862sr.zip](http://www.cpm.z80.de/download/mpm862sr.zip) (stored in `src/drtools`)                                            |
-| XLT86 1.3                                         | [xlt86.zip](http://www.cpm.z80.de/download/xlt86.zip)                                                                            |
+| XLT86 1.3                                         | [xlt86.zip](http://www.cpm.z80.de/download/xlt86.zip) (stored in `src/drpackages/xlt86`)                                         |
 | ASM‑86 + GENCMD (CP/M‑86)                         | [cpm86‑kernel](https://github.com/tsupplis/cpm86-kernel) (GitHub)                                                                |
-| DR C 1.11 + extra headers                         | [drc_86.zip](http://www.cpm.z80.de/download/drc_86.zip) · [drc86111.zip](http://www.cpm.z80.de/download/drc86111.zip)            |
-| DR Fortran‑77 4.0                                 | [f77‑86.zip](http://www.cpm.z80.de/download/f77-86.zip)                                                                          |
+| DR C 1.11 + extra headers                         | [drc_86.zip](http://www.cpm.z80.de/download/drc_86.zip) · [drc86111.zip](http://www.cpm.z80.de/download/drc86111.zip) (stored in `src/drpackages/drc86cpm`) |
+| DR Fortran‑77 4.0                                 | [f77‑86.zip](http://www.cpm.z80.de/download/f77-86.zip) (stored in `src/drpackages/drf77cpm`)                                     |
 | Turbo Pascal 3.02 (CP/M‑86)                       | [RC750 image](https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2) (stored in `src/turbo`) |
 | PolyPascal‑86 3.11                                | [PolyPascal](https://github.com/johnsonjh/PolyPascal) (GitHub)                                                                   |
-| Pascal MT+ 3.3                                    | [mt8633cp.zip](http://www.cpm.z80.de/download/mt8633cp.zip)                                                                      |
-| DR CBASIC 2.0/2.1 + libs                          | [cbasic86.zip](http://www.cpm.z80.de/download/cbasic86.zip) · [cb86toys.zip](http://www.cpm.z80.de/download/cb86toys.zip)        |
+| Pascal MT+ 3.3                                    | [mt8633cp.zip](http://www.cpm.z80.de/download/mt8633cp.zip) (stored in `src/drpackages/drpmtcpm`)                                 |
+| DR CBASIC 2.0/2.1 + libs                          | [cbasic86.zip](http://www.cpm.z80.de/download/cbasic86.zip) · [cb86toys.zip](http://www.cpm.z80.de/download/cb86toys.zip) (stored in `src/drpackages/cb86cpm`, `src/drpackages/cb86dos`) |
 | M2CBASIC 1.4                                      | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip)                                                                      |
 | DR Personal Basic 1.2                             | [datamuseum.dk](https://datamuseum.dk/wiki/Bits:30002879) (stored in `src/drtools/basic.cmd`)                                    |
 | MS Basic 5.21 (CP/M‑80)                           | repository (local copy)                                                                                                          |
@@ -270,7 +270,7 @@ export PATH="$(pwd -P)"/bin
 | emu2‑cpm86                                        | [emu2‑cpm86](https://gitlab.com/johnsonjh/emu2-cpm86) (GitLab, fork of [emu2](https://github.com/dmsc/emu2))                     |
 | tnylpo                                            | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab)                                                                          |
 | Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip)                                                        |
-| DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip)                                                                            |
+| DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) (stored in `src/drpackages/drplicpm`)                                       |
 | XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |
 | TDL BASIC 3.05 (CP/M‑80)                          | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip)                                                      |

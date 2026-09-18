@@ -19,6 +19,7 @@ cpm86-crossdev/
 │   │   ├── native_emu2        # git-clone + build fetcher example
 │   │   └── …
 │   ├── aztec42-patch/   # patches applied during the aztec42 build step
+│   ├── drpackages/      # DR C, F77, PL/I, Pascal MT+, CB86 packages (stored in-tree)
 │   ├── drtools/         # DR Personal Basic binary (stored in-tree)
 │   ├── mstools/         # Microsoft tools stored in-tree
 │   ├── ansi2kr/         # ANSI C to K&R converter source & Makefile

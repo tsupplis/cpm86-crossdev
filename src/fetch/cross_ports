@@ -21,7 +21,7 @@ if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
     rm -rf "$tmp"
     trap - EXIT
 fi
-if [ ! -f "$root/share/drc86cpm/ansi2kr.cmd" ] && [  ! -f "$root/bin/ansi2kr" ]; then
+if [ ! -f "$root/share/drc86cpm/ansi2kr.cmd" ] && [ ! -f "$root/bin/ansi2kr" ]; then
     tmp="$root/archive/temp-ansi2kr"
     rm -rf "$tmp"
     mkdir -p "$tmp"

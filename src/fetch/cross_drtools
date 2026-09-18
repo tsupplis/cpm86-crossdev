@@ -36,15 +36,8 @@ if [ ! -f "$root/share/cpm/basic.cmd" ]; then
 fi
 echo INF: Checking XLT86 1.3 for CP/M-80 ...
 if [ ! -f "$root/share/cpm/xlt86.com" ]; then
-    tmp="$root/archive/temp-drtools"
-    rm -rf "$tmp"
-    mkdir -p "$tmp" "$root/share/cpm"
-    trap 'rm -rf "$tmp"' EXIT
-    (cd "$tmp" && fetch_get "http://www.cpm.z80.de/download/xlt86.zip" \
-        && unzip -L "$ARCHIVED_FILE")
-    cp "$tmp/xlt86.com" "$tmp/xlt00.ovl" "$tmp/xlt01.ovl" "$root/share/cpm"
+    mkdir -p "$root/share/cpm"
+    cp "$root/src/drpackages/xlt86"/* "$root/share/cpm"
     chmod 644 "$root/share/cpm/xlt86.com" \
               "$root/share/cpm/xlt00.ovl" "$root/share/cpm/xlt01.ovl"
-    rm -rf "$tmp"
-    trap - EXIT
 fi

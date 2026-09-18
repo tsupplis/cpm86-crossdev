@@ -1,6 +1,6 @@
 #!/bin/sh
 prog=pli.cmd
-share="`dirname $0`/../share/plicpm"
+share="`dirname $0`/../share/drplicpm"
 emu2=`dirname $0`/emu2
 EMU2_CPM_APPEND="D:"
 export EMU2_CPM_APPEND
