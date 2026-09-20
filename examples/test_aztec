@@ -3,6 +3,7 @@
 set -e
 
 echo Testing ...
-(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean helloc.cmd helloans.cmd)
+(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean helloc.cmd helloans.cmd hellocfp.cmd)
 (PATH=`pwd`/../bin:$PATH;emu2 helloc.cmd)
 (PATH=`pwd`/../bin:$PATH;emu2 helloans.cmd)
+(PATH=`pwd`/../bin:$PATH;emu2 hellocfp.cmd)

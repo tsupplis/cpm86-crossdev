@@ -4,6 +4,7 @@ AR=aztec34_lib
 CFLAGS=-I. +F -B +0 -D__CPM86__
 STRIP=aztec34_sqz
 LDFLAGS=-lc86
+MLDFLAGS=-lm -lc86
 LD=aztec34_link
 ACC=aztec42_cc
 ALD=aztec42_link
@@ -41,7 +42,7 @@ COBOL=mfcobol_cc
 COBRUN=mfcobol_run
 MSCCL=msc5_cl
 MSCLINK=msc5_link
-TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
+TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd hellocfp \
 	hellomsc.exe helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
 	hello86.cmd hellocbl.int hellopli.cmd hellodra.cmd
 EXTRAS=hello80.com
@@ -87,6 +88,14 @@ hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
   
+hellocfp.cmd: hellocfp.o
+	$(ALD) -o $@ $< $(MLDFLAGS)
+	$(CMDINFO) $@
+
+hellocfp.o: hellocfp.c
+	$(ACC) $(CFLAGS) $<
+	$(CMDINFO) $@
+
 helloans.cmd: helloans.o
 	$(LD) -o $@ $< $(LDFLAGS)
 	$(CMDINFO) $@
