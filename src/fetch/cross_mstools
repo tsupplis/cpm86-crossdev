@@ -3,15 +3,25 @@
 set -e
 
 echo INF: Checking Microsoft tools ...
-if [ ! -f "$root/share/pcdev/masm.exe" ] || [ ! -f "$root/share/pcdev/exe2bin.exe" ] || [ ! -f "$root/share/pcdev/link.exe" ]; then
+if [ ! -f "$root/share/pcdev/masm.exe" ] || [ ! -f "$root/share/pcdev/exe2bin.exe" ] || \
+   [ ! -f "$root/share/pcdev/link.exe" ]; then
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/mstools"/*.exe "$root/share/pcdev"
-    chmod 644 "$root/share/pcdev"/*.*
+    cp "$root/src/mstools/link.exe" "$root/share/pcdev"
+    cp "$root/src/mstools/masm.exe" "$root/share/pcdev"
+    cp "$root/src/mstools/exe2bin.exe" "$root/share/pcdev"
+    chmod 644 "$root/share/pcdev/masm.exe"
+    chmod 644 "$root/share/pcdev/exe2bin.exe"
+    chmod 644 "$root/share/pcdev/link.exe"
 fi
-if [ ! -f "$root/share/pcdev/asm.com" ] || [ ! -f "$root/share/pcdev/hex2bin.com" ]; then
+if [ ! -f "$root/share/pcdev/asm.com" ] || [ ! -f "$root/share/pcdev/hex2bin.com" ] || \
+   [ ! -f "$root/share/pcdev/trans.com" ]; then
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/mstools"/*.com "$root/share/pcdev"
-    chmod 644 "$root/share/pcdev"/*.*
+    cp "$root/src/mstools/asm.com" "$root/share/pcdev"
+    cp "$root/src/mstools/hex2bin.com" "$root/share/pcdev"
+    cp "$root/src/mstools/trans.com" "$root/share/pcdev"
+    chmod 644 "$root/share/pcdev/asm.com"
+    chmod 644 "$root/share/pcdev/hex2bin.com"
+    chmod 644 "$root/share/pcdev/trans.com"
 fi
 if [ ! -f "$root/share/cpm/mbasic86.cmd" ]; then
     mkdir -p "$root/share/cpm"

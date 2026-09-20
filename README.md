@@ -91,7 +91,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | RASM‑86 / LINK‑86 / LIB‑86  XREF-86         | 1.4a / 2.02 / 1.3 / 1.1              | DR DOS assembler toolchain                                               |
 | ASM‑86 + GENCMD                             | 1.1                                  | DR assembler; CP/M‑80 and CP/M‑86 versions                               |
 | XLT86                                       | 1.3                                  | DR 8080/8085 → 8086 translator; `xlt86.com` + overlays; run via `tnylpo` |
-| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2               |
+| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 1.1 and 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 (https://github.com/tsupplis/pcdos11-hacking)              |
 | NASM                                        | 3.02+                                | Netwide assembler (native)                                               |
 | Intel ASM‑86                                | 2.1                                  | Part of Intel PL/M‑86 toolchain (`asm86.exe`)                            |
 
@@ -110,7 +110,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 
 | Component | License / Status | Reference |
 |----------:|:-----------------|:----------|
-| MS‑DOS tools (DOS 1.1, MASM, LINK, Basic 86, MSC 5.1) | MIT license | [LICENSE](https://github.com/microsoft/MS-DOS/blob/main/LICENSE) |
+| MS‑DOS tools (DOS 1.1, ASN, TRANS, MASM, LINK, Basic 86, MSC 5.1) | MIT license | [LICENSE](https://github.com/microsoft/MS-DOS/blob/main/LICENSE) |
 | Aztec C | Freeware (conditions apply) | [aztecmuseum.ca](https://www.aztecmuseum.ca/intro.htm#intro) |
 | DR tools (RASM‑86, ASM‑86, CBASIC, DR C, Fortran‑77, Pascal MT+, Personal Basic, PL/I‑86, XLT86) | DR/Caldera open‑source license | [license](http://www.cpm.z80.de/license.html) · [faq](http://www.cpm.z80.de/faq.html) |
 | M2CBASIC (Comeau) | **Unclear** ⚠️ | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip) |
@@ -157,6 +157,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | cpm_asm86     | asm86.com        | DR assembler (CP/M‑80 tool)                            |
 | Assembler                 | cpm_gencmd    | gencmd.com       | DR H86 converter (CP/M‑80 tool)                        |
 | Assembler                 | cpm_xlt86     | xlt86.com        | DR 8080→8086 translator (CP/M‑80, via tnylpo)          |
+| Assembler                 | pcdev_trans     | trans.com       | SCP/Microsoft CP/M to DOS Translater (DOS, via emu2)          |
 | Assembler                 | cpm86_asm86   | asm86.cmd        | DR assembler (CP/M‑86, via emu2, not working yet)      |
 | Assembler                 | cpm86_gencmd  | gencmd.cmd       | DR H86 converter (CP/M‑86, via emu2, not working yet)  |
 | Assembler                 | nasm          | (native)         | Netwide assembler                                      |
