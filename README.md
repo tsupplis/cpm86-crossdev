@@ -163,6 +163,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | nasm          | (native)         | Netwide assembler                                      |
 | Assembler                 | pcdev_asm     | asm.com          | Microsoft/86‑DOS assembler                             |
 | Assembler                 | pcdev_masm    | masm.exe         | Microsoft assembler                                    |
+| Assembler                 | pcdev_masm11    | masm11.exe         | Legacy Microsoft assembler                                    |
 | Assembler                 | pcdev_rasm86  | rasm86.exe       | DR assembler                                           |
 | Assembler                 | pcdev_xref86  | xref86.exe       | DR cross referencer                                    |
 | Assembler                 | cpm_asm80     | asm80.com        | DR 8008 assembler (CP/M‑80 tool) to support xlt86      |

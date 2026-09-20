@@ -4,12 +4,14 @@ set -e
 
 echo INF: Checking Microsoft tools ...
 if [ ! -f "$root/share/pcdev/masm.exe" ] || [ ! -f "$root/share/pcdev/exe2bin.exe" ] || \
-   [ ! -f "$root/share/pcdev/link.exe" ]; then
+   [ ! -f "$root/share/pcdev/link.exe" ] || [ ! -f "$root/share/pcdev/masm11.exe" ]; then
     mkdir -p "$root/share/pcdev"
     cp "$root/src/mstools/link.exe" "$root/share/pcdev"
     cp "$root/src/mstools/masm.exe" "$root/share/pcdev"
+    cp "$root/src/mstools/masm11.exe" "$root/share/pcdev"
     cp "$root/src/mstools/exe2bin.exe" "$root/share/pcdev"
     chmod 644 "$root/share/pcdev/masm.exe"
+    chmod 644 "$root/share/pcdev/masm11.exe"
     chmod 644 "$root/share/pcdev/exe2bin.exe"
     chmod 644 "$root/share/pcdev/link.exe"
 fi
