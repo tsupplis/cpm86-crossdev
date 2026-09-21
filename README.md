@@ -91,9 +91,10 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | RASM‑86 / LINK‑86 / LIB‑86  XREF-86         | 1.4a / 2.02 / 1.3 / 1.1              | DR DOS assembler toolchain                                               |
 | ASM‑86 + GENCMD                             | 1.1                                  | DR assembler; CP/M‑80 and CP/M‑86 versions                               |
 | XLT86                                       | 1.3                                  | DR 8080/8085 → 8086 translator; `xlt86.com` + overlays; run via `tnylpo` |
-| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 1.1 and 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 (https://github.com/tsupplis/pcdos11-hacking)              |
+| TRANS                                       | 2.21A                                | SCP/Microsoft Z80 to 8086 Translator; runs via `emu2`                    |
+| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 1.1 and 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 (https://github.com/tsupplis/pcdos11-hacking) |
 | NASM                                        | 3.02+                                | Netwide assembler (native)                                               |
-| Intel ASM‑86                                | 2.1                                  | Part of Intel PL/M‑86 toolchain (`asm86.exe`)                            |
+| Intel ASM‑86                                | 3.2                                  | Part of Intel PL/M‑86 toolchain (`asm86.exe`)                            |
 
 ### Emulators and utilities
 
@@ -161,9 +162,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | cpm_asm86     | asm86.com        | DR assembler (CP/M‑80 tool)                            |
 | Assembler                 | cpm_gencmd    | gencmd.com       | DR H86 converter (CP/M‑80 tool)                        |
 | Assembler                 | cpm_xlt86     | xlt86.com        | DR 8080→8086 translator (CP/M‑80, via tnylpo)          |
-| Assembler                 | pcdev_trans   | trans.com        | SCP/Microsoft CP/M to DOS Translater (DOS, via emu2)   |
-| Assembler                 | cpm86_asm86   | asm86.cmd        | DR assembler (CP/M‑86, via emu2, not working yet)      |
-| Assembler                 | cpm86_gencmd  | gencmd.cmd       | DR H86 converter (CP/M‑86, via emu2, not working yet)  |
+| Assembler                 | pcdev_trans   | trans.com        | SCP/Microsoft Z80 to 8086 Translator (DOS, via emu2)   |
+| Assembler                 | cpm86_asm86   | asm86.cmd        | DR assembler (CP/M‑86, via emu2, *not working yet*)    |
+| Assembler                 | cpm86_gencmd  | gencmd.cmd       | DR H86 converter (CP/M‑86 via emu2, *not working yet*) |
 | Assembler                 | nasm          | (native)         | Netwide assembler                                      |
 | Assembler                 | pcdev_asm     | asm.com          | Microsoft/86‑DOS assembler                             |
 | Assembler                 | pcdev_masm    | masm.exe         | Microsoft assembler                                    |
