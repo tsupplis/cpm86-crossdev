@@ -241,6 +241,8 @@ run_fetcher cross_m2cb
 run_fetcher cross_plm86
 run_fetcher cross_mstools
 run_fetcher cross_tdlbasic
+run_fetcher native_pc
+run_fetcher native_crc
 run_fetcher native_tnylpo
 run_fetcher native_nasm
 run_fetcher native_upx

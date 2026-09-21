@@ -14,6 +14,7 @@ local/
 # ── Generated native binaries in bin/ ────────────────────────────────────────
 bin/emu2
 bin/tnylpo
+bin/tnylpo-convert
 bin/nasm
 bin/upx
 bin/cmdinfo
@@ -23,6 +24,8 @@ bin/doscat
 bin/hexcom
 bin/ansi2kr
 bin/drpli_objfix
+bin/pc
+bin/crc
 
 # ── Build artefacts ──────────────────────────────────────────────────────────
 **/*.lock

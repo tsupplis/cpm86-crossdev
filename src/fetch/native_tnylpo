@@ -20,5 +20,5 @@ if [ ! -f "$root/bin/tnylpo" ];then
         (cd "$root/archive/tnylpo" && sed 's|-I /usr/include/ncursesw|-I /usr/include/ncursesw -I /usr/include/ncurses|' makefile > makefile.sed && mv -f makefile.sed makefile)
         EXTRA_FLAG='SYSTEM=Linux'
     } || true
-    (cd "$root/archive/tnylpo";"${MAKE:-make}" -j "$ncpus" CC="${CC:-cc}" ${EXTRA_FLAG:-};cp tnylpo "$root/bin")
+    (cd "$root/archive/tnylpo";"${MAKE:-make}" -j "$ncpus" CC="${CC:-cc}" ${EXTRA_FLAG:-};cp tnylpo "$root/bin" && cp tnylpo-convert "$root/bin")
 fi

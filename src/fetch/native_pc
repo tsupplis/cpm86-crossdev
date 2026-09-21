@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking pc ...
+mkdir -p "$root/archive"
+if [ ! -d "$root/archive/pc" ];then
+    git clone "https://gitlab.com/johnsonjh/pc" "$root/archive/pc" || \
+    git clone "https://github.com/johnsonjh/pc" "$root/archive/pc"
+    rm -rf "$root/archive/pc/.git"
+fi
+if [ ! -f "$root/bin/pc" ];then
+    ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
+    (cd "$root/archive/pc";"${MAKE:-make}" -j"$ncpus";cp "$root/archive/pc/pc" "$root/bin")
+fi
