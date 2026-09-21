@@ -1,7 +1,7 @@
 #!/bin/sh
 # Copyright (c) 2026 Jeffrey H. Johnson <johnsonjh.dev@gmail.com>
 # SPDX-License-Identifier: MIT-0
-# Aztec C 3.4 preprocessor patch v2.1
+# Aztec C 3.4 miscellaneous binary patches v3.0
 
 set -eu
 
@@ -47,6 +47,9 @@ patch_one()
   case ${base} in
   cc.exe)
     patch_byte "${infile}" 31043 '4b' 'e2'
+    # Force the batch-mode (-B) branch at 0670:0098 unconditional, so Pass1
+    # never blocks on the "Do you wish to continue?" prompt after 5 errors.
+    patch_byte "${infile}" 32840 '74' 'eb'
     ;;
   ccb.exe)
     patch_byte "${infile}" 20558 '24' 'af'

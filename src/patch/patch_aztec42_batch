@@ -1,0 +1,48 @@
+#!/bin/sh
+# Copyright (c) 2026 Jeffrey H. Johnson <johnsonjh.dev@gmail.com>
+# SPDX-License-Identifier: MIT-0
+# Aztec C 4.2 default batch-mode (-B) patch v1.0
+
+set -eu
+
+patch_byte()
+{
+  file="${1}"
+  offset="${2}"
+  expect="${3}"
+  new="${4}"
+
+  cur=$(dd if="${file}" bs=1 skip="${offset}" count=1 2> /dev/null \
+    | od -A n -t x1 | tr -d '[:space:]')
+  if [ "${cur}" != "${expect}" ]; then
+    printf '%s\n' \
+      "FATAL: '${file}' at ${offset}: expected 0x${expect}, got 0x${cur}" >&2
+    printf '%s\n' \
+      "       (wrong file, wrong version, or already patched); aborting!" >&2
+    exit 1
+  fi
+  printf "\\$(printf '%03o' "0x${new}")" \
+    | dd of="${file}" bs=1 seek="${offset}" conv=notrunc 2> /dev/null
+}
+
+infile="./aztec42/bin/cc.exe"
+backup="${infile}.bak"
+
+if [ ! -f "${infile}" ]; then
+  printf '%s\n' "FATAL: '${infile}' not found" >&2
+  exit 1
+fi
+
+if [ -e "${backup}" ]; then
+  printf '%s\n' "FATAL: '${backup}' already exists, aborting!" >&2
+  exit 1
+fi
+
+mv -f "${infile}" "${backup}"
+cp -f "${backup}" "${infile}"
+
+# Unconditionally take the batch-mode branch at 0097:9AE9 so Pass1 never
+# blocks on the "Do you wish to continue?" prompt after every 5 errors.
+patch_byte "${infile}" 40169 '75' 'eb'
+
+printf '%s\n' "Patched '${infile}'; original saved as '${backup}'"

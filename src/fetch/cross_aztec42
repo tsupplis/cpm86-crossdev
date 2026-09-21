@@ -21,3 +21,9 @@ if [ ! -d "$root/share/aztec42/bin" ]; then
     rm -rf "$tmp"
     trap - EXIT
 fi
+
+echo INF: Patching Aztec 4.2 cc.exe for default batch mode ...
+cc42="$root/share/aztec42/bin/cc.exe"
+if [ -f "$cc42" ] && [ ! -f "$cc42.bak" ]; then
+    (cd "$root/share" && sh "$root/src/patch/patch_aztec42_batch")
+fi

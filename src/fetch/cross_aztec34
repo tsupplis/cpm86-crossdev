@@ -25,10 +25,10 @@ if [ ! -d "$root/share/aztec34/bin" ] || [ ! -f "$root/share/emu/cpm86.exe" ]; t
     trap - EXIT
 fi
 
-echo INF: Patching the Aztec 3.4 preprocessor ...
+echo INF: "Patching Aztec 3.4 tools:  preprocessor fix and default batch mode ..."
 ccb34="$root/share/aztec34/bin/ccb.exe"
 cc34="$root/share/aztec34/bin/cc.exe"
 if [ -f "$cc34" ] && [ ! -f "$cc34.bak" ] && \
    [ -f "$ccb34" ] && [ ! -f "$ccb34.bak" ]; then
-    (cd "$root/share" && sh "$root/src/patch/patch_aztec_cpp")
+    (cd "$root/share" && sh "$root/src/patch/patch_aztec34_misc")
 fi
