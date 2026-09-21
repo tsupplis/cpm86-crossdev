@@ -42,7 +42,7 @@ COBOL=mfcobol_cc
 COBRUN=mfcobol_run
 MSCCL=msc5_cl
 MSCLINK=msc5_link
-TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd hellocfp \
+TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd hellocfp.cmd \
 	hellomsc.exe helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
 	hello86.cmd hellocbl.int hellopli.cmd hellodra.cmd
 EXTRAS=hello80.com
@@ -94,7 +94,6 @@ hellocfp.cmd: hellocfp.o
 
 hellocfp.o: hellocfp.c
 	$(ACC) $(CFLAGS) $<
-	$(CMDINFO) $@
 
 helloans.cmd: helloans.o
 	$(LD) -o $@ $< $(LDFLAGS)
@@ -102,7 +101,6 @@ helloans.cmd: helloans.o
 
 helloans.o: helloans.c
 	$(ACC) $(CFLAGS) $<
-	$(CMDINFO) $@
 
 helloc.cmd: helloc.o
 	$(LD) -o $@ $< $(LDFLAGS)
