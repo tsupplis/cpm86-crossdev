@@ -33,7 +33,8 @@ printf 'INF: removing native tool binaries ...\n'
 rm -rf "$root/bin/emu2" "$root/bin/tnylpo" "$root/bin/nasm" "$root/bin/upx"
 rm -rf "$root/bin/cmdinfo" "$root/bin/bin2cmd" "$root/bin/exe2cmd" \
        "$root/bin/doscat" "$root/bin/hexcom" "$root/bin/ansi2kr" \
-       "$root/bin/drpli_objfix"
+       "$root/bin/drpli_objfix" "$root/bin/tnylpo-convert" \
+       "$root/bin/pc" "$root/bin/crc"
 
 printf 'INF: cleaning src/tools ...\n'
 (cd "$root/src/tools" && "${MAKE:-make}" clean)

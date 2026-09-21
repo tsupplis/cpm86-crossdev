@@ -39,7 +39,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 | Language   | Compilers / Interpreters                                                      |
 |-----------:|:------------------------------------------------------------------------------|
 | C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), MSC 5.1 |
-| Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, MASM 5.10, NASM 3.02, CP/M-80 ASM  |
+| Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM  |
 | Basic      | DR CBASIC 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.22/5.28, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0                                                             |
@@ -91,9 +91,10 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | RASM‑86 / LINK‑86 / LIB‑86  XREF-86         | 1.4a / 2.02 / 1.3 / 1.1              | DR DOS assembler toolchain                                               |
 | ASM‑86 + GENCMD                             | 1.1                                  | DR assembler; CP/M‑80 and CP/M‑86 versions                               |
 | XLT86                                       | 1.3                                  | DR 8080/8085 → 8086 translator; `xlt86.com` + overlays; run via `tnylpo` |
-| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 1.1 and 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 (https://github.com/tsupplis/pcdos11-hacking)              |
+| TRANS                                       | 2.21A                                | SCP/Microsoft Z80 to 8086 Translator; runs via `emu2`                    |
+| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 1.1 and 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 (https://github.com/tsupplis/pcdos11-hacking) |
 | NASM                                        | 3.02+                                | Netwide assembler (native)                                               |
-| Intel ASM‑86                                | 2.1                                  | Part of Intel PL/M‑86 toolchain (`asm86.exe`)                            |
+| Intel ASM‑86                                | 3.2                                  | Part of Intel PL/M‑86 toolchain (`asm86.exe`)                            |
 
 ### Emulators and utilities
 
@@ -102,6 +103,8 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | emu2‑cpm86 | v2026.09‑C | DOS/CP/M‑86 emulator (fork of emu2 with CP/M‑86 support) |
 | tnylpo | — | CP/M‑80 emulator; used for `asm86.com`, `gencmd.com`, XLT86, MS Basic 80 |
 | upx | 5.2.1 | Executable packer |
+| pc | 1.1.2 | Programmers calculator |
+| crc | — | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility |
 | ARC86 / LU86 | 1.0 / 4.05 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
 
 ## License Considerations
@@ -116,14 +119,16 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | M2CBASIC (Comeau) | **Unclear** ⚠️ | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip) |
 | Turbo Pascal 3.01A (Borland) | Freely usable, not open source | [RC750 image](https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2) |
 | emu2 / emu2‑cpm86 | GPL‑2.0 | [emu2](https://github.com/dmsc/emu2/blob/master/LICENSE) · [emu2‑cpm86](https://github.com/johnsonjh/emu2-cpm86/blob/local/cpm86/LICENSE) |
-| tnylpo | Open source | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
+| tnylpo | BSD‑3‑Clause | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
+| pc | MIT | [LICENSE](https://gitlab.com/johnsonjh/pc/-/blob/master/LICENSE) |
+| crc | MIT‑0 | [LICENSE](https://gitlab.com/dps8m/crc/-/blob/master/LICENSE) |
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
 | ARC86 (Reimer Mellin; CP/M‑86 port by D. J. Weatherall) | Public domain source; private non-commercial use only for the CP/M‑86 modifications | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
 | LU86 (Paul J. Homchick) | **Unclear** ⚠️ | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
 | XLISP 1.1 (David Betz) | Public domain | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) |
-| PL/I Object Fixer | GPL-3.0 | [ccpm objfix](https://gitlab.com/ccpm-86/ccpm/-/blob/master/scripts/fixobj.py) |
+| PL/I Object Fixer | GPL‑3.0 | [ccpm objfix](https://gitlab.com/ccpm-86/ccpm/-/blob/master/scripts/fixobj.py) |
 | Intel PL/M‑86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`) |
 | PolyPascal‑86 V3.11 (PolyData MicroCenter A/S) | **Unclear** ⚠️ | — |
 | Micro Focus Level II COBOL V2.1 | **Unclear** ⚠️ | — |
@@ -157,13 +162,13 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | cpm_asm86     | asm86.com        | DR assembler (CP/M‑80 tool)                            |
 | Assembler                 | cpm_gencmd    | gencmd.com       | DR H86 converter (CP/M‑80 tool)                        |
 | Assembler                 | cpm_xlt86     | xlt86.com        | DR 8080→8086 translator (CP/M‑80, via tnylpo)          |
-| Assembler                 | pcdev_trans     | trans.com       | SCP/Microsoft CP/M to DOS Translater (DOS, via emu2)          |
-| Assembler                 | cpm86_asm86   | asm86.cmd        | DR assembler (CP/M‑86, via emu2, not working yet)      |
-| Assembler                 | cpm86_gencmd  | gencmd.cmd       | DR H86 converter (CP/M‑86, via emu2, not working yet)  |
+| Assembler                 | pcdev_trans   | trans.com        | SCP/Microsoft Z80 to 8086 Translator (DOS, via emu2)   |
+| Assembler                 | cpm86_asm86   | asm86.cmd        | DR assembler (CP/M‑86, via emu2, *not working yet*)    |
+| Assembler                 | cpm86_gencmd  | gencmd.cmd       | DR H86 converter (CP/M‑86 via emu2, *not working yet*) |
 | Assembler                 | nasm          | (native)         | Netwide assembler                                      |
 | Assembler                 | pcdev_asm     | asm.com          | Microsoft/86‑DOS assembler                             |
 | Assembler                 | pcdev_masm    | masm.exe         | Microsoft assembler                                    |
-| Assembler                 | pcdev_masm11    | masm11.exe         | Legacy Microsoft assembler                                    |
+| Assembler                 | pcdev_masm11  | masm11.exe       | Legacy Microsoft assembler                             |
 | Assembler                 | pcdev_rasm86  | rasm86.exe       | DR assembler                                           |
 | Assembler                 | pcdev_xref86  | xref86.exe       | DR cross referencer                                    |
 | Assembler                 | cpm_asm80     | asm80.com        | DR 8008 assembler (CP/M‑80 tool) to support xlt86      |
@@ -180,10 +185,10 @@ All the tools are wrapped in the bin directory for direct usage:
 | Linkers / Librarians      | pcdev_link86  | linkcmd.exe      | DR linker for CP/M‑86 (alias)                          |
 | Linkers / Librarians      | pcdev_linkcmd | linkcmd.exe      | DR linker for CP/M‑86                                  |
 | Linkers / Librarians      | pcdev_linkexe | linkexe.exe      | DR linker for DOS                                      |
-| Debuggers                 | cpm86_ddt86   | ddt86.cmd        | DDT‑86 debugger for CP/M‑86; support is WIP            |
-| Debuggers                 | cpm86_sid86   | sid86.cmd        | SID‑86 symbolic debugger/disassembler for CP/M‑86; support is WIP |
-| Debuggers                 | pcdev_sid86   | sid86.exe        | SID‑86 symbolic debugger/disassembler for DOS; support is WIP |
-| Debuggers                 | pcdev_debug   | debug.com        | Microsoft DOS debugger; support is WIP |
+| Debuggers                 | cpm86_ddt86   | ddt86.cmd        | DDT‑86 debugger for CP/M‑86; *support is WIP*          |
+| Debuggers                 | cpm86_sid86   | sid86.cmd        | SID‑86 symbolic debugger/disassembler for CP/M‑86; *support is WIP* |
+| Debuggers                 | pcdev_sid86   | sid86.exe        | SID‑86 symbolic debugger/disassembler for DOS; *support is WIP* |
+| Debuggers                 | pcdev_debug   | debug.com        | Microsoft DOS debugger; *support is WIP*               |
 | Basic                     | cpm_mbasic    | mbasic.com       | Microsoft Basic 5.21 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_obasic    | obasic.com       | Microsoft Basic 4.51 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_tdlbasic  | tdlbasic.com     | TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)              |
@@ -240,8 +245,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | Pascal                    | ppdos_ppbs    | ppbs.com         | PolyPascal‑86 V3.11 BCD business variant (DOS)         |
 | PL/I                      | drplicpm_link | linkcmd.exe      | DR PL/I‑86 1.0 linker                                  |
 | PL/I                      | drplicpm_pc   | pli.cmd          | DR PL/I‑86 1.0 compiler                                |
-| PL/I                      | drpli_objfix    | (native)       | PL/I Object Compatibility Fix for DR Linker                                |
-| PL/M                      | intel_asm86   | asm86.exe        | Intel ASM‑86 assembler                                 |
+| PL/I                      | drpli_objfix  | (native)         | PL/I Object Compatibility Fix for DR Linker            |
+| PL/M                      | intel_asm86   | asm86.exe        | Intel ASM‑86 assembler V3.2                            |
 | PL/M                      | intel_lib86   | lib86.exe        | Intel librarian                                        |
 | PL/M                      | intel_link    | link.exe         | Intel/Microsoft linker                                 |
 | PL/M                      | intel_link86  | link86.exe       | Intel linker                                           |
@@ -250,6 +255,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | PL/M                      | intel_plm86   | plm86.exe        | Intel PL/M‑86 3.30 compiler                            |
 | Misc                      | cmdinfo       | (native)         | CMD info tool (native)                                 |
 | Misc                      | doscat        | (native)         | Truncate files beyond ^Z                               |
+| Misc                      | tnylpo‑convert | (native)        | converts text files to and from the CP/M format        |
+| Misc                      | crc           | (native)         | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility |
 | Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
@@ -272,10 +279,10 @@ export PATH="$(pwd -P)"/bin
 | XLT86 1.3                                         | [xlt86.zip](http://www.cpm.z80.de/download/xlt86.zip) (stored in `src/drpackages/xlt86`)                                         |
 | ASM‑86 + GENCMD (CP/M‑86)                         | [cpm86‑kernel](https://github.com/tsupplis/cpm86-kernel) (GitHub)                                                                |
 | DR C 1.11 + extra headers                         | [drc_86.zip](http://www.cpm.z80.de/download/drc_86.zip) · [drc86111.zip](http://www.cpm.z80.de/download/drc86111.zip) (stored in `src/drpackages/drc86cpm`) |
-| DR Fortran‑77 4.0                                 | [f77‑86.zip](http://www.cpm.z80.de/download/f77-86.zip) (stored in `src/drpackages/drf77cpm`)                                     |
+| DR Fortran‑77 4.0                                 | [f77‑86.zip](http://www.cpm.z80.de/download/f77-86.zip) (stored in `src/drpackages/drf77cpm`)                                    |
 | Turbo Pascal 3.02 (CP/M‑86)                       | [RC750 image](https://rc700.dk/software/RC750_TurboPascal_v3.01a/files/RC750_TurboPascal_v3.01a.img.bz2) (stored in `src/turbo`) |
 | PolyPascal‑86 3.11                                | [PolyPascal](https://github.com/johnsonjh/PolyPascal) (GitHub)                                                                   |
-| Pascal MT+ 3.3                                    | [mt8633cp.zip](http://www.cpm.z80.de/download/mt8633cp.zip) (stored in `src/drpackages/drpmtcpm`)                                 |
+| Pascal MT+ 3.3                                    | [mt8633cp.zip](http://www.cpm.z80.de/download/mt8633cp.zip) (stored in `src/drpackages/drpmtcpm`)                                |
 | DR CBASIC 2.0/2.1 + libs                          | [cbasic86.zip](http://www.cpm.z80.de/download/cbasic86.zip) · [cb86toys.zip](http://www.cpm.z80.de/download/cb86toys.zip) (stored in `src/drpackages/cb86cpm`, `src/drpackages/cb86dos`) |
 | M2CBASIC 1.4                                      | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip)                                                                      |
 | DR Personal Basic 1.2                             | [datamuseum.dk](https://datamuseum.dk/wiki/Bits:30002879) (stored in `src/drtools/basic.cmd`)                                    |
@@ -287,8 +294,8 @@ export PATH="$(pwd -P)"/bin
 | emu2‑cpm86                                        | [emu2‑cpm86](https://gitlab.com/johnsonjh/emu2-cpm86) (GitLab, fork of [emu2](https://github.com/dmsc/emu2))                     |
 | tnylpo                                            | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab)                                                                          |
 | Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`)                           |
-| DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) (stored in `src/drpackages/drplicpm`)                                       |
-| MSC 5.1                                           | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub, stored in `src/mspackages/msc51`)                                          |
+| DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) (stored in `src/drpackages/drplicpm`)                                      |
+| MSC 5.1                                           | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub, stored in `src/mspackages/msc51`)                                         |
 | ARC86 / LU86                                      | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`)      |
 | XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |

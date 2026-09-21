@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking crc ...
+mkdir -p "$root/archive"
+if [ ! -d "$root/archive/crc" ];then
+    git clone "https://gitlab.com/dps8m/crc.git" "$root/archive/crc" || \
+    git clone "https://github.com/johnsonjh/pcdos-crc" "$root/archive/crc"
+    rm -rf "$root/archive/crc/.git"
+fi
+if [ ! -f "$root/bin/crc" ];then
+    ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
+    (cd "$root/archive/crc";"${MAKE:-make}" -j"$ncpus";cp "$root/archive/crc/crc" "$root/bin")
+fi
