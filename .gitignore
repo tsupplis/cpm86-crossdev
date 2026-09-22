@@ -45,6 +45,9 @@ bin/crc
 **/*.prn
 **/*.hex
 
+# Leave MSC51 error files
+!src/mspackages/msc51/*.err
+
 # badgencm.h86 is a committed negative-test fixture, not a build artefact
 !examples/badgencm.h86
 

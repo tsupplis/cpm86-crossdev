@@ -1,5 +1,5 @@
 #!/bin/sh
-prog=`basename $0|sed -e s'/msc5_//g'`.exe
+prog=`basename $0|sed -e s'/pcdev_//g'`.exe
 EMU2_DRIVE_D="`dirname $0`/../share/msc51"
 export EMU2_DRIVE_D
 EMU2_PROGNAME="D:\\$prog"
