@@ -1,0 +1,150 @@
+            title   'ie0f6nbx - BDOS fn 006h poll 0FFh with 10s timeout'
+
+; ============================================================
+; ie0f6nbx.a86 - BDOS function 006h (c_rawio) via INT 0E0h,
+; DL = 0FFh polled in a loop that gives up after ~10 seconds.
+; Once a byte arrives every remaining byte is drained and
+; printed as two hex digits plus - when > 31 - the character.
+;
+; If the call really is non-blocking the loop keeps spinning
+; and the program exits on the timeout instead of hanging.
+;
+; The deadline comes from the PC BIOS tick counter (INT 1Ah
+; fn 0, 18.2 ticks/s), which the ROM timer ISR keeps running
+; independently of the operating system.
+;
+; Build:  make ie0f6nbx.cmd
+; ============================================================
+
+BDOS        equ     0E0h
+BIOSTIME    equ     01Ah            ; BIOS timer services
+FN_RAWIO    equ     006h            ; direct console i/o
+FN_CONOUT   equ     002h            ; console output, char in DL
+FN_PRTSTR   equ     009h            ; print $-terminated string at DS:DX
+FN_EXIT     equ     000h            ; system reset
+
+TIMEOUT     equ     182             ; 10 s at 18.2 ticks/s
+
+CR          equ     00Dh
+LF          equ     00Ah
+SPACE       equ     020h
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA - before code so all symbols resolve in pass 1
+; ============================================================
+
+start_tick  dw      0
+
+msg_banner  db      'BDOS fn 06h DL=0FFh polled - press a key within 10s', CR, LF, '$'
+msg_hex     db      'hex: ', '$'
+msg_open    db      '  chr: [', '$'
+msg_close   db      ']', '$'
+msg_crlf    db      CR, LF, '$'
+msg_tmout   db      'timeout - no key, call did not block', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     ax, cs
+            mov     ds, ax
+            mov     es, ax
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_banner
+            int     BDOS
+
+            mov     ah, 0
+            int     BIOSTIME        ; DX = low word of tick count
+            mov     start_tick, dx
+
+poll_key:
+            mov     cx, FN_RAWIO
+            mov     dl, 0FFh
+            int     BDOS
+            or      al, al
+            jnz     got_key         ; AL = 0 means no key ready yet
+
+            mov     ah, 0
+            int     BIOSTIME
+            sub     dx, start_tick
+            cmp     dx, TIMEOUT
+            jb      poll_key
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_tmout
+            int     BDOS
+            jmp     done
+
+got_key:
+            mov     bl, al
+            call    show_chr
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FFh
+            int     BDOS
+            or      al, al
+            jnz     got_key         ; another byte was waiting
+
+done:
+            xor     cx, cx
+            int     BDOS
+
+; ============================================================
+; show_chr: print BL as two hex digits, and as a character
+;           when it is > 31
+; ============================================================
+show_chr:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_hex
+            int     BDOS
+
+            mov     al, bl
+            mov     cl, 4
+            shr     al, cl
+            call    put_nib
+            mov     al, bl
+            call    put_nib
+
+            cmp     bl, SPACE       ; > 31 means printable
+            jb      show_eol
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_open
+            int     BDOS
+
+            mov     cx, FN_CONOUT
+            mov     dl, bl
+            int     BDOS
+
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_close
+            int     BDOS
+
+show_eol:
+            mov     cx, FN_PRTSTR
+            mov     dx, offset msg_crlf
+            int     BDOS
+            ret
+
+; ============================================================
+; put_nib: print low nibble of AL as one hex digit
+; ============================================================
+put_nib:
+            and     al, 00Fh
+            add     al, '0'
+            cmp     al, '9'
+            jbe     put_nib_out
+            add     al, 7           ; 'A'..'F'
+put_nib_out:
+            mov     cx, FN_CONOUT
+            mov     dl, al
+            int     BDOS
+            ret
+
+            end     main

@@ -2,6 +2,7 @@
 BINDIR  = ../../bin
 RASM86  = $(BINDIR)/pcdev_rasm86
 LINK86  = $(BINDIR)/pcdev_linkcmd
+LINKEXE = $(BINDIR)/pcdev_linkexe
 EMU     ?= $(BINDIR)/emu2
 CMDINFO = $(BINDIR)/cmdinfo
 
@@ -44,10 +45,14 @@ TESTS = \
 	tst03b01.cmd \
 	tst09801.cmd
 
+KBTOOLS = i21f6.exe i21f7.exe i21f8.exe \
+	ie0f6nb.cmd ie0f6s.cmd ie0f6b.cmd \
+	ie0f6nbx.cmd ie0f6sx.cmd
+
 # helpers - built by 'make all' but not listed in TESTS
 HELPERS = sub02f02.cmd sub03b02.cmd pause.cmd
 
-all: $(TESTS) $(HELPERS)
+all: $(TESTS) $(HELPERS) $(KBTOOLS)
 
 # tst02f01 needs its chain target present before it can run
 tst02f01.cmd: sub02f02.cmd
@@ -62,6 +67,9 @@ tst03b01.cmd: sub03b02.cmd
 %.cmd: %.obj
 	$(LINK86) $* '[$$sz]'
 	$(CMDINFO) $@
+
+%.exe: %.obj
+	$(LINKEXE) $* '[$$sz]'
 
 test: $(TESTS)
 	@passed=0; failed=0; \
@@ -81,4 +89,4 @@ test: $(TESTS)
 	[ $$failed -eq 0 ]
 
 clean:
-	$(RM) *.obj *.cmd *.lst *.sym *.tmp *.out *.prt *.prn
+	$(RM) *.obj *.exe *.cmd *.lst *.sym *.tmp *.out *.prt *.prn

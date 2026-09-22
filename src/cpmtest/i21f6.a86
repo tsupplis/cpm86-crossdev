@@ -1,0 +1,124 @@
+            title   'i21f6 - INT 21h fn 006h direct console i/o'
+
+; ============================================================
+; i21f6.a86 - single call to DOS INT 21h function 006h
+;
+; Reads keys with fn 006h (direct console i/o, DL = 0FFh
+; selects input, no echo, no Ctrl-C check) and prints every
+; byte as two hex digits plus - when the value is > 31 - the
+; character itself, then exits once the input is drained.
+;
+; Fn 006h does not block: ZF set means no byte was ready, so
+; the call is repeated until the first one arrives and again
+; after each byte until none is left.
+;
+; Build:  make i21f6.exe
+; ============================================================
+
+DOS         equ     021h
+FN_DCONIO   equ     006h            ; direct console i/o, no echo
+FN_CONOUT   equ     002h            ; display character in DL
+FN_PRTSTR   equ     009h            ; print $-terminated string at DS:DX
+FN_EXIT     equ     04Ch            ; terminate with return code in AL
+
+CR          equ     00Dh
+LF          equ     00Ah
+SPACE       equ     020h
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA - before code so all symbols resolve in pass 1
+; ============================================================
+
+msg_banner  db      'INT 21h fn 06h - press a key', CR, LF, '$'
+msg_hex     db      'hex: ', '$'
+msg_open    db      '  chr: [', '$'
+msg_close   db      ']', '$'
+msg_crlf    db      CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     ax, cs
+            mov     ds, ax
+            mov     es, ax
+
+            mov     dx, offset msg_banner
+            mov     ah, FN_PRTSTR
+            int     DOS
+
+wait_key:
+            mov     dl, 0FFh
+            mov     ah, FN_DCONIO
+            int     DOS
+            jz      wait_key        ; ZF set = no byte ready yet
+
+drain:
+            mov     bl, al
+            call    show_chr
+            mov     dl, 0FFh
+            mov     ah, FN_DCONIO
+            int     DOS
+            jnz     drain           ; another byte was waiting
+
+            mov     ax, (FN_EXIT * 256)
+            int     DOS
+
+; ============================================================
+; show_chr: print BL as two hex digits, and as a character
+;           when it is > 31
+; ============================================================
+show_chr:
+            mov     dx, offset msg_hex
+            mov     ah, FN_PRTSTR
+            int     DOS
+
+            mov     al, bl
+            mov     cl, 4
+            shr     al, cl
+            call    put_nib
+            mov     al, bl
+            call    put_nib
+
+            cmp     bl, SPACE       ; > 31 means printable
+            jb      show_eol
+
+            mov     dx, offset msg_open
+            mov     ah, FN_PRTSTR
+            int     DOS
+
+            mov     dl, bl
+            mov     ah, FN_CONOUT
+            int     DOS
+
+            mov     dx, offset msg_close
+            mov     ah, FN_PRTSTR
+            int     DOS
+
+show_eol:
+            mov     dx, offset msg_crlf
+            mov     ah, FN_PRTSTR
+            int     DOS
+            ret
+
+; ============================================================
+; put_nib: print low nibble of AL as one hex digit
+; ============================================================
+put_nib:
+            and     al, 00Fh
+            add     al, '0'
+            cmp     al, '9'
+            jbe     put_nib_out
+            add     al, 7           ; 'A'..'F'
+put_nib_out:
+            mov     dl, al
+            mov     ah, FN_CONOUT
+            int     DOS
+            ret
+
+            end     main
