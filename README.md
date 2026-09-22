@@ -187,10 +187,10 @@ All the tools are wrapped in the bin directory for direct usage:
 | Linkers / Librarians      | pcdev_link86  | linkcmd.exe      | DR linker for CP/M‑86 (alias)                          |
 | Linkers / Librarians      | pcdev_linkcmd | linkcmd.exe      | DR linker for CP/M‑86                                  |
 | Linkers / Librarians      | pcdev_linkexe | linkexe.exe      | DR linker for DOS                                      |
-| Debuggers                 | cpm86_ddt86   | ddt86.cmd        | DDT‑86 debugger for CP/M‑86; *support is WIP*          |
-| Debuggers                 | cpm86_sid86   | sid86.cmd        | SID‑86 symbolic debugger/disassembler for CP/M‑86; *support is WIP* |
+| Debuggers                 | cpm86_ddt86   | ddt86.cmd        | DDT‑86 debugger for CP/M‑86          |
+| Debuggers                 | cpm86_sid86   | sid86.cmd        | SID‑86 symbolic debugger/disassembler for CP/M‑86 |
 | Debuggers                 | pcdev_sid86   | sid86.exe        | SID‑86 symbolic debugger/disassembler for DOS; *support is WIP* |
-| Debuggers                 | pcdev_debug   | debug.com        | Microsoft DOS debugger; *support is WIP*               |
+| Debuggers                 | pcdev_debug   | debug.com        | Microsoft DOS debugger       |
 | Debuggers                 | pcdev_edebug  | edebug.com        | Microsoft DOS debugger by ECM; *support is WIP*               |
 | Debuggers                 | pcdev_ldebug  | edebug.com        | Advanced DOS debugger by ECM; *support is WIP*               |
 | Basic                     | cpm_mbasic    | mbasic.com       | Microsoft Basic 5.21 (8080 CP/M‑80, via tnylpo)        |
