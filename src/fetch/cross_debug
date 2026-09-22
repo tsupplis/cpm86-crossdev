@@ -4,20 +4,20 @@ set -e
 
 echo INF: Checking lzexe for DOS ...
 cd "$root/share"
-if [ ! -f lzexe/lzexe.exe ]; then
+if [ ! -f pcdev/ldebug.exe ] || [ ! -f pcdev/edebug.com ]; then
     tmp="$root/archive/temp-debug"
     rm -rf "$tmp"
     mkdir -p "$root/share/pcdev" "$tmp"
     trap 'cd .. && rm -rf "$tmp"' EXIT
     cd "$tmp"
     fetch_get "https://pushbx.org/ecm/download/msdebug.zip"
-    unzip -L "$ARCHIVED_FILE"
+    unzip -o -L "$ARCHIVED_FILE" debug.com
     cp -f debug.com "$root/share/pcdev/edebug.com"
     chmod 644 "$root/share/pcdev/edebug.com"
     fetch_get "https://pushbx.org/ecm/download/ldebug.zip"
-    unzip -L "$ARCHIVED_FILE"
-    cp -f debug.com "$root/share/pcdev/ldebug.exe"
-    chmod 644 "$root/share/pcdev/ldebug.exe"
+    unzip -o -L "$ARCHIVED_FILE" bin/ldebug.com
+    cp -f bin/ldebug.com "$root/share/pcdev/ldebug.com"
+    chmod 644 "$root/share/pcdev/ldebug.com"
     cd .. && rm -rf "$tmp"
     trap - EXIT
 fi
