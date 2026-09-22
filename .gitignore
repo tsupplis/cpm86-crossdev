@@ -88,6 +88,7 @@ examples/*.int
 src/cpmtest/*.out
 src/cpmtest/*.cmd
 src/cpmtest/*.obj
+src/cpmtest/*.exe
 
 src/ansi2kr/ansi2kr
 src/ansi2kr/*.cmd
