@@ -89,6 +89,7 @@ src/cpmtest/*.out
 src/cpmtest/*.cmd
 src/cpmtest/*.obj
 src/cpmtest/*.exe
+src/cpmtest/*.com
 
 src/ansi2kr/ansi2kr
 src/ansi2kr/*.cmd
