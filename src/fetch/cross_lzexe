@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking lzexe for DOS ...
+cd "$root/share"
+if [ ! -f lzexe/lzexe.exe ]; then
+    tmp="$root/archive/temp-lzexe"
+    rm -rf "$tmp"
+    mkdir -p "$root/share/lzexe" "$tmp"
+    trap 'cd .. && rm -rf "$tmp"' EXIT
+    cd "$tmp"
+    fetch_get "https://pushbx.org/ecm/download/lzexe.zip"
+    unzip -L "$ARCHIVED_FILE"
+    cp -f lzexe.exe unlzexe.exe comtoexe.exe infoexe.exe upackexe.exe "$root/share/lzexe"
+    chmod 644 "$root/share/lzexe"/*
+    cd .. && rm -rf "$tmp"
+    trap - EXIT
+fi
