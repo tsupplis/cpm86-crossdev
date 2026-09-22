@@ -38,8 +38,8 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 
 | Language   | Compilers / Interpreters                                                      |
 |-----------:|:------------------------------------------------------------------------------|
-| C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), MSC 5.1 |
-| Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM  |
+| C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C 5.1 |
+| Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
 | Basic      | DR CBASIC 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.22/5.28, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0                                                             |
@@ -221,10 +221,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | C                         | aztec42_sqz   | sqz.exe          | Aztec C object optimizer (v4.2)                        |
 | C                         | drccpm_cc     | drc860+861.cmd   | DR C 1.11 compiler (two‑pass)                          |
 | C                         | drccpm_link   | linkcmd.exe      | DR C 1.11 linker                                       |
-| C                         | msc5_cl       | cl.exe           | Microsoft C 5.1 compiler                               |
-| C                         | msc5_exepack  | exepack.exe      | Microsoft C 5.1 EXE compressor                         |
-| C                         | msc5_lib      | lib.exe          | Microsoft C 5.1 librarian                              |
-| C                         | msc5_link     | link.exe         | Microsoft C 5.1 linker                                 |
+| C                         | msc5_cl       | cl.exe           | Microsoft C 5.1 compiler (CL 5.10)                     |
+| C                         | msc5_lib      | lib.exe          | Microsoft C 5.1 librarian (LIB 3.10)                   |
+| C                         | msc5_link     | link.exe         | Microsoft C 5.1 linker (LINK 3.65a, *patched*)         |
 | COBOL                     | mfcobol_cc    | cobol.cmd        | Micro Focus Level II COBOL compiler (CP/M‑86)          |
 | COBOL                     | mfcobol_run   | run.cmd          | Micro Focus Level II COBOL runtime (CP/M‑86)           |
 | Emulation                 | cpm86         | cpm86.exe        | CP/M‑86 emulator (via emu2+dos)                        |
@@ -261,6 +260,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
 | Misc                      | upx           | (native)         | executable packer                                      |
+| Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06a compressor (*patched*)         |
 
 ## Fetching the tools
 
