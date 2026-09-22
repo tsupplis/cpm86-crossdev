@@ -191,6 +191,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | Debuggers                 | cpm86_sid86   | sid86.cmd        | SID‑86 symbolic debugger/disassembler for CP/M‑86; *support is WIP* |
 | Debuggers                 | pcdev_sid86   | sid86.exe        | SID‑86 symbolic debugger/disassembler for DOS; *support is WIP* |
 | Debuggers                 | pcdev_debug   | debug.com        | Microsoft DOS debugger; *support is WIP*               |
+| Debuggers                 | pcdev_edebug  | edebug.com        | Microsoft DOS debugger by ECM; *support is WIP*               |
+| Debuggers                 | pcdev_ldebug  | edebug.com        | Advanced DOS debugger by ECM; *support is WIP*               |
 | Basic                     | cpm_mbasic    | mbasic.com       | Microsoft Basic 5.21 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_obasic    | obasic.com       | Microsoft Basic 4.51 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_tdlbasic  | tdlbasic.com     | TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)              |
