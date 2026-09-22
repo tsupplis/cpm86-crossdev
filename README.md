@@ -227,7 +227,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | C                         | drccpm_link   | linkcmd.exe      | DR C 1.11 linker                                       |
 | C                         | msc5_cl       | cl.exe           | Microsoft C 5.1 compiler (CL 5.10)                     |
 | C                         | msc5_lib      | lib.exe          | Microsoft C 5.1 librarian (LIB 3.10)                   |
-| C                         | msc5_link     | link.exe         | Microsoft C 5.1 linker (LINK 3.65a, *patched*)         |
+| C                         | msc5_link     | link.exe         | Microsoft C 5.1 linker (LINK 5.10a, *patched*)         |
 | COBOL                     | mfcobol_cc    | cobol.cmd        | Micro Focus Level II COBOL compiler (CP/M‑86)          |
 | COBOL                     | mfcobol_run   | run.cmd          | Micro Focus Level II COBOL runtime (CP/M‑86)           |
 | Emulation                 | cpm86         | cpm86.exe        | CP/M‑86 emulator (via emu2+dos)                        |
@@ -264,7 +264,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
 | Misc                      | upx           | (native)         | Executable packer for DOS and CP/M‑86 binaries         |
-| Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06a executable packer (*patched*)  |
+| Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06b executable packer (*patched*)  |
 | Misc                      | pcdev_upackexe | upackexe.exe    | Decompresses Microsoft EXEPACK executables (*ecm fork*) |
 | Misc                      | pcdev_lzexe   | lzexe.exe        | LZEXE executable packer for DOS EXE files (*ecm fork*) |
 | Misc                      | pcdev_unlzexe | unlzexe.exe      | Unpacker for DOS LZEXE packed executables (*ecm fork*) |
