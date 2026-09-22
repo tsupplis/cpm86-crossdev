@@ -103,6 +103,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | emu2‑cpm86 | v2026.09‑C | DOS/CP/M‑86 emulator (fork of emu2 with CP/M‑86 support) |
 | tnylpo | — | CP/M‑80 emulator; used for `asm86.com`, `gencmd.com`, XLT86, MS Basic 80 |
 | upx | 5.2.1 | Executable packer |
+| lzexe (and utilities) | 0.91‑ecm | Executable packer |
 | pc | 1.1.2 | Programmers calculator |
 | crc | — | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility |
 | ARC86 / LU86 | 1.0 / 4.05 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
@@ -122,6 +123,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | tnylpo | BSD‑3‑Clause | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
 | pc | MIT | [LICENSE](https://gitlab.com/johnsonjh/pc/-/blob/master/LICENSE) |
 | crc | MIT‑0 | [LICENSE](https://gitlab.com/dps8m/crc/-/blob/master/LICENSE) |
+| lzexe / unlzexe / comtoexe / infoexe / upackexe | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE) |
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
@@ -259,8 +261,13 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
-| Misc                      | upx           | (native)         | executable packer                                      |
-| Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06a compressor (*patched*)         |
+| Misc                      | upx           | (native)         | Executable packer for DOS and CP/M‑86 binaries         |
+| Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06a executable packer (*patched*)  |
+| Misc                      | pcdev_upackexe | upackexe.exe    | Decompresses Microsoft EXEPACK executables (*ecm fork*) |
+| Misc                      | pcdev_lzexe   | lzexe.exe        | LZEXE executable packer for DOS EXE files (*ecm fork*) |
+| Misc                      | pcdev_unlzexe | unlzexe.exe      | Unpacker for DOS LZEXE packed executables (*ecm fork*) |
+| Misc                      | pcdev_comtoexe | comtoexe.exe    | Converts DOS COM files to EXE format (*ecm fork*)      |
+| Misc                      | pcdev_infoexe | infoexe.exe      | Display information about a DOS EXE file (*ecm fork*)  |
 
 ## Fetching the tools
 
@@ -291,6 +298,7 @@ export PATH="$(pwd -P)"/bin
 | cmdtools (cmdinfo, bin2cmd, exe2cmd)              | [cpm86‑cmdtools](https://github.com/tsupplis/cpm86-cmdtools) (GitHub, built natively)                                            |
 | NASM                                              | [nasm.us snapshots](https://nasm.us/pub/nasm/snapshots/)                                                                         |
 | UPX                                               | [UPX releases](https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz) (GitHub)                                |
+| lzexe (and utilities)                             | [lzexe](https://pushbx.org/ecm/web/#projects-lzexe) (pushbx.org, fork of [the original](https://bellard.org/lzexe/)              |
 | emu2‑cpm86                                        | [emu2‑cpm86](https://gitlab.com/johnsonjh/emu2-cpm86) (GitLab, fork of [emu2](https://github.com/dmsc/emu2))                     |
 | tnylpo                                            | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab)                                                                          |
 | Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`)                           |

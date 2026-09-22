@@ -46,15 +46,14 @@ rm -rf "$root/share/pcdev" "$root/share/emu" "$root/share/aztec"?? \
        "$root/share/intel" "$root/share/m2cb"* \
        "$root/share/xlisp" "$root/share/plicpm" \
        "$root/share/polypascpm" "$root/share/polypasdos" \
-       "$root/share/mfcobolcpm"
+       "$root/share/mfcobolcpm" "$root/share/lzexe"
 
 printf 'INF: removing fetch logs ...\n'
 rm -f "$root"/fetch-*.log
 
-printf 'INF: removing archive and legacy build trees ...\n'
+printf 'INF: removing legacy build trees ...\n'
 # Remove legacy root-level build trees (relocated to archive/ - transitional)
 rm -rf "$root/emu2" "$root/tnylpo" "$root/nasm" "$root/upx" "$root/cmdtools"
-rm -rf "$root/archive"/*
 rm -f  "$root/bin/bin2cmd" "$root/bin/cmdinfo" "$root/bin/exe2cmd"
 rmdir  "$root/share" > /dev/null 2>&1 || true
 
