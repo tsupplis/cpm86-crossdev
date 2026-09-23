@@ -123,7 +123,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | tnylpo | BSD‑3‑Clause | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
 | pc | MIT | [LICENSE](https://gitlab.com/johnsonjh/pc/-/blob/master/LICENSE) |
 | crc | MIT‑0 | [LICENSE](https://gitlab.com/dps8m/crc/-/blob/master/LICENSE) |
-| lzexe / unlzexe / comtoexe / infoexe / upackexe | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE) |
+| lzexe / unlzexe / comtoexe / infoexe | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE) |
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
@@ -265,7 +265,6 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
 | Misc                      | upx           | (native)         | Executable packer for DOS and CP/M‑86 binaries         |
 | Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06b executable packer (*patched*)  |
-| Misc                      | pcdev_upackexe | upackexe.exe    | Decompresses Microsoft EXEPACK executables (*ecm fork*) |
 | Misc                      | pcdev_lzexe   | lzexe.exe        | LZEXE executable packer for DOS EXE files (*ecm fork*) |
 | Misc                      | pcdev_unlzexe | unlzexe.exe      | Unpacker for DOS LZEXE packed executables (*ecm fork*) |
 | Misc                      | pcdev_comtoexe | comtoexe.exe    | Converts DOS COM files to EXE format (*ecm fork*)      |
