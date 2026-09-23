@@ -50,7 +50,7 @@ KBTOOLS = i21f6.exe i21f7.exe i21f8.exe \
 	ie0f6nbx.cmd ie0f6sx.cmd
 
 # helpers - built by 'make all' but not listed in TESTS
-HELPERS = sub02f02.cmd sub03b02.cmd pause.cmd
+HELPERS = sub02f02.cmd sub03b02.cmd pause.cmd i21f9.exe
 
 all: $(TESTS) $(HELPERS) $(KBTOOLS)
 

@@ -1,0 +1,57 @@
+            title   'i21f9 - INT 21h fn 009h print string'
+
+; ============================================================
+; i21f9.a86 - single call to DOS INT 21h function 009h
+;
+; Prints three $-terminated strings with fn 009h and exits
+; with fn 04Ch.  No console input, so the program always runs
+; to completion - useful as a non-blocking .exe test case for
+; debuggers (debug, ldebug, edebug, sid86).
+;
+; Build:  make i21f9.exe
+; ============================================================
+
+DOS         equ     021h
+FN_PRTSTR   equ     009h            ; print $-terminated string at DS:DX
+FN_EXIT     equ     04Ch            ; terminate with return code in AL
+
+CR          equ     00Dh
+LF          equ     00Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA - before code so all symbols resolve in pass 1
+; ============================================================
+
+msg_banner  db      'INT 21h fn 09h - print string', CR, LF, '$'
+msg_line1   db      'LINE1', CR, LF, '$'
+msg_line2   db      'LINE2', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     ax, cs
+            mov     ds, ax
+            mov     es, ax
+
+            mov     dx, offset msg_banner
+            mov     ah, FN_PRTSTR
+            int     DOS
+
+            mov     dx, offset msg_line1
+            mov     ah, FN_PRTSTR
+            int     DOS
+
+            mov     dx, offset msg_line2
+            mov     ah, FN_PRTSTR
+            int     DOS
+
+            mov     ax, (FN_EXIT * 256)
+            int     DOS
+
+            end     main
