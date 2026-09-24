@@ -11,17 +11,7 @@ fi
 if [ ! -f "$root/bin/tnylpo" ];then
     ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
     # Best effort to apply the `-X` patch to upstream tnylpo; if it fails, it's not an issue.
-    #XPATCH="https://raw.githubusercontent.com/johnsonjh/lzpack/refs/heads/master/tnylpo.diff"
-    #(cd "$root/archive/tnylpo" && { { curl -fsSL "${XPATCH:?}" | "${PATCH:?}" --dry-run -p1 ; } && { curl -fsSL "${XPATCH:?}" | "${PATCH:?}" -p1 ; }; }) || :
-    # As we only support new Solaris (11.4 SRU 81+) and current illumos systems.
-    # we use the Linux tnylpo build configuration, which works as expected.
-    
-    test "$(uname -o 2> /dev/null || true)" = "illumos" -o \
-         "$(uname -o 2> /dev/null || true)" = "Solaris" && {
-        (cd "$root/archive/tnylpo" && sed 's|-I /usr/include/ncursesw|-I /usr/include/ncursesw -I /usr/include/ncurses|' makefile > makefile.sed && mv -f makefile.sed makefile)
-        EXTRA_FLAG='SYSTEM=Linux'
-    } || true
-    #(cd "$root/archive/tnylpo";"${MAKE:-make}" -j "$ncpus" CC="${CC:-cc}" ${EXTRA_FLAG:-};cp tnylpo "$root/bin" && cp tnylpo-convert "$root/bin")
-    (cd "$root/archive/tnylpo";sh ./build.sh;cp tnylpo "$root/bin" && cp tnylpo-convert "$root/bin")
-    
+    XPATCH="https://raw.githubusercontent.com/johnsonjh/lzpack/refs/heads/master/tnylpo.diff"
+    (cd "$root/archive/tnylpo" && { { curl -fsSL "${XPATCH:?}" | "${PATCH:?}" --dry-run -p1 ; } && { curl -fsSL "${XPATCH:?}" | "${PATCH:?}" -p1 ; }; }) || :
+    (cd "$root/archive/tnylpo";env CC="${CC:-cc}" sh ./build.sh all;cp tnylpo "$root/bin" && cp tnylpo-convert "$root/bin")
 fi
