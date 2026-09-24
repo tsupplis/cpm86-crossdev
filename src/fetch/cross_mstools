@@ -4,16 +4,19 @@ set -e
 
 echo INF: Checking Microsoft tools ...
 if [ ! -f "$root/share/pcdev/masm.exe" ] || [ ! -f "$root/share/pcdev/exe2bin.exe" ] || \
-   [ ! -f "$root/share/pcdev/link.exe" ] || [ ! -f "$root/share/pcdev/masm11.exe" ]; then
+   [ ! -f "$root/share/pcdev/link3.exe" ] || [ ! -f "$root/share/pcdev/masm11.exe" ] || \
+   [ ! -f "$root/share/pcdev/link5.exe" ] ; then
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/mstools/link.exe" "$root/share/pcdev"
+    cp "$root/src/mstools/link3.exe" "$root/share/pcdev"
+    cp "$root/src/mstools/link5.exe" "$root/share/pcdev"
     cp "$root/src/mstools/masm.exe" "$root/share/pcdev"
     cp "$root/src/mstools/masm11.exe" "$root/share/pcdev"
     cp "$root/src/mstools/exe2bin.exe" "$root/share/pcdev"
     chmod 644 "$root/share/pcdev/masm.exe"
     chmod 644 "$root/share/pcdev/masm11.exe"
     chmod 644 "$root/share/pcdev/exe2bin.exe"
-    chmod 644 "$root/share/pcdev/link.exe"
+    chmod 644 "$root/share/pcdev/link3.exe"
+    chmod 644 "$root/share/pcdev/link5.exe"
 fi
 if [ ! -f "$root/share/pcdev/asm.com" ] || [ ! -f "$root/share/pcdev/hex2bin.com" ] || \
    [ ! -f "$root/share/pcdev/trans.com" ]; then
