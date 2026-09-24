@@ -25,14 +25,16 @@ if [ ! -f "$root/share/cpm/asm86.com" ] || [ ! -f "$root/share/cpm/gencmd.com" ]
 fi
 echo INF: Checking CP/M-86 DR tools ...
 if [ ! -f "$root/share/cpm/asm86.cmd" ] || [ ! -f "$root/share/cpm/gencmd.cmd" ] || \
-   [ ! -f "$root/share/cpm/sid86.cmd" ] || [ ! -f "$root/share/cpm/ddt86.cmd" ]; then
+   [ ! -f "$root/share/cpm/sid86.cmd" ] || [ ! -f "$root/share/cpm/ddt86.cmd" ] || \
+   [ ! -f "$root/share/cpm/pip.cmd" ]; then
     mkdir -p "$root/share/cpm"
     cp "$root/src/drtools/asm86.cmd" "$root/share/cpm/asm86.cmd"
     cp "$root/src/drtools/gencmd.cmd" "$root/share/cpm/gencmd.cmd"
     cp "$root/src/drtools/sid86.cmd" "$root/share/cpm/sid86.cmd"
     cp "$root/src/drtools/ddt86.cmd" "$root/share/cpm/ddt86.cmd"
+    cp "$root/src/drtools/pip.cmd" "$root/share/cpm/pip.cmd"
     chmod 644 "$root/share/cpm/asm86.cmd" "$root/share/cpm/gencmd.cmd" \
-        "$root/share/cpm/sid86.cmd" "$root/share/cpm/ddt86.cmd"
+        "$root/share/cpm/sid86.cmd" "$root/share/cpm/ddt86.cmd" "$root/share/cpm/pip.cmd"
 fi
 echo INF: Checking Personal Basic 86 1.2 ...
 if [ ! -f "$root/share/cpm/basic.cmd" ]; then

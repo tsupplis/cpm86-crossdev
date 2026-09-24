@@ -189,9 +189,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | Linkers / Librarians      | pcdev_linkexe | linkexe.exe      | DR linker for DOS                                      |
 | Debuggers                 | cpm86_ddt86   | ddt86.cmd        | DDT‑86 debugger for CP/M‑86          |
 | Debuggers                 | cpm86_sid86   | sid86.cmd        | SID‑86 symbolic debugger/disassembler for CP/M‑86 |
-| Debuggers                 | pcdev_sid86   | sid86.exe        | SID‑86 symbolic debugger/disassembler for DOS; *support is WIP* |
-| Debuggers                 | pcdev_debug   | debug.com        | Microsoft DOS debugger; *support is WIP*        |
-| Debuggers                 | pcdev_edebug  | edebug.com       | Microsoft DOS debugger by ECM; *support is WIP*               |
+| Debuggers                 | pcdev_sid86   | sid86.exe        | SID‑86 symbolic debugger/disassembler for DOS |
+| Debuggers                 | pcdev_debug   | debug.com        | Microsoft DOS debugger       |
+| Debuggers                 | pcdev_edebug  | edebug.com       | Microsoft DOS debugger by ECM               |
 | Debuggers                 | pcdev_ldebug  | edebug.com       | Advanced DOS debugger by ECM               |
 | Basic                     | cpm_mbasic    | mbasic.com       | Microsoft Basic 5.21 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_obasic    | obasic.com       | Microsoft Basic 4.51 (8080 CP/M‑80, via tnylpo)        |
@@ -269,6 +269,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | pcdev_unlzexe | unlzexe.exe      | Unpacker for DOS LZEXE packed executables (*ecm fork*) |
 | Misc                      | pcdev_comtoexe | comtoexe.exe    | Converts DOS COM files to EXE format (*ecm fork*)      |
 | Misc                      | pcdev_infoexe | infoexe.exe      | Display information about a DOS EXE file (*ecm fork*)  |
+| Misc                      | cpm86_pip | pip.cmd      | PIP CP/M-86 command  |
 
 ## Fetching the tools
 
