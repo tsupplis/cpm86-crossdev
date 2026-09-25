@@ -40,7 +40,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 |-----------:|:------------------------------------------------------------------------------|
 | C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C 5.1 |
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
-| Basic      | DR CBASIC 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.22/5.28, TDL BASIC 3.05 |
+| Basic      | DR CBASIC 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.22/5.28, GW Basic 3.23, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0                                                             |
 | COBOL      | Micro Focus Level II COBOL V2.1                                               |
@@ -204,6 +204,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Basic                     | drcbdos_link  | linkexe.exe      | DR CBASIC linker for DOS                               |
 | Basic                     | m2cb_cvt      | m2cbasic.cmd     | M2CBASIC 1.4 MBASIC to CBASIC converter                |
 | Basic                     | pcdev_mbasic  | mbasic86.com     | Microsoft Basic 5.28 (DOS, via emu2)                   |
+| Basic                     | pcdev_gwbasic  | gwbasic.exe     | Microsoft GW Basic 3.23 (DOS, via emu2)                   |
 | C                         | ansi2kr       | (native)         | ANSI C to K&R C converter (native)                     |
 | C                         | aztec34_as    | as.exe           | Aztec assembler (v3.4)                                 |
 | C                         | aztec34_cc    | cc.exe           | Aztec K&R C compiler (v3.4)                            |
@@ -481,6 +482,7 @@ cmdinfo hellocvt.cmd
 </pre></td></tr>
 <tr><td>MS Basic 5.22 (interpreted, CP/M‑86)</td><td><pre>cpm86_mbasic hellomsb.bas</pre></td></tr>
 <tr><td>MS Basic 5.28 (interpreted, DOS)</td><td><pre>pcdev_mbasic hellomsb.bas</pre></td></tr>
+<tr><td>GW Basic 3.23 (interpreted, DOS)</td><td><pre>pcdev_gwbasic hellomsb.bas</pre></td></tr>
 <tr><td>MS Basic 5.21 (CP/M‑80, via tnylpo)</td><td><pre>cpm_mbasic hellomsb.bas</pre></td></tr>
 <tr><td>MS Basic 4.51 "Old Basic" (CP/M‑80, via tnylpo)</td><td><pre>cpm_obasic hellomsb.bas</pre></td></tr>
 <tr><td>TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)</td><td><pre>cpm_tdlbasic hellomsb.bas</pre></td></tr>
