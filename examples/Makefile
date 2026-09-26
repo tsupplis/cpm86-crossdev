@@ -31,6 +31,8 @@ XLT86=cpm_xlt86
 EMU2=emu2
 CPM86=cpm86
 DRCCC=drccpm_cc
+CBAS86=cpm86_cbas
+CRUN86=cpm86_crun
 F77=drfcpm_fc
 F77LINK=drfcpm_link
 PMT=drpmtcpm_pc
@@ -44,12 +46,15 @@ MSCCL=msc5_cl
 MSCLINK=msc5_link
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd hellocfp.cmd \
 	hellomsc.exe helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
-	hello86.cmd hellocbl.int hellopli.cmd hellodra.cmd
+	hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd
 EXTRAS=hello80.com
 
 all: binaries
 
 binaries: $(TOOLS) $(EXTRAS)
+
+helloi.int: helloi.bas
+	$(CBAS86) $<
 
 hellomsc.exe: hellomsc.obj
 	$(MSCLINK) $< \;
@@ -204,9 +209,11 @@ test: emu2-test
 	$(MBASIC) hellomsb.bas
 	@echo "--------- TEST: basic hellopba.bas"
 	$(BASIC) < hellopba.bas
+	@echo "--------- TEST: crun86 helloi.int"
+	$(CRUN86) helloi.int
 	@echo "--------- TEST: hello.lsp"
 	$(XLISP) hello.lsp
-	@echo "--------- TEST: cobol hellocbl.cbl"
+	@echo "--------- TEST: cobrun hellocbl.int"
 	$(COBRUN) hellocbl.int
 	$(MAKE) test-negative
 
@@ -231,6 +238,7 @@ test-negative:
 emu2-test: binaries
 	@for cmd in $(TOOLS); do \
             if [ "$$cmd" = "hellocbl.int" ]; then continue; fi; \
+            if [ "$$cmd" = "helloi.int" ]; then continue; fi; \
 	    echo "--------- EMU2 TEST: $$cmd"; \
 	    env EMU2_DRIVE_C=. $(EMU2) ./$$cmd || { echo "--------- ERROR with $$cmd"; exit 1; } \
 	done
