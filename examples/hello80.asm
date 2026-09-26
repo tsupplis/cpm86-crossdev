@@ -12,4 +12,4 @@ start:
 
 msg:    db      'Hello from asm 8080','$'
 
-        end     start
+        end
