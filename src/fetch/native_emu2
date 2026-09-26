@@ -5,8 +5,8 @@ set -e
 echo INF: Checking EMU2 ...
 mkdir -p "$root/archive"
 if [ ! -d "$root/archive/emu2" ];then
-    git clone "https://gitlab.com/johnsonjh/emu2-cpm86" "$root/archive/emu2" || \
-    git clone "https://github.com/johnsonjh/emu2-cpm86" "$root/archive/emu2"
+    git clone "https://github.com/johnsonjh/emu2-cpm86" "$root/archive/emu2" || \
+    git clone "https://gitlab.com/johnsonjh/emu2-cpm86" "$root/archive/emu2"
     rm -rf "$root/archive/emu2/.git"
 fi
 if [ ! -f "$root/bin/emu2" ];then

@@ -42,6 +42,15 @@ if [ ! -f "$root/share/cpm/basic.cmd" ]; then
     cp "$root/src/drtools/basic.cmd" "$root/share/cpm/basic.cmd"
     chmod 644 "$root/share/cpm/basic.cmd"
 fi
+echo INF: Checking CBasic 86 1.4 ...
+if [ ! -f "$root/share/cpm/cbas86.cmd" ] || \
+   [ ! -f "$root/share/cpm/crun86.cmd" ]; then
+    mkdir -p "$root/share/cpm"
+    cp "$root/src/drtools/cbas86.cmd" "$root/share/cpm/cbas86.cmd"
+    cp "$root/src/drtools/crun86.cmd" "$root/share/cpm/crun86.cmd"
+    chmod 644 "$root/share/cpm/cbas86.cmd"
+    chmod 644 "$root/share/cpm/crun86.cmd"
+fi
 echo INF: Checking XLT86 1.3 for CP/M-80 ...
 if [ ! -f "$root/share/cpm/xlt86.com" ]; then
     mkdir -p "$root/share/cpm"
