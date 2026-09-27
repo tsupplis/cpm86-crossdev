@@ -52,8 +52,10 @@ TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.
     helloans.cmd helloaz7.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd \
     hellocvt.cmd hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd \
     hellodr7.cmd hellomsc.exe \
+	hello801.cmd hello802.cmd hello803.cmd hello804.cmd \
 	lzexemsc.exe upxmsc.exe upxpli.cmd upxdra.cmd upxdrc.cmd upxdr7.cmd upxaz7.cmd \
-    exepkmsc.exe
+    exepkmsc.exe 
+
 
 EXTRAS=hello80.com
 
@@ -101,8 +103,39 @@ hellomsc.exe: hellomsc.obj
 hellomsc.obj: hellomsc.c
 	$(MSCCL) -c $@ $< 
 
-hellon.cmd: hellon.bin
+helloab.cmd: helloab.obj
+	$(LINK86) $@=$(basename $<) '[cod[ori[0]],dat[ori[0],max[0]]]'
+	$(CMDINFO) $@
+
+hello801.cmd: hello801.h86
+	$(GENCMD) $< 8080
+	$(CMDINFO) $@
+  
+hello802.cmd: hello802.obj
+	$(LINK86) $@=$(basename $<) '[cod[ori[0]],dat[ori[0],max[0]]]'
+	$(CMDINFO) $@
+
+hello803.cmd: hello803.exe
+	$(EXE2BIN) $< hello803.bin
+	$(BIN2CMD) hello803.bin $@
+	$(CMDINFO) $@
+
+hello803.exe: hello803.obj
+	$(LINK) $< \;
+
+hello803.obj: hello803.asm
+	$(MASM) $(basename $@),$(basename $@)\;
+	[ -f $@ ]
+
+hello804.cmd: hello804.bin
 	$(BIN2CMD) $< $@
+	$(CMDINFO) $@
+
+hello804.bin: hello804.asm
+	$(NASM) $< -fbin -o $@
+
+hellor.cmd: hellor.obj
+	$(CBLINK) $@=$(basename $<)
 	$(CMDINFO) $@
 
 hellod.cmd: hellod.exe
@@ -110,23 +143,19 @@ hellod.cmd: hellod.exe
 	$(BIN2CMD) hellod.bin $@
 	$(CMDINFO) $@
 
-helloab.cmd: helloab.obj
-	$(LINK86) $@=$(basename $<) '[cod[ori[0]],dat[ori[0],max[0]]]'
-	$(CMDINFO) $@
-
-hellor.cmd: hellor.obj
-	$(CBLINK) $@=$(basename $<)
-	$(CMDINFO) $@
-
 hellod.exe: hellod.obj
 	$(LINK) $< \;
-
-hellon.bin: hellon.asm
-	$(NASM) $< -fbin -o $@
 
 hellod.obj: hellod.asm
 	$(MASM) $(basename $@),$(basename $@)\;
 	[ -f $@ ]
+
+hellon.cmd: hellon.bin
+	$(BIN2CMD) $< $@
+	$(CMDINFO) $@
+
+hellon.bin: hellon.asm
+	$(NASM) $< -fbin -o $@
 
 hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
