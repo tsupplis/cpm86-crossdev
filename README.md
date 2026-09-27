@@ -12,6 +12,7 @@
 - [License Considerations](#license-considerations)
 - [Prerequisites](#prerequisites)
 - [Script Mapping](#script-mapping)
+- [Tool notes](#tool-notes)
 - [Fetching the tools](#fetching-the-tools)
     + [Platform notes](#platform-notes)
       - [Tested platforms](#tested-platforms)
@@ -275,6 +276,21 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | pcdev_comtoexe | comtoexe.exe    | Converts DOS COM files to EXE format (*ecm fork*)      |
 | Misc                      | pcdev_infoexe | infoexe.exe      | Display information about a DOS EXE file (*ecm fork*)  |
 | Misc                      | cpm86_pip     | pip.cmd          | PIP CP/M‑86 command                                    |
+
+## Tool notes
+
+* Microsoft `LINK` improvements:
+  * Microsoft `LINK` version 3.65 and 5.10 have both been *improved and patched* by us to version **3.65a** and **5.10b**,
+    respectively.  These new versions of the Microsoft linker have all known `/EXEPACK` bugs fixed, and the actual
+    decompression stub code emitted is now [David Fifield](https://www.bamsoftware.com/software/exepack/)'s 283‑byte
+    version.  It is still recognized and can analyzed using the [exepacka](https://github.com/jsummers/miscjs/tree/master/exepacka)
+    tool by [Jason Summers](https://entropymine.wordpress.com/).
+  * Microsoft `EXEPACK` version 4.06 has been *improved and patched* by us to version **4.06b**.  This stand-alone
+    version of `EXEPACK` is based on the *final* Microsoft standalone release, has all known bugs patched, and packs identically
+    to the `/EXEPACK` mode of our two *fixed* linkers.
+  * See David Fifeild's [EXEPACK](https://www.bamsoftware.com/software/exepack/) site, and Jason Summers'
+    [Classifying EXEPACK-compressed files](https://entropymine.wordpress.com/2025/03/01/classifying-exepack-compressed-files/)
+    page for more `EXEPACK` details.
 
 ## Fetching the tools
 
