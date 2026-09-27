@@ -16,6 +16,7 @@ if [ ! -f "$root/share/aztec42/patched" ]; then
 fi
 echo INF: Building Aztec 4.2 ...
 if [ ! -f "$root/share/aztec42/built" ]; then
+    chmod 755 "$root/share/aztec42/src/build"
     (cd "$root/share/aztec42/src" && PATH="$root/bin:$PATH" ./build)
     rm -rf "$root/share/aztec42/lib"/*
     mv "$root/share/aztec42/src/libs"/* "$root/share/aztec42/lib"
