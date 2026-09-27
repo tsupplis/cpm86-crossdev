@@ -44,6 +44,7 @@ COBOL=mfcobol_cc
 COBRUN=mfcobol_run
 GWBASIC=pcdev_gwbasic
 LZEXE=pcdev_lzexe
+EXEPACK=pcdev_exepack
 UPX=../bin/upx --8086
 MSCCL=msc5_cl
 MSCLINK=msc5_link
@@ -51,7 +52,9 @@ TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.
     helloans.cmd helloaz7.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd \
     hellocvt.cmd hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd \
     hellodr7.cmd hellomsc.exe \
-	lzexemsc.exe upxmsc.exe upxpli.cmd upxdra.cmd upxdrc.cmd upxdr7.cmd upxaz7.cmd
+	lzexemsc.exe upxmsc.exe upxpli.cmd upxdra.cmd upxdrc.cmd upxdr7.cmd upxaz7.cmd \
+    exepkmsc.exe
+
 EXTRAS=hello80.com
 
 all: binaries
@@ -84,6 +87,9 @@ upxdr7.cmd: hellodr7.cmd
 upxmsc.exe: hellomsc.exe
 	cp $< $@
 	$(UPX) $@
+
+exepkmsc.exe: hellomsc.exe
+	$(EXEPACK) $< $@
 
 lzexemsc.exe: hellomsc.exe
 	cp $< $@

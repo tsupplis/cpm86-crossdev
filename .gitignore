@@ -78,6 +78,7 @@ bin/crc
 **/upx*.cmd
 **/upx*.exe
 **/lzexe*.exe
+**/exepk*.exe
 examples/*.prt
 examples/*.prn
 examples/hellod.a
