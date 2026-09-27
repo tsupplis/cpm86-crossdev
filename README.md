@@ -291,7 +291,7 @@ All the tools are wrapped in the bin directory for direct usage:
   * Microsoft `EXEPACK` version 4.06 has been *improved and patched* by us to version **4.06b**.  This stand-alone
     version of `EXEPACK` is based on the *final* Microsoft standalone release, has all known bugs patched, and packs identically
     to the `/EXEPACK` mode of our two *fixed* linkers.
-  * See David Fifeild's [EXEPACK](https://www.bamsoftware.com/software/exepack/) site, and Jason Summers'
+  * See David Fifield's [EXEPACK](https://www.bamsoftware.com/software/exepack/) site, and Jason Summers'
     [Classifying EXEPACK-compressed files](https://entropymine.wordpress.com/2025/03/01/classifying-exepack-compressed-files/)
     page for more `EXEPACK` details.
 
