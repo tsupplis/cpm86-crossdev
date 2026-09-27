@@ -29,6 +29,7 @@ BASIC=cpm86_basic
 M2CB=m2cb_cvt
 XLT86=cpm_xlt86
 EMU2=emu2
+TNYLPO=tnylpo
 CPM86=cpm86
 DRCCC=drccpm_cc
 CBAS86=cpm86_cbas
@@ -56,12 +57,11 @@ TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.
 	lzexemsc.exe upxmsc.exe upxpli.cmd upxdra.cmd upxdrc.cmd upxdr7.cmd upxaz7.cmd \
     exepkmsc.exe 
 
-
-EXTRAS=hello80.com
+CPM80TOOLS:=hello80.com
 
 all: binaries
 
-binaries: $(TOOLS) $(EXTRAS)
+binaries: $(TOOLS) $(CPM80TOOLS)
 
 helloi.int: helloi.bas
 	$(CBAS86) $<
@@ -279,8 +279,9 @@ hello86.cmd: hello86.h86
 	$(PLI) $<
 	[ -f $@ ]
 
-test: emu2-test
-	$(MAKE) test-misc
+test: 
+	$(MAKE) emu2-test
+	$(MAKE) tnylpo-test
 	$(MAKE) test-negative
 
 test-misc:
@@ -307,6 +308,9 @@ test-negative:
 
 emu2-test: binaries
 	env TOOLS="$(TOOLS)" EMU2="$(EMU2)" sh test_emu2
+
+tnylpo-test: binaries
+	env TOOLS="$(CPM80TOOLS)" "TNYLPO="$(TNYLPO) sh test_tnylpo
 
 hellocbl.int: hellocbl.cbl
 	$(COBOL) hellocbl.cbl
