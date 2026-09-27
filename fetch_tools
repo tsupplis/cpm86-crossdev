@@ -223,12 +223,12 @@ run_fetcher() {
 . src/fetch/_archive
 
 protect() {
-    find "$root/share" -type d -exec chmod 555 {} \;
+    #find "$root/share" -type d -exec chmod 555 {} \;
     find "$root/share" -type f -exec chmod 444 {} \;
 }
 
 unprotect() {
-    find "$root/share" -type d -exec chmod 755 {} \;
+    #find "$root/share" -type d -exec chmod 755 {} \;
     find "$root/share" -type f -exec chmod 644 {} \;
 }
 

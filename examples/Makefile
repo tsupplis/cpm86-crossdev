@@ -44,9 +44,10 @@ COBOL=mfcobol_cc
 COBRUN=mfcobol_run
 MSCCL=msc5_cl
 MSCLINK=msc5_link
-TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd hellocfp.cmd \
-	hellomsc.exe helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd hellocvt.cmd \
-	hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd
+TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
+    hellocfp.cmd helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd \
+    hellocvt.cmd hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd \
+    hellomsc.exe
 EXTRAS=hello80.com
 
 all: binaries
@@ -57,7 +58,7 @@ helloi.int: helloi.bas
 	$(CBAS86) $<
 
 hellomsc.exe: hellomsc.obj
-	$(MSCLINK) $< \;
+	$(MSCLINK) $<,$@ \;
 
 hellomsc.obj: hellomsc.c
 	$(MSCCL) -c $@ $< 
@@ -205,6 +206,10 @@ hello86.cmd: hello86.h86
 	[ -f $@ ]
 
 test: emu2-test
+	$(MAKE) test-misc
+	$(MAKE) test-negative
+
+test-misc:
 	@echo "--------- TEST: mbasic hellomsb.bas"
 	$(MBASIC) hellomsb.bas
 	@echo "--------- TEST: basic hellopba.bas"
@@ -215,7 +220,6 @@ test: emu2-test
 	$(XLISP) hello.lsp
 	@echo "--------- TEST: cobrun hellocbl.int"
 	$(COBRUN) hellocbl.int
-	$(MAKE) test-negative
 
 test-negative:
 	@echo "--------- NEG TEST: cpm86_asm86 badasm86.a86 (expect failure, badasm86.h86 removed)"
@@ -236,12 +240,7 @@ test-negative:
 	fi
 
 emu2-test: binaries
-	@for cmd in $(TOOLS); do \
-            if [ "$$cmd" = "hellocbl.int" ]; then continue; fi; \
-            if [ "$$cmd" = "helloi.int" ]; then continue; fi; \
-	    echo "--------- EMU2 TEST: $$cmd"; \
-	    env EMU2_DRIVE_C=. $(EMU2) ./$$cmd || { echo "--------- ERROR with $$cmd"; exit 1; } \
-	done
+	env TOOLS="$(TOOLS)" EMU2="$(EMU2)" sh test_emu2
 
 hellocbl.int: hellocbl.cbl
 	$(COBOL) hellocbl.cbl
@@ -249,7 +248,7 @@ hellocbl.int: hellocbl.cbl
 
 clean:
 	$(RM) *.prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
-		  *.mp2 *exe *.map *.err *.int *.prn *.hex \
+		  *.mp2 *exe *.map *.err *.int *.prn *.hex *.out *.raw \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello86.a86 \
 	      badasm86.cmd badgencm.cmd \

@@ -85,6 +85,7 @@ examples/hellocvt.cb
 examples/hello86.a86
 examples/*.int
 examples/*.out
+examples/*.out.raw
 
 src/cpmtest/*.out
 src/cpmtest/*.cmd

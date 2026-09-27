@@ -1,0 +1,43 @@
+#!/bin/sh
+# Run each CMD binary under emu2, capture output, bless or diff against .rsp.
+# Called by 'make emu2-test' with TOOLS and EMU2 set in the environment.
+
+set -e
+
+for cmd in ${TOOLS}; do
+    case "$cmd" in
+        hellocbl.int|helloi.int) continue ;;
+    esac
+
+    base=$(basename "$cmd" .cmd)
+    base=$(basename "$base" .exe)
+    rsp="${base}.rsp"
+    out="${base}.out"
+
+    echo "--------- EMU2 TEST: $cmd"
+
+    env EMU2_DRIVE_C=. "$EMU2" "./$cmd" > "$out.raw" 2>&1
+    rc=$?
+    tr -d '\r' < "$out.raw" > "$out"
+    rm -f "$out.raw"
+
+    if [ $rc -ne 0 ]; then
+        echo "--------- ERROR with $cmd (exit $rc):"
+        cat "$out"
+        exit 1
+    fi
+
+    if [ ! -f "$rsp" ]; then
+        mv "$out" "$rsp"
+        echo "--------- BLESSED: $rsp"
+    else
+        if diff -u "$rsp" "$out" > /dev/null 2>&1; then
+            echo "--------- PASS: $cmd"
+            rm -f "$out"
+        else
+            echo "--------- FAIL: $cmd (diff $rsp vs $out):"
+            diff -u "$rsp" "$out" || true
+            exit 1
+        fi
+    fi
+done
