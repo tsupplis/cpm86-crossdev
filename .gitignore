@@ -75,6 +75,9 @@ bin/crc
 **/hello*.com
 **/hello*.exe
 **/hello*.bin
+**/upx*.cmd
+**/upx*.exe
+**/lzexe*.exe
 examples/*.prt
 examples/*.prn
 examples/hellod.a
@@ -87,6 +90,7 @@ examples/hello86.a86
 examples/*.int
 examples/*.out
 examples/*.out.raw
+examples/*.old
 
 src/cpmtest/*.out
 src/cpmtest/*.cmd

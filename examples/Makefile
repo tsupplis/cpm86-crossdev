@@ -43,12 +43,15 @@ PLILINK=drplicpm_link
 COBOL=mfcobol_cc
 COBRUN=mfcobol_run
 GWBASIC=pcdev_gwbasic
+LZEXE=pcdev_lzexe
+UPX=../bin/upx --8086
 MSCCL=msc5_cl
 MSCLINK=msc5_link
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
     helloans.cmd helloaz7.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd \
-    hellocvt.cmd hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd hellodr7.cmd \
-    hellomsc.exe
+    hellocvt.cmd hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd \
+    hellodr7.cmd hellomsc.exe \
+	lzexemsc.exe upxmsc.exe upxpli.cmd upxdra.cmd upxdrc.cmd upxdr7.cmd upxaz7.cmd
 EXTRAS=hello80.com
 
 all: binaries
@@ -57,6 +60,34 @@ binaries: $(TOOLS) $(EXTRAS)
 
 helloi.int: helloi.bas
 	$(CBAS86) $<
+
+upxaz7.cmd: helloaz7.cmd
+	cp $< $@
+	$(UPX) $@
+
+upxpli.cmd: hellopli.cmd
+	cp $< $@
+	$(UPX) $@
+
+upxdra.cmd: hellodra.cmd
+	cp $< $@
+	$(UPX) $@
+
+upxdrc.cmd: hellodrc.cmd
+	cp $< $@
+	$(UPX) $@
+
+upxdr7.cmd: hellodr7.cmd
+	cp $< $@
+	$(UPX) $@
+
+upxmsc.exe: hellomsc.exe
+	cp $< $@
+	$(UPX) $@
+
+lzexemsc.exe: hellomsc.exe
+	cp $< $@
+	$(LZEXE) $@
 
 hellomsc.exe: hellomsc.obj
 	$(MSCLINK) $<,$@ \;
