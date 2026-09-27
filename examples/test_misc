@@ -1,0 +1,42 @@
+#!/bin/sh
+# Run miscellaneous interpreter tests, capture output, bless or diff against .rsp.
+# Called by 'make test-misc' with tool variables set in the environment.
+
+set -e
+
+run_test() {
+    name="$1"
+    rsp="${name}.rsp"
+    out="${name}.out"
+    shift
+    echo "--------- TEST: $*"
+    eval "$@" > "$out.raw" 2>&1
+    rc=$?
+    tr -d '\r' < "$out.raw" > "$out"
+    rm -f "$out.raw"
+    if [ $rc -ne 0 ]; then
+        echo "--------- ERROR: $* (exit $rc):"
+        cat "$out"
+        exit 1
+    fi
+    if [ ! -f "$rsp" ]; then
+        mv "$out" "$rsp"
+        echo "--------- BLESSED: $rsp"
+    else
+        if diff -u "$rsp" "$out" > /dev/null 2>&1; then
+            echo "--------- PASS: $name"
+            rm -f "$out"
+        else
+            echo "--------- FAIL: $name (diff $rsp vs $out):"
+            diff -u "$rsp" "$out" || true
+            exit 1
+        fi
+    fi
+}
+
+run_test hellomsb  "$MBASIC hellomsb.bas"
+run_test hellogw   "$GWBASIC hellogw.bas"
+run_test hellopba  "$BASIC < hellopba.bas"
+run_test helloi    "$CRUN86 helloi.int"
+run_test helloxlp  "$XLISP helloxlp.lsp"
+run_test hellocbl  "$COBRUN hellocbl.int"

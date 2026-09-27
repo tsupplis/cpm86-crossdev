@@ -1,0 +1,14 @@
+
+--------------------------------------------------
+Personal Basic                         Version 1.2
+Serial No. 3048-0261-000000    All Rights Reserved
+Copyright (c) 1983,1985     Digital Research, Inc.
+--------------------------------------------------
+Ok 10 PRINT "Hello from personal basic",
+Ok 
+         RUN
+Hello from personal basic   
+Ok 
+         SYSTEM
+
+

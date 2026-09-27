@@ -42,11 +42,12 @@ PLI=drplicpm_pc
 PLILINK=drplicpm_link
 COBOL=mfcobol_cc
 COBRUN=mfcobol_run
+GWBASIC=pcdev_gwbasic
 MSCCL=msc5_cl
 MSCLINK=msc5_link
 TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
-    hellocfp.cmd helloans.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd \
-    hellocvt.cmd hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd \
+    helloans.cmd helloaz7.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd \
+    hellocvt.cmd hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd hellodr7.cmd \
     hellomsc.exe
 EXTRAS=hello80.com
 
@@ -94,18 +95,18 @@ hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
   
-hellocfp.cmd: hellocfp.o
-	$(ALD) -o $@ $< $(MLDFLAGS)
-	$(CMDINFO) $@
-
-hellocfp.o: hellocfp.c
-	$(ACC) $(CFLAGS) $<
-
 helloans.cmd: helloans.o
-	$(LD) -o $@ $< $(LDFLAGS)
+	$(ALD) -o $@ $< $(LDFLAGS)
 	$(CMDINFO) $@
 
 helloans.o: helloans.c
+	$(ACC) $(CFLAGS) $<
+
+helloaz7.cmd: helloaz7.o
+	$(ALD) -o $@ $< $(MLDFLAGS)
+	$(CMDINFO) $@
+
+helloaz7.o: helloaz7.c
 	$(ACC) $(CFLAGS) $<
 
 helloc.cmd: helloc.o
@@ -128,6 +129,13 @@ hellodra.cmd: hellodra.obj
 	$(CMDINFO) $@
 
 hellodra.obj: hellodra.c
+	$(DRCCC) -v4 -e -o$@ -l$(@:.obj=.lst) $<
+
+hellodr7.cmd: hellodr7.obj
+	drccpm_link '$@=$(basename $<)'
+	$(CMDINFO) $@
+
+hellodr7.obj: hellodr7.c
 	$(DRCCC) -v4 -e -o$@ -l$(@:.obj=.lst) $<
 
 hellocvt.cmd: hellocvt.obj
@@ -210,16 +218,8 @@ test: emu2-test
 	$(MAKE) test-negative
 
 test-misc:
-	@echo "--------- TEST: mbasic hellomsb.bas"
-	$(MBASIC) hellomsb.bas
-	@echo "--------- TEST: basic hellopba.bas"
-	$(BASIC) < hellopba.bas
-	@echo "--------- TEST: crun86 helloi.int"
-	$(CRUN86) helloi.int
-	@echo "--------- TEST: hello.lsp"
-	$(XLISP) hello.lsp
-	@echo "--------- TEST: cobrun hellocbl.int"
-	$(COBRUN) hellocbl.int
+	env MBASIC="$(MBASIC)" BASIC="$(BASIC)" CRUN86="$(CRUN86)" \
+	    XLISP="$(XLISP)" COBRUN="$(COBRUN)" GWBASIC="$(GWBASIC)" sh test_misc
 
 test-negative:
 	@echo "--------- NEG TEST: cpm86_asm86 badasm86.a86 (expect failure, badasm86.h86 removed)"
