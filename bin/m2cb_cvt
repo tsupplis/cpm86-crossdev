@@ -1,15 +1,15 @@
 #!/bin/sh
 share="`dirname $0`/../share/m2cbcpm"
 emu2=`dirname $0`/emu2
-EMU2_CPM_APPEND="C:"
+EMU2_CPM_APPEND="D:"
 export EMU2_CPM_APPEND
-EMU2_DRIVE_C="$share"
-export EMU2_DRIVE_C
-EMU2_DRIVE_D="`pwd`"
+EMU2_DRIVE_D="$share"
 export EMU2_DRIVE_D
+EMU2_DRIVE_C="`pwd`"
+export EMU2_DRIVE_C
 EMU2_DRIVE_P="$share"
 export EMU2_DRIVE_P
-EMU2_PROGNAME="C:m2cbasic.cmd"
+EMU2_PROGNAME="d:m2cbasic.cmd"
 export EMU2_PROGNAME
 
 # Prefix bare filenames (no drive letter) with D: so the tool finds them in CWD
@@ -18,7 +18,7 @@ args=""
 for arg in "$@"; do
     case "$arg" in
         [A-Za-z]:*) args="$args $arg" ;;
-        *)           args="$args D:$arg" ;;
+        *)           args="$args C:$arg" ;;
     esac
 done
 
