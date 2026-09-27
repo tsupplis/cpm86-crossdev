@@ -4,7 +4,7 @@ start:
         mov cx,cs
         mov es,cx
         mov ds,cx
-        mov cl,0x09
+        mov cx, 0x09
         mov dx,msg 
         int 0xE0
         xor cx,cx
