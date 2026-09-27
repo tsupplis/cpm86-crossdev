@@ -251,6 +251,10 @@ hello86.cmd: hello86.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
 
+hellocbl.int: hellocbl.cbl
+	$(COBOL) hellocbl.cbl
+	[ -f $@ ]
+
 %.cmd: %.obj
 	$(LINK86) $@=$(basename $<) '[$$sz]'
 	$(CMDINFO) $@
@@ -311,10 +315,6 @@ emu2-test: binaries
 
 tnylpo-test: binaries
 	env TOOLS="$(CPM80TOOLS)" "TNYLPO="$(TNYLPO) sh test_tnylpo
-
-hellocbl.int: hellocbl.cbl
-	$(COBOL) hellocbl.cbl
-	[ -f $@ ]
 
 clean:
 	$(RM) *.prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
