@@ -18,6 +18,7 @@
       - [Solaris and OpenIndiana](#solaris-and-openindiana)
       - [IBM AIX notes](#ibm-aix-notes)
   * [Download archive / offline rebuilds](#download-archive--offline-rebuilds)
+  * [Cleaning up the build](#cleaning-up-the-build)
 - [Testing](#testing)
 - [Docker image](#docker-image)
 - [Using the tools](#using-the-tools)
@@ -26,6 +27,7 @@
     + [C runtime startup](#c-runtime-startup)
   * [Assembler Programs](#assembler-programs)
   * [Misc Languages](#misc-languages)
+- [Companion projects](#companion-projects)
 
 <!-- tocstop -->
 
@@ -68,7 +70,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | Aztec C           | 4.2/4.10d                         | Almost‑ANSI C89; `c86.lib` patched & improved, `d11.lib` for DOS 1.1         |
 | Aztec C           | 3.4/3.40a                         | K&R/Legacy/"C86" C; `c86.lib` patched, patched preprocessor, otherwise as‑is |
 | DR C              | 1.11                              | CP/M‑86 C compiler; passes `drc860`–`drc862`, runtime `clearl/clears.l86`    |
-| MSC               | 5.1                                | Microsoft C compiler for DOS;  |
+| MSC               | 5.1                               | Microsoft C compiler for DOS                                                 |
 | DR Fortran‑77     | 4.0                               | CP/M‑86; compiler `f77.cmd`+`codegen.cmd`, runtime `f32s/l.obj`, `8087.sim`  |
 | Pascal MT+        | 3.3                               | CP/M‑86; compiler `mt+86.cmd`, linker `linkmt.cmd`, assembler `asmt86.cmd`   |
 | Turbo Pascal      | 3.02                              | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
@@ -92,7 +94,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | ASM‑86 + GENCMD                             | 1.1                                  | DR assembler; CP/M‑80 and CP/M‑86 versions                               |
 | XLT86                                       | 1.3                                  | DR 8080/8085 → 8086 translator; `xlt86.com` + overlays; run via `tnylpo` |
 | TRANS                                       | 2.21A                                | SCP/Microsoft Z80 to 8086 Translator; runs via `emu2`                    |
-| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 1.1 and 5.10 / 3.65 / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; `masm` patched for emu2 (https://github.com/tsupplis/pcdos11-hacking) |
+| MASM / LINK / ASM / LIB / EXE2BIN / HEX2BIN | 1.1 and 5.10b / 3.65a / 2.44a / 3.10 / 2.4 / — | Microsoft DOS assembler toolchain; improved `link`; `masm` patched for `emu2` (https://github.com/tsupplis/pcdos11-hacking) |
 | NASM                                        | 3.02+                                | Netwide assembler (native)                                               |
 | Intel ASM‑86                                | 3.2                                  | Part of Intel PL/M‑86 toolchain (`asm86.exe`)                            |
 
@@ -123,7 +125,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | tnylpo | BSD‑3‑Clause | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
 | pc | MIT | [LICENSE](https://gitlab.com/johnsonjh/pc/-/blob/master/LICENSE) |
 | crc | MIT‑0 | [LICENSE](https://gitlab.com/dps8m/crc/-/blob/master/LICENSE) |
-| lzexe / unlzexe / comtoexe / infoexe | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE) |
+| lzexe / unlzexe / comtoexe / infoexe | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE)) |
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
@@ -182,7 +184,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | Linkers / Librarians      | pcdev_exe2cmd | ‑                | obsolete alias for exe2cmd                             |
 | Linkers / Librarians      | pcdev_hex2bin | hex2bin.com      | Microsoft HEX converter                                |
 | Linkers / Librarians      | pcdev_lib86   | lib86.exe        | DR librarian                                           |
-| Linkers / Librarians      | pcdev_link    | link.exe         | Microsoft linker                                       |
+| Linkers / Librarians      | pcdev_link    | link.exe         | Microsoft linker (default, currently 3.65a)            |
+| Linkers / Librarians      | pcdev_link3   | link3.exe        | Microsoft linker (improved and patched to 3.65a)       |
+| Linkers / Librarians      | pcdev_link5   | link5.exe        | Microsoft linker (improved and patched to 5.10b)       |
 | Linkers / Librarians      | pcdev_lib     | lib.exe          | Microsoft librarian                                    |
 | Linkers / Librarians      | pcdev_link86  | linkcmd.exe      | DR linker for CP/M‑86 (alias)                          |
 | Linkers / Librarians      | pcdev_linkcmd | linkcmd.exe      | DR linker for CP/M‑86                                  |
@@ -228,7 +232,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | C                         | drccpm_link   | linkcmd.exe      | DR C 1.11 linker                                       |
 | C                         | msc5_cl       | cl.exe           | Microsoft C 5.1 compiler (CL 5.10)                     |
 | C                         | msc5_lib      | lib.exe          | Microsoft C 5.1 librarian (LIB 3.10)                   |
-| C                         | msc5_link     | link.exe         | Microsoft C 5.1 linker (LINK 5.10a, *patched*)         |
+| C                         | msc5_link     | link.exe         | Microsoft C 5.1 linker (LINK 5.10b, *patched*)         |
 | COBOL                     | mfcobol_cc    | cobol.cmd        | Micro Focus Level II COBOL compiler (CP/M‑86)          |
 | COBOL                     | mfcobol_run   | run.cmd          | Micro Focus Level II COBOL runtime (CP/M‑86)           |
 | Emulation                 | cpm86         | cpm86.exe        | CP/M‑86 emulator (via emu2+dos)                        |
@@ -270,7 +274,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | pcdev_unlzexe | unlzexe.exe      | Unpacker for DOS LZEXE packed executables (*ecm fork*) |
 | Misc                      | pcdev_comtoexe | comtoexe.exe    | Converts DOS COM files to EXE format (*ecm fork*)      |
 | Misc                      | pcdev_infoexe | infoexe.exe      | Display information about a DOS EXE file (*ecm fork*)  |
-| Misc                      | cpm86_pip | pip.cmd      | PIP CP/M-86 command  |
+| Misc                      | cpm86_pip     | pip.cmd          | PIP CP/M‑86 command                                    |
 
 ## Fetching the tools
 
@@ -311,11 +315,6 @@ export PATH="$(pwd -P)"/bin
 | XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |
 | TDL BASIC 3.05 (CP/M‑80)                          | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip)                                                      |
-
-Clearing the directory is achieved by:
-```sh
-./clear_tools
-```
 
 #### Platform notes
 
@@ -414,6 +413,13 @@ This keeps the build environment reproducible even if an upstream disappears:
   ```
 - `clear_tools` will **not** remove the `archive/`, so a cleared tree can always
   be rebuilt from the local cache.
+
+### Cleaning up the build
+
+Clearing the directory is achieved by:
+```sh
+./clear_tools
+```
 
 ## Testing
 
@@ -661,13 +667,11 @@ Drive D = tool dir (contains <code>xlisp.cmd</code>), drive C = CWD, so <code>.l
 
 | Project | Description |
 |---------|-------------|
-| [cpm86-kernel](https://github.com/tsupplis/cpm86-kernel)     | CP/M-86 1.1 distribution rebuilt from patched and reconstituted sources |
-| [ccpm86-y2k](https://github.com/tsupplis/ccpm86-y2k)         | CCP/M-86 3.1 distribution rebuilt from patched and reconstituted sources |
-| [cpm86-crossdev](https://github.com/tsupplis/cpm86-crossdev) | Unix CP/M-86 cross development project (compilers, emulation and tools) |
-| [cpm86-hacking](https://github.com/tsupplis/cpm86-hacking)   | CP/M-86 miscellaneous tools and PCE emulator helpers |
-| [cpm86-cmdtools](https://github.com/tsupplis/cpm86-cmdtools) | CP/M-86 `.cmd` file manipulation tools |
-| [cpm86-ports](https://github.com/tsupplis/cpm86-ports)       | CP/M-86 application ports in C and assembler |
-| [cpm86-vi](https://github.com/tsupplis/cpm86-vi)             | STevie vi port for CP/M-86 and PC-DOS 1.1 |
-| [pcdos11-hacking](https://github.com/tsupplis/pcdos11-hacking) | PC-DOS 1.1 distribution, tools and notes |
-
-
+| [cpm86-kernel](https://github.com/tsupplis/cpm86-kernel)       | CP/M‑86 1.1 distribution rebuilt from patched and reconstituted sources |
+| [ccpm86-y2k](https://github.com/tsupplis/ccpm86-y2k)           | CCP/M‑86 3.1 distribution rebuilt from patched and reconstituted sources |
+| [cpm86-crossdev](https://github.com/tsupplis/cpm86-crossdev)   | Unix CP/M‑86 cross development project (compilers, emulation and tools) |
+| [cpm86-hacking](https://github.com/tsupplis/cpm86-hacking)     | CP/M‑86 miscellaneous tools and PCE emulator helpers |
+| [cpm86-cmdtools](https://github.com/tsupplis/cpm86-cmdtools)   | CP/M‑86 `.cmd` file manipulation tools |
+| [cpm86-ports](https://github.com/tsupplis/cpm86-ports)         | CP/M‑86 application ports in C and assembler |
+| [cpm86-vi](https://github.com/tsupplis/cpm86-vi)               | STevie vi port for CP/M‑86 and PC‑DOS 1.1 |
+| [pcdos11-hacking](https://github.com/tsupplis/pcdos11-hacking) | PC‑DOS 1.1 distribution, tools and notes |
