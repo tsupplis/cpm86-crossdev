@@ -4,7 +4,7 @@ set -e
 
 echo INF: Checking lzexe for DOS ...
 cd "$root/share"
-if [ ! -f pcdev/ldebug.exe ] || [ ! -f pcdev/edebug.com ]; then
+if [ ! -f "pcdev/ldebug.com" ] || [ ! -f "pcdev/edebug.com" ]; then
     tmp="$root/archive/temp-debug"
     rm -rf "$tmp"
     mkdir -p "$root/share/pcdev" "$tmp"
