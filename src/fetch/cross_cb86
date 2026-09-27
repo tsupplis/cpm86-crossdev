@@ -9,6 +9,4 @@ if [ ! -f cb86cpm/cb86.exe -o ! -f cb86dos/cb86.exe \
     mkdir -p "$root/share/cb86cpm" "$root/share/cb86dos"
     cp "$root/src/drpackages/cb86cpm"/* "$root/share/cb86cpm"
     cp "$root/src/drpackages/cb86dos"/* "$root/share/cb86dos"
-    chmod 644 "$root/share/cb86cpm"/*.*
-    chmod 644 "$root/share/cb86dos"/*.*
 fi

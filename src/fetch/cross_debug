@@ -13,11 +13,9 @@ if [ ! -f pcdev/ldebug.exe ] || [ ! -f pcdev/edebug.com ]; then
     fetch_get "https://pushbx.org/ecm/download/msdebug.zip"
     unzip -o -L "$ARCHIVED_FILE" debug.com
     cp -f debug.com "$root/share/pcdev/edebug.com"
-    chmod 644 "$root/share/pcdev/edebug.com"
     fetch_get "https://pushbx.org/ecm/download/ldebug.zip"
     unzip -o -L "$ARCHIVED_FILE" bin/ldebug.com
     cp -f bin/ldebug.com "$root/share/pcdev/ldebug.com"
-    chmod 644 "$root/share/pcdev/ldebug.com"
     cd .. && rm -rf "$tmp"
     trap - EXIT
 fi

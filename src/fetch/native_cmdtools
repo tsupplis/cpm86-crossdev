@@ -15,5 +15,4 @@ if [ ! -f "$root/bin/cmdinfo" -o ! -f "$root/bin/bin2cmd" \
     cp "$root/archive/cmdtools/cmdinfo" "$root/bin/cmdinfo"
     cp "$root/archive/cmdtools/bin2cmd" "$root/bin/bin2cmd"
     cp "$root/archive/cmdtools/exe2cmd" "$root/bin/exe2cmd"
-    chmod 755 "$root/bin/cmdinfo" "$root/bin/bin2cmd" "$root/bin/exe2cmd"
 fi

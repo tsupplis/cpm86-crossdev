@@ -17,7 +17,6 @@ if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
     PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all
     mkdir -p "$root/share/xlisp"
     cp "$tmp/xlisp.cmd" "$tmp"/*.lsp "$root/share/xlisp/"
-    chmod 644 "$root/share/xlisp"/*
     rm -rf "$tmp"
     trap - EXIT
 fi
@@ -31,7 +30,6 @@ if [ ! -f "$root/share/drc86cpm/ansi2kr.cmd" ] && [ ! -f "$root/bin/ansi2kr" ]; 
     mkdir -p "$root/share/drc86cpm"
     cp "$tmp/ansi2kr.cmd" "$root/share/drc86cpm/"
     cp "$tmp/ansi2kr" "$root/bin"
-    chmod 644 "$root/share/drc86cpm/ansi2kr.cmd"
     rm -rf "$tmp"
     trap - EXIT
 fi

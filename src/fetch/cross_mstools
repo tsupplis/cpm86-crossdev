@@ -13,12 +13,6 @@ if [ ! -f "$root/share/pcdev/masm.exe" ] || [ ! -f "$root/share/pcdev/exe2bin.ex
     cp "$root/src/mstools/masm11.exe" "$root/share/pcdev"
     cp "$root/src/mstools/exe2bin.exe" "$root/share/pcdev"
     cp "$root/src/mstools/gwbasic.exe" "$root/share/pcdev"
-    chmod 644 "$root/share/pcdev/masm.exe"
-    chmod 644 "$root/share/pcdev/masm11.exe"
-    chmod 644 "$root/share/pcdev/exe2bin.exe"
-    chmod 644 "$root/share/pcdev/link3.exe"
-    chmod 644 "$root/share/pcdev/link5.exe"
-    chmod 644 "$root/share/pcdev/gwbasic.exe"
 fi
 if [ ! -f "$root/share/pcdev/asm.com" ] || [ ! -f "$root/share/pcdev/hex2bin.com" ] || \
    [ ! -f "$root/share/pcdev/trans.com" ]; then
@@ -26,32 +20,24 @@ if [ ! -f "$root/share/pcdev/asm.com" ] || [ ! -f "$root/share/pcdev/hex2bin.com
     cp "$root/src/mstools/asm.com" "$root/share/pcdev"
     cp "$root/src/mstools/hex2bin.com" "$root/share/pcdev"
     cp "$root/src/mstools/trans.com" "$root/share/pcdev"
-    chmod 644 "$root/share/pcdev/asm.com"
-    chmod 644 "$root/share/pcdev/hex2bin.com"
-    chmod 644 "$root/share/pcdev/trans.com"
 fi
 if [ ! -f "$root/share/cpm/mbasic86.cmd" ]; then
     mkdir -p "$root/share/cpm"
     cp "$root/src/mstools/mbasic86.cmd" "$root/share/cpm"
-    chmod 644 "$root/share/cpm/mbasic86.cmd"
 fi
 if [ ! -f "$root/share/cpm/mbasic.com" ]; then
     mkdir -p "$root/share/cpm"
     cp "$root/src/mstools/mbasic80.com" "$root/share/cpm/mbasic.com"
-    chmod 644 "$root/share/cpm/mbasic.com"
 fi
 if [ ! -f "$root/share/cpm/obasic.com" ]; then
     mkdir -p "$root/share/cpm"
     cp "$root/src/mstools/obasic.com" "$root/share/cpm/obasic.com"
-    chmod 644 "$root/share/cpm/obasic.com"
 fi
 if [ ! -f "$root/share/pcdev/debug.com" ]; then
     mkdir -p "$root/share/pcdev"
     cp "$root/src/mstools/debug.com" "$root/share/pcdev"
-    chmod 644 "$root/share/pcdev/debug.com"
 fi
 if [ ! -f "$root/share/pcdev/mbasic86.com" ]; then
     mkdir -p "$root/share/pcdev"
     cp "$root/src/mstools/mbasic86.com" "$root/share/pcdev"
-    chmod 644 "$root/share/pcdev/mbasic86.com"
 fi

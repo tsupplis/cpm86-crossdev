@@ -12,7 +12,7 @@ share/
 local/
 
 # ── Generated native binaries in bin/ ────────────────────────────────────────
-bin/emu2
+bin/emu2.build
 bin/tnylpo
 bin/tnylpo-convert
 bin/nasm

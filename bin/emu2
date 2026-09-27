@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ -x "$0.alt" ];then
+    exec "$0.alt" "$@"
+else
+    exec "$0.build" "$@"
+fi

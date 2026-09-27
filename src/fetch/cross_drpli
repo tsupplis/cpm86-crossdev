@@ -7,7 +7,6 @@ cd "$root/share"
 if [ ! -f drplicpm/pli.cmd ]; then
     mkdir -p "$root/share/drplicpm"
     cp "$root/src/drpackages/drplicpm"/* "$root/share/drplicpm"
-    chmod 644 "$root/share/drplicpm"/*
 fi
 if [ ! -f "$root/bin/drpli_objfix" ];then
    (cd $root/src/plitools;"${MAKE:-make}" clean all) 

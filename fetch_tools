@@ -221,7 +221,19 @@ run_fetcher() {
 
 # ── Source helpers (not logged - tiny, no output) ─────────────────────────────
 . src/fetch/_archive
+
+protect() {
+    find "$root/share" -type d -exec chmod 555 {} \;
+    find "$root/share" -type f -exec chmod 444 {} \;
+}
+
+unprotect() {
+    find "$root/share" -type d -exec chmod 755 {} \;
+    find "$root/share" -type f -exec chmod 644 {} \;
+}
+
 mkdir -p "$root/share/pcdev"
+unprotect
 
 # ── Fetchers ──────────────────────────────────────────────────────────────────
 run_fetcher native_emu2
@@ -255,16 +267,21 @@ run_fetcher cross_freetools
 run_fetcher cross_msc51
 run_fetcher cross_debug
 
-# ── Finalise permissions ───────────────────────────────────────────────────────
-find "$root/share" -type d -exec chmod 755 {} \;
-find "$root/share" -type f -exec chmod a-w {} \;
-
 # ── Smoke test ────────────────────────────────────────────────────────────────
 printf 'INF: [test_crossdev] starting ...\n'
 (cd "$root/examples" && sh test_crossdev) >> "$fetch_log" 2>&1 \
     && printf 'INF: [test_crossdev] ok\n' \
     || { printf 'ERR: [test_crossdev] FAILED - see %s\n' "$fetch_log_name" >&2; exit 1; }
 (cd "$root/examples" && PATH="$root/bin:$PATH" "${MAKE:-make}" clean) >> "$fetch_log" 2>&1
+
+# ── CP/M-86 test suite ────────────────────────────────────────────────────────
+printf 'INF: [cpmtest] starting ...\n'
+(cd "$root/src/cpmtest" && PATH="$root/bin:$PATH" "${MAKE:-make}" clean test) >> "$fetch_log" 2>&1 \
+    && printf 'INF: [cpmtest] ok\n' \
+    || { printf 'ERR: [cpmtest] FAILED - see %s\n' "$fetch_log_name" >&2; exit 1; }
+
+# ── Finalise permissions ───────────────────────────────────────────────────────
+protect
 
 printf 'INF: fetch and build completed - log: %s\n' "$fetch_log_name"
 exit 0

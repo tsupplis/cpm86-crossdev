@@ -8,5 +8,4 @@ if [ ! -f intel/plm86.exe -o ! -f intel/asm86.exe -o ! -f intel/link.exe \
     -o ! -f intel/lib86.exe -o ! -f intel/loc86.exe ]; then
     mkdir -p "$root/share/intel"
     cp "$root/src/inteltools"/* "$root/share/intel"
-    chmod 644 "$root/share/intel"/*
 fi

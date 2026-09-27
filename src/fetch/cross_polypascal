@@ -48,7 +48,6 @@ if [ ! -f "$root/share/polypascpm/.finished" ]; then
     mkdir -p "$root/share/polypascpm"
     touch "$root/share/polypascpm/.finished"
     cp "$tmp"/* "$root/share/polypascpm/"
-    chmod 644 "$root/share/polypascpm"/*
 
     rm -rf "$tmp"
     trap - EXIT
@@ -99,7 +98,6 @@ if [ ! -f "$root/share/polypasdos/.finished" ]; then
     mkdir -p "$root/share/polypasdos"
     touch "$root/share/polypasdos/.finished"
     cp "$tmp"/* "$root/share/polypasdos/"
-    chmod 644 "$root/share/polypasdos"/*
 
     rm -rf "$tmp"
     trap - EXIT

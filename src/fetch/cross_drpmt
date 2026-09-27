@@ -7,5 +7,4 @@ cd "$root/share"
 if [ ! -f drpmtcpm/mt-86.cmd ]; then
     mkdir -p "$root/share/drpmtcpm"
     cp "$root/src/drpackages/drpmtcpm"/* "$root/share/drpmtcpm"
-    chmod 644 "$root/share/drpmtcpm"/*
 fi

@@ -6,6 +6,5 @@ echo INF: Checking Turbo Pascal 3.02 for CP/M-86 ...
 cd "$root/share"
 if [ ! -f turbocpm/turbo.cmd ]; then
     mkdir -p "$root/share/turbocpm"
-    cp "$root/src/turbo"/* turbocpm
-    chmod 644 turbocpm/*
+    cp "$root/src/turbocpm"/* turbocpm
 fi

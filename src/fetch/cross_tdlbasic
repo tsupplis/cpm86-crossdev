@@ -11,7 +11,6 @@ if [ ! -f "$root/share/cpm/tdlbasic.com" ]; then
     trap 'rm -rf "$tmp"' EXIT
     (cd "$tmp" && unzip -C -LL -q "$ARCHIVED_FILE")
     cp "$tmp/nutting_ice/ice/basic.cpm" "$root/share/cpm/tdlbasic.com"
-    chmod 644 "$root/share/cpm/tdlbasic.com"
     rm -rf "$tmp"
     trap - EXIT
 fi

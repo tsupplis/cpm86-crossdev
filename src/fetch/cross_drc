@@ -7,7 +7,6 @@ cd "$root/share"
 if [ ! -f drc86cpm/drc860.cmd ]; then
     mkdir -p "$root/share/drc86cpm"
     cp "$root/src/drpackages/drc86cpm"/* "$root/share/drc86cpm"
-    chmod 644 "$root/share/drc86cpm"/*
 fi
 echo INF: Assembling DR C 86 1.11 pcbios ...
 if [ ! -f "$root/share/drc86cpm/pcbios.obj" ]; then

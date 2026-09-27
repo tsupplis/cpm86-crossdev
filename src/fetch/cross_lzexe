@@ -13,7 +13,6 @@ if [ ! -f lzexe/lzexe.exe ]; then
     fetch_get "https://pushbx.org/ecm/download/lzexe.zip"
     unzip -L "$ARCHIVED_FILE"
     cp -f lzexe.exe unlzexe.exe comtoexe.exe infoexe.exe "$root/share/lzexe"
-    chmod 644 "$root/share/lzexe"/*
     cd .. && rm -rf "$tmp"
     trap - EXIT
 fi

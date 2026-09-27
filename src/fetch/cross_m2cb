@@ -16,7 +16,6 @@ if [ ! -f m2cbcpm/m2cbasic.cmd ]; then
        m2cb6.ovr m2cb7.ovr m2cb8.ovr m2cb9.ovr "$root/share/m2cbcpm"
     cp m2cbconv.cmd m2cblib.bas m2cbrio.bas m2cbrio.rlo m2cbrio.am "$root/share/m2cbcpm"
     cp ws-fix.cmd read.me "$root/share/m2cbcpm"
-    chmod 644 "$root/share/m2cbcpm"/*
     cd .. && rm -rf "$tmp"
     trap - EXIT
 fi

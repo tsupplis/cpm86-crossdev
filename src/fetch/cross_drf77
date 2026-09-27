@@ -7,7 +7,6 @@ cd "$root/share"
 if [ ! -f drf77cpm/f77.cmd ]; then
     mkdir -p "$root/share/drf77cpm"
     cp "$root/src/drpackages/drf77cpm"/* "$root/share/drf77cpm"
-    chmod 644 "$root/share/drf77cpm"/*
 fi
 echo INF: Assembling DR FORTRAN-77 4.0 pkmemras ...
 if [ ! -f "$root/share/drf77cpm/pkmemras.obj" ]; then

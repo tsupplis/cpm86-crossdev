@@ -17,7 +17,6 @@ if [ ! -f "$root/share/mfcobolcpm/cobol.cmd" ]; then
        "$tmp"/cobol "$tmp"/run.cmd \
        "$tmp"/adis.int "$tmp"/ixsio.int \
        "$root/share/mfcobolcpm/"
-    chmod 644 "$root/share/mfcobolcpm"/*
     rm -rf "$tmp"
     trap - EXIT
 fi

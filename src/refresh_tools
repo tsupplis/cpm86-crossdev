@@ -1,0 +1,6 @@
+#!/bin/sh
+root=`dirname $0`
+cd "$root"
+"$root/clear_tools"
+rm -rf "$root/archive"
+"$root/fetch_tools"
