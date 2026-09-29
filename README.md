@@ -111,7 +111,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | pc                    | 1.1.2         | Programmers calculator                                                     |
 | crc                   | —             | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility                |
 | ARC86 / LU86          | 1.0 / 4.05    | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files          |
-| mlbr                  | 2026.9.25.24+ | Archive extracter/converter for lbr, squeezed, crunched, and crLzhed files |
+| mlbr                  | 2026.9.25.24+ | Archive extractor/converter for LBR, squeezed, crunched, and crLzhed files |
 
 ## License Considerations
 
@@ -274,7 +274,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
-| Misc                      | mlbr          | mlbr             | Archive extractor/converter for lbr, squeezed, crunched, and crLzhed files |
+| Misc                      | mlbr          | (native)         | Archive extractor/converter for LBR, squeezed, crunched, and crLzhed files |
 | Misc                      | upx           | (native)         | Executable packer for DOS and CP/M‑86 binaries         |
 | Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06b executable packer (*patched*)  |
 | Misc                      | pcdev_lzexe   | lzexe.exe        | LZEXE executable packer for DOS EXE files (*ecm fork*) |
