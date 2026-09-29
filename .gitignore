@@ -27,6 +27,7 @@ bin/ansi2kr
 bin/drpli_objfix
 bin/pc
 bin/crc
+bin/mlbr
 
 # ── Build artefacts ──────────────────────────────────────────────────────────
 **/*.lock
