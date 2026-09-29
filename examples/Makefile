@@ -57,7 +57,7 @@ ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
 ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd
 AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd \
-    helloaza.com mathazd.exe
+    helloazd.exe mathazd.exe
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
 MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
@@ -175,7 +175,7 @@ hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
   
-helloaza.com: helloaza.o
+helloazd.exe: helloaza.o
 	$(ALD) -o $@ $< $(DLDFLAGS)
 
 helloaza.cmd: helloaza.o
