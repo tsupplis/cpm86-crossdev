@@ -63,7 +63,7 @@ COBOL_CMDS=hellocbl.int
 F77_CMDS=hellof77.cmd hellopmt.cmd upxpli.cmd
 PASCAL_CMDS=hellopmt.cmd
 
-CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) \
+8086_CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) \
     $(AZTEC_CMDS) $(DRC_CMDS) $(MSC_CMDS) $(BASIC_CMDS) \
     $(PLM_CMDS) $(PLI_CMDS) $(COBOL_CMDS) $(PASCAL_CMDS) $(F77_CMDS)
 
