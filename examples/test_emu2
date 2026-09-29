@@ -9,6 +9,7 @@ TOOLS="$@"
 for cmd in ${TOOLS}; do
     case "$cmd" in
         *.int) continue ;;
+        *.ovr) continue ;;
     esac
 
     base=$(basename "$cmd" .cmd)

@@ -57,7 +57,7 @@ ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
 ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd
 AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd \
-    helloazd.exe mathazd.exe upxazd.exe
+    helloazd.exe mathazd.exe upxazd.exe ovraza.cmd ovrfunc.ovr
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
 MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
@@ -77,6 +77,20 @@ all: binaries
 
 binaries: $(8086_CMDS) $(8080_CMDS)
 
+ovraza.cmd ovraza.rsm: ovrmain.o
+	rm -f ovraza.cmd ovraza.rsm
+	$(ALD) +c 1020 +d aOO  -o ovraza.cmd -r ovrmain.o ovld.o $(LDFLAGS)
+	$(CMDINFO) ovraza.cmd
+
+ovrmain.o: ovrmain.c
+	$(ACC) $(CFLAGS) $<
+
+ovrfunc.ovr: ovrfunc.o ovraza.rsm
+	$(ALD) -o $@ ovrfunc.o ovraza.rsm ovbgn.o 
+
+ovrfunc.o: ovrfunc.c 
+	$(ACC) $(CFLAGS) $<
+
 hellocba.int: hellocba.bas
 	$(CBAS86) $<
 
@@ -84,9 +98,6 @@ upxaz7.cmd: helloaz7.cmd
 	cp $< $@
 	$(UPX) $@
 
-upxaz7.cmd: helloaz7.cmd
-	cp $< $@
-	$(UPX) $@
 	
 upxazd.exe: helloazd.exe
 	cp $< $@
@@ -393,7 +404,7 @@ test-8080: $(8080_CMDS)
 	sh test_tnylpo $(8080_CMDS)
 
 clean:
-	$(RM) *.prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
+	$(RM) *.ovr *.rsm .prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
 		  *.mp2 *exe *.map *.err *.int *.prn *.hex *.out *.raw *.com \
 	      ctemp.tok pastemp.tok hellomas.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello86.a86 \

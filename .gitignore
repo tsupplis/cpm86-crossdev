@@ -76,6 +76,11 @@ bin/mlbr
 **/hello*.com
 **/hello*.exe
 **/hello*.bin
+**/math*.exe
+**/math*.cmd
+**/ovr*.cmd
+**/ovr*.rsm
+**/ovr*.ovr
 **/upx*.cmd
 **/upx*.exe
 **/lzexe*.exe
