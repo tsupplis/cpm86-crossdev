@@ -8,3 +8,8 @@ if [ ! -f "$root/share/cpm/lu86.cmd" ] || [ ! -f "$root/share/cpm/arc86.cmd" ]; 
     cp "$root/src/freetools/lu86.cmd" "$root/share/cpm/lu86.cmd"
     cp "$root/src/freetools/arc86.cmd" "$root/share/cpm/arc86.cmd"
 fi
+if [ ! -f "$root/share/cpm/sq.cmd" ] || [ ! -f "$root/share/cpm/usq.cmd" ]; then
+    mkdir -p "$root/share/cpm"
+    cp "$root/src/freetools/sq.cmd" "$root/share/cpm/sq.cmd"
+    cp "$root/src/freetools/usq.cmd" "$root/share/cpm/usq.cmd"
+fi
