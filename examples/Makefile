@@ -57,7 +57,7 @@ ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
 ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd
 AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd \
-    helloazd.exe mathazd.exe
+    helloazd.exe mathazd.exe upxazd.exe
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
 MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
@@ -81,6 +81,14 @@ hellocba.int: hellocba.bas
 	$(CBAS86) $<
 
 upxaz7.cmd: helloaz7.cmd
+	cp $< $@
+	$(UPX) $@
+
+upxaz7.cmd: helloaz7.cmd
+	cp $< $@
+	$(UPX) $@
+	
+upxazd.exe: helloazd.exe
 	cp $< $@
 	$(UPX) $@
 
