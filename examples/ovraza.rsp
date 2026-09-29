@@ -1,2 +1,2 @@
-Hello from c (ansi cc with overlay1): add(10,20)=80
-Hello from c (ansi cc with overlay2): add(10,20)=130
+Hello from c (ansi cc with overlay1): fn1(10,20)=80
+Hello from c (ansi cc with overlay2): fn2(10,20)=130
