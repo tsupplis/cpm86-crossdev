@@ -57,7 +57,7 @@ ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
 ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd
 AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd \
-    helloazd.exe mathazd.exe upxazd.exe ovraza.cmd ovrfunc.ovr
+    helloazd.exe mathazd.exe upxazd.exe ovraza.cmd ovrfunc1.ovr ovrfunc2.ovr
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
 MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
@@ -85,10 +85,16 @@ ovraza.cmd ovraza.rsm: ovrmain.o
 ovrmain.o: ovrmain.c
 	$(ACC) $(CFLAGS) $<
 
-ovrfunc.ovr: ovrfunc.o ovraza.rsm
-	$(ALD) -o $@ ovrfunc.o ovraza.rsm ovbgn.o 
+ovrfunc1.ovr: ovrfunc1.o ovraza.rsm
+	$(ALD) -o $@ ovrfunc1.o ovraza.rsm ovbgn.o 
 
-ovrfunc.o: ovrfunc.c 
+ovrfunc1.o: ovrfunc1.c 
+	$(ACC) $(CFLAGS) $<
+
+ovrfunc2.ovr: ovrfunc2.o ovraza.rsm
+	$(ALD) -o $@ ovrfunc2.o ovraza.rsm ovbgn.o 
+
+ovrfunc2.o: ovrfunc2.c 
 	$(ACC) $(CFLAGS) $<
 
 hellocba.int: hellocba.bas
