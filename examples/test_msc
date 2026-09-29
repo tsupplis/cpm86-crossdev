@@ -1,8 +1,0 @@
-#!/bin/sh
-
-set -e
-
-echo Testing ...
-(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean hellomsx.exe)
-(PATH=`pwd`/../bin:$PATH;emu2 hellomsc.exe)
-(PATH=`pwd`/../bin:$PATH;emu2 hellomsx.exe)

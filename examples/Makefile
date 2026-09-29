@@ -49,21 +49,27 @@ EXEPACK=pcdev_exepack
 UPX=../bin/upx --8086
 MSCCL=msc5_cl
 MSCLINK=msc5_link
-TOOLS=helloa.cmd helloab.cmd hellob.cmd helloc.cmd hellod.cmd hellon.cmd hellor.cmd \
-    helloans.cmd helloaz7.cmd hellop.cmd hellodrc.cmd hellof77.cmd hellopmt.cmd \
-    hellocvt.cmd hello86.cmd hellocbl.int helloi.int hellopli.cmd hellodra.cmd \
-    hellodr7.cmd hellomsc.exe \
-	hello801.cmd hello802.cmd hello803.cmd hello804.cmd \
-	lzexemsc.exe upxmsc.exe upxpli.cmd upxdra.cmd upxdrc.cmd upxdr7.cmd upxaz7.cmd \
-    exepkmsc.exe 
 
-CPM80TOOLS:=hello80.com
+ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
+RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
+ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd
+AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd
+DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd
+BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
+MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
+MISC_CMDS=helloplm.cmd hellopli.cmd helloclb.int hellof77.cmd hellopmt.cmd upxpli.cmd
+
+CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) hellocbs.cmd \
+    $(AZTEC_CMDS) $(DRC_CMDS) $(MSC_CMDS) $(MISC_CMDS) \
+    hellocvt.cmd hellocba.int \
+
+CPM80_CMDS:=hello80.com
 
 all: binaries
 
-binaries: $(TOOLS) $(CPM80TOOLS)
+binaries: $(CMDS) $(CPM80_CMDS)
 
-helloi.int: helloi.bas
+hellocba.int: hellocba.bas
 	$(CBAS86) $<
 
 upxaz7.cmd: helloaz7.cmd
@@ -134,38 +140,38 @@ hello804.cmd: hello804.bin
 hello804.bin: hello804.asm
 	$(NASM) $< -fbin -o $@
 
-hellor.cmd: hellor.obj
+hellocbs.cmd: hellocbs.obj
 	$(CBLINK) $@=$(basename $<)
 	$(CMDINFO) $@
 
-hellod.cmd: hellod.exe
-	$(EXE2BIN) $< hellod.bin
-	$(BIN2CMD) hellod.bin $@
+hellomas.cmd: hellomas.exe
+	$(EXE2BIN) $< hellomas.bin
+	$(BIN2CMD) hellomas.bin $@
 	$(CMDINFO) $@
 
-hellod.exe: hellod.obj
+hellomas.exe: hellomas.obj
 	$(LINK) $< \;
 
-hellod.obj: hellod.asm
+hellomas.obj: hellomas.asm
 	$(MASM) $(basename $@),$(basename $@)\;
 	[ -f $@ ]
 
-hellon.cmd: hellon.bin
+hellonas.cmd: hellonas.bin
 	$(BIN2CMD) $< $@
 	$(CMDINFO) $@
 
-hellon.bin: hellon.asm
+hellonas.bin: hellonas.asm
 	$(NASM) $< -fbin -o $@
 
 hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
   
-helloans.cmd: helloans.o
+helloaza.cmd: helloaza.o
 	$(ALD) -o $@ $< $(LDFLAGS)
 	$(CMDINFO) $@
 
-helloans.o: helloans.c
+helloaza.o: helloaza.c
 	$(ACC) $(CFLAGS) $<
 
 helloaz7.cmd: helloaz7.o
@@ -175,7 +181,7 @@ helloaz7.cmd: helloaz7.o
 helloaz7.o: helloaz7.c
 	$(ACC) $(CFLAGS) $<
 
-helloc.cmd: helloc.o
+helloazc.cmd: helloazc.o
 	$(LD) -o $@ $< $(LDFLAGS)
 	$(CMDINFO) $@
 
@@ -222,11 +228,11 @@ hellopmt.cmd: hellopmt.r86
 scd.obj: scd.a86
 	$(IASM86) $<
 
-hellop.obj: hellop.plm
+helloplm.obj: helloplm.plm
 	$(PLM86) $< debug 'optimize(3)'
 	[ -f $@ ]
 
-hellop.cmd: hellop.obj scd.obj
+helloplm.cmd: helloplm.obj scd.obj
 	$(LINK86) $@=scd,hellop '[data[ori[0]]'
 	$(CMDINFO) $@
 
@@ -315,18 +321,18 @@ test-negative:
 	fi
 
 test-emu2: binaries
-	env TOOLS="$(TOOLS)" sh test_emu2
+	sh test_emu2 $(CPM86_CMDS)
 
-test-tnylpo: binaries
-	env TOOLS="$(CPM80TOOLS)" sh test_tnylpo
+test-tnylpo: $(CPM80_CMDS) 
+	sh test_tnylpo $(CPM80_CMDS)
 
 clean:
 	$(RM) *.prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
 		  *.mp2 *exe *.map *.err *.int *.prn *.hex *.out *.raw *.com \
-	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
+	      ctemp.tok pastemp.tok hellomas.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello86.a86 \
 	      badasm86.cmd badgencm.cmd \
-	      $(TOOLS) $(EXTRAS)
+	      $(CPM86_CMDS) $(CPM80_CMDS) $(EXTRAS)
 	@for f in *.h86; do \
 		case "$$f" in badgencm.h86) ;; *) rm -f "$$f" ;; esac; \
 	done

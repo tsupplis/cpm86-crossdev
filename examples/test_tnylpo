@@ -4,6 +4,8 @@
 
 set -e
 
+TOOLS="$@"
+
 for cmd in ${TOOLS}; do
     case "$cmd" in
         hellocbl.int|helloi.int) continue ;;

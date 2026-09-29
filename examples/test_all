@@ -1,6 +1,0 @@
-#!/bin/sh
-
-set -e
-
-echo Testing ...
-(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" test)

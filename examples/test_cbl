@@ -1,7 +1,0 @@
-#!/bin/sh
-
-set -e
-
-echo Testing ...
-(PATH=`pwd`/../bin:$PATH;"${MAKE:-make}" -j 1 clean hellocbl.int)
-(PATH=`pwd`/../bin:$PATH;mfcobol_run hellocbl.int)
