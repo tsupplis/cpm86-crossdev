@@ -1,10 +1,13 @@
 AS=aztec34_as
 CC=aztec34_cc
 AR=aztec34_lib
-CFLAGS=-I. +F -B +0 -D__CPM86__
+CFLAGS=-I. +F +0 -D__CPM86__
+DCFLAGS=-I. +F +0 -D__DOS__
 STRIP=aztec34_sqz
 LDFLAGS=-lc86
+DLDFLAGS=-ld11
 MLDFLAGS=-lm -lc86
+DMLDFLAGS=-lm -ld11
 LD=aztec34_link
 ACC=aztec42_cc
 ALD=aztec42_link
@@ -53,7 +56,8 @@ MSCLINK=msc5_link
 ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
 ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd
-AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd
+AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd \
+    helloaza.com mathazd.exe
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
 MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
@@ -71,7 +75,7 @@ PASCAL_CMDS=hellopmt.cmd
 
 all: binaries
 
-binaries: $(CMDS) $(8080_CMDS)
+binaries: $(8086_CMDS) $(8080_CMDS)
 
 hellocba.int: hellocba.bas
 	$(CBAS86) $<
@@ -171,12 +175,18 @@ hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
   
+helloaza.com: helloaza.o
+	$(ALD) -o $@ $< $(DLDFLAGS)
+
 helloaza.cmd: helloaza.o
 	$(ALD) -o $@ $< $(LDFLAGS)
 	$(CMDINFO) $@
 
 helloaza.o: helloaza.c
 	$(ACC) $(CFLAGS) $<
+
+mathazd.exe: mathazc.o
+	$(ALD) -o $@ $< $(DMLDFLAGS)
 
 mathazc.cmd: mathazc.o
 	$(ALD) -o $@ $< $(MLDFLAGS)
