@@ -8,7 +8,7 @@ TOOLS="$@"
 
 for cmd in ${TOOLS}; do
     case "$cmd" in
-        hellocbl.int|helloi.int) continue ;;
+        *.int) continue ;;
     esac
 
     base=$(basename "$cmd" .cmd)

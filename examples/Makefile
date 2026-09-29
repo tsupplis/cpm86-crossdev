@@ -57,17 +57,21 @@ AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
 MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
-MISC_CMDS=helloplm.cmd hellopli.cmd helloclb.int hellof77.cmd hellopmt.cmd upxpli.cmd
+PLM_CMDS=helloplm.cmd
+PLI_CMDS=hellopli.cmd upxpli.cmd
+COBOL_CMDS=hellocbl.int
+F77_CMDS=hellof77.cmd hellopmt.cmd upxpli.cmd
+PASCAL_CMDS=hellopmt.cmd
 
-CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) hellocbs.cmd \
-    $(AZTEC_CMDS) $(DRC_CMDS) $(MSC_CMDS) $(MISC_CMDS) \
-    hellocvt.cmd hellocba.int \
+CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) \
+    $(AZTEC_CMDS) $(DRC_CMDS) $(MSC_CMDS) $(BASIC_CMDS) \
+    $(PLM_CMDS) $(PLI_CMDS) $(COBOL_CMDS) $(PASCAL_CMDS) $(F77_CMDS)
 
-CPM80_CMDS:=hello80.com
+8080_CMDS:=hello80.com
 
 all: binaries
 
-binaries: $(CMDS) $(CPM80_CMDS)
+binaries: $(CMDS) $(8080_CMDS)
 
 hellocba.int: hellocba.bas
 	$(CBAS86) $<
@@ -225,16 +229,16 @@ hellopmt.cmd: hellopmt.r86
 	$(PMTLINK) $@=$(basename $<),p:paslib/s
 	$(CMDINFO) $@
 
-scd.obj: scd.a86
-	$(IASM86) $<
+helloplm.cmd: helloplm.obj scd.obj
+	$(LINK86) $@=scd,helloplm '[data[ori[0]]'
+	$(CMDINFO) $@
 
 helloplm.obj: helloplm.plm
 	$(PLM86) $< debug 'optimize(3)'
 	[ -f $@ ]
 
-helloplm.cmd: helloplm.obj scd.obj
-	$(LINK86) $@=scd,hellop '[data[ori[0]]'
-	$(CMDINFO) $@
+scd.obj: scd.a86
+	$(IASM86) $<
 
 hellopli.cmd: hellopli.obj
 	$(PLILINK) '$@=$(basename $<)'
@@ -290,8 +294,8 @@ hellocbl.int: hellocbl.cbl
 	[ -f $@ ]
 
 test: 
-	$(MAKE) test-emu2
-	$(MAKE) test-tnylpo
+	$(MAKE) test-8086
+	$(MAKE) test-8080
 	$(MAKE) test-lbr
 	$(MAKE) test-misc
 	$(MAKE) test-negative
@@ -320,11 +324,41 @@ test-negative:
 		echo "--------- ERROR: badgencm.cmd was not removed after a failed gencmd run"; exit 1; \
 	fi
 
-test-emu2: binaries
-	sh test_emu2 $(CPM86_CMDS)
+test-asm86: $(ASM86_CMDS)
+	sh test_emu2 $(ASM86_CMDS)
 
-test-tnylpo: $(CPM80_CMDS) 
-	sh test_tnylpo $(CPM80_CMDS)
+test-rasm86: $(RASM86_CMDS)
+	sh test_emu2 $(RASM86_CMDS)
+
+test-msc: $(MSC_CMDS)
+	sh test_emu2 $(MSC_CMDS)
+
+test-pli: $(PLI_CMDS)
+	sh test_emu2 $(PLI_CMDS)
+
+test-plm: $(PLM_CMDS)
+	sh test_emu2 $(PLM_CMDS)
+
+test-basic: $(BASIC_CMDS)
+	sh test_emu2 $(BASIC_CMDS)
+
+test-drc: $(DRC_CMDS)
+	sh test_emu2 $(DRC_CMDS)
+
+test-pascal: $(PASCAL_CMDS)
+	sh test_emu2 $(PASCAL_CMDS)
+
+test-aztec: $(AZTEC_CMDS)
+	sh test_emu2 $(AZTEC_CMDS)
+
+test-asm: $(ASM_CMDS)
+	sh test_emu2 $(ASM_CMDS)
+
+test-8086: $(8086_CMDS)
+	sh test_emu2 $(8086_CMDS)
+
+test-8080: $(8080_CMDS) 
+	sh test_tnylpo $(8080_CMDS)
 
 clean:
 	$(RM) *.prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
@@ -332,7 +366,7 @@ clean:
 	      ctemp.tok pastemp.tok hellomas.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello86.a86 \
 	      badasm86.cmd badgencm.cmd \
-	      $(CPM86_CMDS) $(CPM80_CMDS) $(EXTRAS)
+	      $(8086_CMDS) $(8080_CMDS)
 	@for f in *.h86; do \
 		case "$$f" in badgencm.h86) ;; *) rm -f "$$f" ;; esac; \
 	done
