@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking mlbr ...
+mkdir -p "$root/archive"
+if [ ! -d "$root/archive/mlbr" ];then
+    git clone "https://github.com/ogdenpm/mlbr" "$root/archive/mlbr"
+    rm -rf "$root/archive/mlbr.git"
+fi
+if [ ! -f "$root/bin/mlbr" ];then
+    ncpus="$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || printf '%s\n' 1)"
+    (cd "$root/archive/mlbr/Linux";"${MAKE:-make}" -j"$ncpus" CC="${CC:-cc}" LINKER="${CC:-cc}";cp "$root/archive/mlbr/Linux/Install/mlbr" "$root/bin")
+fi

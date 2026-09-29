@@ -77,7 +77,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | Turbo Pascal      | 3.02                              | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
 | PolyPascal‑86     | 3.11                              | Integrated editor+compiler; small/BCD/8087 variants (`ppas`, `ppbs`, `pp87`) |
 | DR CBASIC         | 2.0 (CP/M‑86) / 2.1 (DOS)         | Compiled BASIC; compiler `cb86.exe`, linker `link86.exe`                     |
-| DR CBASIC         | 1.4 (CP/M‑86)            | Compiled BASIC; compiler `cbas86.cmd`, runtime `crun86.cmd`                     |
+| DR CBASIC         | 1.4 (CP/M‑86)                     | Compiled BASIC; compiler `cbas86.cmd`, runtime `crun86.cmd`                  |
 | M2CBASIC          | 1.4                               | MS BASIC → CBASIC source converter; translator + runtime libs                |
 | DR Personal Basic | 1.2                               | Interactive CP/M‑86 BASIC interpreter                                        |
 | MS Basic          | 5.22 (CP/M‑86) / 5.28 (DOS)       | Interpreted; patched binaries included                                       |
@@ -102,15 +102,16 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 
 ### Emulators and utilities
 
-| Tool | Version | Description |
-|------|---------|-------------|
-| emu2‑cpm86 | v2026.09‑C | DOS/CP/M‑86 emulator (fork of emu2 with CP/M‑86 support) |
-| tnylpo | — | CP/M‑80 emulator; used for `asm86.com`, `gencmd.com`, XLT86, MS Basic 80 |
-| upx | 5.2.1 | Executable packer |
-| lzexe (and utilities) | 0.91‑ecm | Executable packer |
-| pc | 1.1.2 | Programmers calculator |
-| crc | — | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility |
-| ARC86 / LU86 | 1.0 / 4.05 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
+|                  Tool |       Version | Description                                                                |
+|----------------------:|:--------------|:---------------------------------------------------------------------------|
+| emu2‑cpm86            | v2026.09‑C    | DOS/CP/M‑86 emulator (fork of emu2 with CP/M‑86 support)                   |
+| tnylpo                | —             | CP/M‑80 emulator; used for `asm86.com`, `gencmd.com`, XLT86, MS Basic 80   |
+| upx                   | 5.2.1         | Executable packer, supporting CP/M‑86 and MS‑DOS                           |
+| lzexe (and utilities) | 0.91‑ecm      | Executable packer, supporting MS‑DOS                                       |
+| pc                    | 1.1.2         | Programmers calculator                                                     |
+| crc                   | —             | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility                |
+| ARC86 / LU86          | 1.0 / 4.05    | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files          |
+| mlbr                  | 2026.9.25.24+ | Archive extracter/converter for lbr, squeezed, crunched, and crLzhed files |
 
 ## License Considerations
 
@@ -133,6 +134,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
 | ARC86 (Reimer Mellin; CP/M‑86 port by D. J. Weatherall) | Public domain source; private non-commercial use only for the CP/M‑86 modifications | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
 | LU86 (Paul J. Homchick) | **Unclear** ⚠️ | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
+| mlbr (Mark Ogden) | GPL‑2.0 | [GitHub](https://github.com/ogdenpm/mlbr?tab=GPL-2.0-1-ov-file) |
 | XLISP 1.1 (David Betz) | Public domain | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) |
 | PL/I Object Fixer | GPL‑3.0 | [ccpm objfix](https://gitlab.com/ccpm-86/ccpm/-/blob/master/scripts/fixobj.py) |
 | Intel PL/M‑86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`) |
@@ -272,6 +274,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
+| Misc                      | mlbr          | mlbr             | Archive extractor/converter for lbr, squeezed, crunched, and crLzhed files |
 | Misc                      | upx           | (native)         | Executable packer for DOS and CP/M‑86 binaries         |
 | Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06b executable packer (*patched*)  |
 | Misc                      | pcdev_lzexe   | lzexe.exe        | LZEXE executable packer for DOS EXE files (*ecm fork*) |

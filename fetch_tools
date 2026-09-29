@@ -258,6 +258,7 @@ run_fetcher cross_tdlbasic
 run_fetcher native_pc
 run_fetcher native_crc
 run_fetcher native_nasm
+run_fetcher native_mlbr
 run_fetcher cross_lzexe
 run_fetcher cross_aztec42_build
 run_fetcher cross_aztec_startups
