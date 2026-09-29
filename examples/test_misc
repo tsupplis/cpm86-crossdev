@@ -34,9 +34,9 @@ run_test() {
     fi
 }
 
-run_test hellomsb  "$MBASIC hellomsb.bas"
-run_test hellogw   "$GWBASIC hellogw.bas"
-run_test hellopba  "$BASIC < hellopba.bas"
-run_test helloi    "$CRUN86 helloi.int"
-run_test helloxlp  "$XLISP helloxlp.lsp"
-run_test hellocbl  "$COBRUN hellocbl.int"
+run_test hellomsb  "cpm86_mbasic hellomsb.bas"
+run_test hellogw   "pcdev_gwbasic hellogw.bas"
+run_test hellopba  "cpm86_basic < hellopba.bas"
+run_test helloi    "cpm86_crun helloi.int"
+run_test helloxlp  "cpm86_xlisp helloxlp.lsp"
+run_test hellocbl  "mfcobol_run hellocbl.int"

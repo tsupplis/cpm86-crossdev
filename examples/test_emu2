@@ -1,6 +1,6 @@
 #!/bin/sh
 # Run each CMD binary under emu2, capture output, bless or diff against .rsp.
-# Called by 'make emu2-test' with TOOLS and EMU2 set in the environment.
+# Called by 'make emu2-test' with TOOLS set in the environment.
 
 set -e
 
@@ -16,7 +16,7 @@ for cmd in ${TOOLS}; do
 
     echo "--------- EMU2 TEST: $cmd"
 
-    env EMU2_DRIVE_C=. "$EMU2" "./$cmd" > "$out.raw" 2>&1
+    env EMU2_DRIVE_C=. emu2 "./$cmd" > "$out.raw" 2>&1
     rc=$?
     tr -d '\r' < "$out.raw" > "$out"
     rm -f "$out.raw"

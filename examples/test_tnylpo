@@ -1,6 +1,6 @@
 #!/bin/sh
 # Run each CMD binary under emu2, capture output, bless or diff against .rsp.
-# Called by 'make emu2-test' with TOOLS and TNYLPO set in the environment.
+# Called by 'make emu2-test' with TOOLS set in the environment.
 
 set -e
 
@@ -15,7 +15,7 @@ for cmd in ${TOOLS}; do
 
     echo "--------- TNYLPO TEST: $cmd"
 
-    "$TNYLPO" "./$cmd" > "$out.raw" 2>&1
+    tnylpo "./$cmd" > "$out.raw" 2>&1
     rc=$?
     tr -d '\r' < "$out.raw" > "$out"
     rm -f "$out.raw"

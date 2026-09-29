@@ -284,13 +284,17 @@ hellocbl.int: hellocbl.cbl
 	[ -f $@ ]
 
 test: 
-	$(MAKE) emu2-test
-	$(MAKE) tnylpo-test
+	$(MAKE) test-emu2
+	$(MAKE) test-tnylpo
+	$(MAKE) test-lbr
+	$(MAKE) test-misc
 	$(MAKE) test-negative
 
+test-lbr:
+	sh test_lbr
+
 test-misc:
-	env MBASIC="$(MBASIC)" BASIC="$(BASIC)" CRUN86="$(CRUN86)" \
-	    XLISP="$(XLISP)" COBRUN="$(COBRUN)" GWBASIC="$(GWBASIC)" sh test_misc
+	sh test_misc
 
 test-negative:
 	@echo "--------- NEG TEST: cpm86_asm86 badasm86.a86 (expect failure, badasm86.h86 removed)"
@@ -310,15 +314,15 @@ test-negative:
 		echo "--------- ERROR: badgencm.cmd was not removed after a failed gencmd run"; exit 1; \
 	fi
 
-emu2-test: binaries
-	env TOOLS="$(TOOLS)" EMU2="$(EMU2)" sh test_emu2
+test-emu2: binaries
+	env TOOLS="$(TOOLS)" sh test_emu2
 
-tnylpo-test: binaries
-	env TOOLS="$(CPM80TOOLS)" "TNYLPO="$(TNYLPO) sh test_tnylpo
+test-tnylpo: binaries
+	env TOOLS="$(CPM80TOOLS)" sh test_tnylpo
 
 clean:
 	$(RM) *.prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
-		  *.mp2 *exe *.map *.err *.int *.prn *.hex *.out *.raw \
+		  *.mp2 *exe *.map *.err *.int *.prn *.hex *.out *.raw *.com \
 	      ctemp.tok pastemp.tok hellod.a 8087.sim hellocvt.cb hellomsb.cb \
 	      hello86.a86 \
 	      badasm86.cmd badgencm.cmd \

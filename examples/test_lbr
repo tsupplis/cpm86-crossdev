@@ -1,0 +1,51 @@
+#!/bin/sh
+
+set -e
+
+trap "rm -f lbrtest*" EXIT TERM INT
+
+test_run() {
+    echo "INF checking command after extraction ..."
+    env EMU2_DRIVE_C=. emu2 lbrtest.cmd | tr -d '\r' > lbrtest.rsp
+    cmp lbrtest.rsp hellob.rsp
+}
+
+test_build() {
+    echo "INF checking build after extraction ..."
+    rm -f lbrtest.cmd
+    cpm86_asm86 lbrtest.a86
+    cpm86_gencmd lbrtest.h86 8080
+    env EMU2_DRIVE_C=. emu2 lbrtest.cmd | tr -d '\r' > lbrtest.rsp
+    cmp lbrtest.rsp hellob.rsp
+}
+
+rm -f lbrtest.lbr
+echo "INF: build test"
+cp hellob.a86 lbrtest.a86
+test_build
+echo "INF: creating library with lu86 ..."
+echo 32|cpm86_lu86 u lbrtest.lbr lbrtest.a86
+cpm86_lu86 u lbrtest.lbr lbrtest.cmd
+echo "INF: listing library with lu86 ..."
+cpm86_lu86 t lbrtest.lbr
+rm -f lbrtest.a86 lbrtest.cmd lbrtest.sym lbrtest.h86
+echo "INF: check extraction of lbrtest.cmd with lu86"
+cpm86_lu86 e lbrtest.lbr lbrtest.cmd
+test_run
+rm -f lbrtest.a86 lbrtest.cmd lbrtest.sym lbrtest.h86
+echo "INF: check extraction of lbrtest.a86 with lu86"
+cpm86_lu86 e lbrtest.lbr lbrtest.a86
+test_build
+rm -f lbrtest.a86 lbrtest.cmd lbrtest.sym lbrtest.h86
+echo "INF: check extraction with lbr"
+pcdev_mlbr -x lbrtest.lbr 
+ls -al lbr*
+test_run
+test_build
+echo "INF: test sq compressiotn"
+cpm86_sq lbrtest.cmd
+[ -f lbrtest.cqd ]
+echo "INF: test sq decompressiotn"
+rm -f lbrtest.cmd
+cpm86_usq lbrtest.cqd
+test_run
