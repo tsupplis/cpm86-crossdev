@@ -53,8 +53,8 @@ MSCLINK=msc5_link
 ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
 ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd
-AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd
-DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd
+AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd
+DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
 MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
 PLM_CMDS=helloplm.cmd
@@ -178,6 +178,13 @@ helloaza.cmd: helloaza.o
 helloaza.o: helloaza.c
 	$(ACC) $(CFLAGS) $<
 
+mathazc.cmd: mathazc.o
+	$(ALD) -o $@ $< $(MLDFLAGS)
+	$(CMDINFO) $@
+
+mathazc.o: mathazc.c
+	$(ACC) $(CFLAGS) $<
+
 helloaz7.cmd: helloaz7.o
 	$(ALD) -o $@ $< $(MLDFLAGS)
 	$(CMDINFO) $@
@@ -205,6 +212,13 @@ hellodra.cmd: hellodra.obj
 	$(CMDINFO) $@
 
 hellodra.obj: hellodra.c
+	$(DRCCC) -v4 -e -o$@ -l$(@:.obj=.lst) $<
+
+mathdrc.cmd: mathdrc.obj
+	drccpm_link '$@=$(basename $<)'
+	$(CMDINFO) $@
+
+mathdrc.obj: mathdrc.c
 	$(DRCCC) -v4 -e -o$@ -l$(@:.obj=.lst) $<
 
 hellodr7.cmd: hellodr7.obj

@@ -1,0 +1,17 @@
+************************************************
+**       WELCOME TO DIGITAL RESEARCH C        **
+**                                            **
+**  This sample program tests the C compiler, **
+**  linker and libraries.   If the number in  **
+**  parentheses matches the number to the     **
+**  immediate left, each component is working **
+**  properly.                                 **
+************************************************
+
+Test      int math: 4567 * 10 = 45670 (45670)
+Test long int math: 1234 * 4567 = 5635678 (5635678)
+Test float    math: 1.234 + 0.001 = 1.23500 (1.235)
+Test double   math: 5635678.0 / 1234.0 = 4567.00 (4567)
+
+Good Luck!
+
