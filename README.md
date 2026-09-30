@@ -109,7 +109,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | upx                   | 5.2.1         | Executable packer, supporting CP/M‑86 and MS‑DOS                           |
 | EXEPACK               | 4.05b         | Executable packer, supporting MS‑DOS                                       |
 | LZEXE (and utilities) | 0.91‑ecm      | Executable packer, supporting MS‑DOS                                       |
-| PKLITE                | 1.50 / 2.01   | Executable packer, supporting MS‑DOS                                       |
+| PKLITE                | 1.50 + 2.01   | Executable packer, supporting MS‑DOS                                       |
 | pc                    | 1.1.2         | Programmers calculator                                                     |
 | crc                   | —             | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility                |
 | ARC86 / LU86 / (U)SQ  | 1.0 / 4.05 / 1.82 / 1.83 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
