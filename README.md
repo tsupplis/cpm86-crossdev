@@ -92,7 +92,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 
 | Tool                                        | Version                              | Description                                                              |
 |--------------------------------------------:|:-------------------------------------|:-------------------------------------------------------------------------|
-| RASM‑86 / LINK‑86 / LIB‑86  XREF-86         | 1.4a / 2.02 / 1.3 / 1.1              | DR DOS assembler toolchain                                               |
+| RASM‑86 / LINK‑86 / LIB‑86 / XREF‑86        | 1.4a / 2.02 / 1.3 / 1.1              | DR DOS assembler toolchain                                               |
 | ASM‑86 + GENCMD                             | 1.1                                  | DR assembler; CP/M‑80 and CP/M‑86 versions                               |
 | XLT86                                       | 1.3                                  | DR 8080/8085 → 8086 translator; `xlt86.com` + overlays; run via `tnylpo` |
 | TRANS                                       | 2.21A                                | SCP/Microsoft Z80 to 8086 Translator; runs via `emu2`                    |
@@ -102,15 +102,17 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 
 ### Emulators and utilities
 
-|                  Tool |       Version | Description                                                                |
+|                  Tool | Version       | Description                                                                |
 |----------------------:|:--------------|:---------------------------------------------------------------------------|
 | emu2‑cpm86            | v2026.09‑C    | DOS/CP/M‑86 emulator (fork of emu2 with CP/M‑86 support)                   |
 | tnylpo                | —             | CP/M‑80 emulator; used for `asm86.com`, `gencmd.com`, XLT86, MS Basic 80   |
 | upx                   | 5.2.1         | Executable packer, supporting CP/M‑86 and MS‑DOS                           |
-| lzexe (and utilities) | 0.91‑ecm      | Executable packer, supporting MS‑DOS                                       |
+| EXEPACK               | 4.05b         | Executable packer, supporting MS‑DOS                                       |
+| LZEXE (and utilities) | 0.91‑ecm      | Executable packer, supporting MS‑DOS                                       |
+| PKLITE                | 1.15 / 2.01   | Executable packer, supporting MS‑DOS                                       |
 | pc                    | 1.1.2         | Programmers calculator                                                     |
 | crc                   | —             | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility                |
-| ARC86 / LU86 / (U)SQ  | 1.0 / 4.05 / 1.82 / 1.83    | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files          |
+| ARC86 / LU86 / (U)SQ  | 1.0 / 4.05 / 1.82 / 1.83 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
 | mlbr                  | 2026.9.25.24+ | Archive extractor/converter for LBR, squeezed, crunched, and crLzhed files |
 
 ## License Considerations
@@ -128,7 +130,9 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | tnylpo | BSD‑3‑Clause | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
 | pc | MIT | [LICENSE](https://gitlab.com/johnsonjh/pc/-/blob/master/LICENSE) |
 | crc | MIT‑0 | [LICENSE](https://gitlab.com/dps8m/crc/-/blob/master/LICENSE) |
-| lzexe / unlzexe / comtoexe / infoexe | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE)) |
+| LZEXE / UnLZEXE / COMtoEXE / INFOEXE | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE)) |
+| PKLITE 1.50 | Freeware (conditions apply) | [LICENSE](https://github.com/johnsonjh/pkstuff/blob/master/LICENSES/LicenseRef-PKWARE-PKLITE1-Shareware.txt) |
+| PKLITE 2.01 | Freeware (conditions apply) | [LICENSE](https://github.com/johnsonjh/pkstuff/blob/master/LICENSES/LicenseRef-PKWARE-PKLITE2-Shareware.txt) |
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
@@ -275,12 +279,14 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
-| Misc                      | cpm_sq      | sq.cmd         | Compressor utility for CP/M‑86         |
-| Misc                      | cpm_usq      | usq.cmd         | Compressor utility for CP/M‑86         |
+| Misc                      | cpm_sq        | sq.cmd           | SQ compression utility for CP/M‑86                     |
+| Misc                      | cpm_usq       | usq.cmd          | SQ deompression utility for CP/M‑86                    |
 | Misc                      | mlbr          | (native)         | Archive extractor/converter for LBR, squeezed, crunched, and crLzhed files |
 | Misc                      | upx           | (native)         | Executable packer for DOS and CP/M‑86 binaries         |
 | Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06b executable packer (*patched*)  |
 | Misc                      | pcdev_lzexe   | lzexe.exe        | LZEXE executable packer for DOS EXE files (*ecm fork*) |
+| Misc                      | pcdev_pklite1 | pklite1.exe      | PKLITE 1.15 DOS executable compression utility         |
+| Misc                      | pcdev_pklite2 | pklite2.exe      | PKLITE 2.01 DOS executable compression utility         |
 | Misc                      | pcdev_unlzexe | unlzexe.exe      | Unpacker for DOS LZEXE packed executables (*ecm fork*) |
 | Misc                      | pcdev_comtoexe | comtoexe.exe    | Converts DOS COM files to EXE format (*ecm fork*)      |
 | Misc                      | pcdev_infoexe | infoexe.exe      | Display information about a DOS EXE file (*ecm fork*)  |
@@ -294,11 +300,11 @@ All the tools are wrapped in the bin directory for direct usage:
     decompression stub code emitted is now [David Fifield](https://www.bamsoftware.com/software/exepack/)'s 283‑byte
     version.  It is still recognized and can analyzed using the [exepacka](https://github.com/jsummers/miscjs/tree/master/exepacka)
     tool by [Jason Summers](https://entropymine.wordpress.com/).
-  * Microsoft `EXEPACK` version 4.06 has been *improved and patched* by us to version **4.06b**.  This stand-alone
+  * Microsoft `EXEPACK` version 4.06 has been *improved and patched* by us to version **4.06b**.  This stand‑alone
     version of `EXEPACK` is based on the *final* Microsoft standalone release, has all known bugs patched, and packs identically
     to the `/EXEPACK` mode of our two *fixed* linkers.
   * See David Fifield's [EXEPACK](https://www.bamsoftware.com/software/exepack/) site, and Jason Summers'
-    [Classifying EXEPACK-compressed files](https://entropymine.wordpress.com/2025/03/01/classifying-exepack-compressed-files/)
+    [Classifying EXEPACK‑compressed files](https://entropymine.wordpress.com/2025/03/01/classifying-exepack-compressed-files/)
     page for more `EXEPACK` details.
 
 ## Fetching the tools
@@ -330,7 +336,7 @@ export PATH="$(pwd -P)"/bin
 | cmdtools (cmdinfo, bin2cmd, exe2cmd)              | [cpm86‑cmdtools](https://github.com/tsupplis/cpm86-cmdtools) (GitHub, built natively)                                            |
 | NASM                                              | [nasm.us snapshots](https://nasm.us/pub/nasm/snapshots/)                                                                         |
 | UPX                                               | [UPX releases](https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz) (GitHub)                                |
-| lzexe (and utilities)                             | [lzexe](https://pushbx.org/ecm/web/#projects-lzexe) (pushbx.org, fork of [the original](https://bellard.org/lzexe/)              |
+| LZEXE (and utilities)                             | [lzexe](https://pushbx.org/ecm/web/#projects-lzexe) (pushbx.org, fork of [the original](https://bellard.org/lzexe/)              |
 | emu2‑cpm86                                        | [emu2‑cpm86](https://gitlab.com/johnsonjh/emu2-cpm86) (GitLab, fork of [emu2](https://github.com/dmsc/emu2))                     |
 | tnylpo                                            | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab)                                                                          |
 | Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`)                           |

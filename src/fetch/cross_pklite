@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking PKLITE ...
+if [ ! -d "$root/archive/pkstuff" ]; then
+    git clone "https://gitlab.com/johnsonjh/pkstuff.git" "$root/archive/pkstuff" ||
+    git clone "https://github.com/johnsonjh/pkstuff.git" "$root/archive/pkstuff"
+    rm -rf "$root/archive/pkstuff/.git"
+fi
+if [ ! -f "pcdev/pklite1.exe" ] || [ ! -f "pcdev/pklite2.exe" ]; then
+    mkdir -p "$root/share/pcdev"
+    cp -f "$root/archive/pkstuff/pklite/1.50/unpacked/pklite.exe" "$root/share/pcdev/pklite1.exe"
+    cp -f "$root/archive/pkstuff/pklite/2.01/unpacked/pklite.exe" "$root/share/pcdev/pklite2.exe"
+fi
