@@ -10,6 +10,8 @@ if [ ! -d "$root/archive/mlbr" ];then
     mv "$root/archive/mlbr/mlbr/mlbr.h" "$root/archive/mlbr/mlbr/mlbr.h.org"
     cat "$root/archive/mlbr/mlbr/mlbr.h.org" | \
         sed -e 's/__HAIKU__/__HAIKU__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__sun__/' > "$root/archive/mlbr/mlbr/mlbr.h" 
+    mv "$root/archive/mlbr/Linux/Makefile" "$root/archive/mlbr/Linux/Makefile.org"
+    cat "$root/archive/mlbr/Linux/Makefile.org" | sed -e 's/SHELL=bash/SHELL=sh/' > "$root/archive/mlbr/Linux/Makefile" 
 
 fi
 if [ ! -f "$root/bin/mlbr" ];then
