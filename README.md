@@ -130,9 +130,8 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | tnylpo | BSD‑3‑Clause | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
 | pc | MIT | [LICENSE](https://gitlab.com/johnsonjh/pc/-/blob/master/LICENSE) |
 | crc | MIT‑0 | [LICENSE](https://gitlab.com/dps8m/crc/-/blob/master/LICENSE) |
-| LZEXE / UnLZEXE / COMtoEXE / INFOEXE | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE)) |
-| PKLITE 1.50 | Freeware (conditions apply) | [LICENSE](https://github.com/johnsonjh/pkstuff/blob/master/LICENSES/LicenseRef-PKWARE-PKLITE1-Shareware.txt) |
-| PKLITE 2.01 | Freeware (conditions apply) | [LICENSE](https://github.com/johnsonjh/pkstuff/blob/master/LICENSES/LicenseRef-PKWARE-PKLITE2-Shareware.txt) |
+| LZEXE / UnLZEXE / COMtoEXE / INFOEXE | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE) |
+| PKLITE 1.50 + 2.01 | Freeware (conditions apply) | [1.50 LICENSE](https://github.com/johnsonjh/pkstuff/blob/master/LICENSES/LicenseRef-PKWARE-PKLITE1-Shareware.txt) + [2.01 LICENSE](https://github.com/johnsonjh/pkstuff/blob/master/LICENSES/LicenseRef-PKWARE-PKLITE2-Shareware.txt) |
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
