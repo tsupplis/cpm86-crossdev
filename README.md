@@ -109,7 +109,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | upx                   | 5.2.1         | Executable packer, supporting CP/M‑86 and MS‑DOS                           |
 | EXEPACK               | 4.05b         | Executable packer, supporting MS‑DOS                                       |
 | LZEXE (and utilities) | 0.91‑ecm      | Executable packer, supporting MS‑DOS                                       |
-| PKLITE                | 1.15 / 2.01   | Executable packer, supporting MS‑DOS                                       |
+| PKLITE                | 1.50 / 2.01   | Executable packer, supporting MS‑DOS                                       |
 | pc                    | 1.1.2         | Programmers calculator                                                     |
 | crc                   | —             | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility                |
 | ARC86 / LU86 / (U)SQ  | 1.0 / 4.05 / 1.82 / 1.83 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
@@ -285,7 +285,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | upx           | (native)         | Executable packer for DOS and CP/M‑86 binaries         |
 | Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06b executable packer (*patched*)  |
 | Misc                      | pcdev_lzexe   | lzexe.exe        | LZEXE executable packer for DOS EXE files (*ecm fork*) |
-| Misc                      | pcdev_pklite1 | pklite1.exe      | PKLITE 1.15 DOS executable compression utility         |
+| Misc                      | pcdev_pklite1 | pklite1.exe      | PKLITE 1.50 DOS executable compression utility         |
 | Misc                      | pcdev_pklite2 | pklite2.exe      | PKLITE 2.01 DOS executable compression utility         |
 | Misc                      | pcdev_unlzexe | unlzexe.exe      | Unpacker for DOS LZEXE packed executables (*ecm fork*) |
 | Misc                      | pcdev_comtoexe | comtoexe.exe    | Converts DOS COM files to EXE format (*ecm fork*)      |
@@ -337,12 +337,13 @@ export PATH="$(pwd -P)"/bin
 | NASM                                              | [nasm.us snapshots](https://nasm.us/pub/nasm/snapshots/)                                                                         |
 | UPX                                               | [UPX releases](https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz) (GitHub)                                |
 | LZEXE (and utilities)                             | [lzexe](https://pushbx.org/ecm/web/#projects-lzexe) (pushbx.org, fork of [the original](https://bellard.org/lzexe/)              |
+| PKLITE 1.50 + 2.01                                | [johnsonjh/pkstuff](https://github.com/johnsonjh/pkstuff)                                                                        |
 | emu2‑cpm86                                        | [emu2‑cpm86](https://gitlab.com/johnsonjh/emu2-cpm86) (GitLab, fork of [emu2](https://github.com/dmsc/emu2))                     |
 | tnylpo                                            | [tnylpo](https://gitlab.com/gbrein/tnylpo.git) (GitLab)                                                                          |
 | Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`)                           |
 | DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) (stored in `src/drpackages/drplicpm`)                                      |
 | MSC 5.1                                           | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub, stored in `src/mspackages/msc51`)                                         |
-| ARC86 / LU86 / (U)SQ                                     | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`)      |
+| ARC86 / LU86 / (U)SQ                              | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`)      |
 | XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |
 | TDL BASIC 3.05 (CP/M‑80)                          | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip)                                                      |
