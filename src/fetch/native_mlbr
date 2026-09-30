@@ -8,7 +8,8 @@ if [ ! -d "$root/archive/mlbr" ];then
     git clone "https://github.com/ogdenpm/mlbr" "$root/archive/mlbr"
     rm -rf "$root/archive/mlbr.git"
     mv -f "$root/archive/mlbr/mlbr/mlbr.h" "$root/archive/mlbr/mlbr/mlbr.h.org"
-    sed -e 's/__HAIKU__/__HAIKU__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__sun__/' "$root/archive/mlbr/mlbr/mlbr.h.org" > "$root/archive/mlbr/mlbr/mlbr.h"
+    # this line needs to be removed when upstream with APPLE available
+    sed -e 's/__HAIKU__/__HAIKU__) || defined(__APPLE__/' "$root/archive/mlbr/mlbr/mlbr.h.org" > "$root/archive/mlbr/mlbr/mlbr.h"
     mv -f "$root/archive/mlbr/Linux/Makefile" "$root/archive/mlbr/Linux/Makefile.org"
     sed 's|SHELL=bash|SHELL=/bin/sh|' "$root/archive/mlbr/Linux/Makefile.org" > "$root/archive/mlbr/Linux/Makefile"
 fi
