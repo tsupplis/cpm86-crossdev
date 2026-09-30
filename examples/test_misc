@@ -4,6 +4,8 @@
 
 set -e
 
+trap "rm -f screenlog.0"  EXIT INT TERM
+
 run_test() {
     name="$1"
     rsp="${name}.rsp"
@@ -34,9 +36,27 @@ run_test() {
     fi
 }
 
+run_gwtest() {
+    name="$1"
+    rm -f screenlog.0
+    rsp="$name.rsp"
+    out="$name.out"
+    screen -L -Dm pcdev_gwbasic "$name".bas
+    cat screenlog.0 | grep Hello | sed -e 's/.*Hello/Hello/g' | tr -d '\r'> "$out"
+    if diff -u "$rsp" "$out" > /dev/null 2>&1; then
+        echo "--------- PASS: $name"
+        rm -f "$out"
+    else
+        echo "--------- FAIL: $name (diff $rsp vs $out):"
+        diff -u "$rsp" "$out" || true
+        exit 1
+    fi
+}
+
 run_test hellomsb  "cpm86_mbasic hellomsb.bas"
-run_test hellogw   "pcdev_gwbasic hellogw.bas"
 run_test hellopba  "cpm86_basic < hellopba.bas"
 run_test helloi    "cpm86_crun helloi.int"
 run_test helloxlp  "cpm86_xlisp helloxlp.lsp"
 run_test hellocbl  "mfcobol_run hellocbl.int"
+run_gwtest hellogw
+
