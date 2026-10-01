@@ -5,8 +5,9 @@ set -e
 echo INF: Checking PKLITE ...
 if [ ! -d "$root/archive/pkstuff" ]; then
     mkdir -p "$root/archive/pkstuff"
-    cd "$root/archive/pkstuff"
+    rm -f "$root/archive/pkstuff/pklite1.exe"
     wget -U "Mozilla/5.0" https://github.com/johnsonjh/pkstuff/raw/refs/heads/master/pklite/1.50/pklite.exe -O "$root/archive/pkstuff/pklite1.exe"
+    rm -f "$root/archive/pkstuff/pklite2.exe"
     wget -U "Mozilla/5.0" https://github.com/johnsonjh/pkstuff/raw/refs/heads/master/pklite/2.01/pklite.exe -O "$root/archive/pkstuff/pklite2.exe"
 fi
 if [ ! -f "$root/share/pcdev/pklite1.exe" ] || [ ! -f "$root/share/pcdev/pklite2.exe" ]; then
