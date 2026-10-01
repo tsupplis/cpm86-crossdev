@@ -104,7 +104,6 @@ Exit always via fn 000h (`xor cx,cx` / `int 0E0h`).
 | 038h | MC_ABSALLOC | Returns hard error AX=0xFFFF, CX=3 — not supported |
 | 028h | F_WRITEZF | ❌ not implemented in emu2 |
 | All MP/M-only | — | ❌ not implemented in emu2 |
-| 02Fh | P_CHAIN | Interactive — cannot run non-interactively |
 | 069h | T_GET | Clock-dependent — output not deterministic |
 | 09Bh | T_SECONDS | Clock-dependent — output not deterministic |
 
@@ -132,3 +131,18 @@ mapping never leaks into other tests - every other test keeps the default
 The `./a`, `./b`, `./c` directories each hold a single empty marker file
 (`a_disk`, `b_disk`, `c_disk`) that `tst00e01` searches for with F_SFIRST to
 confirm a selected drive really maps to the expected host directory.
+
+## Expected-Output Fixtures
+
+| File | Checks | Used by |
+|---|---|---|
+| `tst00101.rsp` | exact byte-for-byte stdout, including the 'A'/'B' echoed by fn 001h (c_read) | tst00101 |
+| `tst00201.rsp` | exact byte-for-byte stdout, including the '*'/'!' written by fn 002h (c_write) - this test has no register check at all, so the .rsp is its only verification | tst00201 |
+
+`make test` diffs captured stdout against a `.rsp` file automatically for
+any `.cmd` sharing its base name, in addition to the existing rc/ERR:
+checks. This is how echo-type behavior (characters a BDOS call writes to
+the console itself, not just what a test's own register check sees) gets
+regression-tested: a register-only check on fn 001h would still pass even
+if the echo silently stopped happening, since the function still returns
+the right byte in AL either way.

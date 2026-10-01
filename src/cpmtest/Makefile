@@ -82,11 +82,9 @@ test: $(TESTS)
 		base=$${cmd%.cmd}; \
 		stdin_src=/dev/null; \
 		[ -f "$$base.in" ] && stdin_src="$$base.in"; \
-		if [ -f "$$base.env" ]; then \
-			out=$$(set -a; . ./$$base.env; set +a; timeout -s KILL -k 1 5 $(EMU) ./$$cmd < "$$stdin_src" 2>&1); \
-		else \
-			out=$$(timeout -s KILL -k 1 5 $(EMU) ./$$cmd < "$$stdin_src" 2>&1); \
-		fi; \
+		envargs=""; \
+		[ -f "$$base.env" ] && envargs=$$(grep -v '^#' "$$base.env" | grep -v '^$$'); \
+		out=$$(env -i PATH="$$PATH" $$envargs timeout -s KILL -k 1 5 $(EMU) ./$$cmd < "$$stdin_src" 2>&1); \
 		rc=$$?; \
 		printf '%s' "$$out"; \
 		if [ $$rc -eq 124 ]; then \
@@ -94,6 +92,9 @@ test: $(TESTS)
 			failed=$$((failed+1)); \
 		elif [ $$rc -ne 0 ] || printf '%s\n' "$$out" | grep -q '^ERR:'; then \
 			echo "--- Fail: $$cmd "; \
+			failed=$$((failed+1)); \
+		elif [ -f "$$base.rsp" ] && [ "$$out" != "$$(cat "$$base.rsp")" ]; then \
+			echo "--- Fail: $$cmd (stdout mismatch vs $$base.rsp) "; \
 			failed=$$((failed+1)); \
 		else \
 			echo "--- Pass: $$cmd "; \
