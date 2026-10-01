@@ -6,7 +6,7 @@ echo INF: Checking mlbr ...
 mkdir -p "$root/archive"
 if [ ! -d "$root/archive/mlbr" ];then
     git clone "https://github.com/ogdenpm/mlbr" "$root/archive/mlbr"
-    rm -rf "$root/archive/mlbr.git"
+    rm -rf "$root/archive/mlbr/.git"
     mv -f "$root/archive/mlbr/mlbr/mlbr.h" "$root/archive/mlbr/mlbr/mlbr.h.org"
     # this line needs to be removed when upstream with APPLE available
     sed -e 's/__HAIKU__/__HAIKU__) || defined(__APPLE__/' "$root/archive/mlbr/mlbr/mlbr.h.org" > "$root/archive/mlbr/mlbr/mlbr.h"
