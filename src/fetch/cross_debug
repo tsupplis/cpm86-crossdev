@@ -13,6 +13,7 @@ if [ ! -f "pcdev/ldebug.com" ] || [ ! -f "pcdev/edebug.com" ]; then
     fetch_get "https://pushbx.org/ecm/download/msdebug.zip"
     unzip -o -L "$ARCHIVED_FILE" debug.com
     cp -f debug.com "$root/share/pcdev/edebug.com"
+    sleep 0.5 2> /dev/null || :
     fetch_get "https://pushbx.org/ecm/download/ldebug.zip"
     unzip -o -L "$ARCHIVED_FILE" bin/ldebug.com
     cp -f bin/ldebug.com "$root/share/pcdev/ldebug.com"
