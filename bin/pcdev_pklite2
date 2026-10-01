@@ -1,6 +1,4 @@
 #!/bin/sh
-echo "ERR: tool not yet available"
-exit (1)
 set -e
 prog=`basename $0|sed -e s'/pcdev_//'`.exe
 emu2=`dirname $0`/emu2

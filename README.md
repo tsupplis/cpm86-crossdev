@@ -285,7 +285,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06b executable packer (*patched*)  |
 | Misc                      | pcdev_lzexe   | lzexe.exe        | LZEXE executable packer for DOS EXE files (*ecm fork*) |
 | Misc                      | pcdev_pklite1 | pklite1.exe      | PKLITE 1.50 DOS executable compression utility         |
-| Misc                      | pcdev_pklite2 | pklite2.exe      | PKLITE 2.01 DOS executable compression utility (available soon)        |
+| Misc                      | pcdev_pklite2 | pklite2.exe      | PKLITE 2.01 DOS executable compression utility         |
 | Misc                      | pcdev_unlzexe | unlzexe.exe      | Unpacker for DOS LZEXE packed executables (*ecm fork*) |
 | Misc                      | pcdev_comtoexe | comtoexe.exe    | Converts DOS COM files to EXE format (*ecm fork*)      |
 | Misc                      | pcdev_infoexe | infoexe.exe      | Display information about a DOS EXE file (*ecm fork*)  |
