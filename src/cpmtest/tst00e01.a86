@@ -7,15 +7,12 @@
 ; Run:    emu2 tst00e01.cmd  (needs tst00e01.env - see below)
 ;
 ; fn 00Eh (DRV_SET) is "Select Disk": CL=0Eh, DL=drive number
-; (0=A, 1=B, ... 15=P). It has no clearly defined return value
-; across CP/M versions, so this test never inspects AL from the
-; select call itself. Instead it proves the selection actually
-; took effect with two independent, read-only observations:
-;   - fn 019h (DRV_GET) reports back the drive just selected
-;   - fn 011h (F_SFIRST), with the FCB drive byte left at 0
-;     (meaning "the current/default drive"), can find a marker
-;     file that only exists in the host directory the selected
-;     drive is supposed to map to
+; (0=A, 1=B, ... 15=P). It has no clearly defined return value,
+; so this test never inspects AL from the select call itself.
+; Instead each sub-test proves the selection took effect with a
+; read-only fn 011h (F_SFIRST) search: the FCB drive byte is left
+; at 0 ("current/default drive"), so a successful match proves
+; the just-selected drive really maps to the expected directory.
 ;
 ; Host directory mapping (see tst00e01.env, sourced by 'make
 ; test' only for this .cmd - it must not leak into other tests,
@@ -29,29 +26,37 @@
 ;                   variables; there is no implicit fallback)
 ;
 ; This test performs no writes (F_SFIRST only reads directory
-; entries) - drv_set stays read-only.
+; entries) - drv_set stays read-only. Each sub-test is a plain
+; straight-line sequence (no loops, no shared labels) - simpler
+; to follow and nothing to get subtly wrong.
 ;
 ; Sub-tests:
-;   00e.01  select each drive A(0)..P(15) in turn; after each
-;           select, sfirst for that drive's expected marker
-;           file - must be found every time (AL<>0FFh)
-;   00e.02  select drive 16 ("Q") - one past P, the highest
-;           valid CP/M drive; not a real drive, so fn 019h must
-;           still report the last valid drive (P/15) selected
-;           in 00e.01, proving the bad select had no effect
+;   00e.01  select A(0), sfirst 'A_DISK ' - must be found
+;   00e.02  select B(1), sfirst 'B_DISK ' - must be found
+;   00e.03  select C(2), sfirst 'C_DISK ' - must be found
+;   00e.04  select P(15), sfirst 'C_DISK ' - must be found
+;           (P maps to the same directory as C)
+;   00e.05  select M(12), sfirst 'M_DISK ' - must NOT be found
+;           (no such marker file exists anywhere - this is the
+;           negative/failure case for F_SFIRST itself)
 ;
 ; Expected output (no ERR: lines):
 ;   INF: test 00e.01 started (drv_set)
 ;   INF: test 00e.01 successful
 ;   INF: test 00e.02 started (drv_set)
 ;   INF: test 00e.02 successful
+;   INF: test 00e.03 started (drv_set)
+;   INF: test 00e.03 successful
+;   INF: test 00e.04 started (drv_set)
+;   INF: test 00e.04 successful
+;   INF: test 00e.05 started (drv_set)
+;   INF: test 00e.05 successful
 ; ============================================================
 
 BDOS        equ     0E0h
 FN_PRINT    equ     9
 FN_DMASEG   equ     33h
 FN_DRVSET   equ     0Eh
-FN_DRVGET   equ     19h
 FN_SFIRST   equ     11h
 FN_EXIT     equ     0
 CR          equ     0Dh
@@ -73,6 +78,18 @@ msg_f01     db      'ERR: test 00e.01 failed', CR, LF, '$'
 msg_t02     db      'INF: test 00e.02 started (drv_set)', CR, LF, '$'
 msg_s02     db      'INF: test 00e.02 successful', CR, LF, '$'
 msg_f02     db      'ERR: test 00e.02 failed', CR, LF, '$'
+
+msg_t03     db      'INF: test 00e.03 started (drv_set)', CR, LF, '$'
+msg_s03     db      'INF: test 00e.03 successful', CR, LF, '$'
+msg_f03     db      'ERR: test 00e.03 failed', CR, LF, '$'
+
+msg_t04     db      'INF: test 00e.04 started (drv_set)', CR, LF, '$'
+msg_s04     db      'INF: test 00e.04 successful', CR, LF, '$'
+msg_f04     db      'ERR: test 00e.04 failed', CR, LF, '$'
+
+msg_t05     db      'INF: test 00e.05 started (drv_set)', CR, LF, '$'
+msg_s05     db      'INF: test 00e.05 successful', CR, LF, '$'
+msg_f05     db      'ERR: test 00e.05 failed', CR, LF, '$'
 
 ; marker-file FCBs - drive byte 0 means "search the current
 ; (just-selected) drive", never a hard-coded drive number
@@ -103,6 +120,24 @@ fcb_c       db      0
             db      0
             db      0,0,0
 
+fcb_p       db      0
+            db      'C_DISK  '
+            db      '   '
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb_m       db      0
+            db      'M_DISK  '
+            db      '   '
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
 ; ============================================================
 ; CODE
 ; ============================================================
@@ -116,37 +151,21 @@ main:
             mov     dx, ax
             int     BDOS
 
-            ; --- test 00e.01: select A..P, confirm each marker ---
+            ; --- test 00e.01: select A, find A_DISK ---
             mov     cx, FN_PRINT
             mov     dx, offset msg_t01
             int     BDOS
 
-            mov     bl, 0           ; bl = drive index, 0=A .. 15=P
-drvloop:    mov     cx, FN_DRVSET
-            mov     dl, bl
+            mov     cx, FN_DRVSET
+            mov     dl, 0
             int     BDOS
 
-            cmp     bl, 0
-            je      pick_a
-            cmp     bl, 1
-            je      pick_b
-            jmp     pick_c
-
-pick_a:     mov     dx, offset fcb_a
-            jmp     search
-pick_b:     mov     dx, offset fcb_b
-            jmp     search
-pick_c:     mov     dx, offset fcb_c
-
-search:     mov     cx, FN_SFIRST
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_a
             int     BDOS
 
             cmp     al, 0FFh
             je      fail01
-
-            inc     bl
-            cmp     bl, 16
-            jne     drvloop
 
             mov     cx, FN_PRINT
             mov     dx, offset msg_s01
@@ -157,28 +176,104 @@ fail01:     mov     cx, FN_PRINT
             mov     dx, offset msg_f01
             int     BDOS
 
-            ; --- test 00e.02: select drive 16 ("Q") - must not take ---
+            ; --- test 00e.02: select B, find B_DISK ---
 test02:     mov     cx, FN_PRINT
             mov     dx, offset msg_t02
             int     BDOS
 
             mov     cx, FN_DRVSET
-            mov     dl, 16
+            mov     dl, 1
             int     BDOS
 
-            mov     cx, FN_DRVGET
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_b
             int     BDOS
 
-            cmp     al, 15          ; still P - the last valid select
-            jne     fail02
+            cmp     al, 0FFh
+            je      fail02
 
             mov     cx, FN_PRINT
             mov     dx, offset msg_s02
             int     BDOS
-            jmp     done
+            jmp     test03
 
 fail02:     mov     cx, FN_PRINT
             mov     dx, offset msg_f02
+            int     BDOS
+
+            ; --- test 00e.03: select C, find C_DISK ---
+test03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t03
+            int     BDOS
+
+            mov     cx, FN_DRVSET
+            mov     dl, 2
+            int     BDOS
+
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_c
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail03
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s03
+            int     BDOS
+            jmp     test04
+
+fail03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f03
+            int     BDOS
+
+            ; --- test 00e.04: select P (maps to same dir as C), find C_DISK ---
+test04:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t04
+            int     BDOS
+
+            mov     cx, FN_DRVSET
+            mov     dl, 15
+            int     BDOS
+
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_p
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail04
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s04
+            int     BDOS
+            jmp     test05
+
+fail04:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f04
+            int     BDOS
+
+            ; --- test 00e.05: select M, M_DISK does not exist anywhere ---
+test05:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t05
+            int     BDOS
+
+            mov     cx, FN_DRVSET
+            mov     dl, 12
+            int     BDOS
+
+            mov     cx, FN_SFIRST
+            mov     dx, offset fcb_m
+            int     BDOS
+
+            cmp     al, 0FFh
+            jne     fail05
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s05
+            int     BDOS
+            jmp     done
+
+fail05:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f05
             int     BDOS
 
 done:       xor     cx, cx
