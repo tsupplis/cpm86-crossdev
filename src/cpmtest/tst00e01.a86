@@ -1,0 +1,187 @@
+            title   'tst00e01 - BDOS fn 00eh drv_set'
+
+; ============================================================
+; tst00e01.a86 - Test BDOS function 00Eh (drv_set)
+;
+; Build:  make tst00e01.cmd
+; Run:    emu2 tst00e01.cmd  (needs tst00e01.env - see below)
+;
+; fn 00Eh (DRV_SET) is "Select Disk": CL=0Eh, DL=drive number
+; (0=A, 1=B, ... 15=P). It has no clearly defined return value
+; across CP/M versions, so this test never inspects AL from the
+; select call itself. Instead it proves the selection actually
+; took effect with two independent, read-only observations:
+;   - fn 019h (DRV_GET) reports back the drive just selected
+;   - fn 011h (F_SFIRST), with the FCB drive byte left at 0
+;     (meaning "the current/default drive"), can find a marker
+;     file that only exists in the host directory the selected
+;     drive is supposed to map to
+;
+; Host directory mapping (see tst00e01.env, sourced by 'make
+; test' only for this .cmd - it must not leak into other tests,
+; since it overrides where drive C: - the default drive - lives):
+;   A: -> ./a  (contains marker file A_DISK)
+;   B: -> ./b  (contains marker file B_DISK)
+;   C: -> ./c  (contains marker file C_DISK)
+;   D:..P: -> ./c  (same directory as C:, so C_DISK is found
+;                   there too - this is how "every other drive"
+;                   is expressed with emu2's EMU2_DRIVE_n
+;                   variables; there is no implicit fallback)
+;
+; This test performs no writes (F_SFIRST only reads directory
+; entries) - drv_set stays read-only.
+;
+; Sub-tests:
+;   00e.01  select each drive A(0)..P(15) in turn; after each
+;           select, sfirst for that drive's expected marker
+;           file - must be found every time (AL<>0FFh)
+;   00e.02  select drive 16 ("Q") - one past P, the highest
+;           valid CP/M drive; not a real drive, so fn 019h must
+;           still report the last valid drive (P/15) selected
+;           in 00e.01, proving the bad select had no effect
+;
+; Expected output (no ERR: lines):
+;   INF: test 00e.01 started (drv_set)
+;   INF: test 00e.01 successful
+;   INF: test 00e.02 started (drv_set)
+;   INF: test 00e.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_DRVSET   equ     0Eh
+FN_DRVGET   equ     19h
+FN_SFIRST   equ     11h
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 00e.01 started (drv_set)', CR, LF, '$'
+msg_s01     db      'INF: test 00e.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 00e.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 00e.02 started (drv_set)', CR, LF, '$'
+msg_s02     db      'INF: test 00e.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 00e.02 failed', CR, LF, '$'
+
+; marker-file FCBs - drive byte 0 means "search the current
+; (just-selected) drive", never a hard-coded drive number
+fcb_a       db      0
+            db      'A_DISK  '
+            db      '   '
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb_b       db      0
+            db      'B_DISK  '
+            db      '   '
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+fcb_c       db      0
+            db      'C_DISK  '
+            db      '   '
+            db      0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0
+            db      0
+            db      0,0,0
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 00e.01: select A..P, confirm each marker ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     bl, 0           ; bl = drive index, 0=A .. 15=P
+drvloop:    mov     cx, FN_DRVSET
+            mov     dl, bl
+            int     BDOS
+
+            cmp     bl, 0
+            je      pick_a
+            cmp     bl, 1
+            je      pick_b
+            jmp     pick_c
+
+pick_a:     mov     dx, offset fcb_a
+            jmp     search
+pick_b:     mov     dx, offset fcb_b
+            jmp     search
+pick_c:     mov     dx, offset fcb_c
+
+search:     mov     cx, FN_SFIRST
+            int     BDOS
+
+            cmp     al, 0FFh
+            je      fail01
+
+            inc     bl
+            cmp     bl, 16
+            jne     drvloop
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 00e.02: select drive 16 ("Q") - must not take ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_DRVSET
+            mov     dl, 16
+            int     BDOS
+
+            mov     cx, FN_DRVGET
+            int     BDOS
+
+            cmp     al, 15          ; still P - the last valid select
+            jne     fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

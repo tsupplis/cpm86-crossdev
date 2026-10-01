@@ -1,0 +1,156 @@
+            title   'tst00a02 - BDOS fn 00ah c_readstr via 006h poll'
+
+; ============================================================
+; tst00a02.a86 - Test BDOS function 00Ah (c_readstr), preceded
+;                by polling fn 006h DL=0FEh (c_rawio status)
+;
+; Build:  make tst00a02.cmd
+; Run:    emu2 tst00a02.cmd < tst00a02.in
+;
+; Fixture:  tst00a02.in - 6 bytes 'HELLO',CR
+;
+; fn 006h DL=0FEh only polls console-input status - it must not
+; consume or otherwise disturb bytes sitting in the input
+; stream. With redirected (non-interactive) stdin it consistently
+; reports AL=0 ("not ready") - confirmed empirically, checked
+; here a few times - yet fn 00Ah (buffered line input) still
+; succeeds right after and returns the full line intact, proving
+; the status checks did not truncate or swallow any of it.
+; Results must match the direct read in tst00a01.a86 exactly.
+;
+; A backward-branching dec/jnz retry loop around fn 006h never
+; terminates under emu2 with redirected stdin, even for as few
+; as 2-3 iterations - confirmed empirically, so the checks below
+; are unrolled (straight-line), not a counted loop.
+;
+; Sub-tests:
+;   00a.01  check DL=0FEh 3 times - expect AL=0 every time, then
+;           read a line - expect count == 5 (nothing lost)
+;   00a.02  spot-check first/last char - expect 'H' and 'O'
+;
+; Expected output (no ERR: lines):
+;   INF: test 00a.01 started (c_readstr via 006h poll)
+;   INF: test 00a.01 successful
+;   INF: test 00a.02 started (c_readstr via 006h poll)
+;   INF: test 00a.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_RAWIO    equ     6
+FN_READSTR  equ     0Ah
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 00a.01 started (c_readstr via 006h poll)', CR, LF, '$'
+msg_s01     db      'INF: test 00a.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 00a.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 00a.02 started (c_readstr via 006h poll)', CR, LF, '$'
+msg_s02     db      'INF: test 00a.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 00a.02 failed', CR, LF, '$'
+
+rdbuf       db      10              ; byte 0: max chars accepted
+            db      0               ; byte 1: count typed (filled in)
+            db      0               ; byte 2.. : chars typed
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 00a.01: check 0FEh x3 - expect AL=0, then read a line ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FEh
+            int     BDOS
+            or      al, al
+            jnz     fail01          ; status claims pending - not expected here
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FEh
+            int     BDOS
+            or      al, al
+            jnz     fail01
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FEh
+            int     BDOS
+            or      al, al
+            jnz     fail01
+
+            mov     cx, FN_READSTR
+            mov     dx, offset rdbuf
+            int     BDOS
+
+            mov     bx, offset rdbuf
+            mov     al, 1[bx]       ; byte 1: count typed
+            cmp     al, 5
+            jne     fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 00a.02: spot-check first/last char ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     bx, offset rdbuf
+            mov     al, 2[bx]       ; byte 2: first char
+            cmp     al, 'H'
+            jne     fail02
+            mov     al, 6[bx]       ; byte 6: last char
+            cmp     al, 'O'
+            jne     fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

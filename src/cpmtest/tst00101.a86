@@ -1,0 +1,107 @@
+            title   'tst00101 - BDOS fn 001h c_read'
+
+; ============================================================
+; tst00101.a86 - Test BDOS function 001h (c_read)
+;
+; Build:  make tst00101.cmd
+; Run:    emu2 tst00101.cmd < tst00101.in
+;
+; Fixture:  tst00101.in - 2 bytes 'A','B'
+;
+; fn 001h blocks on console input; piping a fixture file makes
+; each call return the next byte deterministically instead of
+; waiting on a real keyboard.
+;
+; Sub-tests:
+;   001.01  read first byte from input - expect 'A'
+;   001.02  read second byte from input - expect 'B'
+;
+; Expected output (no ERR: lines):
+;   INF: test 001.01 started (c_read)
+;   AINF: test 001.01 successful
+;   INF: test 001.02 started (c_read)
+;   BINF: test 001.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_CONIN    equ     1
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 001.01 started (c_read)', CR, LF, '$'
+msg_s01     db      'INF: test 001.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 001.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 001.02 started (c_read)', CR, LF, '$'
+msg_s02     db      'INF: test 001.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 001.02 failed', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 001.01: read 'A' ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_CONIN
+            int     BDOS
+
+            cmp     al, 'A'
+            jne     fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 001.02: read 'B' ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_CONIN
+            int     BDOS
+
+            cmp     al, 'B'
+            jne     fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

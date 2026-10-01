@@ -1,0 +1,126 @@
+            title   'tst00a01 - BDOS fn 00ah c_readstr'
+
+; ============================================================
+; tst00a01.a86 - Test BDOS function 00Ah (c_readstr)
+;
+; Build:  make tst00a01.cmd
+; Run:    emu2 tst00a01.cmd < tst00a01.in
+;
+; Fixture:  tst00a01.in - 6 bytes 'HELLO',CR
+;
+; Buffer layout (DE=offset rdbuf):
+;   rdbuf+0 = max chars accepted (set before the call)
+;   rdbuf+1 = count typed (filled in by BDOS)
+;   rdbuf+2.. = the bytes typed, CR itself is not stored
+;
+; Sub-tests:
+;   00a.01  read a line - expect count == 5
+;   00a.02  spot-check first/last char - expect 'H' and 'O'
+;
+; Expected output (no ERR: lines):
+;   INF: test 00a.01 started (c_readstr)
+;   INF: test 00a.01 successful
+;   INF: test 00a.02 started (c_readstr)
+;   INF: test 00a.02 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_READSTR  equ     0Ah
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 00a.01 started (c_readstr)', CR, LF, '$'
+msg_s01     db      'INF: test 00a.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 00a.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 00a.02 started (c_readstr)', CR, LF, '$'
+msg_s02     db      'INF: test 00a.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 00a.02 failed', CR, LF, '$'
+
+rdbuf       db      10              ; byte 0: max chars accepted
+            db      0               ; byte 1: count typed (filled in)
+            db      0               ; byte 2.. : chars typed
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+            db      0
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 00a.01: read a line, check count ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_READSTR
+            mov     dx, offset rdbuf
+            int     BDOS
+
+            mov     bx, offset rdbuf
+            mov     al, 1[bx]       ; byte 1: count typed
+            cmp     al, 5
+            jne     fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 00a.02: spot-check first/last char ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     bx, offset rdbuf
+            mov     al, 2[bx]       ; byte 2: first char
+            cmp     al, 'H'
+            jne     fail02
+            mov     al, 6[bx]       ; byte 6: last char
+            cmp     al, 'O'
+            jne     fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     done
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

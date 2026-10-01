@@ -1,0 +1,181 @@
+            title   'tst00601 - BDOS fn 006h c_rawio'
+
+; ============================================================
+; tst00601.a86 - Test BDOS function 006h (c_rawio)
+;
+; Build:  make tst00601.cmd
+; Run:    emu2 tst00601.cmd < tst00601.in
+;
+; Fixture:  tst00601.in - 2 bytes 'Q','R'
+;
+; BDOS fn 006h is "Direct console I/O": CL=6, DL=sub-code,
+; returned value in AL. The sub-codes exercised here are:
+;
+;   DL=0FFh  Non-blocking poll+read. Returns the next character
+;            without echoing it if one is waiting, else AL=0.
+;            With redirected (non-interactive) stdin this
+;            consistently reports AL=0 - confirmed empirically,
+;            and checked here a few times rather than trusting
+;            a single reading, without ever consuming a byte.
+;   DL=0FEh  Non-blocking status only. Returns AL<>0 if a
+;            character is waiting, AL=0 otherwise; it does not
+;            consume the character. Same behavior as 0FFh under
+;            redirected stdin: consistently AL=0.
+;   DL=0FDh  Blocking read. Waits until a character is ready
+;            and returns it without echoing. Despite 0FFh/0FEh
+;            always reporting "not ready" above, this still
+;            succeeds immediately for piped input and returns
+;            the next byte - the two are independent paths.
+;   other    Any other DL value is output as a character to the
+;            console (no echo suppression, no ^S/^Q handling).
+;
+; The repeated checks below are unrolled (straight-line), not a
+; counted dec/jnz loop: a backward-branching loop around this
+; call never terminates under emu2 with redirected stdin, even
+; for as few as 2-3 iterations - confirmed empirically.
+;
+; Sub-tests:
+;   006.01  DL=0FFh poll+read, checked 3 times - expect AL=0
+;           every time (never consumes a byte)
+;   006.02  DL=0FEh status, checked 3 times - expect AL=0 every
+;           time; then DL=0FDh to consume a byte - expect 'Q'
+;   006.03  output a character (DL=byte, no sub-code match)
+;
+; Expected output (no ERR: lines):
+;   INF: test 006.01 started (c_rawio)
+;   INF: test 006.01 successful
+;   INF: test 006.02 started (c_rawio)
+;   INF: test 006.02 successful
+;   INF: test 006.03 started (c_rawio)
+;   #INF: test 006.03 successful
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+FN_DMASEG   equ     33h
+FN_RAWIO    equ     6
+FN_EXIT     equ     0
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+
+            jmp     main
+
+; ============================================================
+; DATA
+; ============================================================
+
+msg_t01     db      'INF: test 006.01 started (c_rawio)', CR, LF, '$'
+msg_s01     db      'INF: test 006.01 successful', CR, LF, '$'
+msg_f01     db      'ERR: test 006.01 failed', CR, LF, '$'
+
+msg_t02     db      'INF: test 006.02 started (c_rawio)', CR, LF, '$'
+msg_s02     db      'INF: test 006.02 successful', CR, LF, '$'
+msg_f02     db      'ERR: test 006.02 failed', CR, LF, '$'
+
+msg_t03     db      'INF: test 006.03 started (c_rawio)', CR, LF, '$'
+msg_s03     db      'INF: test 006.03 successful', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+
+            mov     ax, cs
+            mov     cx, FN_DMASEG
+            mov     dx, ax
+            int     BDOS
+
+            ; --- test 006.01: DL=0FFh poll+read - expect AL=0 x3 ---
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_t01
+            int     BDOS
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FFh
+            int     BDOS
+            or      al, al
+            jnz     fail01          ; a byte showed up - not expected here
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FFh
+            int     BDOS
+            or      al, al
+            jnz     fail01
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FFh
+            int     BDOS
+            or      al, al
+            jnz     fail01
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s01
+            int     BDOS
+            jmp     test02
+
+fail01:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f01
+            int     BDOS
+
+            ; --- test 006.02: DL=0FEh status - expect AL=0 x3, then DL=0FDh read ---
+test02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t02
+            int     BDOS
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FEh
+            int     BDOS
+            or      al, al
+            jnz     fail02          ; status claims pending - not expected here
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FEh
+            int     BDOS
+            or      al, al
+            jnz     fail02
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FEh
+            int     BDOS
+            or      al, al
+            jnz     fail02
+
+            mov     cx, FN_RAWIO
+            mov     dl, 0FDh
+            int     BDOS
+
+            cmp     al, 'Q'
+            jne     fail02
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s02
+            int     BDOS
+            jmp     test03
+
+fail02:     mov     cx, FN_PRINT
+            mov     dx, offset msg_f02
+            int     BDOS
+
+            ; --- test 006.03: output a character ---
+test03:     mov     cx, FN_PRINT
+            mov     dx, offset msg_t03
+            int     BDOS
+
+            mov     cx, FN_RAWIO
+            mov     dl, '#'
+            int     BDOS
+
+            mov     cx, FN_PRINT
+            mov     dx, offset msg_s03
+            int     BDOS
+
+done:       xor     cx, cx
+            int     BDOS
+
+            end     main

@@ -8,11 +8,16 @@ CMDINFO = $(BINDIR)/cmdinfo
 
 TESTS = \
 	tst00001.cmd \
+	tst00101.cmd \
 	tst00201.cmd \
+	tst00601.cmd \
 	tst00901.cmd \
+	tst00a01.cmd \
+	tst00a02.cmd \
 	tst00b01.cmd \
 	tst00c01.cmd \
 	tst00d01.cmd \
+	tst00e01.cmd \
 	tst00f01.cmd \
 	tst01001.cmd \
 	tst01101.cmd \
@@ -74,10 +79,20 @@ tst03b01.cmd: sub03b02.cmd
 test: $(TESTS)
 	@passed=0; failed=0; \
 	for cmd in $(TESTS); do \
-		out=$$($(EMU) ./$$cmd 2>&1); \
+		base=$${cmd%.cmd}; \
+		stdin_src=/dev/null; \
+		[ -f "$$base.in" ] && stdin_src="$$base.in"; \
+		if [ -f "$$base.env" ]; then \
+			out=$$(set -a; . ./$$base.env; set +a; timeout -s KILL -k 1 5 $(EMU) ./$$cmd < "$$stdin_src" 2>&1); \
+		else \
+			out=$$(timeout -s KILL -k 1 5 $(EMU) ./$$cmd < "$$stdin_src" 2>&1); \
+		fi; \
 		rc=$$?; \
 		printf '%s' "$$out"; \
-		if [ $$rc -ne 0 ] || printf '%s\n' "$$out" | grep -q '^ERR:'; then \
+		if [ $$rc -eq 124 ]; then \
+			echo "--- Fail: $$cmd (timed out after 5s) "; \
+			failed=$$((failed+1)); \
+		elif [ $$rc -ne 0 ] || printf '%s\n' "$$out" | grep -q '^ERR:'; then \
 			echo "--- Fail: $$cmd "; \
 			failed=$$((failed+1)); \
 		else \

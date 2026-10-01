@@ -47,11 +47,16 @@ Exit always via fn 000h (`xor cx,cx` / `int 0E0h`).
 | File | Fn | Symbol | Sub-tests | Artifacts | Status |
 |---|---|---|---|---|---|
 | tst00001 | 000h | P_TERMCPM | 1 | — | ✅ pass |
+| tst00101 | 001h | C_READ | 2 | tst00101.in | ✅ pass |
 | tst00201 | 002h | C_WRITE | 2 | — | ✅ pass |
+| tst00601 | 006h | C_RAWIO | 3 | tst00601.in | ✅ pass |
 | tst00901 | 009h | C_WRITESTR | 2 | — | ✅ pass |
+| tst00a01 | 00Ah | C_READSTR | 2 | tst00a01.in | ✅ pass |
+| tst00a02 | 00Ah | C_READSTR via 006h poll | 2 | tst00a02.in | ✅ pass |
 | tst00b01 | 00Bh | C_STAT | 1 | — | ✅ pass |
 | tst00c01 | 00Ch | S_BDOSVER | 2 | — | ✅ pass |
 | tst00d01 | 00Dh | DRV_ALLRESET | 1 | — | ✅ pass |
+| tst00e01 | 00Eh | DRV_SET | 2 | tst00e01.env | ✅ pass |
 | tst00f01 | 00Fh | F_OPEN | 2 | — | ✅ pass |
 | tst01001 | 010h | F_CLOSE | 1 | — | ✅ pass |
 | tst01101 | 011h | F_SFIRST | 4 | — | ✅ pass |
@@ -84,7 +89,7 @@ Exit always via fn 000h (`xor cx,cx` / `int 0E0h`).
 | tst03b01 | 03Bh | P_LOAD | 1 | — | ✅ pass |
 | tst09801 | 098h | F_PARSE | 4 | — | ✅ pass |
 
-**Total: 37/37 passing**
+**Total: 42/42 passing**
 
 > Helper: `sub02f02.cmd` — P_CHAIN target (built by `make all` via `HELPERS`, not in `TESTS`; `tst02f01.cmd` depends on it)
 >
@@ -94,7 +99,6 @@ Exit always via fn 000h (`xor cx,cx` / `int 0E0h`).
 
 | Fn | Symbol | Reason |
 |---|---|---|
-| 00Eh | DRV_SET | Drive select — deferred (needs known drive layout) |
 | 020h set | F_USERNUM set | emu2 always returns 0; set is accepted but silently ignored |
 | 036h | MC_ABSMAX | Returns hard error AX=0xFFFF, CX=3 — not supported |
 | 038h | MC_ABSALLOC | Returns hard error AX=0xFFFF, CX=3 — not supported |
@@ -109,3 +113,22 @@ Exit always via fn 000h (`xor cx,cx` / `int 0E0h`).
 | File | Contents | Used by |
 |---|---|---|
 | `tst014aa.in` | 128 bytes of 0x41 ('A') | tst00f01, tst01001, tst01401, tst01a01, tst03301 |
+| `tst00101.in` | 2 bytes: 'A','B' | tst00101 |
+| `tst00601.in` | 2 bytes: 'Q','R' | tst00601 |
+| `tst00a01.in` | 6 bytes: 'HELLO',CR | tst00a01 |
+| `tst00a02.in` | 6 bytes: 'HELLO',CR | tst00a02 |
+
+## Environment Files
+
+| File | Contents | Used by |
+|---|---|---|
+| `tst00e01.env` | `EMU2_DRIVE_A`/`B`/`C` map to `./a`, `./b`, `./c`; `D:`..`P:` all map to `./c` | tst00e01 |
+
+`make test` sources a `.env` file automatically for any `.cmd` sharing its base
+name (`set -a; . ./tst00e01.env; set +a` before invoking `emu2`), so this
+mapping never leaks into other tests - every other test keeps the default
+"all drives point at the UNIX working directory" behavior.
+
+The `./a`, `./b`, `./c` directories each hold a single empty marker file
+(`a_disk`, `b_disk`, `c_disk`) that `tst00e01` searches for with F_SFIRST to
+confirm a selected drive really maps to the expected host directory.
