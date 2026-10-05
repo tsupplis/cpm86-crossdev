@@ -9,7 +9,7 @@
 ; Demonstrates:
 ;   - Single cseg, org 100h  (no separate data segment)
 ;   - jmp main at top; all data before code
-;   - At entry DS != CS; must set DS=ES=CS
+;   - CODE-only CMD: DS = ES = CS; explicit setup also supports DATA headers
 ;   - BDOS fn 9 (print), fn 1 (read key), fn 2 (echo), fn 0 (exit)
 ; ============================================================
 
@@ -30,8 +30,7 @@ LF          equ     0Ah
 ; ============================================================
 
 main:
-            ; At org 100h entry: DS = base-page segment, CS = code segment
-            ; Redirect DS and ES to our single segment (CS)
+            ; Explicit setup also works when linked with a separate DATA group.
             mov     cx, cs
             mov     ds, cx
             mov     es, cx

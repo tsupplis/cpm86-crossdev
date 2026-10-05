@@ -1,0 +1,60 @@
+            title   'ex10grp - loader-allocated STACK group'
+
+; ============================================================
+; ex10grp.a86 - Stack pattern C: a separate STACK group
+;
+; Build:   make ex10grp.cmd
+; Run:     emu2 ./ex10grp.cmd
+;
+; Demonstrates:
+;   - ASM86/GENCMD DATA + STACK headers (DATA is required)
+;   - STACK[M8] reserves 128 bytes despite zero initialized bytes
+;   - Base-page descriptor supplies the stack base and length
+;   - The loader allocates the stack but does not set SS:SP
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+STKSIZE     equ     80h
+
+; ============================================================
+; STACK segment - STACK[M8] covers this uninitialized reservation
+; ============================================================
+            sseg
+
+stk_space   rw      STKSIZE/2
+
+; ============================================================
+; DATA segment - keep the base page below the message
+; ============================================================
+            dseg
+            org     100h
+
+msg         db      'Pattern C: loader-allocated STACK group', CR, LF, '$'
+
+; ============================================================
+; CODE segment
+; ============================================================
+            cseg
+
+main:
+            mov     bx, 12h
+            mov     dx, [bx]        ; STACK length minus one
+            inc     dx             ; zero represents a 64 KiB stack
+            mov     bx, 15h
+            mov     ax, [bx]        ; STACK base paragraph
+            cli
+            mov     ss, ax
+            mov     sp, dx
+            sti
+            mov     ax, ds
+            mov     es, ax
+            mov     cx, FN_PRINT
+            mov     dx, offset msg
+            int     BDOS
+            xor     cx, cx
+            int     BDOS
+
+            end

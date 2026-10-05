@@ -1,0 +1,42 @@
+            title   'ex10ccp - inherited CCP stack'
+
+; ============================================================
+; ex10ccp.a86 - Stack pattern A: keep the CCP stack
+;
+; Build:   make ex10ccp.cmd
+; Run:     emu2 ./ex10ccp.cmd
+;
+; Demonstrates:
+;   - Single CODE group, org 100h (8080 model)
+;   - No calls or explicit pushes; each INT needs a 6-byte frame
+;   - BDOS function 0 exits without returning to the CCP
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+            jmp     main
+
+; ============================================================
+; DATA - before code so all symbols resolve in pass 1
+; ============================================================
+msg         db      'Pattern A: inherited CCP stack', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, FN_PRINT
+            mov     dx, offset msg
+            int     BDOS
+            xor     cx, cx
+            int     BDOS
+
+            end     main

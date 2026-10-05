@@ -20,7 +20,12 @@ EXAMPLES = \
 	ex7genu.cmd \
 	ex7gens.cmd \
 	ex8macr.cmd \
-	exhelp.cmd
+	exhelp.cmd \
+	ex10ccp.cmd \
+	ex10sing.cmd \
+	ex10data.cmd \
+	ex10grp.cmd \
+	ex10run.cmd
 
 all: $(EXAMPLES)
 
@@ -38,6 +43,24 @@ all: $(EXAMPLES)
 
 ex1sing.cmd: ex1sing.obj
 	$(LINK86) 'ex1sing=ex1sing [cod[ori[0]],dat[ori[0],max[0]],$$sz]'
+
+# Single CODE group: initialized stack storage contributes to the image MIN.
+ex10ccp.cmd: ex10ccp.obj
+	$(LINK86) 'ex10ccp=ex10ccp [cod[ori[0]],dat[ori[0],max[0]],$$sz]'
+	$(CMDINFO) $@
+
+ex10sing.cmd: ex10sing.obj
+	$(LINK86) 'ex10sing=ex10sing [cod[ori[0]],dat[ori[0],max[0]],$$sz]'
+	$(CMDINFO) $@
+
+# Separate STACK group: GENCMD needs an explicit minimum for its rw tail.
+ex10grp.h86: ex10grp.a86
+	unix2dos $<
+	$(ASM86) $<
+
+ex10grp.cmd: ex10grp.h86
+	$(GENCMD) $< 'STACK[M8]'
+	$(CMDINFO) $@
 
 # ── Example 5: multi-module ────────────────────────────────────────────────────
 

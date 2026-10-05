@@ -15,4 +15,5 @@ if [ ! -f "$root/bin/cmdinfo" -o ! -f "$root/bin/bin2cmd" \
     cp "$root/archive/cmdtools/cmdinfo" "$root/bin/cmdinfo"
     cp "$root/archive/cmdtools/bin2cmd" "$root/bin/bin2cmd"
     cp "$root/archive/cmdtools/exe2cmd" "$root/bin/exe2cmd"
+    cp "$root/archive/cmdtools/cmdmod" "$root/bin/cmdmod"
 fi

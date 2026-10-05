@@ -75,6 +75,10 @@ The entire argument **must be single-quoted** in the shell / Makefile so that
 | `[stack[N]]` | — | Reserve `N` paragraphs of stack |
 | `[search]` | `[s]` | Applied to the preceding filename; search that library, link only referenced modules |
 | `[locals]` | `[lo]` | Include local symbols in `.sym` output (default: on) |
+
+Stack allocation does not initialize SS:SP. See
+[Stack Management](asm-tutorial.md#10-stack-management) for explicit startup
+and inherited-stack patterns.
 | `[nolocals]` | `[nolo]` | Exclude local symbols from `.sym` output |
 | `[libsyms]` | `[li]` | Include library symbols in `.sym` output |
 | `[nolibsyms]` | `[noli]` | Exclude library symbols from `.sym` (default) |
@@ -304,7 +308,7 @@ cpm86_gencmd myfile CODE[A40] DATA[M30,XFFF]
 
 > **Gotcha:** for dual-segment programs, put `org 100h` in the `dseg` — the loader
 > reserves DS:0–FFh for the base page. Data at DS:0 overlaps it and produces
-> garbled output (see tutorial §10 gotcha #23).
+> garbled output (see tutorial §11 gotcha #23).
 
 **Output file:** `<file>.cmd`
 

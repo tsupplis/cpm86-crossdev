@@ -1,3 +1,2 @@
 #!/bin/sh
-echo "WRN: pcdev_exe2cmd is obsolete, use exe2cmd directly" >&2
 exec "`dirname $0`/exe2cmd" "$@"

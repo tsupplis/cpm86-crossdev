@@ -22,10 +22,11 @@ flowchart LR
 
 **RASM-86** produces OMF-86 `.obj` files that LINK-86 combines into a `.cmd`.
 Use it for all multi-segment, multi-module, and library work.
-**ASM86+GENCMD** is a simpler single-pass path: single `cseg org 100h` only,
-no `CodeMacro`, no `RD` directive. See §5 and §8 for the comparison.
+**ASM86+GENCMD** is a simpler hex-file path supporting single- and
+multi-segment programs; it has no OMF multi-module linking step.
+See §5 and §8 for the comparison.
 
-> Both tools require **CRLF line endings** — run `unix2dos` before assembling (§10 gotcha #2).
+> Both tools require **CRLF line endings** — run `unix2dos` before assembling (§11 gotcha #2).
 
 ---
 
@@ -38,14 +39,13 @@ CP/M-86 sets registers before jumping to the program entry point.
 | Register | Value at entry | Notes |
 |----------|---------------|-------|
 | CS | code segment | your `cseg` |
-| DS | base-page segment | **not** CS — redirect before using data |
+| DS | base-page group | CS in the 8080 model; separate DATA group if linked |
 | ES | base-page segment | same as DS |
-| SS | stack segment | CP/M default stack |
-| SP | top of CP/M stack | usable |
+| SS:SP | inherited CCP stack | not initialized by the loader; see §10 |
 | DS:80h | command tail length | byte count |
 | DS:81h | command tail text | space + args |
 
-> Read the command tail **before** redirecting DS (§7.7, §10 gotcha #9).
+> Read the command tail **before** redirecting DS (§7.7, §11 gotcha #9).
 
 ### Dual/triple/stack-segment (RASM-86 via LINK-86, or ASM86 via GENCMD no keyword)
 
@@ -54,8 +54,13 @@ CP/M-86 sets registers before jumping to the program entry point.
 | CS | `cseg` base | — |
 | DS | `dseg` / dgroup base | set by loader from DATA header |
 | ES | `eseg` base (if present) | else = DS |
-| SS | `sseg` base (if `sseg` linked) | else CP/M default |
-| SP | `sseg` top (if `sseg` linked) | else CP/M default |
+| SS:SP | inherited CCP stack | a STACK header allocates storage, not register setup |
+
+The CMD headers, not `org` alone, determine the model. With no DATA group
+(8080 model), DS = ES = CS and entry IP is `100h`. With a DATA group, DS points
+to its base page; even an `org 100h` program can have a separate base-page DATA
+group when linked that way. Explicitly setting DS/ES to CS is harmless in the
+8080 model and necessary for code-resident data in the latter layout.
 
 ---
 
@@ -65,8 +70,9 @@ CP/M-86 sets registers before jumping to the program entry point.
 
 Source: [`ex1sing.a86`](ex1sing.a86)
 
-Single `cseg` with `org 100h`. No separate data segment — DS ≠ CS at entry;
-must redirect DS and ES to CS before accessing any data labels.
+Single `cseg` with `org 100h`. This example's link rule emits a CODE-only
+8080-model CMD, so DS = ES = CS at entry. Explicitly setting DS and ES to CS
+also supports linking the same source with a separate base-page DATA group.
 
 Key points:
 - `jmp main` at top so execution skips data
@@ -112,8 +118,11 @@ Key points:
 - `dgroup group DATA,STACK` — one segment register covers both
 - `rw 32` reserves 64 bytes; `stk_top rw 0` places a label at the top (SP initial value)
 - `mov ax,seg stk_top` returns the dgroup base; sets SS, DS, ES, and SP in one block
+- `cli` / `sti` protects the adjacent SS/SP writes; the loader does not do this setup
 - `end main` (explicit entry label needed because sseg comes first in source)
 
+For stack budgeting, startup, and termination rules, see
+[§10: Stack Management](#10-stack-management).
 
 ---
 
@@ -165,8 +174,9 @@ Key points:
 - Assemble: `cpm86_asm86 ex7genc.a86` → `ex7genc.h86`
 - Package: `cpm86_gencmd ex7genc.h86 8080` → single-header `.cmd`
 - `jmp main` at top; all data before code (forward-reference rule, same as RASM-86)
-- `end` with no label — ASM86 does not accept `end <label>` (§10 gotcha #22)
-- DS ≠ CS at entry — redirect: `mov cx,cs` / `mov ds,cx` / `mov es,cx`
+- `end` with no label — ASM86 does not accept `end <label>` (§11 gotcha #22)
+- DS = ES = CS in the `8080` model; the explicit DS/ES assignments also work
+  when linking an `org 100h` source with a separate DATA group
 
 ### 5.2 Dual segment — `cseg` + `dseg`
 
@@ -180,7 +190,7 @@ Key points:
 - Assemble: `cpm86_asm86 ex7gend.a86` → `ex7gend.h86`
 - Package: `cpm86_gencmd ex7gend.h86` *(no keyword)* → two-header `.cmd`
 - **`dseg org 100h` is required** — the loader reserves the first 256 bytes of DS
-  for the base page; data placed at DS:0 overlaps it (§10 gotcha #23)
+  for the base page; data placed at DS:0 overlaps it (§11 gotcha #23)
 - DS is set by the loader at entry — no redirect needed; set ES = DS explicitly
 - `end` with no label (same rule as single-segment ASM86 programs)
 
@@ -295,14 +305,29 @@ stk_space   rw      STKSIZE/2       ; 128 bytes, zero bytes in hex
 
 CMD headers produced:
 ```
-INF: HDR(0)TYP(01,CODE) BAS(0000h)MN(0.1k=112) LEN(112)
+INF: HDR(0)TYP(01,CODE) BAS(0000h)MN(0.1k=128) LEN(128)
 INF: HDR(1)TYP(02,DATA) BAS(0000h)MN(0.9k=880) LEN(400)
 INF: HDR(3)TYP(04,STACK)BAS(0000h)MN(0.1k=128) LEN(0)
 ```
 
-`LEN=0` on the STACK header — no bytes in the hex file, but `MN=128` tells the
-loader to reserve 128 bytes and set SS:SP accordingly. At entry SS and SP are
-already set by the loader; no setup code needed.
+`LEN=0` on the STACK header means no bytes in the hex file, but `MN=128` tells
+the loader to reserve 128 bytes. **The loader does not set SS:SP.** The example
+reads the STACK descriptor from the DATA base page and switches explicitly:
+
+```asm
+            mov     bx, 12h
+            mov     dx, [bx]        ; STACK length - 1
+            inc     dx
+            mov     bx, 15h
+            mov     ax, [bx]        ; STACK base paragraph
+            cli
+            mov     ss, ax
+            mov     sp, dx
+            sti
+```
+
+See [§10.4](#104-pattern-c-data-stack-or-separate-stack-group) for the descriptor layout and the distinction between grouped
+stack storage and a separate STACK group.
 
 **Computing `STACK[M8]`:**
 ```
@@ -330,7 +355,7 @@ Key points:
 - `BDOS_CALL fn:Db` — emits `B9h <fn word>` (MOV CX,imm16) + `CDh E0h` (INT 0E0h); parameter type `Db` covers fn 0–255
 - `PUSHI imm:Db` — emits `68h <word>` (80186-style PUSH imm16 not in 8086 base set); `PUSHI 041h` then `pop ax` gives AX=41h
 - `ESC opcode:Db(0,63), src:Eb` — 8087 escape encoding via `SEGFIX` + `DBIT 5(1Bh),3(opcode(3))` + `MODRM opcode,src`
-- `Db` vs `Dw` matters: wrong parameter type causes ERROR 7; `Db` fits -256..255, `Dw` fits any 16-bit value (see §10 gotcha #14)
+- `Db` vs `Dw` matters: wrong parameter type causes ERROR 7; `Db` fits -256..255, `Dw` fits any 16-bit value (see §11 gotcha #14)
 - `CodeMacro` definitions must appear **before** the `cseg` / `org` directive
 
 
@@ -440,7 +465,7 @@ Source: [`hlp_file.a86`](hlp_file.a86)
 
 Key points:
 - Call `fcb_init` before every open/create — clears cr and random record fields
-- Caller must issue fn 33h (Set DMA Segment) **once at startup** pointing to the segment containing the DMA buffer (see §10 gotcha #10)
+- Caller must issue fn 33h (Set DMA Segment) **once at startup** pointing to the segment containing the DMA buffer (see §11 gotcha #10)
 - `file_open_append`: open (fn 0Fh) → compute file size (fn 23h) → copy FCB+33 (R0) into FCB+32 (cr) — positions sequential write at EOF
 - `file_read` / `file_write` set the DMA **offset** (fn 1Ah) each call; the segment is set once by the caller
 
@@ -470,7 +495,7 @@ Key points:
 - Args pushed right-to-left before `call`; callee does `push bp` / `mov bp,sp`
 - First arg is at `4[bp]` (2 bytes ret addr + 2 bytes saved BP)
 - Callee cleans its frame with `pop bp; ret`; caller cleans args with `add sp,N`
-- Indexed memory syntax in RASM-86: `4[bp]` not `[bp+4]` (see §10 gotcha #5)
+- Indexed memory syntax in RASM-86: `4[bp]` not `[bp+4]` (see §11 gotcha #5)
 
 ### 7.7 Command-Line Parsing (`hlp_cmd`)
 
@@ -519,15 +544,15 @@ Key points:
 |---|---|---|---|
 | Output format | `.obj` (OMF-86) | `.h86` (Intel hex) | RASM-86 → LINK-86; ASM86 → GENCMD |
 | Next tool | `pcdev_linkcmd` | `cpm86_gencmd` | — |
-| Segment directives | `cseg` / `dseg` / `eseg` / `sseg` | `cseg` only | no `segment...ends` Intel syntax in either |
-| Multi-segment | yes | no (single `cseg org 100h` only) | — |
+| Segment directives | `cseg` / `dseg` / `eseg` / `sseg` | `cseg` / `dseg` / `eseg` / `sseg` | no `segment...ends` Intel syntax in either |
+| Multi-segment | yes | yes | GENCMD without `8080` preserves the groups |
 | `CodeMacro` / `EndM` | yes | no | RASM-86 only |
 | `RD` directive | yes | no | RASM-86 repeat-data |
 | `INCLUDE` directive | no | yes | ASM86 only |
 | Local symbols param | `$ sz` | `$ S+` | different parameter letter |
 | Hex constant format | `0FFh` (trailing `h`) | `0FFH` or `#FF` | case-insensitive in ASM86 |
 | Line endings | CRLF required | CRLF required | `unix2dos` before assembling |
-| Filename limit | ≤ 8 chars (silently fails on longer) | ≤ 8 chars | see §10 gotcha #1 |
+| Filename limit | ≤ 8 chars (silently fails on longer) | ≤ 8 chars | see §11 gotcha #1 |
 | `JMPS` / `JMPF` | `JMPS` (short), `JMPF` (far) | `JMP SHORT`, `JMP FAR` | — |
 | `CALLF` / `RETF` | `CALLF`, `RETF` | `CALL FAR`, `RET FAR` | — |
 
@@ -560,12 +585,309 @@ Key points:
 | 24h | Set random record | 24h | DX → FCB | FCB r0/r1/r2 set from cr |
 | 33h | Set DMA segment | 33h | DX = segment value | — |
 
-> **Note:** fn 33h (Set DMA Segment) must be called once at startup for `org 100h` programs before any file I/O — the default DMA segment after relocation is not the program's segment (§10 gotcha #10).
+> **Note:** fn 33h (Set DMA Segment) must be called once at startup for `org 100h` programs before any file I/O — the default DMA segment after relocation is not the program's segment (§11 gotcha #10).
 
 
 ---
 
-## 10. Gotchas
+## 10. Stack Management
+
+### 10.1 Entry state and stack budget
+
+| Register | CP/M-86 entry value |
+|---|---|
+| CS:IP | CODE group: `0`, or `100h` in the 8080 model |
+| DS | DATA group/base page; CODE group in the 8080 model |
+| ES | DS, or EXTRA group if present (not in the 8080 model) |
+| SS:SP | **Inherited from the CCP**, not set by the loader |
+
+The reference CP/M-86 CCP reserves 96 bytes (`rs 96` before its `STACK`
+label). That is not 96 bytes exclusively for the application: the CCP's own
+frames and its four-byte `CALLF` return address share it. Below the stack are
+CCP variables and its sector buffer; overflowing it corrupts the CCP.
+Other CCP implementations can reserve different amounts.
+
+A STACK group (CMD type 4) only makes the loader allocate memory and record
+its base and length in the base page. The application must initialize SS:SP.
+STACK descriptor initialization requires a DATA group (type 2); a CODE-only
+8080-model program cannot rely on that descriptor.
+
+Count **simultaneously live** stack items, not the number of instructions:
+
+| Operation | Stack bytes |
+|---|---:|
+| `push`, `pushf`, near `call` | 2 each |
+| Far `call` | 4 |
+| Interrupt frame (FLAGS, CS, IP) | 6 |
+| Arguments and saved registers | add their actual sizes |
+
+Loops with balanced pushes/pops do not accumulate stack usage. Include the
+deepest call chain and allow additional headroom for hardware interrupt
+handlers and any service code using the caller's stack. Source-level counts
+alone are not a complete bound on system-service stack usage.
+
+### 10.2 Pattern A: keep the CCP stack
+
+Source: [`ex10ccp.a86`](ex10ccp.a86)
+
+Appropriate for tiny, shallow programs. The example prints one message and
+exits through BDOS function 0. It has no calls or explicit pushes, so each
+`INT 0E0h` adds only a six-byte interrupt frame:
+
+```asm
+            mov     cx, cs
+            mov     ds, cx
+            mov     es, cx
+            mov     cx, 9
+            mov     dx, offset msg
+            int     0E0h
+            xor     cx, cx
+            int     0E0h
+```
+
+The message is defined before the code, behind `jmp main`, following the
+other single-segment examples. Do not add a private stack merely because a
+program calls a helper; first estimate the maximum depth.
+
+Build and run:
+```
+make ex10ccp.cmd
+emu2 ./ex10ccp.cmd
+```
+
+### 10.3 Pattern B: stack inside the single group
+
+Source: [`ex10sing.a86`](ex10sing.a86)
+
+For an 8080-model program, reserve stack storage inside its CODE group and
+set SS = CS. This example reserves 256 initialized bytes **above the base
+page**, with a top label immediately after them:
+
+```asm
+stk_space   db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            ; Repeat this 16-byte declaration 16 times (see the source).
+stk_top     rw      0
+```
+
+Startup runs before any helper calls:
+
+```asm
+            mov     ax, cs
+            mov     ds, ax
+            mov     es, ax
+            cli
+            mov     ss, ax
+            mov     sp, offset stk_top
+            sti
+```
+
+RASM-86 does not accept Intel/MASM `dup` syntax here, so the source uses
+16 explicit 16-byte `db` declarations.
+The stack grows down into `stk_space`. Initialized bytes are in the image,
+so they contribute to the CMD group length and its minimum allocation.
+The Makefile links this example with a single CODE group.
+
+Other ways to obtain stack room:
+
+| Method | Allocation requirement |
+|---|---|
+| Initialized block in the image | Included in group length and MIN; simplest standalone example |
+| Space beyond the image | Raise **MIN** to cover the highest used offset plus one |
+| Top of the allocated group | Read the base-page length-minus-one at `DS:0`; ensure unused space below it is sufficient |
+
+For the last method, `mov bx,0` / `mov sp,[bx]` uses the reported
+length-minus-one directly, leaving the last byte unused. Incrementing the
+reported value gives the exclusive top; it wraps to zero for 64 KiB.
+Read it while DS still points to the base page. These methods do not by
+themselves prevent the stack from colliding with program data.
+
+`cmdmod -n <hexbytes> prog.cmd 0` can raise a CODE group's minimum.
+Setting only maximum allocation (`bin2cmd -m` or a CMD MAX field) is not
+enough: the loader may allocate less than MAX, but never less than MIN.
+For ASM86/GENCMD tail reservations, supply `CODE[Mn]` as described in §5.3.
+
+**Never place a stack in base-page offsets `0..FFh`.** The FCB starts at
+`5Ch`, and the default DMA buffer at `80h` is overwritten by file reads.
+
+Build and run:
+```
+make ex10sing.cmd
+emu2 ./ex10sing.cmd
+```
+
+### 10.4 Pattern C: DATA stack or separate STACK group
+
+#### Stack inside the DATA group
+
+Source: [`ex10data.a86`](ex10data.a86)
+
+With separate CODE and DATA groups, DS is already the DATA base at entry.
+Reserve 128 bytes there and explicitly select SS = DS:
+
+```asm
+            dseg
+stk_space   rw      STKSIZE/2
+stk_top     rw      0
+```
+
+```asm
+            mov     ax, ds
+            cli
+            mov     ss, ax
+            mov     sp, offset stk_top
+            sti
+```
+
+RASM-86/LINK-86 counts the reservation in the DATA group length and MIN.
+With the default link rule it places source DATA after the `100h`-byte
+base page; the example's stack starts there, not at base-page offset zero.
+ASM86/GENCMD requires `DATA[Mn]` when an uninitialized reservation is at
+the tail (§5.3). The base page must remain outside the stack reservation.
+
+[`ex4stak.a86`](ex4stak.a86) is another form of this pattern: it groups DATA
+and STACK into `dgroup` and uses the grouped `stk_top` address. A source
+`sseg` is not necessarily a separate CMD STACK group after grouping.
+
+#### Separate loader-allocated STACK group
+
+Sources: [`ex10grp.a86`](ex10grp.a86) · [`ex7gens.a86`](ex7gens.a86)
+
+The base-page descriptor for the STACK group contains:
+
+| DATA-base-page offset | Field |
+|---|---|
+| `12h` | Length minus one, low 16 bits |
+| `14h` | Length minus one, high four bits |
+| `15h` | Base paragraph |
+
+For a stack of at most 64 KiB, read the base and low length word, increment
+the length, and switch SS:SP:
+
+```asm
+            mov     bx, 12h
+            mov     dx, [bx]
+            inc     dx             ; exclusive top; 0 means 64 KiB
+            mov     bx, 15h
+            mov     ax, [bx]
+            cli
+            mov     ss, ax
+            mov     sp, dx
+            sti
+```
+
+The examples require a DATA header and use `STACK[M8]` to reserve 128 bytes
+for an entirely uninitialized `sseg`. Do not use this setup if no STACK
+descriptor has been allocated, or assume the low length word describes
+a group larger than one 64 KiB stack segment.
+
+A zero-length STACK group with only a minimum allocation also works:
+`cmdmod -t STACK -n 400 prog.cmd 3` adds a 1 KiB stack in header slot 3.
+It still requires a DATA group.
+
+Build and run:
+```
+make ex10data.cmd ex10grp.cmd
+emu2 ./ex10data.cmd
+emu2 ./ex10grp.cmd
+```
+
+### 10.5 Pattern D: runtime startup owns the stack
+
+Source: [`ex10run.a86`](ex10run.a86)
+
+PL/M and C runtime startup normally performs pattern C before entering
+application code. This runnable assembly example **models** that contract;
+it is not a PL/M or C runtime implementation. Startup reserves a DATA stack,
+switches to it, and then transfers control to `app_main`.
+
+It preserves the entry FLAGS rather than unconditionally enabling interrupts:
+
+```asm
+startup:
+            pushf
+            pop     ax             ; save on the old stack, then remove it
+            cli
+            mov     cx, ds
+            mov     ss, cx
+            mov     sp, offset stack_base
+            push    ax             ; restore FLAGS from the new stack
+            popf
+            jmp     app_main
+```
+
+Do not leave the saved FLAGS on the old stack and expect a `popf` after
+the switch to retrieve them.
+
+The real PL/M stub [`scd.a86`](../../examples/scd.a86) uses SS = DS and
+SP = `stack_base`; its linked runtime/module layout must provide enough
+space below that label. Aztec C binaries can show a DATA group with
+`LEN(0)` and `MIN=MAX=64K` in `cmdinfo`: the runtime uses that data group
+and places the stack at its top. Application code should not replace a
+runtime's stack setup without understanding its layout.
+
+Build and run:
+```
+make ex10run.cmd
+emu2 ./ex10run.cmd
+```
+
+### 10.6 Safe switching and termination
+
+Keep the SS and SP writes adjacent and protect them with `cli`/`sti`.
+An interrupt between the two writes would use the new SS with the old SP.
+Early 8088 steppings cannot all be relied on to inhibit interrupts after
+`mov ss`. `sti` assumes interrupts were enabled when the CCP started the
+program; use the FLAGS-preserving startup sequence in §10.5 when the
+caller's interrupt state must be retained.
+
+After switching to a private stack, exit using BDOS function 0:
+
+```asm
+            xor     cx, cx
+            int     0E0h
+```
+
+Do **not** `retf` to the CCP: its far return address remains on the old
+stack. BDOS termination does not require that saved return address.
+A callable routine that intentionally returns with `retf` must instead
+preserve and restore its caller's SS:SP before returning.
+
+### 10.7 Inspection and allocation tools
+
+| Need | Command |
+|---|---|
+| Inspect model, groups, MIN/MAX | `cmdinfo prog.cmd` |
+| Reserve CODE-group space beyond the image | `cmdmod -n 1000 prog.cmd 0` (hex bytes) |
+| Reset minimum to group length | `cmdmod -n 0 prog.cmd 0` |
+| Add zero-length STACK with 1 KiB minimum | `cmdmod -t STACK -n 400 prog.cmd 3` (requires DATA) |
+
+GENCMD `Mn` uses **hex paragraphs**, whereas `cmdmod -n` uses **hex bytes**.
+For example, `STACK[M8]` and a minimum of `80h` bytes both reserve 128 bytes.
+
+### 10.8 Review of the other examples
+
+The following counts are maximum additional source-level bytes beyond
+entry, not a total including the CCP's existing frames or system handlers.
+
+| Sources | Stack use and decision |
+|---|---|
+| `ex1sing`, `ex2dual`, `ex3trip` | No calls or pushes; six-byte interrupt frame. Keep pattern A. |
+| `ex5main` / `ex5util` | One near call, returned before the next interrupt; maximum six bytes. Keep pattern A. |
+| `ex6lib` / `add16` / `mul16` | Two near calls reach four bytes; an interrupt inside `word_to_hex` reaches eight. Keep pattern A. |
+| `ex7genc`, `ex7gend`, `ex7genu` | Straight-line BDOS calls, six bytes. Keep pattern A. |
+| `ex8macr` | `PUSHI`/`pop` is balanced before the next interrupt; maximum six bytes. Keep pattern A. |
+| `exhelp` | BP-demo argument + return + saved BP + nested call + interrupt reaches 14 bytes. Its loops are balanced; no mandatory private-stack change. |
+| `ex4stak` | Intentional grouped private stack, pattern C; SS/SP switching is now interrupt-protected. |
+| `ex7gens` | Intentional separate STACK group, pattern C; now explicitly reads the descriptor and initializes SS:SP. |
+| `hlp_num`, `hlp_str`, `hlp_io`, `hlp_mem`, `hlp_cmd`, `hlp_file` | Library modules, not standalone entry points. Use the caller's stack; document/budget saved registers and calls rather than switching stacks inside helpers. |
+
+Keep the shallow examples on the inherited stack. Give programs with
+deeper or unbounded call chains, recursion, large stack locals, or
+transient-launching responsibilities a private stack sized for that work.
+
+---
+
+## 11. Gotchas
 
 **1. Filename > 8 chars** → RASM-86 silently truncates or fails to find the file.
 Keep source filenames ≤ 8 chars (e.g. `ex1sing.a86`, not `example1_single.a86`).
@@ -595,8 +917,10 @@ skip:
 **7. Makefile `[$sz]` quoting** → `make` expands `$s` as a shell variable.
 Fix: single quotes only — `'ex1sing [$sz]'`. Double quotes let the shell eat `$sz`.
 
-**8. `org 100h`: DS ≠ CS at entry** → data access via DS reads the wrong segment.
-Fix: redirect immediately — `mov cx,cs` / `mov ds,cx` / `mov es,cx` — before touching any data label.
+**8. `org 100h` does not determine DS by itself** → code-resident data can be
+accessed through the wrong segment when a separate DATA header is linked.
+In the 8080 model DS = CS; with a separate DATA group DS points to that group.
+Fix: `mov cx,cs` / `mov ds,cx` / `mov es,cx` before accessing code-resident data.
 
 **9. `org 100h`: command tail in base-page DS** → tail is lost after DS redirect.
 Fix: call `parse_cmdline` (or read DS:80h/81h manually) **before** the DS redirect.
@@ -630,9 +954,12 @@ Every string printed with BDOS fn 9 must end with the byte `24h` (`'$'`). A miss
 
 **19. `MORE THAN ONE MAIN PROGRAM` from LINK-86** → two modules both have `end <label>`.
 Only one module's `end` directive should name the entry point. All other modules use bare `end` (no label).
+See [§4.1: Public / Extrn](#41-public--extrn--two-file-link).
 
 **20. `UNDEFINED SYMBOLS` from LINK-86** → a module that exports a `public` is missing from the link command, or the spelling of the `extrn` and `public` names don't match.
 Fix: list all required `.obj` files (and `.l86[search]` libraries) in the `pcdev_linkcmd` command.
+See [§4.1](#41-public--extrn--two-file-link) for module linking and
+[§4.2](#42-library-creation-and-use-lib-86) for library searches.
 
 **21. Ambiguous memory operand size** → ERROR 21 (`MISSING TYPE INFO`).
 `mov [bx], 10` — RASM-86 can't infer byte vs word. Fix: load into a sized register first: `mov al, 10` / `mov [bx], al`.

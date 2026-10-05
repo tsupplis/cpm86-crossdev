@@ -1,0 +1,67 @@
+            title   'ex10sing - private single-group stack'
+
+; ============================================================
+; ex10sing.a86 - Stack pattern B: stack inside the CODE group
+;
+; Build:   make ex10sing.cmd
+; Run:     emu2 ./ex10sing.cmd
+;
+; Demonstrates:
+;   - Initialized stack storage is part of the image and its MIN
+;   - SS = CS; SP points just past the reserved stack
+;   - CLI/STI protects the SS:SP switch; exit uses BDOS 0
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+
+            cseg
+            org     100h
+            jmp     main
+
+; ============================================================
+; DATA - stack grows down from stk_top, outside the base page
+; ============================================================
+stk_space   db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            db      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+stk_top     rw      0
+msg         db      'Pattern B: private single-group stack', CR, LF, '$'
+
+; ============================================================
+; CODE
+; ============================================================
+main:
+            mov     ax, cs
+            mov     ds, ax
+            mov     es, ax
+            cli
+            mov     ss, ax
+            mov     sp, offset stk_top
+            sti
+            call    print_message
+            xor     cx, cx
+            int     BDOS
+
+print_message:
+            mov     cx, FN_PRINT
+            mov     dx, offset msg
+            int     BDOS
+            ret
+
+            end     main

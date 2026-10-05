@@ -18,9 +18,8 @@
 ;
 ; At entry (multi-segment CMD):
 ;   CS = code segment, DS = data segment (set by loader),
-;   SS = stack segment (set by loader from STACK header),
-;   SP = top of stack section (set by loader).
-;   No SS/SP setup needed in code when STACK header present.
+;   SS:SP still points into the CCP stack.
+;   Read the STACK group descriptor in the base page and switch explicitly.
 ;
 ; Build:
 ;   make ex7gens.cmd
@@ -75,8 +74,17 @@ rev_buf     rb      REV_SIZE
             cseg
 
 main:
-            ; At entry: DS = data seg, SS:SP = stack seg (loader set both).
-            ; Just set ES = DS before any ES-relative addressing.
+            ; STACK descriptor: length-1 at DS:12h, base paragraph at DS:15h.
+            mov     bx, 12h
+            mov     dx, [bx]
+            inc     dx
+            mov     bx, 15h
+            mov     ax, [bx]
+            cli
+            mov     ss, ax
+            mov     sp, dx
+            sti
+
             mov     cx, ds
             mov     es, cx
 

@@ -1,0 +1,52 @@
+            title   'ex10data - private data-group stack'
+
+; ============================================================
+; ex10data.a86 - Stack pattern C: stack inside the DATA group
+;
+; Build:   make ex10data.cmd
+; Run:     emu2 ./ex10data.cmd
+;
+; Demonstrates:
+;   - CODE + DATA, with DS supplied by the loader
+;   - RASM-86/LINK-86 counts rw storage in the DATA group MIN
+;   - SS = DS; CLI/STI protects the SS:SP switch
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+STKSIZE     equ     80h
+
+; ============================================================
+; DATA segment
+; ============================================================
+            dseg
+
+stk_space   rw      STKSIZE/2
+stk_top     rw      0
+msg         db      'Pattern C: private data-group stack', CR, LF, '$'
+
+; ============================================================
+; CODE segment
+; ============================================================
+            cseg
+
+main:
+            mov     ax, ds
+            mov     es, ax
+            cli
+            mov     ss, ax
+            mov     sp, offset stk_top
+            sti
+            call    print_message
+            xor     cx, cx
+            int     BDOS
+
+print_message:
+            mov     cx, FN_PRINT
+            mov     dx, offset msg
+            int     BDOS
+            ret
+
+            end     main

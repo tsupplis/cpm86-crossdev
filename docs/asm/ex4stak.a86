@@ -10,7 +10,8 @@
 ;   - sseg + dseg + cseg with RASM-86 native directives
 ;   - dgroup GROUP combines DATA and STACK segments
 ;   - At entry: seg stk_top returns the dgroup base (group base)
-;   - mov ss,cx + lea sp,stk_top sets up the explicit stack
+;   - mov ss,ax + mov sp,offset stk_top sets up the explicit stack
+;   - CLI/STI protects SS:SP setup; the loader does not initialize it
 ;   - LINK-86 produces no "NO STACK SEGMENT" warning
 ;
 ; RASM-86 segment directives:
@@ -64,8 +65,10 @@ main:
             ; SP = offset stk_top = top of stack area (stack grows DOWN).
             mov     ax, seg stk_top
             mov     ds, ax
+            cli
             mov     ss, ax
             mov     sp, offset stk_top
+            sti
             mov     es, ax
 
             ; Print message

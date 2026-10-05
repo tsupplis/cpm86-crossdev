@@ -1,0 +1,58 @@
+            title   'ex10run - runtime-style stack startup'
+
+; ============================================================
+; ex10run.a86 - Stack pattern D: runtime startup owns the stack
+;
+; Build:   make ex10run.cmd
+; Run:     emu2 ./ex10run.cmd
+;
+; Demonstrates:
+;   - Assembly model of PL/M or C startup, not a language runtime
+;   - Startup reserves a DATA stack and preserves entry FLAGS
+;   - Application code uses calls without repeating stack setup
+; ============================================================
+
+BDOS        equ     0E0h
+FN_PRINT    equ     9
+CR          equ     0Dh
+LF          equ     0Ah
+STKSIZE     equ     100h
+
+; ============================================================
+; DATA segment
+; ============================================================
+            dseg
+
+stk_space   rw      STKSIZE/2
+stack_base  rw      0
+msg         db      'Pattern D: runtime-style stack startup', CR, LF, '$'
+
+; ============================================================
+; CODE segment - startup runs before the application
+; ============================================================
+            cseg
+
+startup:
+            pushf
+            pop     ax
+            cli
+            mov     cx, ds
+            mov     ss, cx
+            mov     sp, offset stack_base
+            push    ax
+            popf
+            mov     es, cx
+            jmp     app_main
+
+app_main:
+            call    print_message
+            xor     cx, cx
+            int     BDOS
+
+print_message:
+            mov     cx, FN_PRINT
+            mov     dx, offset msg
+            int     BDOS
+            ret
+
+            end     startup
