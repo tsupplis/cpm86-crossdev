@@ -257,6 +257,7 @@ run_fetcher cross_mstools
 run_fetcher cross_tdlbasic
 run_fetcher native_pc
 run_fetcher native_crc
+run_fetcher native_mzchecksum
 run_fetcher native_nasm
 run_fetcher native_mlbr
 run_fetcher cross_lzexe

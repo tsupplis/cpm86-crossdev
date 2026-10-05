@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking mzchecksum ...
+mkdir -p "$root/archive"
+if [ ! -d "$root/archive/mzchecksum" ];then
+    git clone "https://gitlab.com/johnsonjh/mzchecksum" "$root/archive/mzchecksum" || \
+    git clone "https://github.com/johnsonjh/mzchecksum" "$root/archive/mzchecksum"
+    rm -rf "$root/archive/mzchecksum/.git"
+fi
+if [ ! -f "$root/bin/mzchecksum" ];then
+    (cd "$root/archive/mzchecksum";"${CC:-cc}" -O -o mzchecksum mzchecksum.c;cp "$root/archive/mzchecksum/mzchecksum" "$root/bin")
+fi

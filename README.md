@@ -112,6 +112,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | PKLITE                | 1.50 + 2.01   | Executable packer, supporting MS‑DOS                                       |
 | pc                    | 1.1.2         | Programmers calculator                                                     |
 | crc                   | —             | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility                |
+| mzchecksum            | —             | Display and verify DOS EXE checksum                                        |
 | ARC86 / LU86 / (U)SQ  | 1.0 / 4.05 / 1.82 / 1.83 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
 | mlbr                  | 2026.9.25.24+ | Archive extractor/converter for LBR, squeezed, crunched, and crLzhed files |
 
@@ -130,6 +131,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | tnylpo | BSD‑3‑Clause | [LICENSE](https://gitlab.com/gbrein/tnylpo/-/blob/master/LICENSE) |
 | pc | MIT | [LICENSE](https://gitlab.com/johnsonjh/pc/-/blob/master/LICENSE) |
 | crc | MIT‑0 | [LICENSE](https://gitlab.com/dps8m/crc/-/blob/master/LICENSE) |
+| mzchecksum | MIT‑0 | [LICENSE](https://gitlab.com/johnsonjh/mzchecksum/-/blob/master/LICENSE) |
 | LZEXE / UnLZEXE / COMtoEXE / INFOEXE | MIT | [LICENSE](https://hg.pushbx.org/ecm/lzexe/file/tip/LICENSE) |
 | PKLITE 1.50 + 2.01 | Freeware (conditions apply) | [1.50 LICENSE](https://github.com/johnsonjh/pkstuff/blob/master/LICENSES/LicenseRef-PKWARE-PKLITE1-Shareware.txt) + [2.01 LICENSE](https://github.com/johnsonjh/pkstuff/blob/master/LICENSES/LicenseRef-PKWARE-PKLITE2-Shareware.txt) |
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
@@ -272,10 +274,11 @@ All the tools are wrapped in the bin directory for direct usage:
 | PL/M                      | intel_oh86    | oh86.exe         | Intel object to hex converter                          |
 | PL/M                      | intel_plm86   | plm86.exe        | Intel PL/M‑86 3.30 compiler                            |
 | Misc                      | cmdinfo       | (native)         | CMD info tool (native)                                 |
+| Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
 | Misc                      | doscat        | (native)         | Truncate files beyond ^Z                               |
 | Misc                      | tnylpo‑convert | (native)        | converts text files to and from the CP/M format        |
 | Misc                      | crc           | (native)         | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility |
-| Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
+| Misc                      | mzchecksum    | (native)         | Display and verify DOS EXE checksum                    |
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
 | Misc                      | cpm_sq        | sq.cmd           | SQ compression utility for CP/M‑86                     |

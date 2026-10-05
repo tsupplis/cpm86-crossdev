@@ -28,6 +28,7 @@ bin/drpli_objfix
 bin/pc
 bin/crc
 bin/mlbr
+bin/mzchecksum
 
 # ── Build artefacts ──────────────────────────────────────────────────────────
 **/*.lock
