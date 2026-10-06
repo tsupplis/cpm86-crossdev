@@ -19,6 +19,7 @@ bin/tnylpo-convert
 bin/nasm
 bin/upx
 bin/cmdinfo
+bin/cmdmod
 bin/bin2cmd
 bin/exe2cmd
 bin/doscat
