@@ -43,7 +43,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 |-----------:|:------------------------------------------------------------------------------|
 | C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C 5.1 |
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
-| Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.22/5.28, GW Basic 3.23, TDL BASIC 3.05 |
+| Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0                                                             |
 | COBOL      | Micro Focus Level II COBOL V2.1                                               |
@@ -80,7 +80,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | DR CBASIC         | 1.4 (CP/M‑86)                     | Compiled BASIC; compiler `cbas86.cmd`, runtime `crun86.cmd`                  |
 | M2CBASIC          | 1.4                               | MS BASIC → CBASIC source converter; translator + runtime libs                |
 | DR Personal Basic | 1.2                               | Interactive CP/M‑86 BASIC interpreter                                        |
-| MS Basic          | 5.22 (CP/M‑86) / 5.28 (DOS)       | Interpreted; patched binaries included                                       |
+| MS Basic          | 5.50 (CP/M‑86 / DOS)              | Reconstructed from GW Basic ([cpm86‑msbasic](https://github.com/tsupplis/cpm86-msbasic)) |
 | MS Basic          | 5.21 (CP/M‑80) / 4.51 "Old Basic" | Run via `tnylpo`                                                             |
 | TDL BASIC         | 3.05                              | Z‑80 CP/M‑80 BASIC; run via `tnylpo`                                         |
 | Intel PL/M‑86     | 3.30                              | Compiler `plm86.exe`, assembler `asm86.exe`, linker, librarian, locator      |
@@ -187,6 +187,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | pcdev_xref86  | xref86.exe       | DR cross referencer                                    |
 | Assembler                 | cpm_asm80     | asm80.com        | DR 8008 assembler (CP/M‑80 tool) to support xlt86      |
 | Linkers / Librarians      | bin2cmd       | (native)         | CMD converter (native)                                 |
+| Linkers / Librarians      | cmdmod        | (native)         | CMD segment/group modifier (native)                    |
 | Linkers / Librarians      | exe2cmd       | (native)         | EXE to CMD converter (native)                          |
 | Linkers / Librarians      | hexcom        | (native)         | HEX to COM translation                                 |
 | Linkers / Librarians      | pcdev_bin2cmd | ‑                | obsolete alias for bin2cmd                             |
@@ -219,7 +220,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Basic                     | drcbdos_bc    | cb86.exe         | DR CBASIC compiler for DOS                             |
 | Basic                     | drcbdos_link  | linkexe.exe      | DR CBASIC linker for DOS                               |
 | Basic                     | m2cb_cvt      | m2cbasic.cmd     | M2CBASIC 1.4 MBASIC to CBASIC converter                |
-| Basic                     | pcdev_mbasic  | mbasic86.com     | Microsoft Basic 5.28 (DOS, via emu2)                   |
+| Basic                     | pcdev_mbasic  | mbasic86.com     | Microsoft Basic 5.50 (DOS, via emu2)                   |
 | Basic                     | pcdev_gwbasic  | gwbasic.exe     | Microsoft GW Basic 3.23 (DOS, via emu2)                   |
 | C                         | ansi2kr       | (native)         | ANSI C to K&R C converter (native)                     |
 | C                         | aztec34_as    | as.exe           | Aztec assembler (v3.4)                                 |
@@ -334,8 +335,9 @@ export PATH="$(pwd -P)"/bin
 | M2CBASIC 1.4                                      | [m2cbasic.zip](http://www.cpm.z80.de/download/m2cbasic.zip)                                                                      |
 | DR Personal Basic 1.2                             | [datamuseum.dk](https://datamuseum.dk/wiki/Bits:30002879) (stored in `src/drtools/basic.cmd`)                                    |
 | MS Basic 5.21 (CP/M‑80)                           | repository (local copy)                                                                                                          |
-| MASM, LINK, ASM, EXE2BIN, HEX2BIN, MS Basic 86/80 | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub) + repository                                                              |
-| cmdtools (cmdinfo, bin2cmd, exe2cmd)              | [cpm86‑cmdtools](https://github.com/tsupplis/cpm86-cmdtools) (GitHub, built natively)                                            |
+| MS Basic 5.50 (CP/M‑86 / DOS)                     | [cpm86‑msbasic](https://github.com/tsupplis/cpm86-msbasic) (GitHub)                                                              |
+| MASM, LINK, ASM, EXE2BIN, HEX2BIN, MS Basic 80    | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub) + repository                                                              |
+| cmdtools (cmdinfo, cmdmod, bin2cmd, exe2cmd)      | [cpm86‑cmdtools](https://github.com/tsupplis/cpm86-cmdtools) (GitHub, built natively)                                            |
 | NASM                                              | [nasm.us snapshots](https://nasm.us/pub/nasm/snapshots/)                                                                         |
 | UPX                                               | [UPX releases](https://github.com/upx/upx/releases/download/v5.2.1/upx-5.2.1-src.tar.xz) (GitHub)                                |
 | LZEXE (and utilities)                             | [lzexe](https://pushbx.org/ecm/web/#projects-lzexe) (pushbx.org, fork of [the original](https://bellard.org/lzexe/)              |
@@ -520,8 +522,8 @@ drcbcpm_bc hellocvt.cb
 drcbcpm_link hellocvt
 cmdinfo hellocvt.cmd
 </pre></td></tr>
-<tr><td>MS Basic 5.22 (interpreted, CP/M‑86)</td><td><pre>cpm86_mbasic hellomsb.bas</pre></td></tr>
-<tr><td>MS Basic 5.28 (interpreted, DOS)</td><td><pre>pcdev_mbasic hellomsb.bas</pre></td></tr>
+<tr><td>MS Basic 5.50 (interpreted, CP/M‑86)</td><td><pre>cpm86_mbasic hellomsb.bas</pre></td></tr>
+<tr><td>MS Basic 5.50 (interpreted, DOS)</td><td><pre>pcdev_mbasic hellomsb.bas</pre></td></tr>
 <tr><td>GW Basic 3.23 (interpreted, DOS)</td><td><pre>pcdev_gwbasic hellomsb.bas</pre></td></tr>
 <tr><td>MS Basic 5.21 (CP/M‑80, via tnylpo)</td><td><pre>cpm_mbasic hellomsb.bas</pre></td></tr>
 <tr><td>MS Basic 4.51 "Old Basic" (CP/M‑80, via tnylpo)</td><td><pre>cpm_obasic hellomsb.bas</pre></td></tr>

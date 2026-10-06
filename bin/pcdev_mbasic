@@ -1,5 +1,5 @@
 #!/bin/sh
-prog=mbasic86.com
+prog=mbasic86.exe
 emu2=`dirname $0`/emu2
 EMU2_DRIVE_D="`dirname $0`/../share/pcdev"
 export EMU2_DRIVE_D
