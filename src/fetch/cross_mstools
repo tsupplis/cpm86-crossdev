@@ -23,11 +23,11 @@ if [ ! -f "$root/share/pcdev/asm.com" ] || [ ! -f "$root/share/pcdev/hex2bin.com
 fi
 if [ ! -f "$root/share/cpm/mbasic86.cmd" ]; then
     mkdir -p "$root/share/cpm"
-    cp "$root/src/mstools/mbasic86.cmd" "$root/share/cpm"
+    cp "$root/src/mstools/mbas550.cmd" "$root/share/cpm/mbasic86.cmd"
 fi
-if [ ! -f "$root/share/cpm/mbasic.com" ]; then
+if [ ! -f "$root/share/cpm/mbasic80.com" ]; then
     mkdir -p "$root/share/cpm"
-    cp "$root/src/mstools/mbasic80.com" "$root/share/cpm/mbasic.com"
+    cp "$root/src/mstools/mbasic80.com" "$root/share/cpm/mbasic80.com"
 fi
 if [ ! -f "$root/share/cpm/obasic.com" ]; then
     mkdir -p "$root/share/cpm"
@@ -37,7 +37,7 @@ if [ ! -f "$root/share/pcdev/debug.com" ]; then
     mkdir -p "$root/share/pcdev"
     cp "$root/src/mstools/debug.com" "$root/share/pcdev"
 fi
-if [ ! -f "$root/share/pcdev/mbasic86.com" ]; then
+if [ ! -f "$root/share/pcdev/mbasic86.exe" ]; then
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/mstools/mbasic86.com" "$root/share/pcdev"
+    cp "$root/src/mstools/mbas550.exe" "$root/share/pcdev/mbasic86.exe"
 fi
