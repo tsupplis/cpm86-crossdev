@@ -37,7 +37,7 @@ if [ ! -f "$root/share/pcdev/debug.com" ]; then
     mkdir -p "$root/share/pcdev"
     cp "$root/src/mstools/debug.com" "$root/share/pcdev"
 fi
-if [ ! -f "$root/share/pcdev/mbasic86.exe" ]; then
+if [ ! -f "$root/share/pcdev/mbasic86.com" ]; then
     mkdir -p "$root/share/pcdev"
-    cp "$root/src/mstools/mbas550.exe" "$root/share/pcdev/mbasic86.exe"
+    cp "$root/src/mstools/mbas550.com" "$root/share/pcdev/mbasic86.com"
 fi
