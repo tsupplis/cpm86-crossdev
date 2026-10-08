@@ -266,7 +266,6 @@ run_fetcher cross_aztec42_build
 run_fetcher cross_aztec_startups
 run_fetcher native_cmdtools
 run_fetcher cross_ports
-run_fetcher cross_freetools
 run_fetcher cross_msc51
 run_fetcher cross_debug
 

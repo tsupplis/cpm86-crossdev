@@ -113,7 +113,9 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | pc                    | 1.1.2         | Programmers calculator                                                     |
 | crc                   | —             | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility                |
 | mzchecksum            | —             | Display and verify DOS EXE checksum                                        |
-| ARC86 / LU86 / (U)SQ  | 1.0 / 4.05 / 1.82 / 1.83 | CP/M‑86 archive and library utilities for `.ARC` and `.LBR` files |
+| ARC86                 | 1.0           | CP/M‑86 archive utility for `.ARC` files                                   |
+| LU86                  | 4.05          | CP/M‑86 library utility for `.LBR` files                                   |
+| SQ / USQ              | 1.82 / 1.83   | CP/M‑86 squeeze / unsqueeze (compression) utilities                        |
 | mlbr                  | 2026.9.25.24+ | Archive extractor/converter for LBR, squeezed, crunched, and crLzhed files |
 
 ## License Considerations
@@ -138,8 +140,8 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
 | ARC86 (Reimer Mellin; CP/M‑86 port by D. J. Weatherall) | Public domain source; private non-commercial use only for the CP/M‑86 modifications | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
-| LU86 (Paul J. Homchick) | **Unclear** ⚠️ | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
-| SQ/USQ (Richard Greenlaw) | **Unclear** ⚠️ | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
+| LU86 (from Stephen C. Hemminger's lar; CP/M‑86 port by Bill Bolton, with fixes from the lar ports by T. Bonfield, R. McVay and P.H. Mack) | Public domain / Abandonware | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (`lbr`) |
+| SQ/USQ (Richard Greenlaw, with Dick Greenlaw, Chuck Forsberg and W. Earnest) | Public domain / Abandonware | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (`xsq`) |
 | mlbr (Mark Ogden) | GPL‑2.0 | [GitHub](https://github.com/ogdenpm/mlbr?tab=GPL-2.0-1-ov-file) |
 | XLISP 1.1 (David Betz) | Public domain | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) |
 | PL/I Object Fixer | GPL‑3.0 | [ccpm objfix](https://gitlab.com/ccpm-86/ccpm/-/blob/master/scripts/fixobj.py) |
@@ -282,8 +284,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | Misc                      | mzchecksum    | (native)         | Display and verify DOS EXE checksum                    |
 | Misc                      | cpm_arc86     | arc86.cmd        | ARC86 archive utility for CP/M‑86 `.ARC` files         |
 | Misc                      | cpm_lu86      | lu86.cmd         | LU86 library utility for CP/M‑86 `.LBR` files          |
-| Misc                      | cpm_sq        | sq.cmd           | SQ compression utility for CP/M‑86                     |
-| Misc                      | cpm_usq       | usq.cmd          | SQ deompression utility for CP/M‑86                    |
+| Misc                      | cpm_sq        | sq.cmd           | SQ squeeze (compression) utility for CP/M‑86          |
+| Misc                      | cpm_usq       | usq.cmd          | USQ unsqueeze (decompression) utility for CP/M‑86     |
 | Misc                      | mlbr          | (native)         | Archive extractor/converter for LBR, squeezed, crunched, and crLzhed files |
 | Misc                      | upx           | (native)         | Executable packer for DOS and CP/M‑86 binaries         |
 | Misc                      | pcdev_exepack | exepack.exe      | Microsoft EXEPACK 4.06b executable packer (*patched*)  |
@@ -347,7 +349,8 @@ export PATH="$(pwd -P)"/bin
 | Intel PL/M‑86 3.30 tools                          | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`)                           |
 | DR PL/I‑86 1.0                                    | [pli86.zip](http://www.cpm.z80.de/download/pli86.zip) (stored in `src/drpackages/drplicpm`)                                      |
 | MSC 5.1                                           | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub, stored in `src/mspackages/msc51`)                                         |
-| ARC86 / LU86 / (U)SQ                              | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`)      |
+| ARC86                                             | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`)      |
+| LU86 / (U)SQ                                      | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, `lbr` and `xsq`)                                                  |
 | XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |
 | TDL BASIC 3.05 (CP/M‑80)                          | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip)                                                      |

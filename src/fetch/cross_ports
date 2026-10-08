@@ -8,6 +8,30 @@ if [ ! -d "$root/archive/cpm86-ports" ]; then
     git clone "https://github.com/tsupplis/cpm86-ports.git" "$root/archive/cpm86-ports"
     rm -rf "$root/archive/cpm86-ports/.git"
 fi
+if [ ! -f "$root/share/cpm/lu86.cmd" ]; then
+    tmp="$root/archive/temp-lbr"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    cp "$root/archive/cpm86-ports/lbr"/* "$tmp/"
+    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all
+    mkdir -p "$root/share/cpm"
+    cp "$tmp/lu86.cmd" "$root/share/cpm/"
+    rm -rf "$tmp"
+    trap - EXIT
+fi
+if [ ! -f "$root/share/cpm/sq.cmd" ] ||  [ ! -f "$root/share/cpm/usq.cmd" ]; then
+    tmp="$root/archive/temp-xsq"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    cp "$root/archive/cpm86-ports/xsq"/* "$tmp/"
+    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all
+    mkdir -p "$root/share/cpm"
+    cp "$tmp/sq.cmd" "$tmp/usq.cmd" "$root/share/cpm/"
+    rm -rf "$tmp"
+    trap - EXIT
+fi
 if [ ! -f "$root/share/xlisp/xlisp.cmd" ]; then
     tmp="$root/archive/temp-xlisp"
     rm -rf "$tmp"
