@@ -1,0 +1,211 @@
+
+;------------------------------------------------------------------------------
+; PCBIOS.A86  semi-compatible bios interface for CP/M-86 and the IBM family.
+;
+; support :  CLEARL.L86 (large model)
+;            CLEARB.L86 (big model)
+;
+; routines:  int86()    All registers supported except: cflags
+;            bioskey()  IBM style bios interface 
+;            inp()      DRC 1.32 - not required.
+;            outp()     DRC 1.32 - not required.
+;            peek()	returns a word value (modify for character)		
+;
+; (C)1998-1999 Ken Mauro, All Rights Reserved.    free for non-commercial use.
+;------------------------------------------------------------------------------
+
+; Declare: extern void int86();
+; Declare: union REGS inregs, outregs;
+; Usage  : int86(&inregs, &outregs);
+
+        PUBLIC int86
+
+int86: push    bp                              ;use bp to access
+        mov    bp,sp                           ;passed parameters
+        push   ax
+        push   bx
+        push   cx
+        push   dx
+        push   ds
+        push   es                              ;must for DRC small model 
+        push   di                               
+        push   si                              
+
+        mov    ax,10[bp]                       ;get segment addr of inregs
+        mov    ds,ax
+        mov    si,8[bp]                        ;copy .h.. into cpu registers
+
+        mov    ax, [si]                        ;ds:si points to start of parms
+        mov    bx,2[si]                        ;defined in 'C' as union REGS
+        mov    cx,4[si]
+        mov    dx,6[si]
+        mov    di,10[si]
+        mov    si,8[si]
+
+        cmp    word ptr 6[bp],0010h            ; PC video interrupt
+        je     int10
+        cmp    word ptr 6[bp],0016h            ; PC keybd interrupt
+        je     int16
+        mov    ax,-1
+        jmp    exit
+
+int10: int     10h
+        jmp    exit
+
+int16: int     16h
+        jmp    exit
+
+exit:  push    ax
+        mov    ax,14[bp]                       ;save returned values
+        mov    ds,ax
+        pop    ax
+        mov    si,12[bp]
+
+        mov     [si], ax
+        mov    2[si], bx
+        mov    4[si], cx
+        mov    6[si], dx
+        mov    8[si], si
+        mov    10[si], di
+
+;      jnc     ex2
+;      mov     word ptr 12[si],0001h           ; set carry flag = error
+;      jmp     ex3
+;ex2:  mov     word ptr 12[si],0000h           ; clear carry flag = ok 
+;ex3:
+        pop    si
+        pop    di
+        pop    es                              ; must for DRC small model
+        pop    ds
+        pop    dx
+        pop    cx
+        pop    bx
+        pop    ax
+        pop    bp
+        retf                                   ; use 'ret' for small model
+
+; declare: extern unsigned peek();
+; usage  : c = peek(seg,off);
+
+        PUBLIC peek
+peek:
+        push   Ds
+        push    Bp
+        mov     Bp, Sp
+
+        Les    Bx, 8[Bp]       ; Get #1 parameter (segment)
+        Mov    Dx, Es: [Bx]    ; Bx=segment
+        mov    Ds, Bx          ; Ds = Bx 
+
+        Les    Bx, 10[Bp]      ; Get #2 parameter (offset)
+        Mov    Dx, Es: [Bx]    ; Bx = offset
+
+        Mov    Ax, [Bx]        ; Get the word
+
+        pop     Bp
+        pop     Ds
+        retf
+
+
+; usage  :  b=inp(port)                inputs a byte to a port address.
+; declare:  extern char inp()
+;
+                PUBLIC inp
+
+inp:   push    Ds
+        push    Bp
+        mov     Bp, Sp
+
+        Les    Bx, 8[Bp]       ; Get #1 parameter (port address)
+        Mov    Dx, Es: [Bx]    ; Actual value is in Bx
+        mov    Dx, Bx
+
+        xor    ax,ax           ; zero ax
+        in     Al,Dx           ; get it into Al
+
+        pop     Bp
+        pop     Ds
+        retf
+
+
+; usage  :  outp(port,b) outputs a byte to a port address.
+; declare:  extern char outp()              
+
+        PUBLIC outp
+
+outp:  push    Ds
+        push    Bp
+        mov    Bp, Sp
+
+        Les    Bx, 10[Bp]      ; Get #2 parameter (byte data)
+        Mov    Dx, Es: [Bx]    ; Actual value is in Bx
+        Mov    Ax, Bx
+
+        Les    Bx, 8[Bp]       ; Get #1 parameter (port address)
+        Mov    Dx, Es: [Bx]    ; Actual value is in Bx
+        mov    Dx, Bx
+
+        out    Dx,Al           ; do it
+
+        pop    Bp
+        pop    Ds
+        retf
+
+
+; Direct IBM-PC compatible direct keyboard hardware port access.
+;
+;          called as: c=keyb()              (where  c = IBM scan code)
+;          declare  : extern int keyb();
+
+        PUBLIC keyb
+
+keyb:  Push    Ds              ; Save the current Data Segment register
+        Push   Bp              ; Save the frame pointer
+        Mov    Bp, Sp          ; Get access to parameters
+
+keyin: cli
+        sub    ax, ax          ; zero out ax
+        in     al, 60h         ; read scan code
+        in     al, 60h         ; must do it twice 
+        push   ax              ; save scan code (not ascii)
+
+        in    al, 61h          ; read status
+        mov   bl, al
+        or    al, 80h
+        out   61h,al           ; set bit 7 and write 
+        mov   al, bl
+        out   61h,al           ; write again, clear bit 7
+
+        mov   al, 20h          ; reset PIC 
+        out   20h,al
+
+        pop    ax              ; retrieved scan code (not ascii)
+
+        sti
+        pop    Bp              ; Get back callers frame pointer into Bp
+        Pop    Ds              ; Recover original addressing
+        Retf                   ; Use Ret for Small model
+
+
+; ret=bioskey() ax returns a keyboard character
+;              declare: extern bioskey()
+
+; This DOS method may not be compatible with non-IBM cp/m-86 versions. 
+
+      PUBLIC bioskey
+
+bioskey:Push  Ds              ; Save the current Data Segment register;
+        Push    Bp              ; Save the frame pointer
+        Mov     Bp, Sp          ; Get access to parameters
+
+        Mov     Ah,0            ; function#
+        int     16h             ; ibm pc keyboard interrupt
+
+        Pop     Bp              ; Get back callers frame pointer into Bp
+        Pop     Ds              ; Recover original addressing
+        Retf                    ; Use Ret for Small model
+
+
+end                            ; only one 'end' statement per *.a86 file.
+
+
