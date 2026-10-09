@@ -45,7 +45,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
 | Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
-| Fortran‑77 | DR Fortran‑77 4.0                                                             |
+| Fortran‑77 | DR Fortran‑77 4.0 (Ratfor pre-processor integrated)                           |
 | COBOL      | Micro Focus Level II COBOL V2.1                                               |
 | PL/M‑86    | Intel PL/M‑86 3.30                                                            |
 | PL/I       | DR PL/I‑86 1.0                                                                |
@@ -73,6 +73,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | DR C              | 1.11                              | CP/M‑86 C compiler; passes `drc860`–`drc862`, runtime `clearl/clears.l86`    |
 | MSC               | 5.1                               | Microsoft C compiler for DOS                                                 |
 | DR Fortran‑77     | 4.0                               | CP/M‑86; compiler `f77.cmd`+`codegen.cmd`, runtime `f32s/l.obj`, `8087.sim`  |
+| Ratfor            | 1.05                              | Ratfor→F77 pre-processor for DR Fortran‑77; invoked via `drfcpm_fc -e`       |
 | Pascal MT+        | 3.3                               | CP/M‑86; compiler `mt+86.cmd`, linker `linkmt.cmd`, assembler `asmt86.cmd`   |
 | Turbo Pascal      | 3.02                              | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
 | PolyPascal‑86     | 3.11                              | Integrated editor+compiler; small/BCD/8087 variants (`ppas`, `ppbs`, `pp87`) |
@@ -144,6 +145,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | SQ/USQ (Richard Greenlaw, with Dick Greenlaw, Chuck Forsberg and W. Earnest) | Public domain / Abandonware | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (`xsq`) |
 | mlbr (Mark Ogden) | GPL‑2.0 | [GitHub](https://github.com/ogdenpm/mlbr?tab=GPL-2.0-1-ov-file) |
 | XLISP 1.1 (David Betz) | Public domain | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) |
+| Ratfor 1.05 (oz / Brian Gaeke) | Public domain | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (`ratfor`) |
 | PL/I Object Fixer | GPL‑3.0 | [ccpm objfix](https://gitlab.com/ccpm-86/ccpm/-/blob/master/scripts/fixobj.py) |
 | Intel PL/M‑86 3.30 | **Unclear** ⚠️ | [PLM8086Tools.zip](http://www.retroarchive.org/dos/lang/PLM8086Tools.zip) (stored in `src/inteltools`) |
 | PolyPascal‑86 V3.11 (PolyData MicroCenter A/S) | **Unclear** ⚠️ | — |
@@ -670,6 +672,10 @@ Both compiler passes (<code>f77.cmd</code> + <code>codegen.cmd</code>) run inter
 drfcpm_fc hellof.f77
 drfcpm_link 'hellof.cmd=hellof'
 cmdinfo hellof.cmd
+</pre>
+Ratfor sources (<code>.r</code>) are pre-processed automatically with <code>ratfor -u</code> when the <code>-e</code> flag is given:<pre style="margin:0">
+drfcpm_fc -e hellof.r
+drfcpm_link 'hellof.cmd=hellof'
 </pre></td></tr>
 <tr><td>Micro Focus Level II COBOL V2.1 (CP/M‑86)</td><td>
 Compiles <code>.cbl</code> to bytecode <code>.int</code>; runtime executes it.<pre style="margin:0">

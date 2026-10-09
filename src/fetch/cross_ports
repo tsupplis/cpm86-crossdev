@@ -8,6 +8,18 @@ if [ ! -d "$root/archive/cpm86-ports" ]; then
     git clone "https://github.com/tsupplis/cpm86-ports.git" "$root/archive/cpm86-ports"
     rm -rf "$root/archive/cpm86-ports/.git"
 fi
+if [ ! -f "$root/share/drf77cpm/ratfor.cmd" ]; then
+    tmp="$root/archive/temp-ratfor"
+    rm -rf "$tmp"
+    mkdir -p "$tmp"
+    trap 'rm -rf "$tmp"' EXIT
+    cp "$root/archive/cpm86-ports/ratfor"/* "$tmp/"
+    PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all
+    mkdir -p "$root/share/drf77cpm/"
+    cp "$tmp/ratfor.cmd" "$root/share/drf77cpm/"
+    rm -rf "$tmp"
+    trap - EXIT
+fi
 if [ ! -f "$root/share/cpm/lu86.cmd" ]; then
     tmp="$root/archive/temp-lbr"
     rm -rf "$tmp"

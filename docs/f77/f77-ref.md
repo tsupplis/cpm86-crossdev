@@ -19,7 +19,8 @@ Produces an Intel OMF-86 `.obj` file ready for `drfcpm_link`.
 drfcpm_f77 [options] <file>.f77
 ```
 
-One source file per invocation. The object file is named after the source file:
+One source file per invocation. The `.f77` extension may be omitted (`drfcpm_fc foo`).
+The object file is named after the source file:
 `foo.f77` → `foo.obj` in the current directory.
 
 Options can also be embedded in the source with a `%` in column 1:
@@ -199,3 +200,97 @@ hellof77.obj: hellof77.f77
 hellof77.cmd: hellof77.obj
 	$(F77LNK) 'hellof77.cmd=hellof77'
 ```
+
+---
+
+## 3. Ratfor Pre-processor — `drfcpm_fc -e`
+
+[Ratfor](https://github.com/tsupplis/cpm86-ports) (RATional FORtran) is a
+structured-programming pre-processor that translates a cleaner, C-like control
+flow syntax into standard FORTRAN-77 source.  Version 1.05 is built from the
+[cpm86-ports](https://github.com/tsupplis/cpm86-ports) repository and staged
+as `share/drf77cpm/ratfor.cmd`.
+
+The pre-processor is invoked automatically by `drfcpm_fc` when the **`-e`**
+flag is passed.  The wrapper runs `ratfor -u` (upper-case output, required by
+DR Fortran-77) on the `.r` source, writes a temporary `.f77` file, then feeds
+it through the normal two-pass compile (`f77.cmd` + `codegen.cmd`).  The
+temporary `.f77` is cleaned up on exit.
+
+**Syntax**
+```
+drfcpm_fc -e [f77-options] <file>.r
+```
+
+All other flags are forwarded to `f77.cmd` unchanged (see section 1 for the
+full option list).
+
+> **Note:** Ratfor's `-u` flag uppercases the entire output including string
+> literals.  Write string literals in the desired case in the `.r` source —
+> they will be preserved after the fix to `ratfor -u` in cpm86-ports.
+
+**Example 1 — Hello World**
+
+Source `hellortf.r`:
+```ratfor
+# Hello World in Ratfor for CP/M-86 (DR Fortran-77)
+PROGRAM HELLO
+    PRINT *, 'Hello from ratfor'
+END
+```
+
+```sh
+drfcpm_fc -e hellortf.r
+drfcpm_link 'hellortf.cmd=hellortf'
+cmdinfo hellortf.cmd
+```
+
+**Example 2 — Ratfor control flow (loop)**
+
+Source `fibrtf.r`:
+```ratfor
+      PROGRAM FIB
+      INTEGER A, B, C, I
+      A = 0
+      B = 1
+      for (I = 1; I <= 10; I = I + 1) {
+          PRINT *, B
+          C = A + B
+          A = B
+          B = C
+      }
+      END
+```
+
+```sh
+drfcpm_fc -e fibrtf.r
+drfcpm_link 'fibrtf.cmd=fibrtf'
+```
+
+**Makefile rules**
+```makefile
+F77    = drfcpm_fc
+RATFOR = drfcpm_fc -e
+F77LNK = drfcpm_link
+
+# Plain FORTRAN-77 source
+hellof77.obj: hellof77.f77
+	$(F77) $<
+
+hellof77.cmd: hellof77.obj
+	$(F77LNK) 'hellof77.cmd=hellof77'
+
+# Ratfor source — -e triggers ratfor pre-processing
+hellortf.obj: hellortf.r
+	$(RATFOR) $<
+
+hellortf.cmd: hellortf.obj
+	$(F77LNK) 'hellortf.cmd=hellortf'
+```
+
+**License**
+
+Ratfor 1.05 is public domain.  The original author is "oz"
+(Usenet: `utzoo!yetti!oz`); packaged for Linux by Brian Gaeke; ported to
+CP/M-86 (z88dk build) and hosted in
+[cpm86-ports](https://github.com/tsupplis/cpm86-ports).

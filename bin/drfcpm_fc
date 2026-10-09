@@ -6,16 +6,60 @@ export EMU2_CPM_APPEND
 EMU2_DRIVE_D="$share"
 export EMU2_DRIVE_D
 
-# Find the source file (.f77 or .F77) among the arguments.
+# Find the source file (.f77/.F77 or .r/.R for Ratfor) among the arguments;
+# f77.cmd also accepts a bare name and defaults the .F77 extension.
 src=""
+ratfor_mode=0
 for arg in "$@"; do
     case "$arg" in
+        # -e: Ratfor pre-processing mode (wrapper-only flag, not passed to f77)
+        -e) ratfor_mode=1 ;;
         *.f77|*.F77) src="$arg" ;;
+        *.r|*.R) src="$arg" ;;
+        -*) ;;
+        *)
+            if [ -z "$src" ]; then
+                if [ -f "$arg.f77" ]; then src="$arg.f77"
+                elif [ -f "$arg.F77" ]; then src="$arg.F77"
+                elif [ -f "$arg.r" ]; then src="$arg.r"
+                elif [ -f "$arg.R" ]; then src="$arg.R"
+                fi
+            fi
+            ;;
     esac
 done
 base="${src%.*}"
+tmp_f77=""
 
-trap 'rm -f "${base}.cil" "${base}.cym"' EXIT INT TERM
+trap 'rm -f "${base}.cil" "${base}.cym" "$tmp_f77"' EXIT INT TERM
+
+# In Ratfor mode (-e), pre-process the source with ratfor -u to produce
+# an upper-case F77 source suitable for DR Fortran-77.
+if [ $ratfor_mode -eq 1 ] && [ -n "$src" ]; then
+    if [ ! -f "$share/ratfor.cmd" ]; then
+        echo "ERR: ratfor.cmd not found in $share — run fetch_tools first" >&2
+        exit 1
+    fi
+    tmp_f77="${base}.f77"
+    EMU2_PROGNAME="D:ratfor.cmd"
+    export EMU2_PROGNAME
+    "$emu2" "$share/ratfor.cmd" -u -o "$tmp_f77" "$src" -- PATH=D:\\
+    if [ $? -ne 0 ] || [ ! -s "$tmp_f77" ]; then
+        echo "ERR: ratfor pre-processing failed for $src" >&2
+        exit 1
+    fi
+    # Reconstruct args without -e and the .r source; pass the generated .f77
+    new_args=""
+    for arg in "$@"; do
+        case "$arg" in
+            -e) ;;
+            "$src") ;;
+            *) new_args="$new_args $arg" ;;
+        esac
+    done
+    set -- $new_args "$tmp_f77"
+    base="${tmp_f77%.*}"
+fi
 
 EMU2_PROGNAME="D:f77.cmd"
 export EMU2_PROGNAME

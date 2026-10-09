@@ -39,6 +39,7 @@ CBAS86=cpm86_cbas
 CRUN86=cpm86_crun
 F77=drfcpm_fc
 F77LINK=drfcpm_link
+RATFOR=drfcpm_fc -e
 PMT=drpmtcpm_pc
 PMTLINK=drpmtcpm_link
 XLISP=cpm86_xlisp
@@ -65,11 +66,12 @@ PLM_CMDS=helloplm.cmd
 PLI_CMDS=hellopli.cmd upxpli.cmd
 COBOL_CMDS=hellocbl.int
 F77_CMDS=hellof77.cmd hellopmt.cmd upxpli.cmd
+RATFOR_CMDS=hellortf.cmd
 PASCAL_CMDS=hellopmt.cmd
 
 8086_CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) \
     $(AZTEC_CMDS) $(DRC_CMDS) $(MSC_CMDS) $(BASIC_CMDS) \
-    $(PLM_CMDS) $(PLI_CMDS) $(COBOL_CMDS) $(PASCAL_CMDS) $(F77_CMDS)
+    $(PLM_CMDS) $(PLI_CMDS) $(COBOL_CMDS) $(PASCAL_CMDS) $(F77_CMDS) $(RATFOR_CMDS)
 
 8080_CMDS:=hello80.com
 
@@ -234,6 +236,14 @@ helloazc.cmd: helloazc.o
 hellof77.cmd: hellof77.obj
 	$(F77LINK) '$@=$<'
 	$(CMDINFO) $@
+
+hellortf.cmd: hellortf.obj
+	$(F77LINK) '$@=$<'
+	$(CMDINFO) $@
+
+hellortf.obj: hellortf.r
+	$(RATFOR) $<
+	[ -f $@ ]
 
 hellodrc.cmd: hellodrc.obj
 	drccpm_link '$@=$<'
