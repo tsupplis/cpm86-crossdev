@@ -44,7 +44,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 | C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C 5.1 |
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
 | Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
-| Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
+| Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.01A, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0 (Ratfor pre-processor integrated)                           |
 | COBOL      | Micro Focus Level II COBOL V2.1                                               |
 | PL/M‑86    | Intel PL/M‑86 3.30                                                            |
@@ -75,7 +75,7 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | DR Fortran‑77     | 4.0                               | CP/M‑86; compiler `f77.cmd`+`codegen.cmd`, runtime `f32s/l.obj`, `8087.sim`  |
 | Ratfor            | 1.05                              | Ratfor→F77 pre-processor for DR Fortran‑77; invoked via `drfcpm_fc -e`       |
 | Pascal MT+        | 3.3                               | CP/M‑86; compiler `mt+86.cmd`, linker `linkmt.cmd`, assembler `asmt86.cmd`   |
-| Turbo Pascal      | 3.02                              | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
+| Turbo Pascal      | 3.01A                             | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
 | PolyPascal‑86     | 3.11                              | Integrated editor+compiler; small/BCD/8087 variants (`ppas`, `ppbs`, `pp87`) |
 | DR CBASIC         | 2.0 (CP/M‑86) / 2.1 (DOS)         | Compiled BASIC; compiler `cb86.exe`, linker `link86.exe`                     |
 | DR CBASIC         | 1.4 (CP/M‑86)                     | Compiled BASIC; compiler `cbas86.cmd`, runtime `crun86.cmd`                  |
