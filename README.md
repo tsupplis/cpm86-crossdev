@@ -75,7 +75,9 @@ A cleaned‑up distribution and kernel is available at https://github.com/tsuppl
 | DR Fortran‑77     | 4.0                               | CP/M‑86; compiler `f77.cmd`+`codegen.cmd`, runtime `f32s/l.obj`, `8087.sim`  |
 | Ratfor            | 1.05                              | Ratfor→F77 pre-processor for DR Fortran‑77; invoked via `drfcpm_fc -e`       |
 | Pascal MT+        | 3.3                               | CP/M‑86; compiler `mt+86.cmd`, linker `linkmt.cmd`, assembler `asmt86.cmd`   |
-| Turbo Pascal      | 3.02                              | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
+| Turbo Pascal      | 2.01                              | Last DOS Borland release for DOS FCB; compiler `turbo.com`, installer `tinst.com`    |
+| Turbo Pascal      | 3.02                              | Last DOS Borland release; compiler `turbo.com`, installer `tinst.com`    |
+| Turbo Pascal      | 3.01                              | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
 | PolyPascal‑86     | 3.11                              | Integrated editor+compiler; small/BCD/8087 variants (`ppas`, `ppbs`, `pp87`) |
 | DR CBASIC         | 2.0 (CP/M‑86) / 2.1 (DOS)         | Compiled BASIC; compiler `cb86.exe`, linker `link86.exe`                     |
 | DR CBASIC         | 1.4 (CP/M‑86)                     | Compiled BASIC; compiler `cbas86.cmd`, runtime `crun86.cmd`                  |
@@ -258,7 +260,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | Fortran                   | drfcpm_fc     | f77.cmd          | DR Fortran‑77 4.0 compiler                             |
 | Fortran                   | drfcpm_link   | linkcmd.exe      | DR Fortran‑77 4.0 linker                               |
 | Lisp                      | cpm86_xlisp   | xlisp.cmd        | XLISP 1.1 interpreter (built from source)              |
-| Pascal                    | cpm86_turbo   | turbo.cmd        | Turbo Pascal 3.01 (CP/M‑86)                            |
+| Pascal                    | cpm86_tp3     | turbo.com        | Turbo Pascal 3.01 (CP/M‑86)                            |
+| Pascal                    | pcdev_tp2     | turbo.com        | Turbo Pascal 2.01 (DOS)                                |
+| Pascal                    | pcdev_tp3     | turbo.com        | Turbo Pascal 3.02 (DOS)                                |
 | Pascal                    | drpmtcpm_asm  | asmt86.cmd       | Pascal MT+ 3.3 assembler                               |
 | Pascal                    | drpmtcpm_link | linkmt.cmd       | Pascal MT+ 3.3 linker                                  |
 | Pascal                    | drpmtcpm_pc   | mt+86.cmd        | Pascal MT+ 3.3 compiler                                |

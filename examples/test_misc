@@ -54,7 +54,7 @@ run_gwtest() {
 }
 
 run_test hellomsb  "cpm86_mbasic hellomsb.bas"
-run_test hellopba  "cpm86_basic < hellopba.bas"
+run_test hellopba  "cat hellopba.bas|cpm86_basic"
 run_test helloi    "cpm86_crun helloi.int"
 run_test helloxlp  "cpm86_xlisp helloxlp.lsp"
 run_test hellocbl  "mfcobol_run hellocbl.int"

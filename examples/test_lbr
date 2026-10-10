@@ -24,7 +24,7 @@ echo "INF: build test"
 cp hellob.a86 lbrtest.a86
 test_build
 echo "INF: creating library with lu86 ..."
-echo 32|cpm86_lu86 u lbrtest.lbr lbrtest.a86
+cpm86_lu86 un32 lbrtest.lbr lbrtest.a86
 cpm86_lu86 u lbrtest.lbr lbrtest.cmd
 echo "INF: listing library with lu86 ..."
 cpm86_lu86 t lbrtest.lbr
@@ -42,10 +42,10 @@ pcdev_mlbr -x lbrtest.lbr
 ls -al lbr*
 test_run
 test_build
-echo "INF: test sq compressiotn"
+echo "INF: test sq compression"
 cpm86_sq lbrtest.cmd
 [ -f lbrtest.cqd ]
-echo "INF: test sq decompressiotn"
+echo "INF: test sq decompression"
 rm -f lbrtest.cmd
 cpm86_usq lbrtest.cqd
 test_run

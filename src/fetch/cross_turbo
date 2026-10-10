@@ -4,7 +4,15 @@ set -e
 
 echo INF: Checking Turbo Pascal 3.02 for CP/M-86 ...
 cd "$root/share"
-if [ ! -f turbocpm/turbo.cmd ]; then
-    mkdir -p "$root/share/turbocpm"
-    cp "$root/src/turbocpm"/* turbocpm
+if [ ! -f tp2dos/turbo.com ]; then
+    mkdir -p "$root/share/tp2dos"
+    cp "$root/src/turbo/dos-2.0"/* tp2dos
+fi
+if [ ! -f tp3dos/turbo.com ]; then
+    mkdir -p "$root/share/tp3dos"
+    cp "$root/src/turbo/dos-3.0"/* tp3dos
+fi
+if [ ! -f tp3cpm86/turbo.cmd ]; then
+    mkdir -p "$root/share/tp3cpm86"
+    cp "$root/src/turbo/cpm86-3.0"/* tp3cpm86
 fi

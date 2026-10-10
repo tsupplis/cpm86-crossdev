@@ -1,6 +1,7 @@
 #!/bin/sh
 if [ -x "$0.alt" ];then
-    exec "$0.alt" "$@"
+    emu="$0.alt"
 else
-    exec "$0.built" "$@"
+    emu="$0.built"
 fi
+exec "$emu" "$@"
