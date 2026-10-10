@@ -44,7 +44,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 | C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C 5.1 |
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
 | Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
-| Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.02, PolyPascal‑86 3.11                         |
+| Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.01A, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0 (Ratfor pre-processor integrated)                           |
 | COBOL      | Micro Focus Level II COBOL V2.1                                               |
 | PL/M‑86    | Intel PL/M‑86 3.30                                                            |
