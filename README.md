@@ -41,7 +41,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 
 | Language   | Compilers / Interpreters                                                      |
 |-----------:|:------------------------------------------------------------------------------|
-| C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C 5.1 |
+| C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C (5.1 and 1.04) |
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
 | Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.01A, PolyPascal‑86 3.11                         |
@@ -187,8 +187,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | cpm86_gencmd  | gencmd.cmd       | DR H86 converter (CP/M‑86 via emu2, *not working yet*) |
 | Assembler                 | nasm          | (native)         | Netwide assembler                                      |
 | Assembler                 | pcdev_asm     | asm.com          | Microsoft/86‑DOS assembler                             |
-| Assembler                 | pcdev_masm    | masm.exe         | Microsoft assembler                                    |
-| Assembler                 | pcdev_masm11  | masm11.exe       | Legacy Microsoft assembler                             |
+| Assembler                 | pcdev_masm    | masm.exe         | Default Microsoft assembler                                    |
+| Assembler                 | pcdev_masm1   | masm5.exe       | Microsoft assembler                             |
+| Assembler                 | pcdev_masm1   | masm1.exe       | Legacy Microsoft assembler                             |
 | Assembler                 | pcdev_rasm86  | rasm86.exe       | DR assembler                                           |
 | Assembler                 | pcdev_xref86  | xref86.exe       | DR cross referencer                                    |
 | Assembler                 | cpm_asm80     | asm80.com        | DR 8008 assembler (CP/M‑80 tool) to support xlt86      |
@@ -202,6 +203,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Linkers / Librarians      | pcdev_hex2bin | hex2bin.com      | Microsoft HEX converter                                |
 | Linkers / Librarians      | pcdev_lib86   | lib86.exe        | DR librarian                                           |
 | Linkers / Librarians      | pcdev_link    | link.exe         | Microsoft linker (default, currently 3.65a)            |
+| Linkers / Librarians      | pcdev_link1    | link1.exe         | Legacy Microsoft linker (default, currently 1.10)            |
 | Linkers / Librarians      | pcdev_link3   | link3.exe        | Microsoft linker (improved and patched to 3.65a)       |
 | Linkers / Librarians      | pcdev_link5   | link5.exe        | Microsoft linker (improved and patched to 5.10b)       |
 | Linkers / Librarians      | pcdev_lib     | lib.exe          | Microsoft librarian                                    |
@@ -252,6 +254,11 @@ All the tools are wrapped in the bin directory for direct usage:
 | C                         | msc5_cl       | cl.exe           | Microsoft C 5.1 compiler (CL 5.10)                     |
 | C                         | msc5_lib      | lib.exe          | Microsoft C 5.1 librarian (LIB 3.10)                   |
 | C                         | msc5_link     | link.exe         | Microsoft C 5.1 linker (LINK 5.10b, *patched*)         |
+| C                         | msc1_mc1      | mc1.exe          | Microsoft C 1.04 pass 1 compiler                       |
+| C                         | msc1_mc2      | mc2.exe          | Microsoft C 1.04 pass 2 compiler                       |
+| C                         | msc1_omd      | omd.exe          | Microsoft C 1.04 module assembler                      |
+| C                         | msc1_lib      | lib.exe          | Microsoft C 1.04 librarian (LIB 1.10)                  |
+| C                         | msc1_link     | link.exe         | Microsoft C 1.04 linker (LINK 1.10)                    |
 | COBOL                     | mfcobol_cc    | cobol.cmd        | Micro Focus Level II COBOL compiler (CP/M‑86)          |
 | COBOL                     | mfcobol_run   | run.cmd          | Micro Focus Level II COBOL runtime (CP/M‑86)           |
 | Emulation                 | cpm86         | cpm86.exe        | CP/M‑86 emulator (via emu2+dos)                        |

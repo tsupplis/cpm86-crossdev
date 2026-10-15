@@ -2,6 +2,7 @@
 prog=ln.exe
 emu2=`dirname $0`/emu2
 EMU2_DRIVE_D="`dirname $0`/../share/aztec42"
+EMU2_APPEND="D:\\LIB"
 export EMU2_DRIVE_D
 if [ -z "$TMPDIR" ]; then
     TMPDIR="/tmp/emu2-`id -u`"
@@ -44,5 +45,4 @@ if [ -n "$startup" ] && [ -f "$EMU2_DRIVE_D/lib/$startup" ]; then
     startobj="D:\\lib\\$startup"
 fi
 
-"$emu2" "$EMU2_DRIVE_D/bin/$prog" $startobj "$@" -- PATH=D:\\BIN CLIB=D:\\LIB\\ INCLUDE=D:\\INCLUDE \
-  CCTEMP="E:\\TEMP\\"
+"$emu2" "$EMU2_DRIVE_D/bin/$prog" $startobj "$@" -- PATH=D:\\BIN CLIB=D:\\LIB\\ CCTEMP="E:\\TEMP\\"

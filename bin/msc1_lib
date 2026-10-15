@@ -1,0 +1,10 @@
+#!/bin/sh
+prog=`basename $0|sed -e s'/msc1_//g'`.exe
+EMU2_DRIVE_D="`dirname $0`/../share/msc10"
+export EMU2_DRIVE_D
+EMU2_APPEND=D:
+export EMU2_APPEND
+EMU2_PROGNAME="D:\\$prog"
+export EMU2_PROGNAME
+emu2 "$EMU2_DRIVE_D/$prog" "$@" -- PATH="D:\\" LIB=D:\\LIB \
+  INCLUDE=D:\\INCLUDE INIT=D:\\

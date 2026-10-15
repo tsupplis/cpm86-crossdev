@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+echo INF: Checking Microsoft C 1.04 for DOS ...
+cd "$root/share"
+mkdir -p "$root/share/msc10"
+if [ ! -f "$root/share/msc10/mc2.exe" ] || [ ! -f "$root/share/msc10/mc2.exe" ]; then
+    cp -R "$root/src/mspackages/msc10"/* "$root/share/msc10"
+fi
