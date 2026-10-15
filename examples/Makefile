@@ -53,6 +53,9 @@ EXEPACK=pcdev_exepack
 UPX=../bin/upx --8086
 MSCCL=msc5_cl
 MSCLINK=msc5_link
+MSOMC1=msc1_mc1
+MSOMC2=msc1_mc2
+MSOLINK=msc1_link
 
 ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
@@ -61,7 +64,7 @@ AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathaz
     helloazd.exe mathazd.exe upxazd.exe ovraza.cmd ovrfunc1.ovr ovrfunc2.ovr
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
-MSC_CMDS=hellomsc.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
+MSC_CMDS=hellomsc.exe hellomso.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
 PLM_CMDS=helloplm.cmd
 PLI_CMDS=hellopli.cmd upxpli.cmd
 COBOL_CMDS=hellocbl.int
@@ -137,6 +140,13 @@ exepkmsc.exe: hellomsc.exe
 lzexemsc.exe: hellomsc.exe
 	cp $< $@
 	$(LZEXE) $@
+
+hellomso.exe: hellomso.obj
+	$(MSOLINK) $<,$@ \;
+
+hellomso.obj: hellomso.c
+	$(MSOMC1) $< 
+	$(MSOMC2) $< 
 
 hellomsc.exe: hellomsc.obj
 	$(MSCLINK) $<,$@ \;
