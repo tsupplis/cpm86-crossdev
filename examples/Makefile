@@ -24,6 +24,9 @@ CBLINK=drcbcpm_link
 CBBC=drcbcpm_bc
 NASM=nasm -O0
 MASM=pcdev_masm
+SCPASM=pcdev_asm
+SCPHEX2BIN=pcdev_hex2bin
+SCPTRANS=pcdev_trans
 LINK=pcdev_link
 PLM86=intel_plm86
 IASM86=intel_asm86
@@ -59,7 +62,7 @@ MSOLINK=msc1_link
 
 ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
-ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd
+ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd hellot86.com
 AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd \
     helloazd.exe mathazd.exe upxazd.exe ovraza.cmd ovrfunc1.ovr ovrfunc2.ovr
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
@@ -72,15 +75,14 @@ F77_CMDS=hellof77.cmd hellopmt.cmd upxpli.cmd
 RATFOR_CMDS=hellortf.cmd
 PASCAL_CMDS=hellopmt.cmd
 
-8086_CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) \
+8086_CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) \
     $(AZTEC_CMDS) $(DRC_CMDS) $(MSC_CMDS) $(BASIC_CMDS) \
     $(PLM_CMDS) $(PLI_CMDS) $(COBOL_CMDS) $(PASCAL_CMDS) $(F77_CMDS) $(RATFOR_CMDS)
-
 8080_CMDS:=hello80.com
 
 all: binaries
 
-binaries: $(8086_CMDS) $(8080_CMDS)
+binaries: $(8086_CMDS) $(8080_CMDS) 
 
 ovraza.cmd ovraza.rsm: ovrmain.o
 	rm -f ovraza.cmd ovraza.rsm
@@ -312,6 +314,17 @@ scd.obj: scd.a86
 hellopli.cmd: hellopli.obj
 	$(PLILINK) '$@=$(basename $<)'
 	$(CMDINFO) $@
+
+hellot86.com: hellot86.hex
+	$(SCPHEX2BIN) $(basename $<).
+
+hellot86.hex: hellot86.asm
+	$(SCPASM) $(basename $<).aaz
+	[ -f $@ ]
+
+hellot86.asm: hellot86.z80
+	$(SCPTRANS) $< 
+	[ -f $@ ]
 
 hello80.com: hello80.hex
 	$(HEXCOM) $<

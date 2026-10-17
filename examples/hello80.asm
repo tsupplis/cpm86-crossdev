@@ -10,6 +10,6 @@ start:
         mvi     c, 0
         call    5
 
-msg:    db      'Hello from asm 8080','$'
+msg:    db      'Hello from asm 8080 (transformation with xlt86)','$'
 
         end

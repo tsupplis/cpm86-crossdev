@@ -1,0 +1,15 @@
+; HELLO80.ASM -- minimal 8080-subset program for TRANS.COM
+;
+; This uses only 8080-compatible instructions, expressed in the Z80
+; source syntax understood by the SCP Z80-to-8086 translator.  Under
+; 86-DOS, function 9 at CALL 5 displays the '$'-terminated string.
+;
+	org	100H
+
+	ld	 c,9		; Console output function
+	ld	 de,message	; DE points to the '$'-terminated text
+	call 5
+	ret
+
+message:
+	DB	 'Hello from z80 via trans.com',13,10,'$'
