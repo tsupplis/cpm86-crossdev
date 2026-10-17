@@ -142,7 +142,7 @@ lzexemsc.exe: hellomsc.exe
 	$(LZEXE) $@
 
 hellomso.exe: hellomso.obj
-	$(MSOLINK) $<,$@ \;
+	$(MSOLINK) c.obj $<,$@,,d:mc \;
 
 hellomso.obj: hellomso.c
 	$(MSOMC1) $< 
