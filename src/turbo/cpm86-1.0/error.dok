@@ -1,0 +1,275 @@
+{.HE}
+{.L-}
+  *****************************************************************
+  *                                                               *
+  *           Print this document in the following way:           *
+  *                                                               *
+  *           1. Exit Turbo Pascal                                *
+  *           2. Activate the TLIST program                       *
+  *           3. Answer READ.ME and press <RETURN>                *
+  *           4. Press <RETURN> to question about Options.        *
+  *                                                               *
+  *                                                               *
+  *  If you want to change the left margin use the directive:     *
+  *  PO (Page Offset E.g. PO8) (the dot must be in column one).   *
+  *                                                               *
+  *  You may also use the PL directive to set Page Length         *
+  *                                                               *
+  *****************************************************************
+{.L+}
+{.PO8}
+{.PL66}
+
+
+
+
+
+
+
+
+
+
+
+               Addendum to TURBO REFERENCE MANUAL
+                  CP/M-86 and CCP/M-86 Version
+                          October 1983
+
+
+
+
+
+
+
+
+
+
+
+
+
+          (C) Copyright 1983 Borland International Inc.
+{.HEAddendum to the TURBO Pascal Reference Manual        page: #  \First printing November 1983 }
+{.PA}Š
+-----------------------------------------------------------------
+                  HOW TO GET STARTED RIGHT NOW
+-----------------------------------------------------------------
+
+
+
+
+  1. Make a copy of the distribution disk to a fresh system disk.
+
+  2. Start TINST and  select S for Screen installation.
+
+  3. Select your terminal from the menu.
+
+  4. Exit from TINST and start TURBO.
+
+  5. Type Y for Yes and R for Run.
+
+  6. Answer: "CALC" and press <RETURN>
+
+
+
+The compiler will now compile the file CALC.PAS. The object code
+is placed directly in memory and executed immediately.
+
+Tï  makå  á COM/CMÄ fileº   selecô Ï foò Optionó anä theî  Ã  foò
+COM/CMÄ  filå  theî Ñ tï Quiô thå Optionó menõ anä Ã  tï  Compilå
+again.
+
+{.PA}Š
+-----------------------------------------------------------------
+                 FILES ON THE DISTRIBUTION DISK
+-----------------------------------------------------------------
+
+
+
+----------------------------------------------------------------
+!    THE FILE YOU MUST HAVE TO DEVELOP AND COMPILE PROGRAMS    !
+----------------------------------------------------------------
+! TURBO.COM         Compiler and  Editor                       !
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+!             OPTIONAL FILES WHEN DEVELOPING PROGRAMS          !
+----------------------------------------------------------------
+! TURBOMSG.OVR      Error messages (You may ommit this file)   !
+! TLIST.COM         Program lister                             !
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+!          FILES YOU ONLY NEED WHEN YOU INSTALL TURBO          !
+----------------------------------------------------------------
+! TINST.COM              Installation program                  !
+! TINSTMSG.OVR           Message file for TINST                !
+! TINST.DTA              Contains terminal definitions         !
+---------------------------------------------------------------
+Oncå  yoõ  havå installeä TURBÏ yoõ maù deletå theså  fileó  froí 
+your working copy of TURBO.
+
+
+-----------------------------------------------------------------
+!                FILES WITH DEMONSTRATION PROGRAMS              !
+-----------------------------------------------------------------
+! CALC.PAS                MicroCalc (spread sheet demo program) !
+! CALC.HLP                On-line manual for MicroCalc          !
+! CALCDEMO.MCS            Example spread sheet definition       !
+-----------------------------------------------------------------
+
+{.PA}
+
+----------------------------------------------------------------Š----------------------------------------------------------------
+                   CORRECTIONS TO THE MANUAL:
+----------------------------------------------------------------
+
+
+PAGE 66
+
+Examples of string comparisons:
+
+   'A' < 'B'        is TRUE
+   'A' > 'b'        is FALSE
+
+
+PAGE 126
+
+Thå Iniô procedurå shoulä bå CRTinit¬ anä thå Exiô procedure
+should be CRTexit.
+
+
+PAGE 213
+
+The X compiler directive is valid for the CP/M-80 implementation
+only.
+  
+
+PAGE 193 / 197
+
+The parameter for function calls should be defined as follows:
+
+  RegPack = record
+              ax,bx,cx,dx,bp,si,di,ds,es,flags: Integer;
+            end;  
+
+
+
+
+{.PA}Š
+---------------------------------------------------------------
+          MURPHY DELETED THE FOLLOWING FROM THE MANUAL:
+---------------------------------------------------------------
+
+
+
+Procedure Halt;
+
+Thió procedurå wilì stoð execution and exit the program.
+
+
+Function UpCase(Ch: Char): Char;
+
+Thió  functioî returnó thå uppercaså equivalenô oæ thå  parameteò
+Ch®  Exampleº  iæ  C±  haó thå valuå 'a§ theî UpCase(C1© haó  thå
+valuå 'A'.
+
+
+Function Chr(I: IExpr): Char;
+
+This function returns the character with the ASCII value I.
+Example: Chr(65) returns the value 'A'.
+
+
+Procedure Intr(InterruptNumber: IConstant; var Result: RecPack);
+
+Thió  procedurå initializeó thå registeró anä flagó aó  specifieä
+iî  thå  parameteò "RecPack¢ anä theî makeó á softwarå  interrupô
+correspondinç tï thå parameteò "InterruptNumber¢ whicè musô bå  á
+constant.“  Wheî thå interrupô servicå routinå returnó controì  tï
+youò  prograí "RegPack¢ wilì contaiî anù returneä valueó forí thå
+servicå routine.
+
+.paŠ
+-----------------------------------------------------------------
+              LIST OF COMMON QUESTIONS AND ANSWERS
+-----------------------------------------------------------------
+
+
+
+Q: How do I use the system?
+A: Please read the manual.
+
+Q: Is TURBO an interpretor like UCSD? 
+A: No, it generates ultra-fast machine code.
+
+Q: Do I need the TURBO system to run programs developed in TURBO 
+   Pascal?
+A: No, make a .COM or .CMD file.
+
+Q: How many lines of code can the compiler handle.
+A: No limit (The object code, however, cannot excede 64 KB)
+
+Q: How many significant digits does TURBO support in floating point?
+A: 11.
+
+Q: Whù dï É geô garbagå oî thå screeî wheî startinç thå TURBO
+   editor?
+A: You have not installed TURBO for your system.
+
+Q: What do I do when I run out of space using the editor?
+Aº Spliô youò sourcå codå (seå manuaì $É directive.)
+
+Q: What do I do when I run out of space while compiling?
+A: Use the $I directive and/or generate a .COM or .CMD file.
+
+Q: How do I make a .COM or .CMD file?
+A: Type O from the main menu then type C.
+
+Q: What do I do when the compiler generates too much code?
+A: Read the appendicies about compiler switches and .CHN files.
+
+Q: Does TURBO Pascal support overlays?
+A: No, but ask Borland about Borland Pascal... 
+
+Q: Does TURBO Pascal support the 8087 chip?
+A: No, but ask Borland about Borland Pascal... 
+.paŠ
+-----------------------------------------------------------------
+             A SPECIAL NOTE TO CONCURRENT CP/M USERS
+-----------------------------------------------------------------
+
+
+
+Yoõ  maù havå noticeä thaô somå programó eató alì youò memorù  sï 
+that you can not run programs concurrently under CCP/M.
+
+Noô sï witè TURBO-Pascaì programs. 
+
+TURBÏ  letó yoõ specifù thå maximuí amounô oæ memorù useä bù  thå 
+program®  Tï dï so¬  enteò thå Optionó menõ anä selecô Ã foò  Cmä 
+file. The specify the desired value.
+
+
+Tï leô TURBÏ Pascaì itselæ allocatå lesó memorù thaî thå standarä 
+amount which is 8000 paragraphs use the following DDT86 patch:
+
+DDT86
+-RTURBO.CMD      ; Read in TURBO.CMD 
+-S11             ; Patch maximum memory requirement 
+XXXXat you can not run programs concurrently under CCP/M.
+
+Noô sï witè TURBO-Pascaì programs. 
+
+TURBÏ  letó yoõ specifù thå maximuí amounô oæ memorù useä bù  thå 
+program®  Tï dï so¬  enteò thå Optionó menõ anä selecô Ã foò  Cmä 
+file. The specify the desired value.
+
+
+Tï leô TURBÏ Pascaì itselæ allocatå lesó memorù thaî thå standarä 
+amount which is 8000 paragraphs use the following DDT86 patch:
+
+DDT86
+-RTURBO.CMD      ; Read in TURBO.CMD 
+-S11             ; Patch maximum memory requirement 
+XXXX
