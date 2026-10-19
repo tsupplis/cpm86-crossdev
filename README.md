@@ -60,7 +60,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 
 The source for CP/M‑86 doc, sources and binaries is http://www.cpm.z80.de.
 
-A cleaned‑up distribution and kernel is available at https://github.com/tsupplis/cpm86-kernel. This distribution is working well in virtual environments, patched with all known patches, 'y2k' friendly (it contains the version of tod which sources are in this project) and AT friendly.
+A cleaned‑up distribution and kernel are available at https://github.com/tsupplis/cpm86-kernel (CP/M-86 1.1) and https://github.com/tsupplis/cpm86-kernel (CCP/M-86 3.1). This distribution is working well in virtual environments, patched with all known patches, 'y2k' friendly (it contains the version of tod which sources are in this project) and AT friendly.
 
 ## Key tools for CP/M-86 development
 
