@@ -1,2 +1,2 @@
 #!/bin/sh
-exec "`dirname $0`/hexcom" "$@"
+exec "`dirname $0`/cmdinfo" "$@"

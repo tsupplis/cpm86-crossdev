@@ -194,13 +194,18 @@ All the tools are wrapped in the bin directory for direct usage:
 | Assembler                 | pcdev_xref86  | xref86.exe       | DR cross referencer                                    |
 | Assembler                 | cpm_asm80     | asm80.com        | DR 8008 assembler (CP/M‑80 tool) to support xlt86      |
 | Linkers / Librarians      | bin2cmd       | (native)         | CMD converter (native)                                 |
+| Linkers / Librarians      | h862bin       | (native)         | CMD converter (native)                                 |
 | Linkers / Librarians      | cmdmod        | (native)         | CMD segment/group modifier (native)                    |
 | Linkers / Librarians      | exe2cmd       | (native)         | EXE to CMD converter (native)                          |
-| Linkers / Librarians      | hexcom        | (native)         | HEX to COM translation                                 |
-| Linkers / Librarians      | pcdev_bin2cmd | ‑                | obsolete alias for bin2cmd                             |
-| Linkers / Librarians      | pcdev_exe2bin | exe2bin.exe      | Microsoft EXE converter                                |
-| Linkers / Librarians      | pcdev_exe2cmd | ‑                | obsolete alias for exe2cmd                             |
-| Linkers / Librarians      | pcdev_hex2bin | hex2bin.com      | Microsoft HEX converter                                |
+| Linkers / Librarians      | h862bin       | (native)         | H86 to COM/Binary converter                         |
+| Linkers / Librarians      | hexcom        | (native)         | HEX to COM converter                                 |
+| Linkers / Librarians      | pcdev_cmdmod | ‑                | Alias to cmdmod                             |
+| Linkers / Librarians      | pcdev_h862bin | ‑                | Alias to h862bin                             |
+| Linkers / Librarians      | pcdev_bin2cmd | ‑                | Alias to bin2cmd                             |
+| Linkers / Librarians      | pcdev_hexcom | ‑                | Alias to hexcom                             |
+| Linkers / Librarians      | pcdev_exe2bin | exe2bin          | Single segment EXE to Bin converter                                |
+| Linkers / Librarians      | pcdev_exe2cmd | ‑                | alias to exe2cmd                             |
+| Linkers / Librarians      | pcdev_hex2bin | -                | Microsoft HEX converter                                |
 | Linkers / Librarians      | pcdev_lib86   | lib86.exe        | DR librarian                                           |
 | Linkers / Librarians      | pcdev_link    | link.exe         | Microsoft linker (default, currently 3.65a)            |
 | Linkers / Librarians      | pcdev_link1    | link1.exe         | Legacy Microsoft linker (default, currently 1.10)            |
@@ -290,7 +295,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | PL/M                      | intel_oh86    | oh86.exe         | Intel object to hex converter                          |
 | PL/M                      | intel_plm86   | plm86.exe        | Intel PL/M‑86 3.30 compiler                            |
 | Misc                      | cmdinfo       | (native)         | CMD info tool (native)                                 |
-| Misc                      | pcdev_cmdinfo | ‑                | obsolete alias for cmdinfo                             |
+| Misc                      | pcdev_cmdinfo | ‑                | alias to cmdinfo                             |
 | Misc                      | doscat        | (native)         | Truncate files beyond ^Z                               |
 | Misc                      | tnylpo‑convert | (native)        | converts text files to and from the CP/M format        |
 | Misc                      | crc           | (native)         | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility |
