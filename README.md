@@ -741,3 +741,11 @@ Drive D = tool dir (contains <code>xlisp.cmd</code>), drive C = CWD, so <code>.l
 | [cpm86-menu](https://github.com/tsupplis/cpm86-menu)   | A submit replacement and a menu system for submit orchestration for CP/M-86 |
 | [cpm86-make](https://github.com/tsupplis/cpm86-make)   | A simple submit based make tool for CP/M-86 |
 | [pcdos11-hacking](https://github.com/tsupplis/pcdos11-hacking) | PC-DOS 1.1 distribution, tools and notes |
+
+--
+
+## License
+
+The whole repository is under MIT [License](LICENSE.md) unless specified otherwise in a subdirectory.
+
+
