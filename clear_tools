@@ -37,7 +37,7 @@ rm -rf "$root/bin/cmdinfo" "$root/bin/bin2cmd" "$root/bin/exe2cmd"  "$root/bin/c
        "$root/bin/h862bin" "$root/bin/doscat" "$root/bin/hexcom" "$root/bin/ansi2kr" \
        "$root/bin/drpli_objfix" "$root/bin/tnylpo-convert" \
        "$root/bin/pc" "$root/bin/crc" "$root/bin/mlbr" \
-       "$root/bin/mzchecksum"
+       "$root/bin/mzchecksum" "$root/bin/bin2asm"
 
 printf 'INF: cleaning src/tools ...\n'
 (cd "$root/src/tools" && "${MAKE:-make}" clean)

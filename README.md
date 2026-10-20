@@ -296,6 +296,8 @@ All the tools are wrapped in the bin directory for direct usage:
 | PL/M                      | intel_plm86   | plm86.exe        | Intel PL/M‑86 3.30 compiler                            |
 | Misc                      | cmdinfo       | (native)         | CMD info tool (native)                                 |
 | Misc                      | pcdev_cmdinfo | ‑                | alias to cmdinfo                             |
+| Misc                      | bin2asm       | (native)         | Binary to Assembly (native)                                 |
+| Misc                      | pcdev_bin2asm | ‑                | alias to bin2asm                             |
 | Misc                      | doscat        | (native)         | Truncate files beyond ^Z                               |
 | Misc                      | tnylpo‑convert | (native)        | converts text files to and from the CP/M format        |
 | Misc                      | crc           | (native)         | Enhanced IBM PC‑DOS `CRC.EXE`‑compatible 32‑bit CRC utility |
