@@ -348,7 +348,8 @@ static void expand_fixupp_threads(const RecordList *records, RecordList *out,
                     idx2 += 1;
                 }
 
-                ThreadEntry *table = d == 0 ? frame_threads : target_threads;
+                /* OMF D=1 defines a frame thread; D=0 defines a target. */
+                ThreadEntry *table = d == 1 ? frame_threads : target_threads;
                 table[thread_num].defined = 1;
                 table[thread_num].method = method;
                 table[thread_num].datum = datum;
@@ -480,3 +481,4 @@ int main(int argc, char **argv) {
         return 1;
     return 0;
 }
+
