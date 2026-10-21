@@ -7,14 +7,20 @@ LINK86 v1.4 cannot handle:
 
 1. `SEGDEF` records carry a segment length of 0 as a placeholder.
    `pli_fixobj` scans `LEDATA` records to compute the actual segment
-   sizes and patches the `SEGDEF` records accordingly.
+   minimum sizes and patches the `SEGDEF` records accordingly. Nonzero
+   declared lengths are retained: they can include uninitialized trailing
+   storage absent from `LEDATA`.
 2. `FIXUPP` records use thread subrecords (`F=1`/`T=1` references),
    which LINK86 v1.4 does not support. `pli_fixobj` expands all
    thread-based fixup references to explicit (`F=0`/`T=0`) form and
    drops the now-unneeded thread subrecords.
+   OMF thread bit D selects frame when set and target when clear.
 
 The output is padded to a 128-byte boundary, as required by the
 CP/M-86 file system.
+
+Run `make test` for segment-size, frame/target, checksum and idempotence
+regressions. These checks are separate from the normal build.
 
 ## Usage
 

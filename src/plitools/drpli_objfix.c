@@ -5,7 +5,8 @@
  *
  * 1. SEGDEF records have segment length = 0 as placeholders.
  *    LINK86 requires the correct segment sizes. This tool scans
- *    LEDATA records to compute actual sizes and patches SEGDEFs.
+ *    LEDATA records to compute minimum sizes and patches SEGDEFs.
+ *    Existing lengths also cover uninitialized storage and must not shrink.
  *
  * 2. FIXUPP records use thread subrecords (F=1 / T=1 references).
  *    LINK86 v1.4 does not handle these correctly. This tool expands
@@ -190,6 +191,9 @@ static int patch_segdefs(RecordList *records, const long seg_sizes[256]) {
         long new_len = (segdef_idx < 256 && seg_sizes[segdef_idx] >= 0)
                            ? seg_sizes[segdef_idx]
                            : (long)old_len;
+        /* LEDATA does not describe trailing uninitialized storage. */
+        if (new_len < (long)old_len)
+            new_len = (long)old_len;
         if ((unsigned)new_len != old_len) {
             r->payload[1] = (uint8_t)(new_len & 0xFF);
             r->payload[2] = (uint8_t)((new_len >> 8) & 0xFF);
