@@ -18,7 +18,7 @@ cpm86-crossdev/
 │   │   ├── cross_aztec34      # download-only fetcher example
 │   │   ├── native_emu2        # git-clone + build fetcher example
 │   │   └── …
-│   ├── aztec42-patch/   # patches applied during the aztec42 build step
+│   ├── aztec42-patch/   # one original-source runtime.patch and build recipes
 │   ├── drpackages/      # DR C, F77, PL/I, Pascal MT+, CB86 packages (stored in-tree)
 │   ├── drtools/         # DR Personal Basic binary (stored in-tree)
 │   ├── mstools/         # Microsoft tools stored in-tree
@@ -91,9 +91,15 @@ tool (run under an emulator) or builds a native host binary:
 | `cross_` | Downloads/stages a cross-development tool into `share/` — runs under emu2 or tnylpo at build time | `cross_aztec34`, `cross_drtools`, `cross_turbo` |
 | `native_` | Clones or downloads source and compiles a native host binary into `bin/` | `native_emu2`, `native_nasm`, `native_tnylpo` |
 
-Some fetchers do both (e.g. `cross_aztec42_build` downloads the archive *and*
-builds native support tools from source); name them after their primary purpose
-and add a `_build` suffix when the build step is distinct from the download.
+`cross_aztec34` stages the 3.4 distribution, including the DOS 1.x
+source archive. `cross_aztec42` stages the 4.2 compiler and its source
+archives, adds the 3.4 DOS 1.x sources, and applies the compiler batch-mode
+patch. `cross_aztec42_build` applies the single `runtime.patch` directly to
+the unpacked originals (no incremental chain), builds the libraries
+through the wrappers in `bin/`, and installs them into `share/aztec42/lib`.
+`cross_aztec_startups` extracts the matching startup for each linker target.
+The rebuild command and regression targets are in the
+[Aztec patch recipe](src/aztec42-patch/README.md).
 
 ---
 

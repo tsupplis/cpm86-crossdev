@@ -283,6 +283,11 @@ printf 'INF: [cpmtest] starting ...\n'
     && printf 'INF: [cpmtest] ok\n' \
     || { printf 'ERR: [cpmtest] FAILED - see %s\n' "$fetch_log_name" >&2; exit 1; }
 
+printf 'INF: [aztecreg] starting ...\n'
+(cd "$root/src/aztecreg" && "${MAKE:-make}" clean check dos-check && "${MAKE:-make}" clean) >> "$fetch_log" 2>&1 \
+    && printf 'INF: [aztecreg] ok\n' \
+    || { printf 'ERR: [aztecreg] FAILED - see %s\n' "$fetch_log_name" >&2; exit 1; }
+
 # ── Finalise permissions ───────────────────────────────────────────────────────
 protect
 

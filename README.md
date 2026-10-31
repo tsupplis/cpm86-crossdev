@@ -621,9 +621,12 @@ always present. The startup is selected from the C library you link against:
 
 | Library            | Target / Model | Startup     |
 |-------------------:|:---------------|:------------|
-| `‑lc86`            | CP/M‑86 small  | `begin86.o` |
-| `‑lc`   / `‑lclc`  | MS‑DOS small   | `sbegin.o`  |
-| `‑lcl`  / `‑lcld`  | MS‑DOS large   | `lbegin.o`  |
+| `-lc86` | CP/M-86 small | `begin86.o` |
+| `-ld11` | DOS 1.x small | `begin11.o` |
+| `-lc` | DOS small | `sbegin.o` |
+| `-lclc` | DOS large code | `beginlc.o` |
+| `-lcld` | DOS large data | `beginld.o` |
+| `-lcl` | DOS large code and data | `lbegin.o` |
 
 These startup objects are produced from the C libraries by `fetch_tools`
 (`src/fetch/cross_aztec_startups`). Without this, Aztec's single‑pass `ln` only pulls
@@ -635,6 +638,20 @@ ordered with `ord` or passed twice (`‑lc86 ‑lc86`). Prepending the startup a
 command‑line object fixes all of these cases, so neither `ord` nor a doubled
 library is needed. To restore the old behavior set `AZTEC_NOSTARTUP=1`, or force
 a specific startup with `AZTEC_STARTUP=<obj‑in‑lib>`.
+
+#### Rebuilding the Aztec 4.2 runtime
+
+After installing the toolchain with `./fetch_tools`, run these commands from
+the repository root to rebuild the installed sources, refresh the linker
+startup objects, and run the regressions.
+
+```sh
+sh src/fetch/cross_aztec42_build --rebuild
+make -C src/aztecreg clean check dos-check
+```
+
+The [patch recipe](src/aztec42-patch/README.md) covers fresh installs,
+upgrades, and regenerating the patches after editing the runtime.
 
 ### Assembler Programs
 

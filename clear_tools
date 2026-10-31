@@ -55,6 +55,7 @@ printf 'INF: removing fetch logs ...\n'
 rm -f "$root"/fetch-*.log
 
 printf 'INFO: removing test output ...\n'
+(cd "$root/src/aztecreg" && "${MAKE:-make}" clean)
 rm -f "$root"/src/cpmtest/*.cmd "$root"/src/cpmtest/*.out
 
 printf 'INF: removing legacy build trees ...\n'
