@@ -22,6 +22,14 @@ if [ ! -d "$root/share/aztec42/bin" ]; then
     trap - EXIT
 fi
 
+# DOS 1.x sources ship with 3.4. Older installations nested src twice.
+az42src="$root/share/aztec42/src"
+if [ ! -f "$root/share/aztec42/unpacked" ] && [ ! -f "$az42src/dos11.arc" ]; then
+    az34src="$root/share/aztec34/src"
+    [ -f "$az34src/dos11.arc" ] || az34src="$az34src/src"
+    cp "$az34src/dos11.arc" "$az42src/dos11.arc"
+fi
+
 echo INF: Patching Aztec 4.2 cc.exe for default batch mode ...
 cc42="$root/share/aztec42/bin/cc.exe"
 if [ -f "$cc42" ] && [ ! -f "$cc42.bak" ]; then

@@ -1,30 +1,24 @@
 #!/bin/sh
-if [ ! -d src ];then
-    echo "ERR: Please execute from Aztec C root" >&2
-    exit 0;
-fi
+set -eu
+
+test -d src && test -f bin/arcv.com || {
+    echo "Run unpack from the Aztec installation root" >&2
+    exit 1
+}
 cd src
-for i in *.arc;do 
-    r=`echo $i|sed -e 's/.arc$//g'`
-    mkdir -p $r
-    cp $i $r/$i
-    (cd $r;../../../../bin/emu2 ../../bin/arcv.com $i; rm $i) 
+for archive in *.arc; do
+    dir=${archive%.arc}
+    mkdir -p "$dir"
+    cp "$archive" "$dir/$archive"
+    (cd "$dir" && ../../../../bin/emu2 ../../bin/arcv.com "$archive" && rm "$archive")
 done
 mv build/* .
 mv s screen
 mv g graphics
 rmdir build
-mv cpm86/c86.bld .
-mv misc/misc.bld .
-for i in *.bat *.bld */*.c */*.asm makefile */makefile;do 
-	dos2unix $i
-    if [ "$?" != "0" ];then 
-        exit -1
-    fi
-    unix2dos $i
-    if [ "$?" != "0" ];then 
-        exit -1
-    fi
+mv cpm86/c86.bld misc/misc.bld .
+for source in *.bat *.bld */*.c */*.asm makefile */makefile; do
+    dos2unix "$source"
+    unix2dos "$source"
 done
-cd ..
-touch unpacked
+touch ../unpacked

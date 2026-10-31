@@ -1,0 +1,31 @@
+#!/bin/sh
+# Target selection must work when all linker arguments live in a response file.
+set -eu
+bin=$1
+work=$(mktemp -d "${TMPDIR:-/tmp}/azresponse.XXXXXX")
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+cd "$work"
+cat > main.c <<'C'
+#include <stdio.h>
+int main(void) { puts("RESPONSE PASS"); return 0; }
+C
+for target in c86 d11 c clc cld cl; do
+    case $target in clc) model=lc;; cld) model=ld;; cl) model=l;; *) model=;; esac
+    case $target in c86) out=main.cmd;; d11) out=main.com;; *) out=main.exe;; esac
+    "$bin/aztec42_cc" +"$model" +0 -o main.o main.c
+    for ending in lf crlf; do
+        if [ "$ending" = lf ]; then
+            printf '%s\n' "-o $out main.o -l$target" > link.inp
+        else
+            printf '%s\r\n' "-o $out" 'main.o' "-l$target" > link.inp
+        fi
+        "$bin/aztec42_link" -f link.inp
+        if [ "$target" = c86 ]; then
+            output=$("$bin/cpm86" "$out")
+        else
+            output=$("$bin/emu2" "$out")
+        fi
+        printf '%s\n' "$output" | tr -d '\r' | grep -qx 'RESPONSE PASS'
+    done
+    echo "RESPONSE LINKS PASS: $target"
+done

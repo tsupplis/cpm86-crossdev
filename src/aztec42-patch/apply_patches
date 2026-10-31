@@ -1,39 +1,32 @@
 #!/bin/sh
-
-set -e
-
-for i in patches/include/*;do
-    if [ -f "$i" ]; then
-        "${PATCH:-patch}" -p0 < $i
-    fi
-done
-
-for i in patches/src/* patches/src/*/*;do
-    if [ -f "$i" ]; then
-        "${PATCH:-patch}" -p0 < $i
-    fi
-done
-
-for i in patches/new/include/* patches/new/include/*/*;do
-    if [ -f "$i" ]; then
-        n=`echo $i|sed -e 's/^patches\/new\///g'`
-        touch "$n"
-        "${PATCH:-patch}" -p0 < $i
-    fi
-done
-
-for i in patches/new/src/* patches/new/src/*/*;do
-    if [ -f "$i" ]; then
-        n=`echo $i|sed -e 's/^patches\/new\///g'`
-        touch "$n"
-        "${PATCH:-patch}" -p0 < $i
-    fi
-done
-
-for i in patches/obsolete/src/* patches/obsolete/src/*/*;do
-    if [ -f "$i" ]; then
-        n=`echo $i|sed -e 's/^patches\/obsolete\///g'`
-        rm -f "$n"
-    fi
-done
-touch patched
+# One patch from the unpacked original distribution to the current runtime.
+set -eu
+recipes=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+test -f src/c86.bld && test -f include/stdio.h || {
+    echo 'Run apply_patches from the unpacked Aztec installation root.' >&2
+    exit 1
+}
+export GIT_CEILING_DIRECTORIES="$(dirname "$(pwd -P)")"
+patch="$recipes/runtime.patch"
+patch_id=$(git hash-object --no-filters "$patch")
+if [ -f patched-runtime ] && [ "$(cat patched-runtime)" = "$patch_id" ]; then
+    exit 0
+fi
+apply() {
+    git -c core.autocrlf=false apply --no-index --whitespace=nowarn -p2 "$@" "$patch"
+}
+if apply --reverse --check >/dev/null 2>&1; then
+    # Adopt an already patched tree (including the former v9 installation).
+    echo 'Aztec runtime sources already contain the consolidated patch.'
+elif apply --check; then
+    apply
+else
+    echo 'Aztec sources are neither pristine nor patched to the current revision.' >&2
+    echo 'No files changed. Preserve this installation and start from the original archives.' >&2
+    echo "See $recipes/README.md for the fresh-install procedure." >&2
+    exit 1
+fi
+# A new patch identity always requires a rebuild, including migration.
+rm -f built
+printf '%s\n' "$patch_id" > patched-runtime
+rm -f patched patched-runtime-v[0-9]*

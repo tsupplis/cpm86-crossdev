@@ -101,6 +101,10 @@ examples/*.out
 examples/*.out.raw
 examples/*.old
 
+src/aztecreg/*.com
+src/aztecreg/*.cmd
+src/aztecreg/*.exe
+
 src/cpmtest/*.out
 src/cpmtest/*.cmd
 src/cpmtest/*.obj

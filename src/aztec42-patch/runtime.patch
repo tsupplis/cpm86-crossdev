@@ -1,0 +1,4431 @@
+diff --git a/before/include/assert.h b/after/include/assert.h
+index ed041aa..9fcaea5 100644
+--- a/before/include/assert.h
++++ b/after/include/assert.h
+@@ -1,10 +1,14 @@
+ /* Copyright Manx Software Systems, Inc. 1987.  All rights reserved */
+ 
+-#ifndef assert
+-#ifndef NDEBUG
++#ifndef AZ_ASSERT_H
++#define AZ_ASSERT_H
+ void _assert(char *expr, char *filename, unsigned int lineno);
++#endif
++
++/* Re-evaluate NDEBUG whenever this header is included. */
++#undef assert
++#ifndef NDEBUG
+ #define assert(x) if (!(x)) _assert(#x, __FILE__, __LINE__); else;
+ #else
+ #define assert(x)
+ #endif
+-#endif
+diff --git a/before/include/color.h b/after/include/color.h
+index d67e39a..8da7be5 100644
+--- a/before/include/color.h
++++ b/after/include/color.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_COLOR_H
++#define AZ_COLOR_H
+ #define BLACK	 	0
+ #define BLUE	   	1
+ #define GREEN	   	2
+@@ -11,3 +13,4 @@
+ #define NO_BLINK    0
+ #define HIGH		1
+ #define LOW			0
++#endif
+diff --git a/after/include/cpm.h b/after/include/cpm.h
+new file mode 100644
+index 0000000..99b5a59
+--- /dev/null
++++ b/after/include/cpm.h
+@@ -0,0 +1,11 @@
++/* Copyright 1992 Manx Software Systems, Inc. All rights reserved */
++
++#ifndef __CPM_H
++#define	__CPM_H
++
++int bdos(int _func, int _dx);
++int dup(int _oldfd);
++int fcbinit(char *_name, void *_fcb);
++int fdup(int _oldfd, int _newfd);
++
++#endif	/* __CPM_H */
+diff --git a/before/include/ctype.h b/after/include/ctype.h
+index b8e2f3b..014d7ba 100644
+--- a/before/include/ctype.h
++++ b/after/include/ctype.h
+@@ -19,5 +19,10 @@ extern char ctp_[];
+ #define toascii(x) ((x)&127)
+ #define _tolower(x) ((x)|0x20)
+ #define _toupper(x) ((x)&0x5f)
++#ifndef __NOPROTO__
++int tolower(int), toupper(int);
++#else
++int tolower(), toupper();
++#endif
+ #define __CTP
+ #endif
+diff --git a/before/include/dioctl.h b/after/include/dioctl.h
+index 092740d..4361929 100644
+--- a/before/include/dioctl.h
++++ b/after/include/dioctl.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_DIOCTL_H
++#define AZ_DIOCTL_H
+ /* Copyright (C) 1983 by Manx Software Systems */
+ 
+ #define TIOCGETP	0		/* read contents of tty control structure */
+@@ -24,3 +26,4 @@ struct sgttyb {
+ /* Refer to the MSDOS technical reference for detailed information on
+  * the remaining flags.
+  */
++#endif
+diff --git a/after/include/dos.h b/after/include/dos.h
+new file mode 100644
+index 0000000..803ccb4
+--- /dev/null
++++ b/after/include/dos.h
+@@ -0,0 +1,14 @@
++/* Copyright 1992 Manx Software Systems, Inc. All rights reserved */
++
++#ifndef __DOS_H
++#define	__DOS_H
++
++int bdos(int _func, int _dx, int _cx);
++int bdosx(int _func, far void *_dsdx, int _cx);
++int dos(int _func, int _bx, int _cx, int _dx, int _di, int _si);
++int dosx(int _func, int _bx, int _cx, void *_dsdx, int _di, int _si);
++int dup(int _oldfd);
++int fcbinit(char *_name, void *_fcb);
++int fdup(int _oldfd, int _newfd);
++
++#endif	/* __DOS_H */
+diff --git a/before/include/errno.h b/after/include/errno.h
+index 2ab0591..eda67fb 100644
+--- a/before/include/errno.h
++++ b/after/include/errno.h
+@@ -1,3 +1,5 @@
++#ifndef __ERRNO_H
++#define __ERRNO_H
+ extern int errno;
+ extern char *sys_errlist[];
+ extern int sys_nerr;
+@@ -27,3 +29,5 @@ extern int sys_nerr;
+ /* used by the math library */
+ #define ERANGE	21
+ #define EDOM	22
++
++#endif
+diff --git a/before/include/fcntl.h b/after/include/fcntl.h
+index e394bf9..5fdac34 100644
+--- a/before/include/fcntl.h
++++ b/after/include/fcntl.h
+@@ -1,3 +1,6 @@
++#ifndef __FCNTL_H
++#define __FCNTL_H
++
+ #define O_RDONLY	0
+ #define O_WRONLY	1
+ #define O_RDWR		2
+@@ -11,3 +14,15 @@
+ #define O_TRUNC		0x0200
+ #define O_EXCL		0x0400
+ #define O_APPEND	0x0800
++
++#define OS_CPM86 0
++#define OS_MSDOS11 1
++#define OS_MSDOS20 2
++#ifndef __NOPROTO__
++int os(void);
++int unlink(const char *);
++#else
++int os(), unlink();
++#endif
++
++#endif
+diff --git a/before/include/float.h b/after/include/float.h
+index bbca7eb..cac5d74 100644
+--- a/before/include/float.h
++++ b/after/include/float.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_FLOAT_H
++#define AZ_FLOAT_H
+ /* Copyright Manx Software Systems, Inc. 1987.  All rights reserved */
+ 
+ #define FLT_RADIX	2
+@@ -30,3 +32,4 @@
+ #define LDBL_MAX_EXP	1024
+ #define LDBL_MAX	1.797693134862316e+308
+ #define LDBL_MAX_10_EXP	308
++#endif
+diff --git a/before/include/io.h b/after/include/io.h
+index d78d6a3..8ce8cc9 100644
+--- a/before/include/io.h
++++ b/after/include/io.h
+@@ -1,3 +1,5 @@
++#ifndef __IO_H
++#define __IO_H
+ /* Copyright (C) 1982 by Manx Software Systems */
+ /*
+  * if MAXCHAN is changed then the initialization of chantab in croot.c
+@@ -47,7 +49,22 @@ struct channel {
+ } ;
+ extern struct channel chantab[MAXCHAN];
+ 
+-struct fcb {
++struct dos_fcb {
++	char f_driv;
++	char f_name[8];
++	char f_type[3];
++	unsigned f_curblk;		
++	unsigned f_reclen;
++	long f_size;	
++	unsigned f_date;	
++	unsigned f_lastwrite;	
++	char f_resv[8];	
++	char f_currec;	
++	long f_record;	
++	char f_overfl;
++};
++
++struct cpm_fcb {
+ 	char f_driv;
+ 	char f_name[8];
+ 	char f_type[3];
+@@ -56,11 +73,15 @@ struct fcb {
+ 	char f_rc;
+ 	char f_sydx[16];
+ 	char f_cr;
+-	unsigned f_record; char f_overfl;
++	unsigned f_record; 
++	char f_overfl;
+ };
+ 
+ struct fcbtab {
+-	struct fcb fcb;
++	union {
++		struct cpm_fcb cpm;
++		struct dos_fcb dos;
++    } fcb;
+ 	char offset;
+ 	char flags;
+ 	char user;
+@@ -80,3 +101,4 @@ struct fcbtab {
+ #define SETREC	36
+ 
+ #define Wrkbuf ((char *)0x80)
++#endif
+diff --git a/before/include/libc.h b/after/include/libc.h
+index 3775f8e..12553ca 100644
+--- a/before/include/libc.h
++++ b/after/include/libc.h
+@@ -1,49 +1,9 @@
+ /* Copyright (C) 1981, 1982 by Manx Software Systems */
+-#define fgetc getc
+-#define fputc putc
+-
+-extern int errno;
+-#define FLT_FAULT	0		/* vector for floating-point faults */
++#ifndef AZ_LIBC_H
++#define AZ_LIBC_H
++#include <stdio.h>
++#include <errno.h>
++#define FLT_FAULT 0
+ extern int (*Sysvec[])();
+-
+-#define NULL (void *)0
+-#define EOF -1
+-#define BUFSIZ 1024
+-#define MAXSTREAM 20
+-
+-#define _BUSY	0x01
+-#define _ALLBUF	0x02
+-#define _DIRTY	0x04
+-#define _EOF	0x08
+-#define _IOERR	0x10
+-#define _TEMP	0x20	/* temporary file (delete on close) */
+-
+-typedef struct {
+-	char *_bp;			/* current position in buffer */
+-	char *_bend;		/* last character in buffer + 1 */
+-	char *_buff;		/* address of buffer */
+-	char _flags;		/* open mode, etc. */
+-	char _unit;			/* token returned by open */
+-	char _bytbuf;		/* single byte buffer for unbuffer streams */
+-	int	_buflen;		/* length of buffer */
+-	char *_tmpname;		/* name of file for temporaries */
+-} FILE;
+-
+-extern FILE Cbuffs[];
+-extern char *Stdbufs;			/* free list of buffers */
+-FILE *fopen();
+-long ftell();
+-
+-#define stdin (&Cbuffs[0])
+-#define stdout (&Cbuffs[1])
+-#define stderr (&Cbuffs[2])
+-#define getchar() agetc(stdin)
+-#define putchar(c) aputc(c, stdout)
+-#define feof(fp) (((fp)->_flags&_EOF)!=0)
+-#define ferror(fp) (((fp)->_flags&_IOERR)!=0)
+-#define clearerr(fp) ((fp)->_flags &= ~(_IOERR|_EOF))
+-#define fileno(fp) ((fp)->_unit)
+-#define fflush(fp) flsh_(fp,-1)
+-
+-#define	P_tmpdir	""
+-#define L_tmpnam	40
++extern char *Stdbufs;
++#endif
+diff --git a/before/include/limits.h b/after/include/limits.h
+index f92a4f5..aa291b3 100644
+--- a/before/include/limits.h
++++ b/after/include/limits.h
+@@ -7,13 +7,13 @@
+ #define CHAR_MIN	-128
+ #define CHAR_MAX	127
+ #define UCHAR_MAX	255
+-#define SHRT_MIN	0x8000
++#define SHRT_MIN	(-32767-1)
+ #define SHRT_MAX	0x7fff
+ #define USHRT_MAX	0xffffU
+-#define INT_MIN		0x8000
++#define INT_MIN		(-32767-1)
+ #define INT_MAX		0x7fff
+ #define UINT_MAX	0xffffU
+-#define LONG_MIN	0x80000000L
++#define LONG_MIN	(-2147483647L-1L)
+ #define LONG_MAX	0x7fffffffL
+ #define ULONG_MAX	0xffffffffU
+ 
+diff --git a/before/include/lmacros.h b/after/include/lmacros.h
+index c3686de..7c01530 100644
+--- a/before/include/lmacros.h
++++ b/after/include/lmacros.h
+@@ -1,3 +1,17 @@
++; Symbols survive between assembler passes. Track first inclusion per pass.
++AZLM_LOAD = 0
++ if1
++  ifndef AZLM_PASS1
++AZLM_PASS1 equ 1
++AZLM_LOAD = 1
++  endif
++ else
++  ifndef AZLM_PASS2
++AZLM_PASS2 equ 1
++AZLM_LOAD = 1
++  endif
++ endif
++ if AZLM_LOAD
+ 	nlist
+ ; Copyright (C) 1985 by Manx Software Systems, Inc.
+ ; :ts=8
+@@ -208,3 +222,4 @@ codeseg	ends
+ 	list
+ codeseg	segment	byte public 'code'
+ 	assume	cs:codeseg
++	endif
+diff --git a/before/include/locale.h b/after/include/locale.h
+index 2c2fd7d..baddbb0 100644
+--- a/before/include/locale.h
++++ b/after/include/locale.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_LOCALE_H
++#define AZ_LOCALE_H
+ /* Copyright Manx Software Systems, Inc. 1987.  All rights reserved */
+ 
+ #ifndef LC_ALL
+@@ -7,5 +9,6 @@
+ #define LC_NUMERIC	3
+ #define LC_TIME		4
+ 
+-char *setlocale(int category, const char *locale);
++#endif
++
+ #endif
+diff --git a/before/include/math.h b/after/include/math.h
+index 3bebc80..18f0308 100644
+--- a/before/include/math.h
++++ b/after/include/math.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_MATH_H
++#define AZ_MATH_H
+ /* Copyright Manx Software Systems, Inc. 1984.  All rights reserved */
+ 
+ #ifndef __NOPROTO__
+@@ -16,9 +18,26 @@ double log(), log10(), exp(), sqrt();
+ double pow(), sinh(), cosh(), tanh();
+ #endif
+ 
++#ifndef INFINITY
++union az_double { unsigned word[4]; double value; };
++extern const union az_double az_infinity;
++#define INFINITY (az_infinity.value)
++#endif
++#ifndef INFINITE
++#define INFINITE INFINITY
++#endif
++
++/* C99 names supplied as double-based compatibility functions. */
++#ifndef __NOPROTO__
++int isinf(double), isnan(double);
++#else
++int isinf(), isnan();
++#endif
++
+ #ifndef HUGE_VAL
+ #define HUGE_VAL 1.79e+308
+ #define LOGHUGE	709.778
+ #define TINY_VAL 2.2e-308
+ #define LOGTINY	-708.396
+ #endif
++#endif
+diff --git a/before/include/memory.h b/after/include/memory.h
+index 3d8d0c1..e1a2c5b 100644
+--- a/before/include/memory.h
++++ b/after/include/memory.h
+@@ -1,2 +1,10 @@
+-extern char *memcpy(), *memchr(), *memccpy(), memset();
+-extern int memcmp();
++#ifndef AZ_MEMORY_H
++#define AZ_MEMORY_H
++#include <string.h>
++#ifndef __NOPROTO__
++void *memccpy(void *, const void *, int, unsigned);
++#else
++void *memccpy();
++#endif
++
++#endif
+diff --git a/before/include/model.h b/after/include/model.h
+index 8889f3e..6e31397 100644
+--- a/before/include/model.h
++++ b/after/include/model.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_MODEL_H
++#define AZ_MODEL_H
+ #if (sizeof(int (*)()) == 4)
+ #define _LARGECODE
+ #endif
+@@ -5,3 +7,4 @@
+ #if (sizeof(char *) == 4)
+ #define _LARGEDATA
+ #endif
++#endif
+diff --git a/after/include/screen.h b/after/include/screen.h
+new file mode 100644
+index 0000000..9e9f76a
+--- /dev/null
++++ b/after/include/screen.h
+@@ -0,0 +1,31 @@
++#ifndef __SCREEN_H
++#define __SCREEN_H
++
++int scr_putc(register int c);
++int scr_puts(register const char * str);
++int scr_printf(const char *fmt, ...);
++int scr_setattr(register int back,register int frg,
++        register int intens,register int blink);
++int scr_getattr();
++int scr_resattr(register int atr);
++void scr_clear();
++void scr_home();
++void scr_curs(register int line, register int col);
++void scr_cdelete();
++void scr_cinsert();
++void scr_ldelete();
++void scr_linsert();
++void scr_invers(int flg);
++void scr_eos();
++void scr_eol();
++int scr_getck();
++int scr_getch();
++int scr_ungetch();
++int scr_getche();
++int scr_kbhit();
++int scr_pollk();
++void scr_loc(int *line, int *col);
++int scr_line();
++int scr_col();
++
++#endif
+diff --git a/before/include/setjmp.h b/after/include/setjmp.h
+index 38e2937..a52df05 100644
+--- a/before/include/setjmp.h
++++ b/after/include/setjmp.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_SETJMP_H
++#define AZ_SETJMP_H
+ /* Copyright Manx Software Systems, Inc. 1984.  All rights reserved */
+ #ifndef __JBUFSIZE
+ #define __JBUFSIZE	(6*sizeof(char *))
+@@ -7,3 +9,5 @@ typedef char jmp_buf[__JBUFSIZE];
+ int setjmp(jmp_buf env);
+ void longjmp(jmp_buf env, int val);
+ #endif
++
++#endif
+diff --git a/before/include/sgtty.h b/after/include/sgtty.h
+index a2a5cad..73385a0 100644
+--- a/before/include/sgtty.h
++++ b/after/include/sgtty.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_SGTTY_H
++#define AZ_SGTTY_H
+ /* Copyright (C) 1983 by Manx Software Systems */
+ 
+ #define TIOCGETP	0		/* read contents of tty control structure */
+@@ -17,3 +19,4 @@ struct sgttyb {
+ #define ECHO	0x08	/* ignored unless CBREAK is set */
+ #define CBREAK	0x02	/* input using BDOS(1), unless echo off then */
+ 						/* same as RAW */
++#endif
+diff --git a/before/include/signal.h b/after/include/signal.h
+index 05ee21c..0e01a57 100644
+--- a/before/include/signal.h
++++ b/after/include/signal.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_SIGNAL_H
++#define AZ_SIGNAL_H
+ /* Copyright Manx Software Systems, Inc. 1987.  All rights reserved */
+ 
+ #ifndef _NUMSIG
+@@ -30,3 +32,5 @@ int raise();
+ #endif
+ 
+ #endif
++
++#endif
+diff --git a/before/include/stat.h b/after/include/stat.h
+index 5e10dba..b2c6260 100644
+--- a/before/include/stat.h
++++ b/after/include/stat.h
+@@ -1,3 +1,5 @@
++#ifndef AZ_STAT_H
++#define AZ_STAT_H
+ /* Copyright (C) 1984 by Manx Software Systems */
+ 
+ struct stat {
+@@ -27,3 +29,11 @@ where:
+ 	minutes is 0-59
+ 	sec/2 is 0-29
+ */
++
++#ifndef __NOPROTO__
++int stat(const char *, struct stat *);
++#else
++int stat();
++#endif
++
++#endif
+diff --git a/before/include/stdarg.h b/after/include/stdarg.h
+index 66717a9..6f56bee 100644
+--- a/before/include/stdarg.h
++++ b/after/include/stdarg.h
+@@ -1,6 +1,10 @@
++#ifndef AZ_STDARG_H
++#define AZ_STDARG_H
+ /* Copyright Manx Software Systems, Inc. 1987.  All rights reserved */
+ 
+ typedef char *va_list;
+ #define va_start(ap, parmN) ((ap) = (char *)(&parmN + 1))
+ #define va_arg(ap, type) ((ap) += sizeof(type), ((type *)(ap))[-1])
+ #define va_end(ap)
++
++#endif
+diff --git a/after/include/stdint.h b/after/include/stdint.h
+new file mode 100644
+index 0000000..99dcceb
+--- /dev/null
++++ b/after/include/stdint.h
+@@ -0,0 +1,22 @@
++#ifndef __STDINT_H
++#define __STDINT_H
++
++typedef signed char		int8_t;
++typedef int			int16_t;
++typedef long int		int32_t;
++
++typedef unsigned char		uint8_t;
++typedef unsigned int		uint16_t;
++typedef unsigned long		uint32_t;
++
++# define INT8_MIN		(-128)
++# define INT16_MIN		(-32767-1)
++# define INT32_MIN		(-2147483647-1)
++# define INT8_MAX		(127)
++# define INT16_MAX		(32767)
++# define INT32_MAX		(2147483647)
++# define UINT8_MAX		(255)
++# define UINT16_MAX		(65535)
++# define UINT32_MAX		(4294967295U)
++
++#endif 
+diff --git a/before/include/stdio.h b/after/include/stdio.h
+index 467dac5..4a9543a 100644
+--- a/before/include/stdio.h
++++ b/after/include/stdio.h
+@@ -1,10 +1,13 @@
++#ifndef AZ_STDIO_H
++#define AZ_STDIO_H
+ /* Copyright Manx Software Systems, Inc. 1982-1987.  All rights reserved */
+ 
+ #ifndef _BUSY
+ 
+ #define fgetc getc
+ #define fputc putc
+-#define NULL ((void *)0)
++#include <stddef.h>
++#include <stdarg.h>
+ #define EOF -1
+ 
+ 
+@@ -33,21 +36,56 @@ typedef struct {
+ 	char *_tmpname;		/* name of file for temporaries */
+ } FILE;
+ 
++typedef long fpos_t;
+ extern FILE Cbuffs[];
+ 
+ #ifndef __NOPROTO__
+-FILE *fopen(char *name, char *mode);
+-FILE *freopen(char *name, char *mode, FILE *stream);
+-FILE *fdopen(int fd, char *mode);
++FILE *fopen(const char *name, const char *mode);
++FILE *freopen(const char *name, const char *mode, FILE *stream);
++FILE *fdopen(int fd, const char *mode);
+ int fseek(FILE *stream, long pos, int whence);
+ long ftell(FILE *stream);
++int fgetpos(FILE *, fpos_t *);
++int fsetpos(FILE *, const fpos_t *);
++void rewind(FILE *);
++int vprintf(const char *, va_list);
++int vfprintf(FILE *, const char *, va_list);
++int vsprintf(char *, const char *, va_list);
++int printf(const char *, ...);
++int fprintf(FILE *, const char *, ...);
++int sprintf(char *, const char *, ...);
++int vsnprintf(char *, size_t, const char *, va_list);
++int snprintf(char *, size_t, const char *, ...);
++char *fgets(char *, int, FILE *);
++int scanf(const char *, ...), sscanf(const char *, const char *, ...);
++int fscanf(FILE *, const char *, ...);
++size_t fread(void *, size_t, size_t, FILE *);
++size_t fwrite(const void *, size_t, size_t, FILE *);
++void setbuf(FILE *, char *);
++int rename(const char *, const char *);
++int flsh_(FILE *, int);
++char *gets(char *);
++int getw(FILE *), putw(unsigned, FILE *);
++int perror(const char *);
++int puts(const char *);
++int fputs(const char *, FILE *);
++int fclose(FILE *);
++int getc(FILE *), agetc(FILE *);
++int putc(int, FILE *), aputc(int, FILE *);
++int ungetc(int, FILE *);
++FILE *tmpfile(void);
++char *tmpnam(char *);
+ int remove(const char *filename);
+ #else
+ FILE *fopen(), *freopen(), *fdopen();
+ long ftell();
++int fgetpos(), fsetpos();
++void rewind();
++FILE *tmpfile();
++char *fgets(), *gets(), *tmpnam();
++int vprintf(), vfprintf(), vsprintf(), vsnprintf(), snprintf(), remove();
+ #endif
+ 
+-
+ #define stdin (&Cbuffs[0])
+ #define stdout (&Cbuffs[1])
+ #define stderr (&Cbuffs[2])
+@@ -72,3 +110,5 @@ long ftell();
+ #define TMP_MAX		26
+ 
+ #endif
++
++#endif
+diff --git a/before/include/stdlib.h b/after/include/stdlib.h
+index bf9394c..b96c7f7 100644
+--- a/before/include/stdlib.h
++++ b/after/include/stdlib.h
+@@ -1,14 +1,22 @@
+ /* Copyright Manx Software Systems, Inc. 1988.  All rights reserved */
+ 
+-typedef unsigned int size_t;
++#ifndef AZ_STDLIB_H
++#define AZ_STDLIB_H
++#include <stddef.h>
++#define stroul strtoul
++typedef struct { int quot, rem; } div_t;
++typedef struct { long quot, rem; } ldiv_t;
++#define RAND_MAX 32767
++#define EXIT_SUCCESS 0
++#define EXIT_FAILURE 1
+ 
+ #ifndef __NOPROTO__
+ double atof(const char *nptr);
+ int atoi(const char *nptr);
+ long int atol(const char *nptr);
+-double strtod(const char *nptr, char *endptr);
+-long int strtol(char *nptr, char *endptr, int base);
+-unsigned long int stroul(char *nptr, char *endptr, int base);
++double strtod(const char *nptr, char **endptr);
++long int strtol(const char *nptr, char **endptr, int base);
++unsigned long int strtoul(const char *nptr, char **endptr, int base);
+ int rand(void);
+ void srand(unsigned int seed);
+ void *calloc(size_t nmemb, size_t size);
+@@ -16,12 +24,15 @@ void *malloc(size_t size);
+ void *realloc(void *ptr, size_t);
+ void abort(void);
+ int atexit(void (*func)(void));
+-int exit(int status);
++void exit(int status);
+ char *getenv(const char *name);
+ int system(const char *string);
+ void *bsearch(const void *key, const void *base, size_t nmemb, size_t size,
+ 			   int (*compar)(const void *, const void *));
+ int abs(int j);
++long labs(long);
++div_t div(int, int);
++ldiv_t ldiv(long, long);
+ 
+ #else
+ 
+@@ -30,28 +41,31 @@ int atoi();
+ long int atol();
+ double strtod();
+ long int strtol();
+-unsigned long stroul();
++unsigned long strtoul();
+ int rand();
+ void srand();
+ void *calloc(), *malloc(); 
+ void *realloc(), abort();
+ int atexit();
+-int exit();
++void exit();
+ char *getenv();
+ int system();
+ void *bsearch();
+ int abs();
++long labs();
++div_t div();
++ldiv_t ldiv();
+ #endif
+ 
+ 
+-#if __STDC__ != 1
+-char *stricmp(const char *string1, const char *string2);
+-#ifdef __NOPROTO__
+-char *strrev(const char *string1);
+-char *strlwr(const char *string1);
++#ifndef __NOPROTO__
++int stricmp(const char *, const char *);
++char *strrev(char *), *strlwr(char *);
++void free(void *);
++void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
+ #else
+-char *strrev();
+-char *strlwr();
++int stricmp();
++char *strrev(), *strlwr();
++void free();
+ #endif
+ #endif
+-
+diff --git a/before/include/string.h b/after/include/string.h
+index c05c087..a46cd42 100644
+--- a/before/include/string.h
++++ b/after/include/string.h
+@@ -1,6 +1,15 @@
++#ifndef AZ_STRING_H
++#define AZ_STRING_H
+ /* Copyright Manx Software Systems, Inc. 1987.  All rights reserved */
+ 
++#include <stddef.h>
++#define strcasecmp stricmp
++#define strncasecmp strnicmp
+ #ifndef __NOPROTO__
++char *strdup(const char *);
++int strnicmp(const char *, const char *, size_t);
++int strcmpi(const char *, const char *);
++int stricmp(const char *, const char *);
+ void *memcpy(void *s1, const void *s2, unsigned int n);
+ void *memmove(void *s1, const void *s2, unsigned int n);
+ char *strcpy(char *s1, const char *s2);
+@@ -9,9 +18,7 @@ char *strcat(char *s1, const char *s2);
+ char *strncat(char *s1, const char *s2, unsigned int n);
+ int memcmp(const void *s1, const void *s2, unsigned int n);
+ int strcmp(const char *s1, const char *s2);
+-int strcoll(const char *s1, const char *s2);
+ int strncmp(const char *s1, const char *s2, unsigned int n);
+-unsigned int strxfrm(char *s1, const char *s2, unsigned int n);
+ void *memchr(const void *s, int c, unsigned int n);
+ char *strchr(const char *s, int c);
+ unsigned int strcspn(const char *s1, const char *s2);
+@@ -25,6 +32,8 @@ char *strerror(int errnum);
+ unsigned int strlen(const char *s);
+ 
+ #else
++char *strdup();
++int strcmpi(), strnicmp(), stricmp();
+ void *memcpy();
+ void *memmove();
+ char *strcpy();
+@@ -46,3 +55,5 @@ void *memset();
+ char *strerror();
+ unsigned int strlen();
+ #endif
++
++#endif
+diff --git a/after/include/strings.h b/after/include/strings.h
+new file mode 100644
+index 0000000..22c93b7
+--- /dev/null
++++ b/after/include/strings.h
+@@ -0,0 +1,4 @@
++#ifndef AZ_STRINGS_H
++#define AZ_STRINGS_H
++#include <string.h>
++#endif
+diff --git a/before/include/time.h b/after/include/time.h
+index 9ea9a8c..8c16c0f 100644
+--- a/before/include/time.h
++++ b/after/include/time.h
+@@ -1,8 +1,11 @@
++#ifndef AZ_TIME_H
++#define AZ_TIME_H
+ /* Copyright Manx Software Systems, Inc. 1984-1987.  All rights reserved */
+ 
+ #ifndef CLK_TCK
+ 
+ #define CLK_TCK 100
++#define CLOCKS_PER_SEC CLK_TCK
+ typedef long time_t;
+ typedef long clock_t;
+ 
+@@ -32,3 +35,5 @@ char *asctime(), *ctime();
+ #endif
+ 
+ #endif
++
++#endif
+diff --git a/after/include/unistd.h b/after/include/unistd.h
+new file mode 100644
+index 0000000..fa02f85
+--- /dev/null
++++ b/after/include/unistd.h
+@@ -0,0 +1,18 @@
++#ifndef AZ_UNISTD_H
++#define AZ_UNISTD_H
++#include <stddef.h>
++#ifndef __NOPROTO__
++int read(int, void *, size_t);
++int write(int, const void *, size_t);
++int close(int);
++long lseek(int, long, int);
++int unlink(const char *);
++int isatty(int);
++#else
++int read(), write(), close(), unlink(), isatty();
++long lseek();
++#endif
++#define STDIN_FILENO 0
++#define STDOUT_FILENO 1
++#define STDERR_FILENO 2
++#endif
+diff --git a/after/src/build b/after/src/build
+new file mode 100644
+index 0000000..afe3a0b
+--- /dev/null
++++ b/after/src/build
+@@ -0,0 +1,14 @@
++#!/bin/sh
++set -e
++"${MAKE:-make}" clean
++"${MAKE:-make}" MODEL= AMODEL=0 
++"${MAKE:-make}" MODEL= AMODEL=0 ovly
++"${MAKE:-make}" MODEL= AMODEL=0 cpm
++"${MAKE:-make}" MODEL= AMODEL=0 d11
++"${MAKE:-make}" clean
++"${MAKE:-make}" MODEL=lc AMODEL=1
++"${MAKE:-make}" clean
++"${MAKE:-make}" MODEL=ld AMODEL=2
++"${MAKE:-make}" clean
++"${MAKE:-make}" MODEL=l AMODEL=3
++"${MAKE:-make}" clean
+diff --git a/before/src/build.bat b/after/src/build.bat
+index 680d361..23d0820 100644
+--- a/before/src/build.bat
++++ b/after/src/build.bat
+@@ -1,4 +1,5 @@
+-echo off
++@echo off
++PATH=..\bin;%PATH%
+ if NOT '%1'=='RESTART' goto makeall
+ shift
+ goto %RESTART%
+@@ -7,6 +8,9 @@ make clean
+ :SMALL
+ set RESTART=SMALL
+ make MODEL= AMODEL=0 %1 %2 %3 %4 %5 %6
++make MODEL= AMODEL=0 ovly
++make MODEL= AMODEL=0 cpm
++make MODEL= AMODEL=0 d11
+ if ERRORLEVEL 1 goto quit
+ make clean
+ :COMPACT
+diff --git a/before/src/c.bld b/after/src/c.bld
+index 29ecc16..7b16e9f 100644
+--- a/before/src/c.bld
++++ b/after/src/c.bld
+@@ -24,6 +24,17 @@ stdio/setbuf.o
+ stdio/ungetc.o
+ stdio/tmpnam.o
+ stdio/mktemp.o
++misc/infty.o
++misc/compat.o
++misc/snprint.o
++misc/strdup.o
++misc/strto.o
++misc/bsearch.o
++misc/strspn.o
++misc/strcspn.o
++misc/strpbrk.o
++misc/strtok.o
++misc/atexit.o
+ misc/atoi.o
+ misc/atol.o
+ misc/calloc.o
+@@ -138,3 +149,10 @@ mch86/movmem.o
+ dos20/isatty.o
+ dos20/ssbrk.o
+ dos20/filelock.o
++dos20/os.o
++misc/labs.o
++misc/div.o
++misc/ldiv.o
++stdio/fgetpos.o
++stdio/fsetpos.o
++stdio/rewind.o
+diff --git a/before/src/c86.bld b/after/src/c86.bld
+index 7c6c0af..680e5a7 100644
+--- a/before/src/c86.bld
++++ b/after/src/c86.bld
+@@ -28,6 +28,18 @@ stdio/setbuf.o
+ stdio/ungetc.o
+ stdio/tmpnam.o
+ stdio/mktemp.o
++misc/infty.o
++misc/compat.o
++dos20/syserr.o
++misc/snprint.o
++misc/strdup.o
++misc/strto.o
++misc/bsearch.o
++misc/strspn.o
++misc/strcspn.o
++misc/strpbrk.o
++misc/strtok.o
++misc/atexit.o
+ misc/atoi.o
+ misc/atol.o
+ misc/calloc.o
+@@ -38,6 +50,7 @@ misc/rand.o
+ misc/abort.o
+ misc/raise.o
+ misc/signal.o
++misc/sigtable.o
+ misc/malloc.o
+ misc/sprintf.o
+ misc/format.o
+@@ -56,7 +69,6 @@ mch86/rindex.o
+ mch86/segread.o
+ mch86/setjmp.o
+ mch86/strlen.o
+-mch86/strncpy.o
+ mch86/swapmem.o
+ mch86/sysint.o
+ mch86/toupper.o
+@@ -76,8 +88,6 @@ cpm86/isatty.o
+ cpm86/lseek.o
+ cpm86/read.o
+ cpm86/rename.o
+-cpm86/write.o
+-cpm86/blkio.o
+ mch86/csav.o
+ mch86/pointers.o
+ mch86/fptrs.o
+@@ -90,10 +100,18 @@ cpm86/begin.o
+ cpm86/croot.o
+ cpm86/close.o
+ cpm86/open.o
++cpm86/write.o
++cpm86/blkio.o
++cpm86/fdops.o
+ mch86/strcmp.o
+ cpm86/ceof.o
+ cpm86/find.o
+ mch86/setmem.o
++mch86/strncpy.o
++mch86/strstr.o
++mch86/stricmp.o
++mch86/strlwr.o
++mch86/strrev.o
+ mch86/strcat.o
+ mch86/strcpy.o
+ mch86/movmem.o
+@@ -102,3 +120,11 @@ mch86/fltstub.o
+ cpm86/bdos.o
+ cpm86/fcbinit.o
+ cpm86/user.o
++cpm86/os.o
++cpm86/errno.o
++misc/labs.o
++misc/div.o
++misc/ldiv.o
++stdio/fgetpos.o
++stdio/fsetpos.o
++stdio/rewind.o
+diff --git a/before/src/cl.bld b/after/src/cl.bld
+index 4c20aad..1f88356 100644
+--- a/before/src/cl.bld
++++ b/after/src/cl.bld
+@@ -24,6 +24,17 @@ stdio/setbuf.o
+ stdio/ungetc.o
+ stdio/tmpnam.o
+ stdio/mktemp.o
++misc/infty.o
++misc/compat.o
++misc/snprint.o
++misc/strdup.o
++misc/strto.o
++misc/bsearch.o
++misc/strspn.o
++misc/strcspn.o
++misc/strpbrk.o
++misc/strtok.o
++misc/atexit.o
+ misc/atoi.o
+ misc/atol.o
+ misc/calloc.o
+@@ -136,3 +147,10 @@ mch86/movmem.o
+ dos20/isatty.o
+ dos20/lsbrk.o
+ dos20/filelock.o
++dos20/os.o
++misc/labs.o
++misc/div.o
++misc/ldiv.o
++stdio/fgetpos.o
++stdio/fsetpos.o
++stdio/rewind.o
+diff --git a/before/src/clc.bld b/after/src/clc.bld
+index 9b4060b..4d3668e 100644
+--- a/before/src/clc.bld
++++ b/after/src/clc.bld
+@@ -24,6 +24,17 @@ stdio/setbuf.o
+ stdio/ungetc.o
+ stdio/tmpnam.o
+ stdio/mktemp.o
++misc/infty.o
++misc/compat.o
++misc/snprint.o
++misc/strdup.o
++misc/strto.o
++misc/bsearch.o
++misc/strspn.o
++misc/strcspn.o
++misc/strpbrk.o
++misc/strtok.o
++misc/atexit.o
+ misc/atoi.o
+ misc/atol.o
+ misc/calloc.o
+@@ -136,3 +147,10 @@ dos20/isatty.o
+ dos20/ssbrk.o
+ dos20/stksiz.o
+ dos20/filelock.o
++dos20/os.o
++misc/labs.o
++misc/div.o
++misc/ldiv.o
++stdio/fgetpos.o
++stdio/fsetpos.o
++stdio/rewind.o
+diff --git a/before/src/cld.bld b/after/src/cld.bld
+index c03eba7..479d2c8 100644
+--- a/before/src/cld.bld
++++ b/after/src/cld.bld
+@@ -24,6 +24,17 @@ stdio/setbuf.o
+ stdio/ungetc.o
+ stdio/tmpnam.o
+ stdio/mktemp.o
++misc/infty.o
++misc/compat.o
++misc/snprint.o
++misc/strdup.o
++misc/strto.o
++misc/bsearch.o
++misc/strspn.o
++misc/strcspn.o
++misc/strpbrk.o
++misc/strtok.o
++misc/atexit.o
+ misc/atoi.o
+ misc/atol.o
+ misc/calloc.o
+@@ -136,3 +147,10 @@ mch86/movmem.o
+ dos20/isatty.o
+ dos20/lsbrk.o
+ dos20/filelock.o
++dos20/os.o
++misc/labs.o
++misc/div.o
++misc/ldiv.o
++stdio/fgetpos.o
++stdio/fsetpos.o
++stdio/rewind.o
+diff --git a/before/src/cpm86/begin.asm b/after/src/cpm86/begin.asm
+index 841a8f8..5ea9b01 100644
+--- a/before/src/cpm86/begin.asm
++++ b/after/src/cpm86/begin.asm
+@@ -2,16 +2,15 @@
+ ; :ts=8
+ codeseg	segment	word public 'code'
+ 	public	$MEMRY
+-	public	_mbot_, _sbot_
++	public	_mbot_, _sbot_, _lowwater_
+ dataseg	segment	word public 'data'
+ $MEMRY	dw	-1
+-	public	errno_
+-errno_	dw	0
+ 	public	_dsval_,_csval_
+ _dsval_	dw	0
+ _csval_	dw	0
+ _mbot_	dw	0
+ _sbot_	dw	0
++_lowwater_	dw	-1
+ exitad	dw	0
+ exitcs	dw	0
+ bad8087	db	"8087/80287 is required!",13,10,'$'
+diff --git a/before/src/cpm86/close.c b/after/src/cpm86/close.c
+index ed5accd..fca139c 100644
+--- a/before/src/cpm86/close.c
++++ b/after/src/cpm86/close.c
+@@ -5,7 +5,7 @@
+ close(fd)
+ {
+ 	register struct channel *chp;
+-	extern int bdf_();
++	extern int badfd();
+ 
+ 	if (fd < 0 || fd > MAXCHAN) {
+ 		errno = EBADF;
+@@ -14,6 +14,6 @@ close(fd)
+ 	chp = &chantab[fd];
+ 	fd = (*chp->c_close)(chp->c_arg);
+ 	chp->c_read = chp->c_write = chp->c_ioctl = chp->c_seek = 0;
+-	chp->c_close = bdf_;
++	chp->c_close = badfd;
+ 	return fd;
+ }
+diff --git a/before/src/cpm86/croot.c b/after/src/cpm86/croot.c
+index ff1fd06..80422b1 100644
+--- a/before/src/cpm86/croot.c
++++ b/after/src/cpm86/croot.c
+@@ -3,30 +3,16 @@
+ #include "fcntl.h"
+ #include "io.h"
+ 
+-int bdf_(), ret_();
+-
+-/*
+- * channel table: relates fd's to devices
+- */
+-struct channel chantab[] = {
+-	{ 2, 0, 1, 0, ret_, (_arg)2 },
+-	{ 0, 2, 1, 0, ret_, (_arg)2 },
+-	{ 0, 2, 1, 0, ret_, (_arg)2 },
+-	{ 0, 0, 0, 0, bdf_, (_arg)0 },
+-	{ 0, 0, 0, 0, bdf_, (_arg)0 },
+-	{ 0, 0, 0, 0, bdf_, (_arg)0 },
+-	{ 0, 0, 0, 0, bdf_, (_arg)0 },
+-	{ 0, 0, 0, 0, bdf_, (_arg)0 },
+-	{ 0, 0, 0, 0, bdf_, (_arg)0 },
+-	{ 0, 0, 0, 0, bdf_, (_arg)0 },
+-	{ 0, 0, 0, 0, bdf_, (_arg)0 },
+-};
++int badfd();
++int noper();
+ 
+ #define MAXARGS 30
+ static char *Argv[MAXARGS];
+ static char Argbuf[128];
+ static int Argc;
+-int (*cls_)() = ret_;
++void exit(int);
++void (*_exitfunc)(void) = 0;
++int (*cls_)() = noper;
+ 
+ Croot()
+ {
+@@ -81,30 +67,23 @@ redirect:
+ 				}
+ 		}
+ 	}
+-	main(Argc,Argv);
+-	exit(0);
++	exit(main(Argc,Argv));
+ }
+ 
+-exit(code)
++void exit(int code)
+ {
+ 	register int fd;
+ 
++	if (_exitfunc)
++		(*_exitfunc)();
+ 	(*cls_)();
+ 	for (fd = 0 ; fd < MAXCHAN ; )
+ 		close(fd++);
+ 	if (code && (bdos(24)&1) != 0)
+ 		unlink("A:$$$.SUB");
++	if (bdos(12,0) > 0x31)
++		/* FFFF queries the previous code. Use an application failure for -1. */
++		bdos(108,code == -1 ? 0xff00 : code);
+ 	_exit();
+ }
+ 
+-bdf_()
+-{
+-	errno = EBADF;
+-	return -1;
+-}
+-
+-ret_()
+-{
+-	return 0;
+-}
+-
+diff --git a/after/src/cpm86/errno.c b/after/src/cpm86/errno.c
+new file mode 100644
+index 0000000..63faf45
+--- /dev/null
++++ b/after/src/cpm86/errno.c
+@@ -0,0 +1 @@
++int errno=0;
+diff --git a/after/src/cpm86/fdops.c b/after/src/cpm86/fdops.c
+new file mode 100644
+index 0000000..ec247e2
+--- /dev/null
++++ b/after/src/cpm86/fdops.c
+@@ -0,0 +1,32 @@
++/* Copyright (C) 1981,1982, 1983 by Manx Software Systems */
++#include "fcntl.h"
++#include "errno.h"
++#include "io.h"
++
++int badfd()
++{
++	errno = EBADF;
++	return -1;
++}
++
++int noper()
++{
++	return 0;
++}
++/*
++ * channel table: relates fd's to devices
++ */
++struct channel  chantab[] = {
++	{ 2, 0, 1, 0, noper, (_arg)2 },
++	{ 0, 2, 1, 0, noper, (_arg)2 },
++	{ 0, 2, 1, 0, noper, (_arg)2 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++};
++
+diff --git a/before/src/cpm86/lseek.c b/after/src/cpm86/lseek.c
+index d0d0030..bba7af8 100644
+--- a/before/src/cpm86/lseek.c
++++ b/after/src/cpm86/lseek.c
+@@ -1,49 +1,219 @@
+ /* Copyright (C) 1982, 1984 by Manx Software Systems */
++/* Copyright (c) 2026 Jeffrey H. Johnson <johnsonjh.dev@gmail.com> */
++
+ #include "io.h"
+ #include "errno.h"
+ 
+-long lseek(fd, pos, how)
++extern int bdos();
++
++/* Fallback if we need to walk using BDOS 15/20/16. */
++static long
++_cpm_walk_file(fp)
++register struct fcbtab *fp;
++{
++        unsigned char fcb[36];
++        int i;
++        unsigned rc;
++        long count;
++
++        /* Copy live FCB into local buffer! */
++        for (i = 0; i < 36; i++)
++                fcb[i] = ((unsigned char *)&fp->fcb)[i];
++
++        /* BDOS 15: open file */
++        rc = bdos(15, fcb);
++        if ((rc & 0xFF) == 0xFF)
++                return -1L;
++
++        count = 0L;
++
++        /* BDOS 20 - read sequential, 1 record per successful read! */
++        for (;;) {
++                rc = bdos(20, fcb);
++                if ((rc & 0xFF) != 0)
++                        break;
++                count += 128L;
++        }
++
++        /* BDOS 16 - close */
++        bdos(16, fcb);
++
++        return count;
++}
++
++/*
++ * Compute file size using LRBC + record count via BDOS 35.
++ *
++ *  >=0 - size
++ *   -2 - records == 0 && lrbc > 0 (bug detect)
++ *   -1 - LRBC not available or unusable
++ *
++ * For success (or bug detect) *plrbc is set to the LRBC value.
++ */
++static long
++_cpm_lrbc_size(fp, plrbc)
++register struct fcbtab *fp;
++int *plrbc;
++{
++        unsigned char fcb[36];
++        long records, last_ext;
++        int lrbc;
++        long size;
++        int i;
++        unsigned rc;
++
++        /* Copy live FCB, important! */
++        for (i = 0; i < 36; i++)
++                fcb[i] = ((unsigned char *)&fp->fcb)[i];
++
++        /* BDOS 35 - F_SIZE (compute file size into R0/R1/R2) */
++        rc = bdos(35, fcb);
++        if ((rc & 0xFF) == 0xFF)
++                return -1L;
++
++        records = ((long)(fcb[33] & 0xFF))
++                | ((long)(fcb[34] & 0xFF) << 8)
++                | ((long)(fcb[35] & 0xFF) << 16);
++
++        for (i = 0; i < 36; i++)
++                fcb[i] = ((unsigned char *)&fp->fcb)[i];
++
++        last_ext = (records > 0L) ? ((records - 1L) >> 7) : 0L;
++
++        fcb[12] = (unsigned char)(last_ext & 0x1f);        /* EX */
++        fcb[13] = 0;                                       /* S1 */
++        fcb[14] = (unsigned char)((last_ext >> 5) & 0x3f); /* S2 */
++        fcb[32] = 0xFF;                                    /* CR */
++
++        rc = bdos(15, fcb);
++        if ((rc & 0xFF) == 0xFF) {
++                lrbc = 0;
++        } else {
++                lrbc = fcb[32] & 0xFF;
++                fcb[32] = 0x00;
++                bdos(16, fcb);
++        }
++
++        if (plrbc != 0)
++                *plrbc = lrbc;
++
++        /* Bug detected! records == 0 but LRBC > 0 */
++        if (records == 0L && lrbc > 0)
++                return -2L;
++
++        /* both zero? unusable! */
++        if (records == 0L && lrbc == 0)
++                return -1L;
++
++        if (lrbc > 0)
++                size = (records - 1L) * 128L + lrbc;
++        else
++                size = records * 128L;
++
++        if (size <= 0L)
++                return -1L;
++
++        return size;
++}
++
++long
++lseek(fd, pos, how)
+ long pos;
+ {
+-	register struct fcbtab *fp;
++        register struct fcbtab *fp;
++        long endpos;
++        int lrbc;
+ 
+-	if (chantab[fd].c_seek == 0) {
++        if (chantab[fd].c_seek == 0) {
+ Badf:
+-		errno = EBADF;
+-		return -1L;
+-	}
+-	fp = (struct fcbtab *)chantab[fd].c_arg;
+-
+-	switch (how) {
+-	case 2:
+-		/*
+-		 * Close the file because CP/M doesn't know how big an open file is.
+-		 * However, the fcb is still valid.
+-		 */
+-		setusr(fp->user);
+-		fp->fcb.f_name[4] |= 0x80;	/* set parital close flag for MP/M */
+-		bdos(CLSFIL, &fp->fcb);
+-		fp->fcb.f_name[4] &= 0x7f;	/* clear parital close flag */
+-		_Ceof(fp);
+-		rstusr();
+-	case 1:
+-		pos += fp->offset + ((long)fp->fcb.f_record << 7);
+-	case 0:
+-		break;
+-
+-	default:
+-		errno = EINVAL;
+-		return -1L;
+-	}
+-
+-	fp->fcb.f_overfl = 0;
+-	if (pos < 0) {
+-		fp->offset = fp->fcb.f_record = 0;
+-		errno = EINVAL;
+-		return -1L;
+-	}
+-	fp->offset = (unsigned)pos & 127;
+-	fp->fcb.f_record = pos >> 7;
+-	return pos;
+-}
++                errno = EBADF;
++                return -1L;
++        }
++
++        fp = (struct fcbtab *)chantab[fd].c_arg;
++
++        switch (how) {
++
++        case 2:
++                /*
++                 * Manx "closes" the file because CP/M doesn't know how big an
++                 * open file is, However, the fcb is still (and remains) valid.
++                 */
++                setusr(fp->user);
++                fp->fcb.f_name[4] |= 0x80;      /* set partial close flag for MP/M */
++                bdos(CLSFIL, &fp->fcb);
++                fp->fcb.f_name[4] &= 0x7f;      /* clear partial close flag */
++
++                /*
++                 * First try LRBC + record count.
++                 */
++                endpos = _cpm_lrbc_size(fp, &lrbc);
++
++                if (endpos >= 0L) {
++                        /* Normal LRBC case: endpos correct */
++                } else if (endpos == -2L) {
++                        /*
++                         * Bug detected, use workaround:
++                         *   records == 0 && lrbc > 0, so derived size
++                         *     = (records-1)*128 + lrbc is negative.
++                         *
++                         * Fallback to walking file to get slack size,
++                         * then subtract (128 - lrbc) to get the true EOF.
++                         */
++                        long slack;
+ 
++                        slack = _cpm_walk_file(fp);
++                        if (slack < 0L) {
++                                _Ceof(fp);
++                                endpos = fp->offset + ((long)fp->fcb.f_record << 7);
++                        } else {
++                                endpos = slack - (128L - (long)lrbc);
++                                if (endpos < 0L)
++                                        endpos = 0L;
++                        }
++                } else {
++                        /*
++                         * LRBC not available or otherwise unusable?
++                         * Walk file to get slack size, and includes last slack record!
++                         */
++                        long slack;
++
++                        slack = _cpm_walk_file(fp);
++                        if (slack < 0L) {
++                                _Ceof(fp);
++                                endpos = fp->offset + ((long)fp->fcb.f_record << 7);
++                        } else {
++                                endpos = slack;
++                        }
++                }
++
++                rstusr();
++
++                pos += endpos;
++                break;
++
++        case 1:
++                pos += fp->offset + ((long)fp->fcb.f_record << 7);
++                break;
++
++        case 0:
++                break;
++
++        default:
++                errno = EINVAL;
++                return -1L;
++        }
++
++        fp->fcb.f_overfl = 0;
++
++        if (pos < 0) {
++                fp->offset = fp->fcb.f_record = 0;
++                errno = EINVAL;
++                return -1L;
++        }
++
++        fp->offset = (unsigned)pos & 127;
++        fp->fcb.f_record = pos >> 7;
++
++        return pos;
++}
+diff --git a/before/src/cpm86/makefile b/after/src/cpm86/makefile
+index fe7d6ca..f1c2393 100644
+--- a/before/src/cpm86/makefile
++++ b/after/src/cpm86/makefile
+@@ -1,19 +1,20 @@
+ OBJ=access.o bdos.o begin.o blkio.o ceof.o close.o croot.o csread.o exec.o\
+ 	execl.o fcbinit.o find.o ioctl.o isatty.o lseek.o open.o read.o rename.o\
+-	sbrk.o stkover.o unlink.o user.o write.o
++	sbrk.o stkover.o unlink.o user.o write.o os.o fdops.o errno.o
+ 
+-CC=cc
+-AS=as
++CC=aztec42_cc
++AS=aztec42_as
++SQZ=aztec42_sqz
+ MODEL=
+ AMODEL=0
+ 
+-.c.o:
++%.o: %.c
+ 	$(CC) +$(MODEL) -n $*.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+-.asm.o:
++%.o: %.asm
+ 	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ bld: $(OBJ)
+ 	@echo cpm86 done
+diff --git a/before/src/cpm86/open.c b/after/src/cpm86/open.c
+index b4765e3..44b921b 100644
+--- a/before/src/cpm86/open.c
++++ b/after/src/cpm86/open.c
+@@ -4,14 +4,14 @@
+ #include "io.h"
+ 
+ #define MAXFILE	8	/* maximum number of open DISK files */
+-int bdf_(), ret_(), fileop();
++int badfd(), noper(), fileop();
+ /*
+  * note: The ioctl function knows that the condev read/write numbers are
+  * 2.  It uses this information to patch the read/write tables.
+  */
+-static struct device condev = { 2, 2, 1, 0, ret_ };
+-static struct device bdosout= { 0, 3, 0, 0, ret_ };
+-static struct device bdosin = { 3, 0, 0, 0, ret_ };
++static struct device condev = { 2, 2, 1, 0, noper };
++static struct device bdosout= { 0, 3, 0, 0, noper };
++static struct device bdosin = { 3, 0, 0, 0, noper };
+ static struct device filedev= { 1, 1, 0, 1, fileop };
+ 
+ /*
+@@ -47,7 +47,7 @@ char *name;
+ 	int fd, mdmask;
+ 
+ 	for (chp = chantab, fd = 0 ; fd < MAXCHAN ; ++chp, ++fd)
+-		if (chp->c_close == bdf_)
++		if (chp->c_close == badfd)
+ 			goto fndchan;
+ 	errno = EMFILE;
+ 	return -1;
+@@ -73,9 +73,9 @@ fndchan:
+ 	chp->c_arg = dp->d_arg;
+ 	chp->c_ioctl = dev->d_ioctl;
+ 	chp->c_seek = dev->d_seek;
+-	chp->c_close = ret_;
++	chp->c_close = noper;
+ 	if ((*dev->d_open)(name, flag, mode, chp, dp) < 0) {
+-		chp->c_close = bdf_;
++		chp->c_close = badfd;
+ 		return -1;
+ 	}
+ 	return fd;
+diff --git a/after/src/cpm86/os.c b/after/src/cpm86/os.c
+new file mode 100644
+index 0000000..07880ef
+--- /dev/null
++++ b/after/src/cpm86/os.c
+@@ -0,0 +1,5 @@
++#include <fcntl.h>
++
++int os() {
++	return OS_CPM86;
++}
+diff --git a/before/src/cpm86/read.c b/after/src/cpm86/read.c
+index a3fe138..b56977a 100644
+--- a/before/src/cpm86/read.c
++++ b/after/src/cpm86/read.c
+@@ -3,10 +3,10 @@
+ #include "errno.h"
+ #include "fcntl.h"
+ 
+-int bdf_(), filerd(), tty_rd(), bdosrd();
++int badfd(), filerd(), tty_rd(), bdosrd();
+ 
+ int (*Rd_tab[])() = {
+-	bdf_, filerd, tty_rd, bdosrd,
++	badfd, filerd, tty_rd, bdosrd,
+ };
+ extern int errno;
+ 
+diff --git a/before/src/cpm86/write.c b/after/src/cpm86/write.c
+index 9233144..5a6a42c 100644
+--- a/before/src/cpm86/write.c
++++ b/after/src/cpm86/write.c
+@@ -2,10 +2,10 @@
+ #include "io.h"
+ #include "errno.h"
+ 
+-int tty_wr(), bdoswr(), filewr(), bdf_();
++int tty_wr(), bdoswr(), filewr(), badfd();
+ 
+ int (*Wrt_tab[])() = {
+-	bdf_, filewr, bdoswr, bdoswr
++	badfd, filewr, bdoswr, bdoswr
+ };
+ 
+ write(fd, buff, len)
+diff --git a/after/src/d11.bld b/after/src/d11.bld
+new file mode 100644
+index 0000000..b1b1b63
+--- /dev/null
++++ b/after/src/d11.bld
+@@ -0,0 +1,129 @@
++stdio/tmpfile.o
++stdio/perror.o
++stdio/fdopen.o
++stdio/fgets.o
++stdio/assert.o
++stdio/fprintf.o
++stdio/fputs.o
++stdio/fread.o
++stdio/fscanf.o
++stdio/fseek.o
++stdio/gets.o
++stdio/getchar.o
++stdio/getw.o
++stdio/puterr.o
++stdio/puts.o
++stdio/putw.o
++stdio/scanf.o
++stdio/agetc.o
++stdio/getc.o
++stdio/setbuf.o
++stdio/ungetc.o
++stdio/tmpnam.o
++stdio/mktemp11.o
++misc/infty.o
++misc/compat.o
++dos20/syserr.o
++misc/snprint.o
++misc/strdup.o
++misc/strto.o
++misc/bsearch.o
++misc/strspn.o
++misc/strcspn.o
++misc/strpbrk.o
++misc/strtok.o
++misc/atexit.o
++misc/atoi.o
++misc/atol.o
++misc/calloc.o
++misc/qsort.o
++misc/sscanf.o
++misc/scan.o
++misc/rand.o
++misc/abort.o
++misc/raise.o
++dos11/csread.o
++dos11/fcbinit.o
++dos11/ioctl.o
++misc/sprintf.o
++dos11/access.o
++mch86/cswt.o
++mch86/cswit.o
++mch86/clswit.o
++mch86/farcall.o
++mch86/fcall.o
++mch86/index.o
++mch86/olsubs.o
++mch86/movblock.o
++mch86/peek.o
++mch86/port.o
++mch86/rindex.o
++mch86/segread.o
++mch86/setjmp.o
++mch86/setmem.o
++mch86/strncpy.o
++mch86/strstr.o
++mch86/stricmp.o
++mch86/strlwr.o
++mch86/strrev.o
++mch86/swapmem.o
++mch86/sysint.o
++mch86/toupper.o
++mch86/csav.o
++mch86/memccpy.o
++mch86/memchr.o
++mch86/memcmp.o
++mch86/memcpy.o
++mch86/memset.o
++mch86/pointers.o
++mch86/fptrs.o
++mch86/ptradd.o
++mch86/strchr.o
++mch86/strrchr.o
++misc/signal.o
++misc/sigtable.o
++stdio/fopen.o
++stdio/fwrite.o
++stdio/printf.o
++stdio/putchar.o
++stdio/aputc.o
++stdio/putc.o
++stdio/getbuff.o
++misc/malloc.o
++misc/format.o
++misc/ctype.o
++dos11/begin.o
++dos11/croot.o
++dos11/close.o
++dos11/write.o
++dos11/open.o
++dos11/fdops.o
++mch86/lsubs.o
++mch86/strcmp.o
++mch86/strlen.o
++mch86/ptrdiff.o
++mch86/strcat.o
++mch86/strcpy.o
++mch86/fltstub.o
++dos11/stkover.o
++mch86/movmem.o
++dos11/unlink.o
++dos11/isatty.o
++dos11/lseek.o
++dos11/read.o
++dos11/rename.o
++dos11/sbrk.o
++dos11/os.o
++dos20/time.o
++dos20/clock.o
++dos20/localtim.o
++dos20/ctime.o
++dos20/asctime.o
++dos11/bdos.o
++dos11/errno.o
++misc/labs.o
++misc/div.o
++misc/ldiv.o
++stdio/fgetpos.o
++stdio/fsetpos.o
++stdio/rewind.o
+diff --git a/after/src/dos11/access.c b/after/src/dos11/access.c
+new file mode 100644
+index 0000000..a3fef4b
+--- /dev/null
++++ b/after/src/dos11/access.c
+@@ -0,0 +1,17 @@
++/* Copyright (C) 1982 by Manx Software Systems */
++#include "errno.h"
++#include "fcntl.h"
++#include "io.h"
++
++access(path, amode)
++char *path;
++{
++	register int fd;
++
++	if ((fd = open(path, amode&2 ? 1 : 0)) != -1) {
++		close(fd);
++		fd = 0;
++	}
++	return fd;
++}
++
+diff --git a/before/src/dos11/begin.asm b/after/src/dos11/begin.asm
+index e983a47..eca416b 100644
+--- a/before/src/dos11/begin.asm
++++ b/after/src/dos11/begin.asm
+@@ -2,11 +2,9 @@
+ ; :ts=8
+ codeseg	segment	para public 'code'
+ 	public	$MEMRY
+-	public	_mbot_, _sbot_
++	public	_mbot_, _sbot_, _lowwater_
+ dataseg	segment	para public 'data'
+ $MEMRY	dw	-1
+-	public	errno_
+-errno_	dw	0
+ 	public	_dsval_,_csval_
+ _dsval_	dw	0
+ _csval_	dw	0
+@@ -14,6 +12,7 @@ _csval_	dw	0
+ _Dmaseg_ dw	0
+ _mbot_	dw	0
+ _sbot_	dw	0
++_lowwater_	dw	-1
+ 	extrn	_Uorg_:byte,_Uend_:byte
+ dataseg	ends
+ 	public	exitad, exitcs
+@@ -86,7 +85,7 @@ _exit_:
+ 	pop	ax		;fetch return code
+ 	test	ax,ax
+ 	jz	exit
+-	int	23h		;use int 23 handler for non-zero exits
++	int	20h		;use int 20 handler for non-zero exits
+ exit:
+ 	jmp	dword ptr exitad
+ $begin	endp
+diff --git a/before/src/dos11/croot.c b/after/src/dos11/croot.c
+index 26707b4..c3c7ca3 100644
+--- a/before/src/dos11/croot.c
++++ b/after/src/dos11/croot.c
+@@ -3,35 +3,14 @@
+ #include "fcntl.h"
+ #include "io.h"
+ 
+-badfd()
+-{
+-	errno = EBADF;
+-	return -1;
+-}
++int badfd();
+ 
+-noper()
+-{
+-	return 0;
+-}
++int noper();
+ 
+-int (*cls_)() = noper;
++void exit(int code);
+ 
+-/*
+- * channel table: relates fd's to devices
+- */
+-struct channel  chantab[] = {
+-	{ 2, 0, 1, 0, noper, 2 },
+-	{ 0, 2, 1, 0, noper, 2 },
+-	{ 0, 2, 1, 0, noper, 2 },
+-	{ 0, 0, 0, 0, badfd, 0 },
+-	{ 0, 0, 0, 0, badfd, 0 },
+-	{ 0, 0, 0, 0, badfd, 0 },
+-	{ 0, 0, 0, 0, badfd, 0 },
+-	{ 0, 0, 0, 0, badfd, 0 },
+-	{ 0, 0, 0, 0, badfd, 0 },
+-	{ 0, 0, 0, 0, badfd, 0 },
+-	{ 0, 0, 0, 0, badfd, 0 },
+-};
++void (*_exitfunc)(void) = 0;
++int (*cls_)() = noper;
+ 
+ #define MAXARGS 30
+ static char *Argv[MAXARGS];
+@@ -83,8 +62,7 @@ redirect:
+ 				}
+ 		}
+ 	}
+-	main(Argc,Argv);
+-	exit(0);
++	exit(main(Argc,Argv));
+ }
+ 
+ #ifndef NOREDIR
+@@ -101,10 +79,12 @@ char *name;
+ }
+ #endif
+ 
+-exit(code)
++void exit(int code)
+ {
+ 	register int fd;
+ 
++	if (_exitfunc)
++		(*_exitfunc)();
+ 	(*cls_)();
+ 	for (fd = 0 ; fd < MAXCHAN ; )
+ 		close(fd++);
+diff --git a/after/src/dos11/errno.c b/after/src/dos11/errno.c
+new file mode 100644
+index 0000000..63faf45
+--- /dev/null
++++ b/after/src/dos11/errno.c
+@@ -0,0 +1 @@
++int errno=0;
+diff --git a/after/src/dos11/fcbinit.asm b/after/src/dos11/fcbinit.asm
+new file mode 100644
+index 0000000..e0a59a6
+--- /dev/null
++++ b/after/src/dos11/fcbinit.asm
+@@ -0,0 +1,27 @@
++;Copyright (C) 1983 by Manx Software Systems
++; :ts=8
++	include lmacros.h
++	procdef fcbinit, <<jname,ptr>,<fcb,ptr>>
++	pushds
++	push	di
++	push	si
++ifndef LONGPTR
++	mov	di,ds
++	mov	es,di
++endif
++	ldptr	si,jname
++	ldptr	di,fcb
++	mov	ax,2900H	; issue parse filename call
++	int	21H
++	and	ax,0ffH
++	cmp	es:byte ptr 1[di],' '
++	jne	nameok
++	mov	ax,-1
++nameok:
++	pop	si
++	pop	di
++	popds
++	pret
++	pend	fcbinit
++	finish
++	end
+diff --git a/after/src/dos11/fdops.c b/after/src/dos11/fdops.c
+new file mode 100644
+index 0000000..ec247e2
+--- /dev/null
++++ b/after/src/dos11/fdops.c
+@@ -0,0 +1,32 @@
++/* Copyright (C) 1981,1982, 1983 by Manx Software Systems */
++#include "fcntl.h"
++#include "errno.h"
++#include "io.h"
++
++int badfd()
++{
++	errno = EBADF;
++	return -1;
++}
++
++int noper()
++{
++	return 0;
++}
++/*
++ * channel table: relates fd's to devices
++ */
++struct channel  chantab[] = {
++	{ 2, 0, 1, 0, noper, (_arg)2 },
++	{ 0, 2, 1, 0, noper, (_arg)2 },
++	{ 0, 2, 1, 0, noper, (_arg)2 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++	{ 0, 0, 0, 0, badfd, (_arg)0 },
++};
++
+diff --git a/before/src/dos11/lseek.c b/after/src/dos11/lseek.c
+index c7c58f1..db385e8 100644
+--- a/before/src/dos11/lseek.c
++++ b/after/src/dos11/lseek.c
+@@ -11,14 +11,14 @@ long pos;
+ 		errno = EBADF;
+ 		return -1L;
+ 	}
+-	fp = chantab[fd].c_arg;
++	fp = (struct fcbtab*)chantab[fd].c_arg;
+ 
+ 	switch (how) {
+ 	case 2:
+-		pos += fp->fcb.f_size;
++		pos += fp->fcb.dos.f_size;
+ 		break;
+ 	case 1:
+-		pos += fp->fcb.f_record;
++		pos += fp->fcb.dos.f_record;
+ 	case 0:
+ 		break;
+ 
+@@ -28,11 +28,11 @@ long pos;
+ 	}
+ 
+ 	if (pos < 0) {
+-		fp->fcb.f_record = 0;
++		fp->fcb.dos.f_record = 0;
+ 		errno = EINVAL;
+ 		return -1L;
+ 	}
+-	fp->fcb.f_record = pos;
++	fp->fcb.dos.f_record = pos;
+ 	return pos;
+ }
+ 
+diff --git a/after/src/dos11/makefile b/after/src/dos11/makefile
+new file mode 100644
+index 0000000..f380407
+--- /dev/null
++++ b/after/src/dos11/makefile
+@@ -0,0 +1,20 @@
++OBJ= bdos.o begin.o close.o croot.o fdops.o csread.o ioctl.o isatty.o \
++open.o read.o rename.o sbrk.o stkover.o unlink.o write.o lseek.o \
++fcbinit.o access.o os.o errno.o 
++
++CC=aztec42_cc
++AS=aztec42_as
++SQZ=aztec42_sqz
++MODEL=
++AMODEL=0
++
++%.o: %.c
++	$(CC) +$(MODEL) -n $*.c -o $@
++	$(SQZ) $@
++
++%.o: %.asm
++	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
++	$(SQZ) $@
++
++bld: $(OBJ) 
++	@echo dos11 done
+diff --git a/before/src/dos11/open.c b/after/src/dos11/open.c
+index e721794..630f243 100644
+--- a/before/src/dos11/open.c
++++ b/after/src/dos11/open.c
+@@ -4,9 +4,12 @@
+ #include "io.h"
+ 
+ #define MAXFILE	8	/* maximum number of open DISK files */
+-int badfd(), noper();
++int badfd();
++
+ static int fileop();
+ 
++int noper();
++
+ static struct device condev = { 2, 2, 1, 0, noper };
+ static struct device filedev= { 1, 1, 0, 1, fileop };
+ 
+@@ -101,8 +104,8 @@ havefcb:
+ 	}
+ 	
+ 	fp->flags = 1;
+-	fp->fcb.f_record = (flag&O_APPEND) ? fp->fcb.f_size : 0L;
+-	fp->fcb.f_reclen = 1;
++	fp->fcb.dos.f_record = (flag&O_APPEND) ? fp->fcb.dos.f_size : 0L;
++	fp->fcb.dos.f_reclen = 1;
+ 	chp->c_arg = fp;
+ 	chp->c_close = filecl;
+ 	return 0;
+diff --git a/after/src/dos11/os.c b/after/src/dos11/os.c
+new file mode 100644
+index 0000000..1543b44
+--- /dev/null
++++ b/after/src/dos11/os.c
+@@ -0,0 +1,5 @@
++#include <fcntl.h>
++
++int os() {
++	return OS_MSDOS11;
++}
+diff --git a/before/src/dos11/unlink.c b/after/src/dos11/unlink.c
+index c4557f6..9ad5d00 100644
+--- a/before/src/dos11/unlink.c
++++ b/after/src/dos11/unlink.c
+@@ -1,11 +1,15 @@
+ #include "io.h"
++#include "errno.h"
+ 
+ unlink(name)
+ char *name;
+ {
+-	struct fcb delfcb;
++	struct dos_fcb delfcb;
+ 
+-	fcbinit(name,&delfcb);
+-	return bdos(DELFIL,&delfcb);
++	if (fcbinit(name,&delfcb) == -1 || bdos(DELFIL,&delfcb) == 0xff) {
++		errno = ENOENT;
++		return -1;
++	}
++	return 0;
+ }
+ 
+diff --git a/before/src/dos20/croot.c b/after/src/dos20/croot.c
+index 74177c0..11dad2c 100644
+--- a/before/src/dos20/croot.c
++++ b/after/src/dos20/croot.c
+@@ -10,6 +10,8 @@ noper()
+ 	return 0;
+ }
+ 
++void exit(int);
++void (*_exitfunc)(void) = 0;
+ int (*cls_)() = noper;
+ extern char _ioflg[];
+ 
+@@ -74,8 +76,7 @@ redirect:
+ 		}
+ 	}
+ 	*cpp = 0;
+-	main(Argc,Argv);
+-	exit(0);
++	exit(main(Argc,Argv));
+ }
+ 
+ #ifdef REDIR
+@@ -92,8 +93,10 @@ char *name;
+ }
+ #endif
+ 
+-exit(code)
++void exit(int code)
+ {
++	if (_exitfunc)
++		(*_exitfunc)();
+ 	(*cls_)();
+ 	_exit(code);
+ }
+diff --git a/before/src/dos20/makefile b/after/src/dos20/makefile
+index 1d79bc0..a2dc31b 100644
+--- a/before/src/dos20/makefile
++++ b/after/src/dos20/makefile
+@@ -3,20 +3,21 @@ OBJ=access.o asctime.o bdos.o bdosx.o chmod.o clk.o clock.o croot.o csread.o\
+ 	execlp.o execv.o execvp.o fcbinit.o fexec.o fexecl.o fexecv.o filelock.o\
+ 	ftime.o getcwd.o getenv.o io.o ioctl.o isatty.o localtim.o mkdir.o mon.o\
+ 	monitor.o open.o profil.o sigfix.o sighand.o stat.o stkover.o\
+-	sys.o syserr.o system.o time.o ttyio.o utime.o wait.o stksiz.o
++	sys.o syserr.o system.o time.o ttyio.o utime.o wait.o stksiz.o os.o
+ 
+-CC=cc
+-AS=as
++CC=aztec42_cc
++AS=aztec42_as
++SQZ=aztec42_sqz
+ MODEL=
+ AMODEL=0
+ 
+-.c.o:
++%.o: %.c
+ 	$(CC) +$(MODEL) -n $*.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+-.asm.o:
++%.o: %.asm
+ 	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ bld bldlc: $(OBJ) sbegin.o ssbrk.o lmalloc.o
+ 	@echo dos20 done
+diff --git a/after/src/dos20/os.c b/after/src/dos20/os.c
+new file mode 100644
+index 0000000..f764e09
+--- /dev/null
++++ b/after/src/dos20/os.c
+@@ -0,0 +1,5 @@
++#include <fcntl.h>
++
++int os() {
++	return OS_MSDOS20;
++}
+diff --git a/before/src/dos20/stat.c b/after/src/dos20/stat.c
+index 1471fb9..a725d68 100644
+--- a/before/src/dos20/stat.c
++++ b/after/src/dos20/stat.c
+@@ -1,7 +1,6 @@
+ #include <stat.h>
+ 
+-stat(path, buf)
+-char *path; register struct stat *buf;
++int stat(const char *path, struct stat *buf)
+ {
+ 	struct {
+ 		char rsvd[21];
+diff --git a/before/src/graphics/makefile b/after/src/graphics/makefile
+index 3aaac92..5fe6614 100644
+--- a/before/src/graphics/makefile
++++ b/after/src/graphics/makefile
+@@ -6,20 +6,22 @@
+ 
+ OBJ=mode.o circ.o lin.o point.o address.o scr_call.o
+ 
+-CC=cc
+-AS=as
++CC=aztec42_cc
++AS=aztec42_as
++LIB=aztec42_lib
++SQZ=aztec42_sqz
+ MODEL=
+ AMODEL=0
+ 
+-.c.o:
++%.o: %.c
+ 	$(CC) +$(MODEL) -n $*.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+-.asm.o:
++%.o: %.asm
+ 	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ $(DIR)g$(MODEL).lib: $(OBJ)
+-	del $(DIR)g$(MODEL).lib
+-	lb $(DIR)g$(MODEL).lib $(OBJ)
++	rm -f $(DIR)g$(MODEL).lib
++	$(LIB) $(DIR)g$(MODEL).lib $(OBJ)
+ 	@echo graphics done
+diff --git a/after/src/hello.c b/after/src/hello.c
+new file mode 100644
+index 0000000..430aabf
+--- /dev/null
++++ b/after/src/hello.c
+@@ -0,0 +1,52 @@
++#include <stdio.h>
++#include <fcntl.h>
++
++void pad(FILE* f) {
++    int i;
++    long delta;
++    delta=128-(ftell(f)%128);
++    for(i=0;i<delta;i++) {
++        putc(0x1A,f);
++    }
++}
++
++int r_main() {
++    FILE *f;
++
++    putchar('!');
++    puts("Hello .");
++    puts("Writing file 'text.dat' ...");
++    unlink("text.dat");
++    f=fopen("text.dat","w");
++    if(f) {
++        if(!fwrite("Hello\n",1,strlen("Hello\n"),f)) {
++            printf("Fwrite failed ...\r\n");
++        }
++        fprintf(f,"Wow\n");
++        fprintf(f,"Wow\n");
++        fprintf(f,"Wow\n");
++        fprintf(f,"%c",26);
++        printf("current position: %lu\n",ftell(f));
++        pad(f);
++        fclose(f);
++    } else {
++        puts("Failed to open 'text.dat' ...\n");
++    }
++    puts("Reading file 'text.dat' ...");
++    f=fopen("text.dat","r");
++    if(f) {
++        int c;
++        while((c=fgetc(f))!=EOF) {
++            putchar(c);
++        }
++        fclose(f);
++    } else {
++        puts("Failed to open 'text.dat' ...");
++    }
++    return 2;
++}
++
++int main() {
++    exit(r_main());
++    return 0;
++}
+diff --git a/after/src/hello.mak b/after/src/hello.mak
+new file mode 100644
+index 0000000..20435fd
+--- /dev/null
++++ b/after/src/hello.mak
+@@ -0,0 +1,33 @@
++all: hello.com hello.cmd hello1.com \
++   simple.com simple.cmd simple1.com
++
++simple.cmd: simple.o
++	ln -o simple.cmd simple.o -lc86
++
++simple1.com: simple.o
++	ln -o simple1.com simple.o -ld11
++
++simple.com: simple.o
++	ln -o simple.com simple.o -lc
++
++simple.o: simple.c
++	cc -B +c -o simple.o simple.c
++	sqz simple.o
++
++hello.cmd: hello.o
++	ln -o hello.cmd hello.o -lc86
++
++hello1.com: hello.o
++	ln -o hello1.com hello.o -ld11
++
++hello.com: hello.o
++	ln -o hello.com hello.o -lc 
++
++hello.o: hello.c
++	cc -B +c -o hello.o +0 hello.c
++	sqz hello.o
++
++clean:
++	del *.o
++	del *.com
++	del *.cmd
+diff --git a/before/src/m.bld b/after/src/m.bld
+index 4fe2f4e..69a1af5 100644
+--- a/before/src/m.bld
++++ b/after/src/m.bld
+@@ -18,9 +18,11 @@ stdio/fscanf.o
+ stdio/scanf.o
+ misc/sscanf.o
+ misc/fscan.o
++math/strtod.o
+ math/atof.o
+ math/ftoa.o
+ math/frexp.o
+ math/fabs.o
+ math/fpst.o
+ math/fsubs.o
++math/fmod.o
+diff --git a/before/src/m87.bld b/after/src/m87.bld
+index 09ca386..0fc2f61 100644
+--- a/before/src/m87.bld
++++ b/after/src/m87.bld
+@@ -14,6 +14,7 @@ stdio/fscanf.o
+ stdio/scanf.o
+ misc/sscanf.o
+ misc/fscan87.o
++math/strtod87.o
+ math/atof87.o
+ math/ftoa87.o
+ math/asin87.o
+diff --git a/before/src/m87s.bld b/after/src/m87s.bld
+index 37b9863..70f9e03 100644
+--- a/before/src/m87s.bld
++++ b/after/src/m87s.bld
+@@ -18,9 +18,11 @@ stdio/fscanf.o
+ stdio/scanf.o
+ misc/sscanf.o
+ misc/fscan.o
++math/strtod.o
+ math/atof.o
+ math/ftoa.o
+ math/frexp87s.o
+ math/fabs.o
+ math/fpst.o
+ math/fsubs87s.o
++math/fmod.o
+diff --git a/before/src/makefile b/after/src/makefile
+index a6fbade..0da6762 100644
+--- a/before/src/makefile
++++ b/after/src/makefile
+@@ -1,3 +1,6 @@
++LIB=aztec42_lib
++ORD=aztec42_ord
++DIR=
+ MODEL=
+ AMODEL=0
+ 
+@@ -8,99 +11,109 @@ math: math86 math87 maths
+ 	@echo math all done
+ 
+ clean:
+-	del dos20\*.o
+-	del math\*.o
+-	del mch86\*.o
+-	del misc\*.o
+-	del stdio\*.o
+-	del cpm86\*.o
+-	del graphics\*.o
+-	del screen\*.o
++	rm -f *.ord *.root
++	rm -f dos20/*.o
++	rm -f dos11/*.o
++	rm -f math/*.o
++	rm -f mch86/*.o
++	rm -f misc/*.o
++	rm -f stdio/*.o
++	rm -f cpm86/*.o
++	rm -f graphics/*.o
++	rm -f screen/*.o
+ 
+ dos: mkdos20 mkmch86 mkmisc mkstdio
+-	del libs\c$(MODEL).lib
+-	lb libs/c$(MODEL).lib -f c$(MODEL).bld
+-
+-cpm: mkcpm mkmch86 mkmisc mkstdio
+-	del libs\c86$(MODEL).lib
+-	lb libs/c86$(MODEL).lib -f c86$(MODEL).bld
++	rm -f libs/c$(MODEL).lib
++	mkdir -p libs
++	$(ORD) c$(MODEL).bld c$(MODEL).ord
++	sed -n '/\/croot[.]o/p' c$(MODEL).ord > c$(MODEL).root
++	sed '/\/croot[.]o/d' c$(MODEL).ord >> c$(MODEL).root
++	$(LIB) libs/c$(MODEL).lib -f c$(MODEL).root
++
++d11: mkdos11 syserr d11time mkmch86 mkmisc mkstdio
++	rm -f libs/d11$(MODEL).lib
++	mkdir -p libs
++	$(ORD) d11$(MODEL).bld d11$(MODEL).ord
++	sed -n '/\/croot[.]o/p' d11$(MODEL).ord > d11$(MODEL).root
++	sed '/\/croot[.]o/d' d11$(MODEL).ord >> d11$(MODEL).root
++	$(LIB) libs/d11$(MODEL).lib -f d11$(MODEL).root
++
++cpm: mkcpm syserr mkmch86 mkmisc mkstdio
++	rm -f libs/c86$(MODEL).lib
++	mkdir -p libs
++	$(ORD) c86$(MODEL).bld c86$(MODEL).ord
++	sed -n '/\/croot[.]o/p' c86$(MODEL).ord > c86$(MODEL).root
++	sed '/\/croot[.]o/d' c86$(MODEL).ord >> c86$(MODEL).root
++	$(LIB) libs/c86$(MODEL).lib -f c86$(MODEL).root
+ 
+ math86: mkmath mathmisc mathstdio
+-	del libs\m$(MODEL).lib
+-	lb libs/m$(MODEL).lib -f m.bld
++	rm -f libs/m$(MODEL).lib
++	mkdir -p libs
++	$(ORD) m.bld m.ord
++	$(LIB) libs/m$(MODEL).lib -f m.ord
+ 
+ maths: mkmath mathmisc mathstdio
+-	del libs\m87s$(MODEL).lib
+-	lb libs/m87s$(MODEL).lib -f m87s.bld
++	rm -f libs/m87s$(MODEL).lib
++	mkdir -p libs
++	$(ORD) m87s.bld m87s.ord
++	$(LIB) libs/m87s$(MODEL).lib -f m87s.ord
+ 
+ math87: mkmath87 mathmisc mathstdio
+-	del libs\m87$(MODEL).lib
+-	lb libs/m87$(MODEL).lib -f m87.bld
++	rm -f libs/m87$(MODEL).lib
++	mkdir -p libs
++	$(ORD) m87.bld m87.ord
++	$(LIB) libs/m87$(MODEL).lib -f m87.ord
+ 
+ graph:
+-	cd graphics
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) DIR=..\libs\ ..\libs\g$(MODEL).lib
+-	cd ..
++	(cd graphics;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) g$(MODEL).lib)
++	mkdir -p libs
++	mv graphics/*.lib libs
+ 
+ scn:
+-	cd screen
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) DIR=..\libs\ ..\libs\s$(MODEL).lib
+-	cd ..
++	(cd screen;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) s$(MODEL).lib)
+ 
+ rom:
+-	cd mch86
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) DIR=..\libs\ ..\libs\\$(MODEL)rom.o
+-	cd ..
++	(cd mch86;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) $(MODEL)rom.o)
++	mkdir -p libs
++	mv mch86/$(MODEL)rom.o libs
+ 
+ ovly:
+-	cd mch86
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) DIR=..\libs\ ovly$(MODEL)
+-	cd ..
++	(cd mch86;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) ovly$(MODEL))
++	mkdir -p libs
++	mv mch86/ovbgn.o mch86/ovld.o mch86/ovldpath.o libs
+ 
+ mkdos20:
+-	cd dos20
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL)
+-	cd ..
++	(cd dos20;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL))
++
++mkdos11:
++	(cd dos11;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL))
+ 
+ mkcpm:
+-	cd cpm86
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL)
+-	cd ..
++	(cd cpm86;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL))
+ 
+ mkmath:
+-	cd math
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL)
+-	cd ..
++	(cd math;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL))
+ 
+ mkmath87:
+-	cd math
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) bld87$(MODEL)
+-	cd ..
++	(cd math;$(MAKE)  MODEL=$(MODEL) AMODEL=$(AMODEL) bld87$(MODEL))
+ 
+ mkmch86:
+-	cd mch86
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL)
+-	cd ..
++	(cd mch86;$(MAKE) MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL))
+ 
+ mkmisc:
+-	cd misc
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL)
+-	cd ..
++	(cd misc;$(MAKE) MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL))
+ 
+ mathmisc:
+-	cd misc
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) math
+-	cd ..
++	(cd misc;$(MAKE) MODEL=$(MODEL) AMODEL=$(AMODEL) math)
+ 
+ mkstdio:
+-	cd stdio
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL)
+-	cd ..
++	(cd stdio;$(MAKE) MODEL=$(MODEL) AMODEL=$(AMODEL) bld$(MODEL))
+ 
+ mathstdio:
+-	cd stdio
+-	make MODEL=$(MODEL) AMODEL=$(AMODEL) math
+-	cd ..
++	(cd stdio;$(MAKE) MODEL=$(MODEL) AMODEL=$(AMODEL) math)
++
++syserr:
++	$(MAKE) -C dos20 syserr.o
+ 
+-arc:
+-	mkarcv build.arc <build.bld
++d11time:
++	$(MAKE) -C dos20 MODEL= AMODEL=0 time.o clock.o localtim.o ctime.o asctime.o
+diff --git a/after/src/math/fmod.c b/after/src/math/fmod.c
+new file mode 100644
+index 0000000..2f95569
+--- /dev/null
++++ b/after/src/math/fmod.c
+@@ -0,0 +1,67 @@
++/* Binary64 remainder by integer significand division. No overflowing x/y. */
++#include <errno.h>
++union bits { unsigned w[4]; double d; };
++static void left(unsigned *a)
++{
++    int i;
++    for (i=3; i>0; --i) a[i] = (a[i]<<1) | (a[i-1]>>15);
++    a[0] <<= 1;
++}
++static void right(unsigned *a)
++{
++    int i;
++    for (i=0; i<3; ++i) a[i] = (a[i]>>1) | (a[i+1]<<15);
++    a[3] >>= 1;
++}
++static int nonzero(unsigned *a) { return a[0]|a[1]|a[2]|a[3]; }
++static void reduce(unsigned *a, unsigned *b)
++{
++    int i;
++    unsigned old, borrow, next;
++    for (i=3; i>=0; --i) {
++        if (a[i] < b[i]) return;
++        if (a[i] > b[i]) break;
++    }
++    borrow = 0;
++    for (i=0; i<4; ++i) {
++        old = a[i];
++        next = old < b[i] || (borrow && old == b[i]);
++        a[i] = old - b[i] - borrow;
++        borrow = next;
++    }
++}
++double fmod(double x, double y)
++{
++    union bits a,b;
++    int ex,ey;
++    unsigned sign;
++    a.d=x; b.d=y;
++    sign=a.w[3]&0x8000;
++    a.w[3]&=0x7fff; b.w[3]&=0x7fff;
++    ex=a.w[3]>>4; ey=b.w[3]>>4;
++    if ((ex==2047 && ((a.w[3]&15)|a.w[2]|a.w[1]|a.w[0]))
++        || (ey==2047 && ((b.w[3]&15)|b.w[2]|b.w[1]|b.w[0]))) {
++        if (ex!=2047 || !((a.w[3]&15)|a.w[2]|a.w[1]|a.w[0])) a=b;
++        a.w[3]|=8; return a.d;
++    }
++    if (ex==2047 || !nonzero(b.w)) {
++        errno=EDOM;
++        a.w[0]=a.w[1]=a.w[2]=0; a.w[3]=0x7ff8;
++        return a.d;
++    }
++    if (ey==2047 || !nonzero(a.w)) return x;
++    a.w[3]&=15; b.w[3]&=15;
++    if (ex) a.w[3]|=16;
++    else { ex=1; while (!(a.w[3]&16)) { left(a.w); --ex; } }
++    if (ey) b.w[3]|=16;
++    else { ey=1; while (!(b.w[3]&16)) { left(b.w); --ey; } }
++    if (ex<ey) return x;
++    while (ex>ey) { reduce(a.w,b.w); left(a.w); --ex; }
++    reduce(a.w,b.w);
++    if (!nonzero(a.w)) { a.w[3]=sign; return a.d; }
++    while (!(a.w[3]&16)) { left(a.w); --ex; }
++    if (ex>0) a.w[3]=(a.w[3]&15)|(ex<<4);
++    else { while (ex<1) { right(a.w); ++ex; } }
++    a.w[3]|=sign;
++    return a.d;
++}
+diff --git a/before/src/math/makefile b/after/src/math/makefile
+index 5fbe219..9f95ce7 100644
+--- a/before/src/math/makefile
++++ b/after/src/math/makefile
+@@ -1,23 +1,24 @@
+-OBJ=asin.o atan.o exp.o fabs.o floor.o log.o pow.o random.o\
++OBJ=fmod.o strtod.o asin.o atan.o exp.o fabs.o floor.o log.o pow.o random.o\
+ 	sin.o sinh.o sqrt.o tan.o tanh.o atof.o ftoa.o\
+ 	fpst.o frexp.o fsubs.o sqrt87s.o frexp87s.o fsubs87s.o
+ 
+-OBJ87=asin87.o atan87.o exp87.o fabs87.o floor87.o log87.o pow87.o random87.o\
++OBJ87=strtod87.o asin87.o atan87.o exp87.o fabs87.o floor87.o log87.o pow87.o random87.o\
+ 	exp1087.o sin87.o sinh87.o sqrt87.o tan87.o tanh87.o atof87.o ftoa87.o\
+ 	fmod87.o chk87.o frexp87.o isnan.o fpst.o fsubs87.o
+ 
+-CC=cc
+-AS=as
++CC=aztec42_cc
++AS=aztec42_as
++SQZ=aztec42_sqz
+ MODEL=
+ AMODEL=0
+ 
+-.c.o:
++%.o: %.c
+ 	$(CC) +$(MODEL) -n $*.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+-.asm.o:
++%.o: %.asm
+ 	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ bld bldlc bldld bldl: $(OBJ)
+ 	@echo math done
+@@ -27,34 +28,38 @@ bld87 bld87lc bld87ld bld87l: $(OBJ87)
+ 
+ atof87.o: atof.asm
+ 	$(AS) -dMODEL=$(AMODEL) -dINLINE atof.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ ftoa87.o: ftoa.asm
+ 	$(AS) -dMODEL=$(AMODEL) -dINLINE ftoa.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ asin87.o: asin.c
+ 	$(CC) +$(MODEL) -n +e asin.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ fabs87.o: fabs.c
+ 	$(CC) +$(MODEL) -n +e fabs.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ floor87.o: floor.c
+ 	$(CC) +$(MODEL) -n +e floor.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ pow87.o: pow.c
+ 	$(CC) +$(MODEL) -n +e pow.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ random87.o: random.c
+ 	$(CC) +$(MODEL) -n +e random.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ sinh87.o: sinh.c
+ 	$(CC) +$(MODEL) -n +e sinh.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ sqrt87.o: sqrt.c
+ 	$(CC) +$(MODEL) -n +e sqrt.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ tanh87.o: tanh.c
+ 	$(CC) +$(MODEL) -n +e tanh.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
++
++strtod87.o: strtod.c
++	$(CC) +$(MODEL) -n +e strtod.c -o $@
++	$(SQZ) $@
+diff --git a/after/src/math/strtod.c b/after/src/math/strtod.c
+new file mode 100644
+index 0000000..374bbc2
+--- /dev/null
++++ b/after/src/math/strtod.c
+@@ -0,0 +1,113 @@
++#include <stdlib.h>
++#include <ctype.h>
++#include <errno.h>
++#include <math.h>
++
++/* Parse C89 decimal syntax, then use the existing Aztec atof arithmetic.
++ * Bound its exponent and mantissa so long input cannot wrap its 16-bit counters.
++ */
++static int compare_limit(const char *digits, unsigned n, const char *limit)
++{
++    unsigned i;
++    int d;
++    for (i = 0; i < 18; ++i) {
++        d = (i < n ? digits[i] : '0') - limit[i];
++        if (d)
++            return d;
++    }
++    return 0;
++}
++
++double strtod(const char *s, char **end)
++{
++    const char *start = s, *exponent;
++    char digits[32], *out, reverse[8];
++    long scale = 0, power = 0, magnitude;
++    unsigned n = 0, k;
++    int negative, point = 0, any = 0, exponent_negative;
++    union { double value; unsigned word[4]; } result;
++
++    if (end)
++        *end = (char *)start;
++    while ((unsigned char)*s < 128 && isspace((unsigned char)*s))
++        ++s;
++    negative = *s == '-';
++    if (*s == '-' || *s == '+')
++        ++s;
++    for (;;) {
++        if (*s >= '0' && *s <= '9') {
++            any = 1;
++            if (point)
++                --scale;
++            if (n || *s != '0') {
++                if (n < 18)
++                    digits[n++] = *s;
++                else
++                    ++scale;
++            }
++        } else if (*s == '.' && !point)
++            point = 1;
++        else
++            break;
++        ++s;
++    }
++    if (!any)
++        return 0.0;
++    if (*s == 'e' || *s == 'E') {
++        exponent = s++;
++        exponent_negative = *s == '-';
++        if (*s == '+' || *s == '-')
++            ++s;
++        if (*s < '0' || *s > '9')
++            s = exponent;
++        else {
++            do {
++                if (power < 100000L)
++                    power = power * 10 + *s - '0';
++                ++s;
++            } while (*s >= '0' && *s <= '9');
++            scale += exponent_negative ? -power : power;
++        }
++    }
++    if (end)
++        *end = (char *)s;
++    magnitude = scale + n - 1;
++    if (!n)
++        result.value = 0.0;
++    else if (magnitude > 308 || (magnitude == 308 &&
++               compare_limit(digits, n, "179769313486231570") > 0)) {
++        errno = ERANGE;
++        result.value = HUGE_VAL;
++    } else if (magnitude < -308 || (magnitude == -308 &&
++               compare_limit(digits, n, "222507385850720138") < 0)) {
++        errno = ERANGE;
++        result.value = 0.0;
++    } else {
++        out = digits + n;
++        *out++ = 'e';
++        if (scale < 0) {
++            *out++ = '-';
++            scale = -scale;
++        }
++        k = 0;
++        do {
++            reverse[k++] = '0' + scale % 10;
++            scale /= 10;
++        } while (scale);
++        while (k)
++            *out++ = reverse[--k];
++        *out = 0;
++        result.value = atof(digits);
++        if ((result.word[3] & 0x7ff0) == 0x7ff0) {
++            errno = ERANGE;
++            result.value = HUGE_VAL;
++        } else if (!(result.word[3] & 0x7ff0)) {
++            /* The software math runtime does not preserve subnormal results. */
++            errno = ERANGE;
++            result.value = 0.0;
++        }
++    }
++    if (negative)
++        result.word[3] |= 0x8000;
++    return result.value;
++}
+diff --git a/before/src/mch86/makefile b/after/src/mch86/makefile
+index f31da2d..3b28175 100644
+--- a/before/src/mch86/makefile
++++ b/after/src/mch86/makefile
+@@ -5,19 +5,20 @@ OBJ=csav.o farcall.o fcall.o index.o lsubs.o memccpy.o memchr.o memcmp.o\
+ 	strcpy.o strlen.o strncpy.o strrchr.o swapmem.o sysint.o toupper.o\
+ 	cswit.o clswit.o fptrs.o fltstub.o strstr.o stricmp.o strlwr.o strrev.o
+ 
+-CC=cc
+-AS=as
++CC=aztec42_cc
++AS=aztec42_as
++SQZ=aztec42_sqz
+ MODEL=
+ AMODEL=0
+-DIR=
+ 
+-.c.o:
++%.o: %.c
+ 	$(CC) +$(MODEL) -n $*.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+-.asm.o:
++%.o: %.asm
+ 	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
+-	sqz $@
++	$(SQZ) $@
++
+ 
+ bld: $(OBJ) cswt.o olsubs.o
+ 	@echo mch86 done
+diff --git a/before/src/mch86/stricmp.asm b/after/src/mch86/stricmp.asm
+index ef768ae..1eb0230 100644
+--- a/before/src/mch86/stricmp.asm
++++ b/after/src/mch86/stricmp.asm
+@@ -2,6 +2,8 @@
+ ;Copyright (C) 1988 by Manx Software Systems
+ 
+ 	include	lmacros.h
++	public strcmpi_
++strcmpi_:
+ 	procdef stricmp,<<s1,ptr>,<s2,ptr>>
+ 	push	si
+ 	push	di
+@@ -45,7 +47,7 @@ equal:
+ 	pop	si
+ 	pret
+ word_notequal:
+-	sub	al,bl
++	sub	ax,bx
+ 	popds
+ 	pop	di
+ 	pop	si
+diff --git a/after/src/misc/atexit.c b/after/src/misc/atexit.c
+new file mode 100644
+index 0000000..b6acce5
+--- /dev/null
++++ b/after/src/misc/atexit.c
+@@ -0,0 +1,20 @@
++#include <stdlib.h>
++
++extern void (*_exitfunc)(void);
++static void (*handlers[32])(void);
++static unsigned count;
++
++static void runexit(void)
++{
++    while (count)
++        (*handlers[--count])();
++}
++
++int atexit(void (*handler)(void))
++{
++    if (count == 32)
++        return -1;
++    handlers[count++] = handler;
++    _exitfunc = runexit;
++    return 0;
++}
+diff --git a/before/src/misc/atoi.c b/after/src/misc/atoi.c
+index adac87f..2175777 100644
+--- a/before/src/misc/atoi.c
++++ b/after/src/misc/atoi.c
+@@ -1,22 +1,5 @@
+-/* Copyright (C) 1981,1982 by Manx Software Systems */
+-#include <ctype.h>
+-
+-atoi(cp)
+-register char *cp;
++#include <stdlib.h>
++int atoi(const char *s)
+ {
+-	register unsigned i;
+-	register sign;
+-
+-	while (*cp == ' ' || *cp == '\t')
+-		++cp;
+-	sign = 0;
+-	if ( *cp == '-' ) {
+-		sign = 1;
+-		++cp;
+-	} else if ( *cp == '+' )
+-		++cp;
+-
+-	for ( i = 0 ; isdigit(*cp) ; )
+-		i = i*10 + *cp++ - '0';
+-	return sign ? -i : i;
++    return (int)strtol(s, (char **)0, 10);
+ }
+diff --git a/before/src/misc/atol.c b/after/src/misc/atol.c
+index ec16acc..cca1ec4 100644
+--- a/before/src/misc/atol.c
++++ b/after/src/misc/atol.c
+@@ -1,23 +1,5 @@
+-/* Copyright (C) 1982 by Manx Software Systems */
+-#include <ctype.h>
+-
+-long
+-atol(cp)
+-register char *cp;
++#include <stdlib.h>
++long atol(const char *s)
+ {
+-	long n;
+-	register sign;
+-
+-	while (*cp == ' ' || *cp == '\t')
+-		++cp;
+-	sign = 0;
+-	if ( *cp == '-' ) {
+-		sign = 1;
+-		++cp;
+-	} else if ( *cp == '+' )
+-		++cp;
+-
+-	for ( n = 0 ; isdigit(*cp) ; )
+-		n = n*10 + *cp++ - '0';
+-	return sign ? -n : n;
++    return strtol(s, (char **)0, 10);
+ }
+diff --git a/after/src/misc/bsearch.c b/after/src/misc/bsearch.c
+new file mode 100644
+index 0000000..a9ad401
+--- /dev/null
++++ b/after/src/misc/bsearch.c
+@@ -0,0 +1,23 @@
++#include <stddef.h>
++
++void *bsearch(const void *key, const void *base, size_t count, size_t size,
++              int (*compare)(const void *, const void *))
++{
++    const char *first = base;
++    const char *middle;
++    size_t half;
++    int order;
++    while (count) {
++        half = count / 2;
++        middle = first + half * size;
++        order = compare(key, middle);
++        if (!order)
++            return (void *)middle;
++        if (order > 0) {
++            first = middle + size;
++            count -= half + 1;
++        } else
++            count = half;
++    }
++    return NULL;
++}
+diff --git a/before/src/misc/calloc.c b/after/src/misc/calloc.c
+index 1c7dbef..ea4aca9 100644
+--- a/before/src/misc/calloc.c
++++ b/after/src/misc/calloc.c
+@@ -3,9 +3,11 @@
+ char *calloc(nelem, size)
+ unsigned nelem, size;
+ {
+-	register unsigned i = nelem*size;
++	register unsigned i;
+ 	register char *cp, *malloc();
+ 
++	if (size && nelem > (unsigned)-1 / size) return 0;
++	i = nelem * size;
+ 	if ((cp = malloc(i)) != (char *)0)
+ 		setmem(cp, i, 0);
+ 	return cp;
+diff --git a/after/src/misc/compat.c b/after/src/misc/compat.c
+new file mode 100644
+index 0000000..cc450c2
+--- /dev/null
++++ b/after/src/misc/compat.c
+@@ -0,0 +1,51 @@
++/* Common extensions for the Aztec runtime. */
++#include <errno.h>
++
++static int lower(unsigned char c)
++{
++    return c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
++}
++
++int strnicmp(const char *a, const char *b, unsigned n)
++{
++    int x, y;
++    while (n--) {
++        x = lower(*a++);
++        y = lower(*b++);
++        if (x != y || !x)
++            return x - y;
++    }
++    return 0;
++}
++
++void *memmove(void *dest, const void *src, unsigned n)
++{
++#if (sizeof(char *) == 4)
++    /* Far pointers with different segments can still overlap. */
++    long ptrtoabs();
++    long distance = ptrtoabs(dest) - ptrtoabs(src);
++    if (distance > 0 && distance < (long)n) {
++        char *to = dest;
++        const char *from = src;
++        while (n) {
++            --n;
++            to[n] = from[n];
++        }
++        return dest;
++    }
++#endif
++    movmem(src, dest, n);
++    return dest;
++}
++
++int remove(const char *name)
++{
++    return unlink(name);
++}
++
++char *strerror(int err)
++{
++    if (err < 0 || err >= sys_nerr || !sys_errlist[err][0])
++        return "Unknown error";
++    return sys_errlist[err];
++}
+diff --git a/before/src/misc/ctype.c b/after/src/misc/ctype.c
+index f98494d..428f909 100644
+--- a/before/src/misc/ctype.c
++++ b/after/src/misc/ctype.c
+@@ -1,6 +1,6 @@
+ /* Copyright (C) 1984 by Manx Software Systems */
+ 
+-char ctp_[129] = {
++char ctp_[257] = {
+ 	0,								/*	EOF */
+ 	0x20,	0x20,	0x20,	0x20,	/*	nul	soh	stx	etx	*/
+ 	0x20,	0x20,	0x20,	0x20,	/*	eot	enq	ack	bel	*/
+diff --git a/after/src/misc/div.c b/after/src/misc/div.c
+new file mode 100644
+index 0000000..da47562
+--- /dev/null
++++ b/after/src/misc/div.c
+@@ -0,0 +1,2 @@
++#include <stdlib.h>
++div_t div(int n, int d) { div_t r; r.quot = n/d; r.rem = n%d; return r; }
+diff --git a/after/src/misc/infty.c b/after/src/misc/infty.c
+new file mode 100644
+index 0000000..a090b36
+--- /dev/null
++++ b/after/src/misc/infty.c
+@@ -0,0 +1,20 @@
++/* Intel little-endian IEEE-754 binary64. Inspect bytes without FP arithmetic. */
++union az_double { unsigned word[4]; double value; };
++const union az_double az_infinity = { { 0, 0, 0, 0x7ff0 } };
++
++static int special(const unsigned *word)
++{
++    if ((word[3] & 0x7ff0) != 0x7ff0)
++        return 0;
++    return (word[0] | word[1] | word[2] | (word[3] & 15)) ? 2 : 1;
++}
++
++int isinf(double x)
++{
++    return special((const unsigned *)&x) == 1;
++}
++
++int isnan(double x)
++{
++    return special((const unsigned *)&x) == 2;
++}
+diff --git a/after/src/misc/labs.c b/after/src/misc/labs.c
+new file mode 100644
+index 0000000..c7b8830
+--- /dev/null
++++ b/after/src/misc/labs.c
+@@ -0,0 +1,2 @@
++#include <stdlib.h>
++long labs(long n) { return n < 0 ? -n : n; }
+diff --git a/before/src/misc/lcalloc.c b/after/src/misc/lcalloc.c
+index fcdf55e..5ae262a 100644
+--- a/before/src/misc/lcalloc.c
++++ b/after/src/misc/lcalloc.c
+@@ -8,6 +8,7 @@ unsigned long nelem, size;
+ 	huge long *lp;
+ 	huge void *lmalloc();
+ 
++	if (size && nelem > (0xffffffffUL-3) / size) return 0;
+ 	size *= nelem;
+ 	size = size+3 & ~3;
+ 	if ((ptr = lmalloc(size)) != (huge void *)0) {
+diff --git a/after/src/misc/ldiv.c b/after/src/misc/ldiv.c
+new file mode 100644
+index 0000000..4ea06a1
+--- /dev/null
++++ b/after/src/misc/ldiv.c
+@@ -0,0 +1,2 @@
++#include <stdlib.h>
++ldiv_t ldiv(long n, long d) { ldiv_t r; r.quot = n/d; r.rem = n%d; return r; }
+diff --git a/before/src/misc/ldmalloc.c b/after/src/misc/ldmalloc.c
+index 7e18260..04c9cfb 100644
+--- a/before/src/misc/ldmalloc.c
++++ b/after/src/misc/ldmalloc.c
+@@ -40,24 +40,19 @@ register char *area; unsigned long size;
+ 	char *_malloc();
+ 	huge long *ptr, *orig;
+ 
+-	end = (char *)chain((l_t *)area-1);
+-	if ((osize = ptrdiff(end, area)) > size) {
+-		osize = size;
+-		end = (char *)bump(area, osize);
+-	}
+-	free(area);
+-	if ((cp = _malloc(size)) != 0 && cp != area) {
+-		if (osize < 0xffffL)
+-			movmem(area, cp, osize);
+-		else {
+-			osize = osize+3 >> 2;
+-			orig = (huge long *)area;
+-			for (ptr = (huge long *)cp ; osize ; --osize)
+-				*ptr++ = *orig++;
+-		}
+-		if ((char *)current >= area && (char *)current < end)
+-			*(size_t *)bump(cp, ptrdiff(current,area)) = keep;
+-	}
++	if (!area) return _malloc(size);
++    if (!size) { free(area); return 0; }
++    end = (char *)chain((l_t *)area-1);
++    osize = ptrdiff(end, area);
++    if (size <= osize) return area;
++    cp = _malloc(size);
++    if (cp) {
++		{ huge char *dst, *src;
++            dst = (huge char *)cp; src = (huge char *)area;
++            while (osize--) *dst++ = *src++;
++        }
++        free(area);
++    }
+ 	return cp;
+ }
+ 
+@@ -79,6 +74,7 @@ unsigned long size;
+ 	long times;
+ 	char *sbrk();
+ 
++	if (size > (size_t)-1 - (sizeof(l_t)*2-1)) return 0;
+ 	size = ((size+sizeof(l_t)*2-1)/sizeof(l_t))*sizeof(l_t);
+ 	if (current == 0) {
+ 		first.next = &first;
+@@ -134,6 +130,7 @@ char *p;
+ {
+ 	register l_t *ptr;
+ 
++	if (!p) return 0;
+ 	ptr = (l_t *)p - 1;
+ 	if (!inuse(ptr))
+ 		return -1;
+diff --git a/before/src/misc/lmalloc.c b/after/src/misc/lmalloc.c
+index f3b6cc8..7581d41 100644
+--- a/before/src/misc/lmalloc.c
++++ b/after/src/misc/lmalloc.c
+@@ -35,17 +35,16 @@ register char *area; unsigned size;
+ 	size_t osize;
+ 	char *malloc();
+ 
+-	end = (char *)chain((l_t *)area-1);
+-	if ((osize = ptrdiff(end, area)) > size) {
+-		osize = size;
+-		end = (char *)bump(area, osize);
+-	}
+-	free(area);
+-	if ((cp = malloc(size)) != 0 && cp != area) {
++	if (!area) return malloc(size);
++    if (!size) { free(area); return 0; }
++    end = (char *)chain((l_t *)area-1);
++    osize = ptrdiff(end, area);
++    if (size <= osize) return area;
++    cp = malloc(size);
++    if (cp) {
+ 		movmem(area, cp, osize);
+-		if ((char *)current >= area && (char *)current < end)
+-			*(size_t *)bump(cp, ptrdiff(current,area)) = keep;
+-	}
++        free(area);
++    }
+ 	return cp;
+ }
+ 
+@@ -58,6 +57,7 @@ unsigned size;
+ 	int times;
+ 	char *sbrk();
+ 
++	if (size > (size_t)-1 - (sizeof(l_t)*2-1)) return 0;
+ 	size = ((size+sizeof(l_t)*2-1)/sizeof(l_t))*sizeof(l_t);
+ 	if (current == 0) {
+ 		first.next = &first;
+@@ -110,6 +110,7 @@ char *p;
+ {
+ 	register l_t *ptr;
+ 
++	if (!p) return 0;
+ 	ptr = (l_t *)p - 1;
+ 	if (!inuse(ptr))
+ 		return -1;
+diff --git a/before/src/misc/makefile b/after/src/misc/makefile
+index 9d5d357..2addffa 100644
+--- a/before/src/misc/makefile
++++ b/after/src/misc/makefile
+@@ -1,19 +1,20 @@
+-OBJ=atoi.o atol.o calloc.o lcalloc.o ctype.o qsort.o format.o scan.o\
++OBJ=labs.o div.o ldiv.o strto.o bsearch.o strspn.o strcspn.o strpbrk.o strtok.o atexit.o infty.o compat.o snprint.o strdup.o atoi.o atol.o calloc.o lcalloc.o ctype.o qsort.o format.o scan.o\
+ 	sprintf.o sscanf.o rand.o abort.o raise.o signal.o sigtable.o
+-MOBJ=fscan.o fscan87.o fformat.o sprintf.o sscanf.o
++MOBJ=strto.o bsearch.o strspn.o strcspn.o strpbrk.o strtok.o atexit.o fscan.o fscan87.o fformat.o sprintf.o sscanf.o
+ 
+-CC=cc
+-AS=as
++CC=aztec42_cc
++AS=aztec42_as
++SQZ=aztec42_sqz
+ MODEL=
+ AMODEL=0
+ 
+-.c.o:
++%.o: %.c
+ 	$(CC) +$(MODEL) -n $*.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+-.asm.o:
++%.o: %.asm
+ 	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ bld bldlc: $(OBJ) malloc.o
+ 	@echo misc done
+@@ -26,15 +27,12 @@ math: $(MOBJ)
+ 
+ fformat.o: format.asm
+ 	$(AS) -DFLOAT -dMODEL=$(AMODEL) format.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ fscan.o: scan.c
+ 	$(CC) -DFLOAT +$(MODEL) -n scan.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ fscan87.o: scan.c
+ 	$(CC) -DFLOAT +$(MODEL) -n +e scan.c -o $@
+-	sqz $@
+-
+-arc:
+-	mkarcv misc.arc <misc.bld
++	$(SQZ) $@
+diff --git a/before/src/misc/malloc.c b/after/src/misc/malloc.c
+index f3b6cc8..7581d41 100644
+--- a/before/src/misc/malloc.c
++++ b/after/src/misc/malloc.c
+@@ -35,17 +35,16 @@ register char *area; unsigned size;
+ 	size_t osize;
+ 	char *malloc();
+ 
+-	end = (char *)chain((l_t *)area-1);
+-	if ((osize = ptrdiff(end, area)) > size) {
+-		osize = size;
+-		end = (char *)bump(area, osize);
+-	}
+-	free(area);
+-	if ((cp = malloc(size)) != 0 && cp != area) {
++	if (!area) return malloc(size);
++    if (!size) { free(area); return 0; }
++    end = (char *)chain((l_t *)area-1);
++    osize = ptrdiff(end, area);
++    if (size <= osize) return area;
++    cp = malloc(size);
++    if (cp) {
+ 		movmem(area, cp, osize);
+-		if ((char *)current >= area && (char *)current < end)
+-			*(size_t *)bump(cp, ptrdiff(current,area)) = keep;
+-	}
++        free(area);
++    }
+ 	return cp;
+ }
+ 
+@@ -58,6 +57,7 @@ unsigned size;
+ 	int times;
+ 	char *sbrk();
+ 
++	if (size > (size_t)-1 - (sizeof(l_t)*2-1)) return 0;
+ 	size = ((size+sizeof(l_t)*2-1)/sizeof(l_t))*sizeof(l_t);
+ 	if (current == 0) {
+ 		first.next = &first;
+@@ -110,6 +110,7 @@ char *p;
+ {
+ 	register l_t *ptr;
+ 
++	if (!p) return 0;
+ 	ptr = (l_t *)p - 1;
+ 	if (!inuse(ptr))
+ 		return -1;
+diff --git a/before/src/misc/qsort.c b/after/src/misc/qsort.c
+index 1ae2f55..c798ee9 100644
+--- a/before/src/misc/qsort.c
++++ b/after/src/misc/qsort.c
+@@ -21,6 +21,8 @@ char *base; unsigned nel, size; int (*compar)();
+ 	base += size *2;
+ #endif
+ 
++	if (nel < 2)
++		return;
+ 	sp = stack;
+ 	r = base + (nel-1)*size;
+ 	for (;;) {
+diff --git a/after/src/misc/snprint.c b/after/src/misc/snprint.c
+new file mode 100644
+index 0000000..51af318
+--- /dev/null
++++ b/after/src/misc/snprint.c
+@@ -0,0 +1,35 @@
++/* format() counts every emitted character, including discarded bytes. */
++#include <stdio.h>
++
++static char *out;
++static unsigned room;
++
++static int emit(int c)
++{
++    if (room) {
++        *out++ = c;
++        --room;
++    }
++    return c & 255;
++}
++
++int vsnprintf(char *dst, size_t size, const char *fmt, va_list args)
++{
++    int count;
++    out = dst;
++    room = size ? size - 1 : 0;
++    count = format(emit, fmt, args);
++    if (size)
++        *out = 0;
++    return count;
++}
++
++int snprintf(char *dst, size_t size, const char *fmt, ...)
++{
++    va_list args;
++    int count;
++    va_start(args, fmt);
++    count = vsnprintf(dst, size, fmt, args);
++    va_end(args);
++    return count;
++}
+diff --git a/before/src/misc/sprintf.c b/after/src/misc/sprintf.c
+index 7cbc469..6ffef58 100644
+--- a/before/src/misc/sprintf.c
++++ b/after/src/misc/sprintf.c
+@@ -1,21 +1,27 @@
+-/* Copyright (C) 1982 by Manx Software Systems */
+-static char *buff;
++#include <stdarg.h>
+ 
+-sprintf(str,fmt,args)
+-char *str, *fmt; unsigned args;
++static char *buffer;
++static int output(int c)
+ {
+-	int spsub();
+-	register int i;
+-
+-	buff = str;
+-	i = format(spsub,fmt,&args);
+-	*buff = 0;
+-	return i;
++    *buffer++ = c;
++    return c & 255;
+ }
+ 
+-static
+-spsub(c)
++int vsprintf(char *s, const char *fmt, va_list args)
+ {
+-	return (*buff++ = c)&0xff;
++    int result;
++    buffer = s;
++    result = format(output, fmt, args);
++    *buffer = 0;
++    return result;
+ }
+ 
++int sprintf(char *s, const char *fmt, ...)
++{
++    va_list args;
++    int result;
++    va_start(args, fmt);
++    result = vsprintf(s, fmt, args);
++    va_end(args);
++    return result;
++}
+diff --git a/after/src/misc/strcspn.c b/after/src/misc/strcspn.c
+new file mode 100644
+index 0000000..5f83acb
+--- /dev/null
++++ b/after/src/misc/strcspn.c
+@@ -0,0 +1,8 @@
++#include <string.h>
++size_t strcspn(const char *s, const char *set)
++{
++    const char *p = s;
++    while (*p && !strchr(set, *p))
++        ++p;
++    return p - s;
++}
+diff --git a/after/src/misc/strdup.c b/after/src/misc/strdup.c
+new file mode 100644
+index 0000000..1f84fc3
+--- /dev/null
++++ b/after/src/misc/strdup.c
+@@ -0,0 +1,22 @@
++#include <stdlib.h>
++#include <string.h>
++#include <errno.h>
++
++char *strdup(const char *s)
++{
++    size_t n = strlen(s);
++    char *copy;
++
++    /* Leave space for the terminator and the near allocator's rounding. */
++    if (n == (size_t)-1 ||
++        (sizeof(char *) == 2 && n > (size_t)-1 - 2 * sizeof(char *))) {
++        errno = ENOMEM;
++        return NULL;
++    }
++    copy = malloc(n + 1);
++    if (copy)
++        memcpy(copy, s, n + 1);
++    else
++        errno = ENOMEM;
++    return copy;
++}
+diff --git a/after/src/misc/strpbrk.c b/after/src/misc/strpbrk.c
+new file mode 100644
+index 0000000..c11c940
+--- /dev/null
++++ b/after/src/misc/strpbrk.c
+@@ -0,0 +1,6 @@
++#include <string.h>
++char *strpbrk(const char *s, const char *set)
++{
++    s += strcspn(s, set);
++    return *s ? (char *)s : NULL;
++}
+diff --git a/after/src/misc/strspn.c b/after/src/misc/strspn.c
+new file mode 100644
+index 0000000..764738f
+--- /dev/null
++++ b/after/src/misc/strspn.c
+@@ -0,0 +1,8 @@
++#include <string.h>
++size_t strspn(const char *s, const char *set)
++{
++    const char *p = s;
++    while (*p && strchr(set, *p))
++        ++p;
++    return p - s;
++}
+diff --git a/after/src/misc/strto.c b/after/src/misc/strto.c
+new file mode 100644
+index 0000000..5b09796
+--- /dev/null
++++ b/after/src/misc/strto.c
+@@ -0,0 +1,71 @@
++#include <ctype.h>
++#include <errno.h>
++#include <stddef.h>
++
++/* One bounded accumulator for both signed and unsigned 32-bit results. */
++static int digit(unsigned char c)
++{
++    if (c >= '0' && c <= '9')
++        return c - '0';
++    if (c >= 'A' && c <= 'Z')
++        return c - 'A' + 10;
++    if (c >= 'a' && c <= 'z')
++        return c - 'a' + 10;
++    return 36;
++}
++
++static unsigned long convert(const char *s, char **end, int base, int unsign)
++{
++    const char *start = s;
++    unsigned long value = 0, limit, cutoff;
++    int negative, any = 0, overflow = 0, d, cutlim;
++
++    if (end)
++        *end = (char *)start;
++    if (base && (base < 2 || base > 36)) {
++        errno = EINVAL;
++        return 0;
++    }
++    while ((unsigned char)*s < 128 && isspace((unsigned char)*s))
++        ++s;
++    negative = *s == '-';
++    if (*s == '+' || *s == '-')
++        ++s;
++    if ((!base || base == 16) && s[0] == '0' &&
++        (s[1] == 'x' || s[1] == 'X') && digit(s[2]) < 16) {
++        s += 2;
++        base = 16;
++    }
++    if (!base)
++        base = *s == '0' ? 8 : 10;
++    limit = unsign ? 0xffffffffUL : (negative ? 0x80000000UL : 0x7fffffffUL);
++    cutoff = limit / base;
++    cutlim = limit % base;
++    while ((d = digit(*s)) < base) {
++        any = 1;
++        if (value > cutoff || (value == cutoff && d > cutlim))
++            overflow = 1;
++        if (!overflow)
++            value = value * base + d;
++        ++s;
++    }
++    if (any && end)
++        *end = (char *)s;
++    if (overflow) {
++        errno = ERANGE;
++        value = limit;
++        if (unsign)
++            return value;
++    }
++    return negative ? 0UL - value : value;
++}
++
++long strtol(const char *s, char **end, int base)
++{
++    return (long)convert(s, end, base, 0);
++}
++
++unsigned long strtoul(const char *s, char **end, int base)
++{
++    return convert(s, end, base, 1);
++}
+diff --git a/after/src/misc/strtok.c b/after/src/misc/strtok.c
+new file mode 100644
+index 0000000..8b11afb
+--- /dev/null
++++ b/after/src/misc/strtok.c
+@@ -0,0 +1,21 @@
++#include <string.h>
++char *strtok(char *s, const char *delimiters)
++{
++    static char *next;
++    char *token;
++    if (s)
++        next = s;
++    if (!next)
++        return NULL;
++    token = next + strspn(next, delimiters);
++    if (!*token) {
++        next = NULL;
++        return NULL;
++    }
++    next = token + strcspn(token, delimiters);
++    if (*next)
++        *next++ = 0;
++    else
++        next = NULL;
++    return token;
++}
+diff --git a/after/src/qbuild.bat b/after/src/qbuild.bat
+new file mode 100644
+index 0000000..acbc87a
+--- /dev/null
++++ b/after/src/qbuild.bat
+@@ -0,0 +1 @@
++make MODE= AMDODE=0 d11 cpm
+diff --git a/before/src/screen/cio.c b/after/src/screen/cio.c
+index 1db3611..49b0a80 100644
+--- a/before/src/screen/cio.c
++++ b/after/src/screen/cio.c
+@@ -1,7 +1,9 @@
++#include <screen.h>
++#include <stdarg.h>
++
+ extern int _attrib;
+ 
+-static cputc(chr)
+-register int chr;
++static void cputc(register int chr)
+ {
+ 	scr_putc(chr);
+ 	
+@@ -9,25 +11,25 @@ register int chr;
+ 		scr_putc('\r');
+ }
+ 
+-scr_puts(str)
+-register char *str;
++int scr_puts(register const char * str)
+ {
+ 	while(*str)
+ 		cputc(*str++);
+-
+-	cputc('\n');
+ }
+ 
+-scr_printf(fmt,args)
+-register char *fmt; 
+-unsigned args;
++int scr_printf (const char *fmt, ...)
+ {
+-	format(cputc,fmt,&args);
++	register va_list vargs;
++	register int ret;
++
++	va_start (vargs, fmt);
++	ret = format(cputc,fmt,vargs);
++	va_end (vargs);
++	return (ret);
+ }
+ 
+-scr_setatr(back,frg,intens,blink)
+-register int back, frg;
+-register int intens, blink;
++scr_setattr(register int back, register int frg,
++register int intens, register int blink)
+ {
+ 	register char tmp;
+ 	
+@@ -48,17 +50,16 @@ register int intens, blink;
+ 	return(tmp);
+ }
+ 
+-scr_getatr()
++int scr_getattr()
+ {
+ 	return(_attrib);
+ }
+ 
+-scr_resatr(atr)
+-register int atr;
++int scr_resattr(register int attr)
+ {
+ 	register char tmp;
+ 	
+ 	tmp = _attrib;
+-	_attrib = atr;
++	_attrib = attr;
+ 	return(tmp);
+ }
+diff --git a/before/src/screen/makefile b/after/src/screen/makefile
+index deba9f1..eae1ed0 100644
+--- a/before/src/screen/makefile
++++ b/after/src/screen/makefile
+@@ -4,24 +4,29 @@
+ #	thus the OBJ macro should be changed with caution.  If you are in doubt,
+ #	use the ORD utility to build a correctly ordered list.
+ 
+-OBJ=cio.o scr_cdel.o scr_cins.o scr_clea.o scr_echo.o scr_eol.o\
+-	scr_eos.o scr_getc.o scr_home.o scr_inve.o scr_ldel.o scr_lins.o\
+-	scr_curs.o scr_loc.o scr_putc.o scr_call.o
++OBJ1=cio.o scr_cdel.o scr_cins.o scr_clea.o scr_echo.o scr_eol.o \
++	scr_eos.o scr_getc.o scr_getk.o scr_home.o 
+ 
+-CC=cc
+-AS=as
++OBJ2=scr_inve.o scr_ldel.o \
++	scr_lins.o scr_curs.o scr_loc.o scr_putc.o scr_call.o
++
++CC=aztec42_cc
++AS=aztec42_as
++LIB=aztec42_lib
++SQZ=aztec42_sqz
+ MODEL=
+ AMODEL=0
+ 
+-.c.o:
++%.o: %.c
+ 	$(CC) +$(MODEL) -n $*.c -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+-.asm.o:
++%.o: %.asm
+ 	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+-$(DIR)s$(MODEL).lib: $(OBJ)
+-	del $(DIR)s$(MODEL).lib
+-	lb $(DIR)s$(MODEL).lib $(OBJ)
++$(DIR)s$(MODEL).lib: $(OBJ1) $(OBJ2)
++	rm -f $(DIR)s$(MODEL).lib
++	$(LIB) $(DIR)s$(MODEL).lib $(OBJ1)
++	$(LIB) $(DIR)s$(MODEL).lib -a+ $(OBJ2)
+ 	@echo screen done
+diff --git a/before/src/screen/scr_cdel.c b/after/src/screen/scr_cdel.c
+index 57c603f..fc6f62b 100644
+--- a/before/src/screen/scr_cdel.c
++++ b/after/src/screen/scr_cdel.c
+@@ -7,7 +7,7 @@
+ 
+ extern int _attrib;
+ 
+-scr_cdelete()
++int scr_cdelete()
+ {
+ 	register unsigned ch, x;
+ 	int lin, col;
+@@ -22,5 +22,4 @@ scr_cdelete()
+ 	scr_curs(lin, max_width-1);
+ 	scr_call(0x920, _attrib, 1, 0);	/* put a blank at end of line */
+ 	scr_curs(lin, col);
+-	return(0);
+ }
+diff --git a/before/src/screen/scr_cins.c b/after/src/screen/scr_cins.c
+index c03f1b9..8f0a78c 100644
+--- a/before/src/screen/scr_cins.c
++++ b/after/src/screen/scr_cins.c
+@@ -2,11 +2,12 @@
+ /*
+  *	insert a space at the cursor and delete the char. at end of line
+  */
++#include <screen.h>
+ 
+ #define max_width 80
+ extern int _attrib;
+ 
+-scr_cinsert()
++void scr_cinsert()
+ {
+ 	register unsigned ch, z;
+ 	int lin, col;
+@@ -20,5 +21,4 @@ scr_cinsert()
+ 	}
+ 	scr_curs(lin, col);
+ 	scr_call(0x920,_attrib,1,0);
+-	return(0);
+ }
+diff --git a/before/src/screen/scr_clea.c b/after/src/screen/scr_clea.c
+index 89e2176..8780e11 100644
+--- a/before/src/screen/scr_clea.c
++++ b/after/src/screen/scr_clea.c
+@@ -2,15 +2,16 @@
+ /*
+  *	Clears the screen and homes the cursor
+  */
++#include <screen.h>
+ 
+ #define max_width  80
+ #define max_y  25
+ 
+ extern int _attrib;
+ 
+-scr_clear()
++void scr_clear()
+ {
+ 	scr_home();
+ 	scr_call(0x920,_attrib,(max_width * max_y),0);
+-	return(0);
++	scr_home();
+ }
+diff --git a/before/src/screen/scr_curs.c b/after/src/screen/scr_curs.c
+index b730294..ce40c26 100644
+--- a/before/src/screen/scr_curs.c
++++ b/after/src/screen/scr_curs.c
+@@ -2,16 +2,31 @@
+ /*
+  * 	Moves cursor to line lin, position pos
+  */
++#include <screen.h>
+ 
+ #define max_width 80
+ 
+-scr_curs(lin, col)
+-register int lin, col;
++void scr_curs(register int lin, register int col)
+ {
+ 	if (col >= max_width)
+ 		col = max_width - 1;
+ 	if (lin >= 25)
+ 		lin = 24;
+ 	scr_call(0x200, 0, 0, (lin << 8) | col);
+-	return(0);
++}
++
++int scr_line() {
++	int line;
++	int col;
++
++	scr_loc(&line,&col);
++	return line;
++}
++
++int scr_col() {
++	int line;
++	int col;
++
++	scr_loc(&line,&col);
++	return line;
+ }
+diff --git a/before/src/screen/scr_echo.c b/after/src/screen/scr_echo.c
+index c204196..6501dea 100644
+--- a/before/src/screen/scr_echo.c
++++ b/after/src/screen/scr_echo.c
+@@ -2,12 +2,11 @@
+ /*
+  *	if flg is zero disable echoing of characters
+  */
++#include <screen.h>
+ 
+ extern int _echo;
+ 
+-scr_echo(flg)
+-int flg;
++void scr_echo(int flg)
+ {
+ 	_echo = flg;
+-	return(0);
+ }
+diff --git a/before/src/screen/scr_eol.c b/after/src/screen/scr_eol.c
+index 770589e..4fca558 100644
+--- a/before/src/screen/scr_eol.c
++++ b/after/src/screen/scr_eol.c
+@@ -2,14 +2,14 @@
+ /*
+  *		Clear to the end of line
+  */
++#include <screen.h>
+ 
+ extern int _attrib;
+ 
+-scr_eol()
++void scr_eol()
+ {
+ 	int lin, col;
+ 
+ 	scr_loc(&lin, &col);
+ 	scr_call(0x920, _attrib, 80-col, 0);
+-	return(0);
+ }
+diff --git a/before/src/screen/scr_eos.c b/after/src/screen/scr_eos.c
+index 84fae5b..89ce6d5 100644
+--- a/before/src/screen/scr_eos.c
++++ b/after/src/screen/scr_eos.c
+@@ -2,14 +2,14 @@
+ /*
+  *		clear to end of screen
+  */
++#include <screen.h>
+ 
+ extern int _attrib;
+ 
+-scr_eos()
++void scr_eos()
+ {
+ 	int lin, col;
+ 
+ 	scr_loc(&lin, &col);
+ 	scr_call(0x920, _attrib, (80-col)+((24-lin)*80), 0);
+-	return(0);
+ }
+diff --git a/after/src/screen/scr_getc.c b/after/src/screen/scr_getc.c
+new file mode 100644
+index 0000000..3d695ba
+--- /dev/null
++++ b/after/src/screen/scr_getc.c
+@@ -0,0 +1,102 @@
++/**
++*
++* This module defines the various console I/O functions.  They may
++* be called directly, using the names included here, or the header
++* file CONIO.H may be included so that more standard names may be
++* used.  This source module is provided so that users may customize
++* the console I/O functions, if desired.  Note that "cprintf" and
++* "cscanf" (included in LC.LIB) call the functions "putch", "getch",
++* and "ungetch".
++*
++**/
++
++static char pushback = 0;       /* character save for "ungetch" */ 
++/**/
++/**
++* 
++* name          getch -- get character from console 
++*               getche - get character from console and echo it
++*
++* synopsis      c = getch();
++*               char c;         input character
++*
++* description   These functions obtain the next character typed at
++*               the console or, if one was pushed back via "ungetch",
++*               returns the previously pushed back character.
++*
++**/
++int scr_getch()
++{
++    char c;
++
++    if(pushback) {
++        c = pushback;
++        pushback = 0;
++        return(c);
++    }
++    return scr_getck();
++}
++
++int scr_getche()
++{
++    char c;
++
++    if(pushback)
++	{
++	    c = pushback;
++	    pushback = 0;
++        scr_putc(c);
++	    return(c);
++	}
++    c=scr_getch();
++    scr_putc(c);
++    return c;
++}
++
++/**/
++/**/
++/**
++*
++* name          ungetch -- push character back to console
++*
++* synopsis      r = ungetch(c);
++*               int r;          return code
++*               char c;         character to be pushed back
++*
++* description   This function pushes the indicated character back
++*               on the console.  Only a single level of pushback is
++*               allowed.  The effect is to cause "getch" to return
++*               the pushed-back character the next time it is called.
++*
++* returns       r = -1 if character already pushed back
++*               = c otherwise
++*
++**/
++int scr_ungetch(char c)
++{
++    if (pushback != '\0') return(-1);
++        pushback = c;
++        return(c);
++}
++
++/**/
++/**
++*
++* name          kbhit -- check if character has been typed at console
++*
++* synopsis      status = kbhit();
++*               int status;             1 if character typed, else 0
++*
++* description   This function checks to see if a character has been
++*               typed at the user's console since the completion of
++*               the last read operation.  The character typed can
++*               be obtained by a "getch" call.
++*
++* returns       0 if no character has been typed
++*               1 if a character is waiting to be read
++*
++**/
++int scr_kbhit()
++{
++	return scr_pollk();
++}
+diff --git a/before/src/screen/scr_getc.asm b/after/src/screen/scr_getk.asm
+similarity index 79%
+rename from before/src/screen/scr_getc.asm
+rename to after/src/screen/scr_getk.asm
+index fa8a342..7c42a73 100644
+--- a/before/src/screen/scr_getc.asm
++++ b/after/src/screen/scr_getk.asm
+@@ -12,12 +12,12 @@ else
+ 	extrn	scr_putc_:near
+ endif
+ ;
+-;	scr_getc() - issue int 16 to get keyboard value
++;	scr_getck() - issue int 16 to get keyboard value
+ ;			returns normal ASCII chars as their value (0-127)
+ ;			special chars are in the range 128 - 255
+ ;			cntl-break is returned as -2
+ ;
+-	procdef	scr_getc
++	procdef	scr_getck
+ 	mov	ah,0
+ 	int 	16h
+ 	call	mapchar
+@@ -30,14 +30,14 @@ endif
+ 	pop	ax
+ no_echo:
+ 	pret
+-	pend	scr_getc
++	pend	scr_getck
+ ;
+-;	scr_poll() - polls keyboard for a character
++;	scr_pollk() - polls keyboard for a character
+ ;			returns -1 for no character
+ ;			otherwise returns the character as above
+ ;	Note: this doesn't remove the char from the buffer
+ ;
+-	procdef	scr_poll
++	procdef	scr_pollk
+ 	mov	ah,1
+ 	int 	16h
+ 	jnz	mapit
+@@ -46,7 +46,7 @@ no_echo:
+ mapit:
+ 	call	mapchar
+ 	pret
+-	pend	scr_poll
++	pend	scr_pollk
+ ;
+ mapchar	proc	near
+ 	test	al,al
+diff --git a/before/src/screen/scr_home.c b/after/src/screen/scr_home.c
+index 3c757a6..6ba8265 100644
+--- a/before/src/screen/scr_home.c
++++ b/after/src/screen/scr_home.c
+@@ -2,9 +2,9 @@
+ /*
+  *	Homes the cursor (0, 0)
+  */
++#include <screen.h>
+ 
+-scr_home()
++void scr_home()
+ {
+ 	scr_curs(0, 0);
+-	return(0);
+ }
+diff --git a/before/src/screen/scr_inve.c b/after/src/screen/scr_inve.c
+index ba06dfb..8195ac3 100644
+--- a/before/src/screen/scr_inve.c
++++ b/after/src/screen/scr_inve.c
+@@ -2,12 +2,11 @@
+ /*
+  * 	if flg is zero turn on inverse
+  */
++#include <screen.h>
+ 
+ extern int _attrib;
+ 
+-scr_invers(flg)
+-int flg;
++void scr_invers(int flg)
+ {
+ 	_attrib = flg ? 0x70 : 0x07;
+-	return(0);
+ }
+diff --git a/before/src/screen/scr_ldel.c b/after/src/screen/scr_ldel.c
+index f004e1b..bc220a1 100644
+--- a/before/src/screen/scr_ldel.c
++++ b/after/src/screen/scr_ldel.c
+@@ -2,15 +2,15 @@
+ /*
+  * 	Deletes  line at lin, blank lines at bottom
+  */
++#include <screen.h>
+ 
+ extern int _attrib;
+ 
+-scr_ldelete()
++void scr_ldelete()
+ {
+ 	int lin, col;
+ 
+ 	scr_loc(&lin, &col);
+ 	scr_call(0x600 | 1, _attrib<<8, lin<<8, (24<<8) | 79);
+ 	scr_curs(lin, 0);
+-	return(0);
+ }
+diff --git a/before/src/screen/scr_lins.c b/after/src/screen/scr_lins.c
+index 238239b..4dcdf62 100644
+--- a/before/src/screen/scr_lins.c
++++ b/after/src/screen/scr_lins.c
+@@ -2,15 +2,15 @@
+ /*
+  *	Inserts blank lines at lin, pushing rest down
+  */
++#include <screen.h>
+ 
+ extern int _attrib;
+ 
+-scr_linsert()
++void scr_linsert()
+ {
+ 	int lin, col;
+ 
+ 	scr_loc(&lin, &col);
+ 	scr_call(0x700 | 1, _attrib<<8, lin<<8, (24<<8) | 79);
+ 	scr_curs(lin, 0);
+-	return(0);
+ }
+diff --git a/before/src/screen/scr_putc.c b/after/src/screen/scr_putc.c
+index 60d64e3..771d4ea 100644
+--- a/before/src/screen/scr_putc.c
++++ b/after/src/screen/scr_putc.c
+@@ -2,11 +2,11 @@
+ /*
+  *	display the character at the cursor
+  */
++#include <screen.h>
+ 
+ int _attrib = 0x07;
+ 
+-scr_putc(c)
+-register int c;
++int scr_putc(register int c)
+ {
+ 	c &= 255;
+ 	if (c >= 0x20)
+diff --git a/after/src/simple.c b/after/src/simple.c
+new file mode 100644
+index 0000000..eb99e24
+--- /dev/null
++++ b/after/src/simple.c
+@@ -0,0 +1,6 @@
++#include <stdio.h>
++
++int main() {
++	printf("hello\n");
++	return 0;
++}
+diff --git a/before/src/stdio/fdopen.c b/after/src/stdio/fdopen.c
+index b2a354e..40edf50 100644
+--- a/before/src/stdio/fdopen.c
++++ b/after/src/stdio/fdopen.c
+@@ -3,7 +3,7 @@
+ 
+ FILE *
+ fdopen(fd,mode)
+-char *mode;
++const char *mode;
+ {
+ 	register FILE *fp;
+ 	FILE *newstream();
+diff --git a/after/src/stdio/fgetpos.c b/after/src/stdio/fgetpos.c
+new file mode 100644
+index 0000000..c4c8268
+--- /dev/null
++++ b/after/src/stdio/fgetpos.c
+@@ -0,0 +1,2 @@
++#include <stdio.h>
++int fgetpos(FILE *fp, fpos_t *pos) { long p = ftell(fp); if (p == -1L) return EOF; *pos = p; return 0; }
+diff --git a/before/src/stdio/fopen.c b/after/src/stdio/fopen.c
+index d5df885..dc6475a 100644
+--- a/before/src/stdio/fopen.c
++++ b/after/src/stdio/fopen.c
+@@ -22,7 +22,7 @@ static struct modes {
+ 
+ FILE *
+ fopen(name,mode)
+-char *name,*mode;
++const char *name,*mode;
+ {
+ 	register FILE *fp;
+ 	FILE *newstream(), *freopen();
+@@ -34,7 +34,7 @@ char *name,*mode;
+ 
+ FILE *
+ freopen(name, mode, fp)
+-char *name,*mode; FILE *fp;
++const char *name,*mode; FILE *fp;
+ {
+ 	register struct modes *mp;
+ 	register int fd;
+diff --git a/before/src/stdio/fprintf.c b/after/src/stdio/fprintf.c
+index baaa103..1741614 100644
+--- a/before/src/stdio/fprintf.c
++++ b/after/src/stdio/fprintf.c
+@@ -1,19 +1,26 @@
+-/* Copyright (C) 1981,1982 by Manx Software Systems */
+-#include "stdio.h"
++#include <stdio.h>
++#include <stdarg.h>
+ 
+-static FILE *Stream;
+-
+-fprintf(stream,fmt,args)
+-FILE *stream; char *fmt; unsigned args;
++static FILE *stream;
++static int output(int c)
+ {
+-	int fpsub();
++    return aputc(c, stream);
++}
+ 
+-	Stream = stream;
+-	return format(fpsub,fmt,&args);
++int vfprintf(FILE *fp, const char *fmt, va_list args)
++{
++    int result;
++    stream = fp;
++    result = format(output, fmt, args);
++    return ferror(fp) ? EOF : result;
+ }
+ 
+-static
+-fpsub(c)
++int fprintf(FILE *fp, const char *fmt, ...)
+ {
+-	return aputc(c,Stream);
++    va_list args;
++    int result;
++    va_start(args, fmt);
++    result = vfprintf(fp, fmt, args);
++    va_end(args);
++    return result;
+ }
+diff --git a/after/src/stdio/fsetpos.c b/after/src/stdio/fsetpos.c
+new file mode 100644
+index 0000000..1bcd7a2
+--- /dev/null
++++ b/after/src/stdio/fsetpos.c
+@@ -0,0 +1,2 @@
++#include <stdio.h>
++int fsetpos(FILE *fp, const fpos_t *pos) { return fseek(fp, *pos, SEEK_SET); }
+diff --git a/before/src/stdio/makefile b/after/src/stdio/makefile
+index 48a68bf..611cbed 100644
+--- a/before/src/stdio/makefile
++++ b/after/src/stdio/makefile
+@@ -1,22 +1,36 @@
+-OBJ=agetc.o aputc.o fdopen.o fgets.o fopen.o fprintf.o fputs.o fread.o\
++OBJ=fgetpos.o fsetpos.o rewind.o agetc.o aputc.o fdopen.o fgets.o fopen.o fprintf.o fputs.o fread.o\
+ 	fscanf.o fseek.o fwrite.o getbuff.o getc.o getchar.o gets.o getw.o\
+ 	mktemp.o perror.o printf.o putc.o putchar.o puterr.o puts.o putw.o\
+-	scanf.o setbuf.o tmpfile.o tmpnam.o ungetc.o assert.o
++	scanf.o setbuf.o tmpfile.o tmpnam.o ungetc.o assert.o \
++    mktemp11.o
+ 
+ MOBJ=fprintf.o fscanf.o printf.o scanf.o
+ 
+-CC=cc
+-AS=as
++CC=aztec42_cc
++AS=aztec42_as
++SQZ=aztec42_sqz
+ MODEL=
+ AMODEL=0
+ 
++%.o: %.c
++	$(CC) -D__NOPROTO__ +$(MODEL) -n $*.c -o $@
++	$(SQZ) $@
++
++%.o: %.asm
++	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
++	$(SQZ) $@
++
++mktemp11.o: mktemp.c
++	$(CC) -D__NOPROTO__ -DDOS11 +$(MODEL) -n mktemp.c -o mktemp11.o 
++	$(SQZ) $@
++
+ .c.o:
+-	$(CC) +$(MODEL) -n $*.c -o $@
+-	sqz $@
++	$(CC) -D__NOPROTO__ +$(MODEL) -n $*.c -o $@
++	$(SQZ) $@
+ 
+ .asm.o:
+ 	$(AS) -dMODEL=$(AMODEL) $*.asm -o $@
+-	sqz $@
++	$(SQZ) $@
+ 
+ bld bldl bldld bldlc: $(OBJ)
+ 	@echo stdio done
+diff --git a/before/src/stdio/perror.c b/after/src/stdio/perror.c
+index 2d3a9fc..a45253d 100644
+--- a/before/src/stdio/perror.c
++++ b/after/src/stdio/perror.c
+@@ -4,7 +4,7 @@
+ perror (s)
+ char *s;
+ {
+-	if (errno < 0 || errno > sys_nerr)
++	if (errno < 0 || errno >= sys_nerr)
+ 		return -1;
+ 	if (s)
+ 		fprintf (stderr, "%s: ", s);
+diff --git a/before/src/stdio/printf.c b/after/src/stdio/printf.c
+index 7414988..f367fd6 100644
+--- a/before/src/stdio/printf.c
++++ b/after/src/stdio/printf.c
+@@ -1,9 +1,17 @@
+-/* Copyright (C) 1981,1982 by Manx Software Systems */
++#include <stdio.h>
++#include <stdarg.h>
+ 
+-printf(fmt,args)
+-char *fmt; unsigned args;
++int vprintf(const char *fmt, va_list args)
+ {
+-	extern int putchar();
++    return vfprintf(stdout, fmt, args);
++}
+ 
+-	format(putchar,fmt,&args);
++int printf(const char *fmt, ...)
++{
++    va_list args;
++    int result;
++    va_start(args, fmt);
++    result = vprintf(fmt, args);
++    va_end(args);
++    return result;
+ }
+diff --git a/before/src/stdio/puts.c b/after/src/stdio/puts.c
+index c3e3ff3..1194900 100644
+--- a/before/src/stdio/puts.c
++++ b/after/src/stdio/puts.c
+@@ -1,10 +1,12 @@
+ /* Copyright (C) 1981,1982 by Manx Software Systems */
++#include <stdio.h>
+ 
+-puts(str)
+-register char *str;
++int puts(register char *str)
+ {
+ 	while (*str)
+ 		if (putchar(*str++) == -1)
+ 			return -1;
+-	return putchar('\n');
++    if (putchar('\n') == -1)
++		return -1;
++	return 0;
+ }
+diff --git a/after/src/stdio/rewind.c b/after/src/stdio/rewind.c
+new file mode 100644
+index 0000000..70042f3
+--- /dev/null
++++ b/after/src/stdio/rewind.c
+@@ -0,0 +1,2 @@
++#include <stdio.h>
++void rewind(FILE *fp) { clearerr(fp); (void)fseek(fp, 0L, SEEK_SET); }
+diff --git a/before/src/stdio/ungetc.c b/after/src/stdio/ungetc.c
+index a1e9c0a..4f62e85 100644
+--- a/before/src/stdio/ungetc.c
++++ b/after/src/stdio/ungetc.c
+@@ -1,12 +1,16 @@
+-/* Copyright (c) 1981, 1982 by Manx Software Systems */
+-#include "stdio.h"
+-
+-ungetc(c,ptr)
+-int c; register FILE *ptr;
++#include <stdio.h>
++int ungetc(int c, FILE *fp)
+ {
+-	if (c == EOF || ptr->_bp <= ptr->_buff)
+-		return EOF;
+-	*--ptr->_bp = c;
+-	return c;
++    if (c == EOF || !fp || !(fp->_flags & _BUSY) || (fp->_flags & _DIRTY))
++        return EOF;
++    if (!fp->_buff) getbuff(fp);
++    if (!fp->_bp) fp->_bp = fp->_bend = fp->_buff;
++    if (fp->_bp == fp->_buff) {
++        if (fp->_bend > fp->_buff) return EOF;
++        ++fp->_bp;
++        fp->_bend = fp->_bp;
++    }
++    *--fp->_bp = (unsigned char)c;
++    fp->_flags &= ~_EOF;
++    return (unsigned char)c;
+ }
+-

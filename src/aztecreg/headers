@@ -1,0 +1,24 @@
+#!/bin/sh
+# CP/M and DOS headers can describe different ABIs. Check each independently.
+set -eu
+bin=$1
+inc=$2
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+cd "$work"
+for header in "$inc"/*.h; do
+    name=${header##*/}
+    if [ "$name" = lmacros.h ]; then
+        printf ' include lmacros.h\n include lmacros.h\n procdef probe\n pret\n pend probe\n finish\n end\n' > guard.asm
+        for model in 0 1 2 3; do
+            "$bin/aztec42_as" -dMODEL="$model" guard.asm -o guard.o
+        done
+    else
+        printf '#include <%s>\n#include <%s>\nint probe(void) { return 0; }\n' "$name" "$name" > guard.c
+        "$bin/aztec42_cc" +0 -o guard.o guard.c
+    fi
+done
+
+# A caller-supplied infinity constant must not suppress predicate declarations.
+printf '#define INFINITY 1.0\n#include <math.h>\nint (*infcheck)(double) = isinf;\nint (*nancheck)(double) = isnan;\n' > guard.c
+"$bin/aztec42_cc" +0 -o guard.o guard.c

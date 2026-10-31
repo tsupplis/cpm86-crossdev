@@ -1,60 +1,47 @@
-#!/bin/sh
+#!/usr/bin/env python3
+"""Generate a binary-safe git patch between two unpacked Aztec source trees."""
+import argparse
+from pathlib import Path
+import subprocess
+import tempfile
 
-set -e
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("original", type=Path)
+parser.add_argument("updated", type=Path)
+parser.add_argument("output", type=Path)
+args = parser.parse_args()
 
-ref=../../../aztec42
+def sources(root):
+    if not (root / "include/stdio.h").is_file() or not (root / "src/c86.bld").is_file():
+        parser.error(f"{root} is not an unpacked Aztec tree")
+    return {
+        path.relative_to(root)
+        for folder in ("include", "src")
+        for path in (root / folder).rglob("*")
+        if (path.name in ("build", "makefile")
+            or path.suffix in (".h", ".c", ".asm", ".bat", ".bld", ".mak"))
+        and path.is_file()
+    }
 
-rm -rf patches
-mkdir -p patches
-for i in include/*.h src/*.bld src/*/*.c src/*/*.h src/*/*.asm src/makefile src/*/makefile \
-    src/*.bat;do
-    if [ -f "$i" ]; then
-        mkdir -p patches/`dirname $i`
-        diff -uN "$i" "$ref/$i" > "patches/$i"
-        if [ $? = "0" ]; then
-            rm  "patches/$i"
-        fi
-    fi
-    if [ -d "$i" ]; then
-        mkdir -p "patches/$i"
-    fi
-done
 
-obsolete_diff() {
-    patch="patches/obsolete/$1"
-    mkdir -p `dirname "$patch"`
-    touch "$patch"
-}
-
-new_diff() {
-    patch="patches/new/$1"
-    mkdir -p `dirname "$patch"`
-    diff -uN "$1" "$ref/$1" > "$patch"
-}
-
-new_diff src/d11.bld
-new_diff src/build
-new_diff src/simple.c
-new_diff src/hello.c
-new_diff src/hello.mak
-new_diff src/screen/scr_getc.c
-new_diff src/screen/scr_getk.asm
-new_diff src/dos11/os.c
-new_diff src/dos11/fdops.c
-new_diff src/dos11/fcbinit.asm
-new_diff src/dos11/makefile
-new_diff src/dos11/errno.c
-new_diff src/dos11/access.c
-new_diff src/dos20/os.c
-new_diff src/cpm86/os.c
-new_diff src/cpm86/fdops.c
-new_diff src/cpm86/errno.c
-new_diff src/dos11/fcbinit.asm
-new_diff src/qbuild.bat
-obsolete_diff src/screen/scr_getc.asm
-
-new_diff include/cpm.h
-new_diff include/dos.h
-new_diff include/screen.h
-new_diff include/stdint.h
-
+with tempfile.TemporaryDirectory() as work:
+    for name in ("before", "after"):
+        Path(work, name).mkdir()
+    original = sources(args.original)
+    updated = sources(args.updated)
+    for path in sorted(original | updated):
+        before = (args.original / path).read_bytes() if path in original else None
+        after = (args.updated / path).read_bytes() if path in updated else None
+        if before == after:
+            continue
+        for name, data in (("before", before), ("after", after)):
+            if data is not None:
+                target = Path(work, name, path)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(data)
+    diff = subprocess.run(["git", "-c", "core.autocrlf=false", "diff", "--no-index",
+                           "--binary", "--no-ext-diff", "before", "after"],
+                          cwd=work, stdout=subprocess.PIPE)
+    if diff.returncode not in (0, 1):
+        raise SystemExit(diff.returncode)
+    args.output.write_bytes(diff.stdout)

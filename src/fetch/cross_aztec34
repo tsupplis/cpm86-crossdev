@@ -12,15 +12,13 @@ if [ ! -d "$root/share/aztec34/bin" ] || [ ! -f "$root/share/emu/cpm86.exe" ]; t
     (cd "$tmp" && unzip -L "$ARCHIVED_FILE")
     mkdir -p "$root/share/aztec34/src"
     mkdir -p "$root/share/emu"
-    mkdir -p "$root/share/aztec42/src"
-    cp -R "$tmp/az8634b/bin"        "$root/share/aztec34/bin"
-    cp -R "$tmp/az8634b/lib"        "$root/share/aztec34/lib"
+    mkdir -p "$root/share/aztec34/bin" "$root/share/aztec34/lib" "$root/share/aztec34/include"
+    cp -R "$tmp/az8634b/bin/."        "$root/share/aztec34/bin"
+    cp -R "$tmp/az8634b/lib/."        "$root/share/aztec34/lib"
     cp    "$tmp/az8634b/emu/cpm.exe" "$root/share/emu/cpm86.exe"
     cp -R "$tmp/az8634b/obj/."      "$root/share/aztec34/lib"
-    cp -R "$tmp/az8634b/src"        "$root/share/aztec34/src"
-    cp    "$tmp/az8634b/src/dos11.arc" "$root/share/aztec42/src"
-    cp    "$tmp/az8634b/src/cpm86.arc" "$root/share/aztec42/src"
-    cp -R "$tmp/az8634b/include"    "$root/share/aztec34/include"
+    cp -R "$tmp/az8634b/src/."        "$root/share/aztec34/src"
+    cp -R "$tmp/az8634b/include/."    "$root/share/aztec34/include"
     rm -rf "$tmp"
     trap - EXIT
 fi

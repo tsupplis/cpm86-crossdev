@@ -1,0 +1,31 @@
+#!/bin/sh
+# Test every entry point alone: combined programs can hide backward references.
+set -eu
+bin=$1
+source=$(pwd)/linkone.c
+work=$(mktemp -d "${TMPDIR:-/tmp}/azlink.XXXXXX")
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+cp "$source" "$work/one.c"
+cd "$work"
+for target in c86 d11 c clc cld cl; do
+    case $target in clc) model=lc;; cld) model=ld;; cl) model=l;; *) model=;; esac
+    last=35
+    case $target in c86) last=31;; d11) last=33;; esac
+    n=0
+    while [ "$n" -le "$last" ]; do
+        echo "LINK CASE: $target $n"
+        "$bin/aztec42_cc" +"$model" +0 -DCASE="$n" -o one.o one.c
+        if [ "$n" -lt 29 ] || [ "$n" -gt 31 ]; then
+            "$bin/aztec42_link" -o one.exe one.o -l"$target"
+        else
+            for math in m m87s m87; do
+                if [ "$math" = m87 ]; then
+                    "$bin/aztec42_cc" +"$model" +0 +e -DCASE="$n" -o one.o one.c
+                fi
+                "$bin/aztec42_link" -o one.exe one.o -l"$math$model" -l"$target"
+            done
+        fi
+        n=$((n+1))
+    done
+    echo "ISOLATED LINKS PASS: $target"
+done

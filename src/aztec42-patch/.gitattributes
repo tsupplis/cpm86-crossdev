@@ -1,0 +1,2 @@
+# The vendor files use CRLF. Preserve patch hunk payloads byte for byte.
+*.patch -text
