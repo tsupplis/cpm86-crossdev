@@ -21,6 +21,8 @@ bin/upx
 bin/cmdinfo
 bin/cmdmod
 bin/bin2cmd
+bin/bin2asm
+bin/h862bin
 bin/exe2cmd
 bin/doscat
 bin/hexcom
