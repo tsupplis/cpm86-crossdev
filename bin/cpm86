@@ -1,4 +1,18 @@
 #!/bin/sh
+cat >&2 <<'EOF'
+################################################################################
+#                                                                              #
+#   WARNING: bin/cpm86 IS OBSOLETE AND WILL BE REMOVED.                        #
+#                                                                              #
+#   Do not use cpm86 or cpm86.exe for new work. Run CP/M-86 programs directly  #
+#   with emu2 instead:                                                         #
+#                                                                              #
+#       bin/emu2 program.cmd                                                   #
+#                                                                              #
+#   See devel.md (Pattern 4a) for details.                                     #
+#                                                                              #
+################################################################################
+EOF
 prog=cpm86.exe
 emu2=`dirname $0`/emu2
 EMU2_DRIVE_D="`dirname $0`/../share/emu"
