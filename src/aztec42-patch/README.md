@@ -144,3 +144,7 @@ in the single runtime patch. Tests link installed libraries directly:
 The PCE test requires the separate DOS 1.1 image checkout. The emu2 correction
 used by truncate-check is a temporary regression fixture, not an installation
 step or a second Aztec patch.
+
+CP/M close now propagates a failed BDOS 16 result as `-1` with `EIO`, so
+`fclose` and editor saves can detect a failed directory update. `close-check`
+injects that failure and checks both descriptor and stream close paths.

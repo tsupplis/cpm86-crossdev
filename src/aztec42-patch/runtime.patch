@@ -111,7 +111,7 @@ index 0000000..815bc54
 +
 +#endif /* __DOS_H */
 diff --git a/before/include/errno.h b/after/include/errno.h
-index 2ab0591..2d28e62 100644
+index 2ab0591..d7afbff 100644
 --- a/before/include/errno.h
 +++ b/after/include/errno.h
 @@ -1,3 +1,5 @@
@@ -120,11 +120,13 @@ index 2ab0591..2d28e62 100644
  extern int errno;
  extern char *sys_errlist[];
  extern int sys_nerr;
-@@ -27,3 +29,6 @@ extern int sys_nerr;
+@@ -27,3 +29,8 @@ extern int sys_nerr;
  /* used by the math library */
  #define ERANGE	21
  #define EDOM	22
 +#define ENOSPC	23 /* Aztec extension: write could not complete */
++
++#define EIO	24 /* Aztec extension: file I/O failed */
 +
 +#endif
 diff --git a/before/include/fcntl.h b/after/include/fcntl.h
@@ -1580,7 +1582,7 @@ index fe7d6ca..f1c2393 100644
  bld: $(OBJ)
  	@echo cpm86 done
 diff --git a/before/src/cpm86/open.c b/after/src/cpm86/open.c
-index b4765e3..44b921b 100644
+index b4765e3..350c7fe 100644
 --- a/before/src/cpm86/open.c
 +++ b/after/src/cpm86/open.c
 @@ -4,14 +4,14 @@
@@ -1623,6 +1625,24 @@ index b4765e3..44b921b 100644
  		return -1;
  	}
  	return fd;
+@@ -139,11 +139,16 @@ static
+ filecl(fp)
+ register struct fcbtab *fp;
+ {
++	int status;
+ 	_zap();		/* zap work buffer, so data is not reused */
+ 	setusr(fp->user);
+-	bdos(CLSFIL,&fp->fcb);
++	status = bdos(CLSFIL,&fp->fcb);
+ 	rstusr();
+ 	fp->flags = 0;
++	if ((status & 255) == 255) {
++		errno = EIO;
++		return -1;
++	}
+ 	return 0;
+ }
+ 
 diff --git a/after/src/cpm86/os.c b/after/src/cpm86/os.c
 new file mode 100644
 index 0000000..07880ef
@@ -2265,16 +2285,17 @@ index 1471fb9..a725d68 100644
  	struct {
  		char rsvd[21];
 diff --git a/before/src/dos20/syserr.c b/after/src/dos20/syserr.c
-index 7eb809f..6b96c19 100644
+index 7eb809f..cbf95c6 100644
 --- a/before/src/dos20/syserr.c
 +++ b/after/src/dos20/syserr.c
-@@ -27,7 +27,8 @@ char *sys_errlist[] = {
+@@ -27,7 +27,9 @@ char *sys_errlist[] = {
  	"Not a console device",
  	/* math library */
  	"Result too large",
 -	"Argument out of domain"
 +	"Argument out of domain",
-+    "No space left on device"
++    "No space left on device",
++    "Input/output error"
  };
  
  int sys_nerr =  sizeof (sys_errlist) / sizeof (char *);

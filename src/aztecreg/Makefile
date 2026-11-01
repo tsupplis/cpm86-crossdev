@@ -7,7 +7,7 @@ LIB := $(LIBDIR)/c86.lib
 .DELETE_ON_ERROR:
 
 .PHONY: check clean
-check: regress.cmd legacy.o status-check header-check link-check response-check inf-check
+check: regress.cmd legacy.o status-check header-check link-check response-check inf-check close-check
 	@output=$$("$(BIN)/cpm86" regress.cmd) && printf '%s\n' "$$output" && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
 
 regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib
@@ -86,3 +86,7 @@ DOS11_SOURCE ?= $(HOME)/Projects/DOS/pcdos11-hacking
 .PHONY: truncate-pce-check
 truncate-pce-check:
 	sh truncatepcecheck "$(BIN)" "$(DOS11_SOURCE)"
+
+.PHONY: close-check
+close-check:
+	sh closecheck "$(BIN)"
