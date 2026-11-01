@@ -20,11 +20,7 @@ for target in c86 d11 c clc cld cl; do
             printf '%s\r\n' "-o $out" 'main.o' "-l$target" > link.inp
         fi
         "$bin/aztec42_link" -f link.inp
-        if [ "$target" = c86 ]; then
-            output=$("$bin/cpm86" "$out")
-        else
-            output=$("$bin/emu2" "$out")
-        fi
+        output=$("$bin/emu2" "$out")
         printf '%s\n' "$output" | tr -d '\r' | grep -qx 'RESPONSE PASS'
     done
     echo "RESPONSE LINKS PASS: $target"

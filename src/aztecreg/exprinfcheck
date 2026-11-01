@@ -16,8 +16,7 @@ for target in ${EXPR_TARGETS:-c86}; do
     "$bin/aztec42_cc" +"$model" +F +0 -I. -DREQUIRE_INFINITY -o smoke.o smoke.c
     "$bin/aztec42_cc" +"$model" +F +0 -I. -o tinyexpr.o tinyexpr.c
     "$bin/aztec42_link" -o "$out" smoke.o tinyexpr.o -lm"$model" -l"$target"
-    if [ "$target" = c86 ]; then runner="$bin/cpm86"; else runner="$bin/emu2"; fi
-    output=$("$runner" "$out")
+    output=$("$bin/emu2" "$out")
     printf '%s\n' "$output"
     printf '%s\n' "$output" | grep -q 'ALL TESTS PASSED'
     if printf '%s\n' "$output" | grep -qi 'skipped\|SOME TESTS FAILED'; then exit 1; fi
@@ -27,9 +26,9 @@ for target in ${EXPR_TARGETS:-c86}; do
         "$bin/aztec42_cc" +"$model" +F +0 -I. -DREQUIRE_INFINITY -o demo.o "$demo.c"
         "$bin/aztec42_link" -o "$out" demo.o tinyexpr.o -lm"$model" -l"$target"
         if [ "$demo" = expl2 ]; then
-            output=$("$runner" "$out" '45+sqrt(34)')
+            output=$("$bin/emu2" "$out" '45+sqrt(34)')
         else
-            output=$("$runner" "$out")
+            output=$("$bin/emu2" "$out")
         fi
         printf '%s\n' "$output"
         if [ "$demo" = reg ]; then

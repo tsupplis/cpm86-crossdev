@@ -8,7 +8,7 @@ LIB := $(LIBDIR)/c86.lib
 
 .PHONY: check clean
 check: regress.cmd legacy.o status-check header-check link-check response-check inf-check close-check
-	@output=$$("$(BIN)/cpm86" regress.cmd) && printf '%s\n' "$$output" && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
+	@output=$$("$(BIN)/emu2" regress.cmd) && printf '%s\n' "$$output" && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
 
 regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib
 	$(BIN)/aztec42_link -o $@ regress.o -lm -lc86
@@ -31,11 +31,11 @@ exit31.cmd exit32.cmd: exit%.cmd: status.o probe%.o $(LIB)
 .PHONY: status-check
 status-check: exit31.cmd exit32.cmd
 	@for version in 31 32; do \
-		output=$$("$(BIN)/cpm86" exit$$version.cmd) || exit 1; \
+		output=$$("$(BIN)/emu2" exit$$version.cmd) || exit 1; \
 		marker=$$(printf '%s\n' "$$output" | tr -d '\r' | grep -E '^V[YN]*$$' || :); \
 		case "$$version:$$marker" in 31:V|32:VY) ;; *) printf '%s\n' "$$output"; exit 1;; esac; \
 	done
-	@output=$$("$(BIN)/cpm86" exit32.cmd negative) && printf '%s\n' "$$output" | tr -d '\r' | grep -qx VF
+	@output=$$("$(BIN)/emu2" exit32.cmd negative) && printf '%s\n' "$$output" | tr -d '\r' | grep -qx VF
 
 legacy.o: legacy.c $(wildcard ../../share/aztec42/include/*.h)
 	$(BIN)/aztec42_cc +0 -o $@ $<

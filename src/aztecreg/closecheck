@@ -9,6 +9,6 @@ cd "$work"
 "$bin/aztec42_cc" +0 -o test.o closefail.c
 "$bin/aztec42_as" -o inject.o closefail.asm
 "$bin/aztec42_link" -o test.cmd test.o inject.o -lc86
-output=$("$bin/cpm86" test.cmd)
+output=$("$bin/emu2" test.cmd)
 printf '%s\n' "$output"
 printf '%s\n' "$output" | tr -d '\r' | grep -qx 'CLOSE ERROR PASS'
