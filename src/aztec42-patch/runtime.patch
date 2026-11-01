@@ -84,10 +84,10 @@ index 092740d..4361929 100644
 +#endif
 diff --git a/after/include/dos.h b/after/include/dos.h
 new file mode 100644
-index 0000000..803ccb4
+index 0000000..815bc54
 --- /dev/null
 +++ b/after/include/dos.h
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,22 @@
 +/* Copyright 1992 Manx Software Systems, Inc. All rights reserved */
 +
 +#ifndef __DOS_H
@@ -101,9 +101,17 @@ index 0000000..803ccb4
 +int fcbinit(char *_name, void *_fcb);
 +int fdup(int _oldfd, int _newfd);
 +
-+#endif	/* __DOS_H */
++/* DOS-only byte-accurate resizing (DOS 1.1 and DOS 2+ libraries). */
++#ifndef __NOPROTO__
++int ftruncate(int, long);
++int truncate(const char *, long);
++#else
++int ftruncate(), truncate();
++#endif
++
++#endif /* __DOS_H */
 diff --git a/before/include/errno.h b/after/include/errno.h
-index 2ab0591..eda67fb 100644
+index 2ab0591..2d28e62 100644
 --- a/before/include/errno.h
 +++ b/after/include/errno.h
 @@ -1,3 +1,5 @@
@@ -112,10 +120,11 @@ index 2ab0591..eda67fb 100644
  extern int errno;
  extern char *sys_errlist[];
  extern int sys_nerr;
-@@ -27,3 +29,5 @@ extern int sys_nerr;
+@@ -27,3 +29,6 @@ extern int sys_nerr;
  /* used by the math library */
  #define ERANGE	21
  #define EDOM	22
++#define ENOSPC	23 /* Aztec extension: write could not complete */
 +
 +#endif
 diff --git a/before/include/fcntl.h b/after/include/fcntl.h
@@ -881,7 +890,7 @@ index 680d361..23d0820 100644
  make clean
  :COMPACT
 diff --git a/before/src/c.bld b/after/src/c.bld
-index 29ecc16..7b16e9f 100644
+index 29ecc16..f009890 100644
 --- a/before/src/c.bld
 +++ b/after/src/c.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -902,7 +911,7 @@ index 29ecc16..7b16e9f 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -138,3 +149,10 @@ mch86/movmem.o
+@@ -138,3 +149,14 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/ssbrk.o
  dos20/filelock.o
@@ -913,6 +922,10 @@ index 29ecc16..7b16e9f 100644
 +stdio/fgetpos.o
 +stdio/fsetpos.o
 +stdio/rewind.o
++misc/truncate.o
++misc/ftrunc.o
++dos20/trcheck.o
++dos20/trresize.o
 diff --git a/before/src/c86.bld b/after/src/c86.bld
 index 7c6c0af..680e5a7 100644
 --- a/before/src/c86.bld
@@ -993,7 +1006,7 @@ index 7c6c0af..680e5a7 100644
 +stdio/fsetpos.o
 +stdio/rewind.o
 diff --git a/before/src/cl.bld b/after/src/cl.bld
-index 4c20aad..1f88356 100644
+index 4c20aad..e959cee 100644
 --- a/before/src/cl.bld
 +++ b/after/src/cl.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1014,7 +1027,7 @@ index 4c20aad..1f88356 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,10 @@ mch86/movmem.o
+@@ -136,3 +147,14 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/lsbrk.o
  dos20/filelock.o
@@ -1025,8 +1038,12 @@ index 4c20aad..1f88356 100644
 +stdio/fgetpos.o
 +stdio/fsetpos.o
 +stdio/rewind.o
++misc/truncate.o
++misc/ftrunc.o
++dos20/trcheck.o
++dos20/trresize.o
 diff --git a/before/src/clc.bld b/after/src/clc.bld
-index 9b4060b..4d3668e 100644
+index 9b4060b..6d92b14 100644
 --- a/before/src/clc.bld
 +++ b/after/src/clc.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1047,7 +1064,7 @@ index 9b4060b..4d3668e 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,10 @@ dos20/isatty.o
+@@ -136,3 +147,14 @@ dos20/isatty.o
  dos20/ssbrk.o
  dos20/stksiz.o
  dos20/filelock.o
@@ -1058,8 +1075,12 @@ index 9b4060b..4d3668e 100644
 +stdio/fgetpos.o
 +stdio/fsetpos.o
 +stdio/rewind.o
++misc/truncate.o
++misc/ftrunc.o
++dos20/trcheck.o
++dos20/trresize.o
 diff --git a/before/src/cld.bld b/after/src/cld.bld
-index c03eba7..479d2c8 100644
+index c03eba7..27e9dde 100644
 --- a/before/src/cld.bld
 +++ b/after/src/cld.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1080,7 +1101,7 @@ index c03eba7..479d2c8 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,10 @@ mch86/movmem.o
+@@ -136,3 +147,14 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/lsbrk.o
  dos20/filelock.o
@@ -1091,6 +1112,10 @@ index c03eba7..479d2c8 100644
 +stdio/fgetpos.o
 +stdio/fsetpos.o
 +stdio/rewind.o
++misc/truncate.o
++misc/ftrunc.o
++dos20/trcheck.o
++dos20/trresize.o
 diff --git a/before/src/cpm86/begin.asm b/after/src/cpm86/begin.asm
 index 841a8f8..5ea9b01 100644
 --- a/before/src/cpm86/begin.asm
@@ -1645,10 +1670,10 @@ index 9233144..5a6a42c 100644
  write(fd, buff, len)
 diff --git a/after/src/d11.bld b/after/src/d11.bld
 new file mode 100644
-index 0000000..b1b1b63
+index 0000000..952f65c
 --- /dev/null
 +++ b/after/src/d11.bld
-@@ -0,0 +1,129 @@
+@@ -0,0 +1,132 @@
 +stdio/tmpfile.o
 +stdio/perror.o
 +stdio/fdopen.o
@@ -1778,6 +1803,9 @@ index 0000000..b1b1b63
 +stdio/fgetpos.o
 +stdio/fsetpos.o
 +stdio/rewind.o
++misc/truncate.o
++misc/ftrunc.o
++dos11/trunc11.o
 diff --git a/after/src/dos11/access.c b/after/src/dos11/access.c
 new file mode 100644
 index 0000000..a3fef4b
@@ -2020,11 +2048,11 @@ index c7c58f1..db385e8 100644
  
 diff --git a/after/src/dos11/makefile b/after/src/dos11/makefile
 new file mode 100644
-index 0000000..f380407
+index 0000000..b6323a6
 --- /dev/null
 +++ b/after/src/dos11/makefile
 @@ -0,0 +1,20 @@
-+OBJ= bdos.o begin.o close.o croot.o fdops.o csread.o ioctl.o isatty.o \
++OBJ=trunc11.o  bdos.o begin.o close.o croot.o fdops.o csread.o ioctl.o isatty.o \
 +open.o read.o rename.o sbrk.o stkover.o unlink.o write.o lseek.o \
 +fcbinit.o access.o os.o errno.o 
 +
@@ -2083,6 +2111,40 @@ index 0000000..1543b44
 +
 +int os() {
 +	return OS_MSDOS11;
++}
+diff --git a/after/src/dos11/trunc11.c b/after/src/dos11/trunc11.c
+new file mode 100644
+index 0000000..61dec38
+--- /dev/null
++++ b/after/src/dos11/trunc11.c
+@@ -0,0 +1,28 @@
++#include <io.h>
++#include <errno.h>
++int bdos(int, void *, int);
++
++int _trcheck(int fd)
++{
++    struct channel *ch;
++    if (fd < 0 || fd >= MAXCHAN) { errno = EBADF; return -1; }
++    ch = &chantab[fd];
++    if (!ch->c_read && !ch->c_write) { errno = EBADF; return -1; }
++    if (!ch->c_seek) { errno = EINVAL; return -1; }
++    if (ch->c_write != 1) { errno = EACCES; return -1; }
++    return 0;
++}
++int _trresize(int fd)
++{
++    struct fcbtab *fp;
++    int status;
++    fp = (struct fcbtab *)chantab[fd].c_arg;
++    /* The existing DOS 1.x backend uses one-byte records already. */
++    status = bdos(0x28, &fp->fcb, 0);
++    if (status) {
++        errno = status == 1 ? ENOSPC : EFAULT;
++        return -1;
++    }
++    fp->fcb.dos.f_size = fp->fcb.dos.f_record;
++    return 0;
 +}
 diff --git a/before/src/dos11/unlink.c b/after/src/dos11/unlink.c
 index c4557f6..9ad5d00 100644
@@ -2143,10 +2205,13 @@ index 74177c0..11dad2c 100644
  	_exit(code);
  }
 diff --git a/before/src/dos20/makefile b/after/src/dos20/makefile
-index 1d79bc0..a2dc31b 100644
+index 1d79bc0..de8b67c 100644
 --- a/before/src/dos20/makefile
 +++ b/after/src/dos20/makefile
-@@ -3,20 +3,21 @@ OBJ=access.o asctime.o bdos.o bdosx.o chmod.o clk.o clock.o croot.o csread.o\
+@@ -1,22 +1,23 @@
+-OBJ=access.o asctime.o bdos.o bdosx.o chmod.o clk.o clock.o croot.o csread.o\
++OBJ=trcheck.o trresize.o access.o asctime.o bdos.o bdosx.o chmod.o clk.o clock.o croot.o csread.o\
+ 	ctime.o dioctl.o dos.o dosdir.o dostime.o dosx.o dup.o exec.o execl.o\
  	execlp.o execv.o execvp.o fcbinit.o fexec.o fexecl.o fexecv.o filelock.o\
  	ftime.o getcwd.o getenv.o io.o ioctl.o isatty.o localtim.o mkdir.o mon.o\
  	monitor.o open.o profil.o sigfix.o sighand.o stat.o stkover.o\
@@ -2199,6 +2264,63 @@ index 1471fb9..a725d68 100644
  {
  	struct {
  		char rsvd[21];
+diff --git a/before/src/dos20/syserr.c b/after/src/dos20/syserr.c
+index 7eb809f..6b96c19 100644
+--- a/before/src/dos20/syserr.c
++++ b/after/src/dos20/syserr.c
+@@ -27,7 +27,8 @@ char *sys_errlist[] = {
+ 	"Not a console device",
+ 	/* math library */
+ 	"Result too large",
+-	"Argument out of domain"
++	"Argument out of domain",
++    "No space left on device"
+ };
+ 
+ int sys_nerr =  sizeof (sys_errlist) / sizeof (char *);
+diff --git a/after/src/dos20/trcheck.asm b/after/src/dos20/trcheck.asm
+new file mode 100644
+index 0000000..9dd4d4f
+--- /dev/null
++++ b/after/src/dos20/trcheck.asm
+@@ -0,0 +1,24 @@
++; DOS 2+ handle validation: reject every character device, including NUL.
++    include lmacros.h
++dataseg segment word public 'data'
++    extrn errno_:word
++dataseg ends
++    assume ds:dataseg
++    procdef _trcheck,<<fd,word>>
++    mov bx,fd
++    mov ax,4400h
++    int 21h
++    jc tr_error
++    test dl,80h
++    jz tr_ok
++    mov ax,1
++tr_error:
++    mov errno_,ax
++    mov ax,-1
++    pret
++tr_ok:
++    xor ax,ax
++    pret
++    pend _trcheck
++    finish
++    end
+diff --git a/after/src/dos20/trresize.c b/after/src/dos20/trresize.c
+new file mode 100644
+index 0000000..1718fb3
+--- /dev/null
++++ b/after/src/dos20/trresize.c
+@@ -0,0 +1,7 @@
++/* Raw write bypasses Aztec's console translation. */
++int _write(int, const void *, unsigned);
++int _trresize(int fd)
++{
++    char dummy;
++    return _write(fd, &dummy, 0);
++}
 diff --git a/before/src/graphics/makefile b/after/src/graphics/makefile
 index 3aaac92..5fe6614 100644
 --- a/before/src/graphics/makefile
@@ -2630,6 +2752,409 @@ index 0000000..2f95569
 +    a.w[3]|=sign;
 +    return a.d;
 +}
+diff --git a/before/src/math/fsubs.asm b/after/src/math/fsubs.asm
+index a1b80bf..91a91bf 100644
+--- a/before/src/math/fsubs.asm
++++ b/after/src/math/fsubs.asm
+@@ -41,8 +41,21 @@ endif
+ $maxdigit dw	16		;maximum # of digits for ftoa() to produce.
+ 
+ 	intrdef $isnan
+-	sub	ax,ax
+-	ret
++    push si
++    mov si,flprm
++    call inf_class
++    pop si
++    cmp ax,2
++    je inf_classified
++    cmp ax,3
++    je inf_classnan
++    xor ax,ax
++    ret
++inf_classnan:
++    mov ax,1
++inf_classified:
++    test ax,ax
++    ret
+ 
+ 	intrdef $fldpds	;load single float into primary accum using ds:bx
+ ifndef LONGPTR
+@@ -81,6 +94,10 @@ fload:
+ 	mov	es,ax
+ 	jmp	loadzero
+ fld_nz:
++	cmp	ax,255
++	jne	fld_regular
++	mov	ax,1151
++fld_regular:
+ 	sub	ax,127		;adjust from excess 127 notation
+ 	add	ax,1023		;put into excess 1023 notation
+ 	mov	word ptr -2[di],ax ;and save
+@@ -157,11 +174,36 @@ dofst:
+ 	test	ax,ax
+ 	jnz	fst_nzero
+ 	mov	es:word ptr [di],0
+-	mov	es:word ptr 2[di],0
++	mov	ah,[si]
++	and	ah,80h
++	xor	al,al
++	mov	es:word ptr 2[di],ax
+ 	pop	si
+ 	pop	di
+ 	ret
+ fst_nzero:
++    cmp ax,2047
++    jne inf_fstfinite
++    call inf_class
++    cmp ax,3
++    jne inf_fstinf
++    mov ax,7fc0h
++    jmp inf_fstspecial
++inf_fstfinite:
++    cmp ax,1151
++    jb inf_fstnormal
++inf_fstinf:
++    mov ax,7f80h
++inf_fstspecial:
++    mov dl,[si]
++    and dl,80h
++    or ah,dl
++    mov es:word ptr [di],0
++    mov es:word ptr 2[di],ax
++    pop si
++    pop di
++    ret
++inf_fstnormal:
+ 	sub	ax,1023		;switch from excess 1023 notation
+ 	add	ax,127		;into excess 127 notation
+ 	mov	dx,-4[si]
+@@ -294,8 +336,9 @@ rep	movs	byte ptr [di], byte ptr [si]
+ 	ret
+ loadzero:
+ 	std
++	sub	di,2
+ 	sub	ax,ax
+-	mov	cx,7
++	mov	cx,6
+ rep	stos	word ptr [di]
+ 	cld
+ 	pop	ds
+@@ -515,8 +558,6 @@ endif
+ 
+ 	intrdef $dng		;negate primary
+ 	mov	bx,flprm
+-	cmp	-2[bx],0
+-	je	no_flip
+ 	xor	byte ptr [bx],80H		;flip sign
+ no_flip:
+ 	ret
+@@ -540,6 +581,12 @@ true:
+ 	mov	di,ds
+ 	mov	es,di
+ 	mov	di,flsec
++	mov	ax,-2[si]
++	or	ax,-2[di]
++	jnz	inf_compare_nonzero
++	xor	ax,ax
++	jmp	cmp_return
++inf_compare_nonzero:
+ 	mov	al,byte ptr [si]
+ 	test	al,al		;is primary negative
+ 	js	dcneg
+@@ -583,6 +630,11 @@ cmp_return:
+ 					;and fall thru into add routine
+ 
+ 	intrdef $dad		;add secondary to primary
++	mov	cx,0
++	call	inf_dispatch
++	jnc	inf_dad_normal
++	ret
++inf_dad_normal:
+ 	pushf
+ 	push	bp
+ 	push	si
+@@ -791,7 +843,7 @@ norm_done:
+ 	mov	word ptr -2[si],1
+ 	jmp	short clr_fraction
+ no_under:
+-	cmp	dx,2048
++	cmp	dx,2047
+ 	jl	no_over
+ 	mov	flterr_,OVER_FLOW
+ 	mov	word ptr -2[si],2047
+@@ -812,6 +864,11 @@ no_over:
+ 	ret
+ ;
+ 	intrdef $ddv
++	mov	cx,2
++	call	inf_dispatch
++	jnc	inf_ddv_normal
++	ret
++inf_ddv_normal:
+ 		;double floating divide	(primary = primary/secondary)
+ 	pushf
+ 	push	bp
+@@ -946,6 +1003,11 @@ zero_bit:
+ ;
+ ;
+ 	intrdef $dml
++	mov	cx,1
++	call	inf_dispatch
++	jnc	inf_dml_normal
++	ret
++inf_dml_normal:
+ 		;double floating multiply	(primary = primary * secondary)
+ 	pushf
+ 	push	bp
+@@ -1144,6 +1206,8 @@ pos_int:
+ dornd	proc	near
+ 		; round the number in the primary accumulator
+ 	mov	di,flprm
++	cmp	word ptr -2[di],2047
++	je	rndexit
+ 	mov	ax,word ptr -12[di]
+ 	mov	word ptr -12[di],0
+ 	cmp	byte ptr -10[di],80H
+@@ -1301,6 +1365,209 @@ rep	movs	byte ptr [di], byte ptr [si] ; restore floating state
+ 	
+ ;
+ ;
++; Experimental special-value dispatch. CX: 0 add, 1 multiply, 2 divide.
++; Carry set means the result is ready in the primary accumulator.
++inf_dispatch proc near
++ push bp
++ push si
++ push di
++ push bx
++ push dx
++ mov bp,cx
++ mov si,flprm
++ call inf_class
++ mov dx,ax
++ mov si,flsec
++ call inf_class
++ mov bx,ax
++ mov si,flprm
++ mov di,flsec
++ cmp dx,3
++ jne inf_skip_18
++ jmp inf_nan
++inf_skip_18:
++ cmp bx,3
++ jne inf_skip_20
++ jmp inf_nan
++inf_skip_20:
++ cmp bp,0
++ jne inf_skip_22
++ jmp inf_add
++inf_skip_22:
++ mov al,[si]
++ xor al,[di]
++ and al,80h
++ cmp bp,1
++ jne inf_skip_27
++ jmp inf_mul
++inf_skip_27:
++; Division
++ cmp dx,2
++ je inf_skip_30
++ jmp inf_divfinite
++inf_skip_30:
++ cmp bx,2
++ jne inf_skip_32
++ jmp inf_nan
++inf_skip_32:
++ jmp inf_infinity
++inf_divfinite:
++ cmp bx,2
++ jne inf_skip_36
++ jmp inf_zero
++inf_skip_36:
++ cmp bx,0
++ je inf_skip_38
++ jmp inf_divnonzero
++inf_skip_38:
++ cmp dx,0
++ jne inf_skip_40
++ jmp inf_nan
++inf_skip_40:
++ mov flterr_,DIV_BY_ZERO
++ jmp inf_infinity
++inf_divnonzero:
++ cmp dx,0
++ jne inf_skip_45
++ jmp inf_zero
++inf_skip_45:
++ jmp inf_unhandled
++inf_mul:
++ cmp dx,2
++ je inf_skip_49
++ jmp inf_mulother
++inf_skip_49:
++ cmp bx,0
++ jne inf_skip_51
++ jmp inf_nan
++inf_skip_51:
++ jmp inf_infinity
++inf_mulother:
++ cmp bx,2
++ je inf_skip_55
++ jmp inf_mulfinite
++inf_skip_55:
++ cmp dx,0
++ jne inf_skip_57
++ jmp inf_nan
++inf_skip_57:
++ jmp inf_infinity
++inf_mulfinite:
++ cmp dx,0
++ jne inf_skip_61
++ jmp inf_zero
++inf_skip_61:
++ cmp bx,0
++ jne inf_skip_63
++ jmp inf_zero
++inf_skip_63:
++ jmp inf_unhandled
++inf_add:
++ cmp dx,2
++ je inf_skip_67
++ jmp inf_addother
++inf_skip_67:
++ cmp bx,2
++ je inf_skip_69
++ jmp inf_handled
++inf_skip_69:
++ mov al,[si]
++ xor al,[di]
++ test al,80h
++ je inf_skip_73
++ jmp inf_nan
++inf_skip_73:
++ jmp inf_handled
++inf_addother:
++ cmp bx,2
++ je inf_skip_77
++ jmp inf_addzero
++inf_skip_77:
++ mov flprm,di
++ mov flsec,si
++ jmp inf_handled
++inf_addzero:
++ cmp dx,0
++ je inf_skip_83
++ jmp inf_unhandled
++inf_skip_83:
++ cmp bx,0
++ je inf_skip_85
++ jmp inf_unhandled
++inf_skip_85:
++ mov al,[si]
++ and al,[di]
++ and al,80h
++ jmp inf_zero
++inf_nan:
++ mov al,0
++ mov bx,1800h
++ mov dx,2047
++ jmp inf_set
++inf_infinity:
++ mov bx,1000h
++ mov dx,2047
++ jmp inf_set
++inf_zero:
++ xor bx,bx
++ xor dx,dx
++inf_set:
++ mov [si],al
++ mov -2[si],dx
++ mov -4[si],bx
++ mov word ptr -6[si],0
++ mov word ptr -8[si],0
++ mov word ptr -10[si],0
++ mov word ptr -12[si],0
++inf_handled:
++ pop dx
++ pop bx
++ pop di
++ pop si
++ pop bp
++ stc
++ ret
++inf_unhandled:
++ pop dx
++ pop bx
++ pop di
++ pop si
++ pop bp
++ clc
++ ret
++; AX: zero=0, finite=1, infinity=2, NaN=3. SI points at sign.
++inf_dispatch endp
++inf_class proc near
++ mov ax,-2[si]
++ test ax,ax
++ jne inf_skip_131
++ jmp inf_classret
++inf_skip_131:
++ cmp ax,2047
++ je inf_skip_133
++ jmp inf_finite
++inf_skip_133:
++ mov ax,-4[si]
++ and ax,0fffh
++ or ax,-6[si]
++ or ax,-8[si]
++ or ax,-10[si]
++ or ax,-12[si]
++ jne inf_skip_140
++ jmp inf_isinfinity
++inf_skip_140:
++ mov ax,3
++ ret
++inf_isinfinity:
++ mov ax,2
++ ret
++inf_finite:
++ mov ax,1
++inf_classret:
++ ret
++
++inf_class endp
++
+ fault_handler:
+ 	pop	di
+ 	pop	si
+diff --git a/before/src/math/log.c b/after/src/math/log.c
+index a0949e0..4e2e6c3 100644
+--- a/before/src/math/log.c
++++ b/after/src/math/log.c
+@@ -28,10 +28,20 @@ double x;
+ 	int n;
+ 	extern int errno;
+ 	
+-	if (x <= 0.0) {
+-		errno = EDOM;
+-		return -HUGE_VAL;
+-	}
++	if (isnan(x))
++        return x;
++    if (x == 0.0) {
++        errno = ERANGE;
++        return -INFINITY;
++    }
++    if (x < 0.0) {
++        /* Runtime invalid operation, not a compiler-folded 0.0/0.0. */
++        errno = EDOM;
++        z = x - x;
++        return z / z;
++    }
++    if (isinf(x))
++        return x;
+ 	f = frexp(x, &n);
+ 	if (f > C0) {
+ 		znum = (znum = f-0.5) - 0.5; /* the assignment prevents const. eval */
 diff --git a/before/src/math/makefile b/after/src/math/makefile
 index 5fbe219..9f95ce7 100644
 --- a/before/src/math/makefile
@@ -3099,6 +3624,53 @@ index 0000000..da47562
 @@ -0,0 +1,2 @@
 +#include <stdlib.h>
 +div_t div(int n, int d) { div_t r; r.quot = n/d; r.rem = n%d; return r; }
+diff --git a/after/src/misc/ftrunc.c b/after/src/misc/ftrunc.c
+new file mode 100644
+index 0000000..f39b810
+--- /dev/null
++++ b/after/src/misc/ftrunc.c
+@@ -0,0 +1,41 @@
++/* DOS resize frontend: preserve position and zero-fill extensions. */
++#include <dos.h>
++#include <unistd.h>
++#include <errno.h>
++int _trcheck(int);
++int _trresize(int);
++
++int ftruncate(int fd, long length)
++{
++    static char zeros[128];
++    long position, end, remaining;
++    unsigned count;
++    int n, result, error;
++    if (length < 0) { errno = EINVAL; return -1; }
++    if (_trcheck(fd) < 0) return -1;
++    position = lseek(fd, 0L, 1);
++    if (position < 0) return -1;
++    result = -1;
++    end = lseek(fd, 0L, 2);
++    if (end >= 0) {
++        if (length <= end) {
++            if (lseek(fd, length, 0) >= 0) result = _trresize(fd);
++        } else {
++            remaining = length - end;
++            result = 0;
++            while (remaining) {
++                count = remaining > sizeof zeros ? sizeof zeros : (unsigned)remaining;
++                n = write(fd, zeros, count);
++                if (n < 0) { result = -1; break; }
++                if (n != count) { errno = ENOSPC; result = -1; break; }
++                remaining -= count;
++            }
++        }
++    }
++    error = errno;
++    if (lseek(fd, position, 0) < 0) {
++        if (!result) return -1;
++    }
++    if (result) errno = error;
++    return result;
++}
 diff --git a/after/src/misc/infty.c b/after/src/misc/infty.c
 new file mode 100644
 index 0000000..a090b36
@@ -3259,12 +3831,12 @@ index f3b6cc8..7581d41 100644
  	if (!inuse(ptr))
  		return -1;
 diff --git a/before/src/misc/makefile b/after/src/misc/makefile
-index 9d5d357..2addffa 100644
+index 9d5d357..35ec149 100644
 --- a/before/src/misc/makefile
 +++ b/after/src/misc/makefile
 @@ -1,19 +1,20 @@
 -OBJ=atoi.o atol.o calloc.o lcalloc.o ctype.o qsort.o format.o scan.o\
-+OBJ=labs.o div.o ldiv.o strto.o bsearch.o strspn.o strcspn.o strpbrk.o strtok.o atexit.o infty.o compat.o snprint.o strdup.o atoi.o atol.o calloc.o lcalloc.o ctype.o qsort.o format.o scan.o\
++OBJ=ftrunc.o truncate.o labs.o div.o ldiv.o strto.o bsearch.o strspn.o strcspn.o strpbrk.o strtok.o atexit.o infty.o compat.o snprint.o strdup.o atoi.o atol.o calloc.o lcalloc.o ctype.o qsort.o format.o scan.o\
  	sprintf.o sscanf.o rand.o abort.o raise.o signal.o sigtable.o
 -MOBJ=fscan.o fscan87.o fformat.o sprintf.o sscanf.o
 +MOBJ=strto.o bsearch.o strspn.o strcspn.o strpbrk.o strtok.o atexit.o fscan.o fscan87.o fformat.o sprintf.o sscanf.o
@@ -3628,6 +4200,30 @@ index 0000000..8b11afb
 +    else
 +        next = NULL;
 +    return token;
++}
+diff --git a/after/src/misc/truncate.c b/after/src/misc/truncate.c
+new file mode 100644
+index 0000000..164061e
+--- /dev/null
++++ b/after/src/misc/truncate.c
+@@ -0,0 +1,18 @@
++#include <dos.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <errno.h>
++int open(const char *, int, ...);
++
++int truncate(const char *path, long length)
++{
++    int fd, result, error;
++    if (length < 0) { errno = EINVAL; return -1; }
++    fd = open(path, O_WRONLY);
++    if (fd < 0) return -1;
++    result = ftruncate(fd, length);
++    error = errno;
++    if (close(fd) < 0 && !result) return -1;
++    if (result) errno = error;
++    return result;
 +}
 diff --git a/after/src/qbuild.bat b/after/src/qbuild.bat
 new file mode 100644

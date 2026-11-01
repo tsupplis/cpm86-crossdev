@@ -27,5 +27,12 @@ for target in c86 d11 c clc cld cl; do
         fi
         n=$((n+1))
     done
+    if [ "$target" != c86 ]; then
+        for n in 36 37; do
+            echo "LINK CASE: $target $n"
+            "$bin/aztec42_cc" +"$model" +0 -DCASE="$n" -o one.o one.c
+            "$bin/aztec42_link" -o one.exe one.o -l"$target"
+        done
+    fi
     echo "ISOLATED LINKS PASS: $target"
 done

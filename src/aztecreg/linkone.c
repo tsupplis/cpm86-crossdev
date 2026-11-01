@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#if CASE >= 36
+#include <dos.h>
+#endif
 #if CASE >= 32
 #include <time.h>
 extern short monitor(int (*)(void), int (*)(void), unsigned *, int, int);
@@ -84,6 +87,10 @@ int main(void)
     monitor(main, main, (unsigned *)buffer, 0, 0);
 #elif CASE == 35
     profil(buffer, sizeof buffer, main, 0);
+#elif CASE == 36
+    ftruncate(3, 0L);
+#elif CASE == 37
+    truncate("test.tmp", 0L);
 #endif
     return 0;
 }

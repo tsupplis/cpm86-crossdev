@@ -28,5 +28,7 @@ else
 fi
 # A new patch identity always requires a rebuild, including migration.
 rm -f built
-printf '%s\n' "$patch_id" > patched-runtime
+marker=$(mktemp ./patched-runtime.XXXXXX)
+printf '%s\n' "$patch_id" > "$marker"
+mv -f "$marker" patched-runtime
 rm -f patched patched-runtime-v[0-9]*

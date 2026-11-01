@@ -65,8 +65,8 @@ batch-mode executable fix is also a separate fetcher step.
 The string comparisons fold ASCII A through Z. The bounded formatter uses the
 Aztec format engine and its 16-bit int count. Link the math library before the
 C library for floating-point formats or calculations. INFINITY and INFINITE
-use an IEEE binary64 value because the software runtime loses infinity when
-promoting binary32. These extensions do not add IEEE exception handling.
+use an IEEE binary64 value; the software runtime also preserves infinity
+and NaN during binary32 promotion. These extensions do not add IEEE exception handling.
 
 Run `make -C src/aztecreg dos-check` for DOS 1.x and the four DOS 2.x memory models.
 The CP/M status probe supplies version 3.1 or 3.2 at the BDOS entry point
@@ -103,7 +103,8 @@ expressions still follow the vintage compiler's promotion and arithmetic rules.
 
 Software binary64 fmod uses integer significand division.
 The integer algorithm handles subnormals and signed zero, but Aztec software
-floating-point loads/returns flush subnormals and discard zero signs. These
+floating-point loads/returns flush subnormals. Signed zero transport is
+preserved. These
 existing ABI limits also apply to fmod. Zero divisors and infinite
 numerators produce a quiet NaN and EDOM; NaNs propagate. The existing 8087
 implementation is unchanged. It also fixes realloc(NULL), preservation of the
@@ -133,3 +134,13 @@ when selecting startup objects. `make -C src/aztecreg response-check` links
 and executes all six targets with the library specified only inside LF and
 CRLF response files. Caller-provided AZTEC_STARTUP/AZTEC_NOSTARTUP overrides
 still take precedence. This wrapper correction requires no runtime rebuild.
+
+[Infinity support](INF.md) and [DOS file resizing](TRUNCATE.md) are included
+in the single runtime patch. Tests link installed libraries directly:
+
+    make -C src/aztecreg clean check dos-check truncate-check expr-inf-check
+    make -C src/aztecreg truncate-pce-check
+
+The PCE test requires the separate DOS 1.1 image checkout. The emu2 correction
+used by truncate-check is a temporary regression fixture, not an installation
+step or a second Aztec patch.

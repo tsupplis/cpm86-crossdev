@@ -1,0 +1,37 @@
+#!/bin/sh
+# Boot a private copy of the user's DOS 1.1 disk; preserve originals.
+set -eu
+bin=$1
+dosroot=$2
+source=$(pwd)
+work=$(mktemp -d "${TMPDIR:-/tmp}/aztruncpce.XXXXXX")
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+cp "$source/truncate.c" "$work/test.c"
+cp "$dosroot/pcdos_base.img" "$work/boot.img"
+cp "$dosroot/pce/pceexit.com" "$work/"
+python3 - "$dosroot" "$work" <<'PY'
+from pathlib import Path
+import sys
+root=Path(sys.argv[1]).resolve()
+work=Path(sys.argv[2])
+s=(root/'pcdos.cfg').read_text()
+s=s.replace('path = "rom"',f'path = "{root}/rom"')
+s=s.replace('file    = "rom/',f'file    = "{root}/rom/')
+s=s.replace('file     = "pcdos_full.img"','file     = "boot.img"')
+s=s.replace('driver = "sdl"','driver = "null"')
+s=s.replace('driver      = "sdl:lowpass=0"','driver      = "null"')
+(work/'pce.cfg').write_text(s)
+(work/'autoexec.bat').write_bytes(b'TEST\r\nPCEEXIT\r\n')
+PY
+cd "$work"
+"$bin/aztec42_cc" -DPCE_REPORT +0 -o test.o test.c
+"$bin/aztec42_link" -o test.com test.o -ld11
+for file in autoexec.bat pceexit.com test.com; do
+    mcopy -o -i boot.img "$file" ::
+done
+# PCE's guest abort hook exits with status 1; the disk report is authoritative.
+"${PCE:-pce-ibmpc}" -c pce.cfg -t null -r -l pce.log || :
+output=$(mtype -i boot.img ::RESULT.TXT)
+printf '%s\n' "$output"
+printf '%s\n' "$output" | tr -d '\r' | grep -qx 'TRUNCATE PASS: 0 failures'
+echo 'TRUNCATE PCE DOS 1.1 PASS'

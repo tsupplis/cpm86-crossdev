@@ -7,7 +7,7 @@ LIB := $(LIBDIR)/c86.lib
 .DELETE_ON_ERROR:
 
 .PHONY: check clean
-check: regress.cmd legacy.o status-check header-check link-check response-check
+check: regress.cmd legacy.o status-check header-check link-check response-check inf-check
 	@output=$$("$(BIN)/cpm86" regress.cmd) && printf '%s\n' "$$output" && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
 
 regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib
@@ -63,3 +63,26 @@ link-check:
 .PHONY: response-check
 response-check:
 	sh responsecheck "$(BIN)"
+
+# Installed runtime infinity coverage; unordered diagnostic remains separate.
+.PHONY: inf-check inf-unordered-check
+inf-check:
+	sh infcheck "$(BIN)"
+
+# Expected to fail until the compiler's three-way comparison ABI is addressed.
+inf-unordered-check:
+	sh infcheck "$(BIN)" --unordered
+
+EXPR_SOURCE ?= $(abspath ../../../cpm86-ports/expr)
+.PHONY: expr-inf-check
+expr-inf-check:
+	sh exprinfcheck "$(BIN)" "$(EXPR_SOURCE)"
+
+.PHONY: truncate-check
+truncate-check:
+	sh truncatecheck "$(BIN)"
+
+DOS11_SOURCE ?= $(HOME)/Projects/DOS/pcdos11-hacking
+.PHONY: truncate-pce-check
+truncate-pce-check:
+	sh truncatepcecheck "$(BIN)" "$(DOS11_SOURCE)"
