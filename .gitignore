@@ -51,6 +51,9 @@ bin/mzchecksum
 **/*.prn
 **/*.hex
 
+# Add drc.err
+!**/drc.err
+
 # Leave MSC51 error files
 !src/mspackages/msc51/*.err
 
