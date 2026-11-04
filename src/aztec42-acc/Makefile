@@ -4,31 +4,38 @@ BIN = ../../bin
 AZCC = $(BIN)/aztec42_cc
 AZLD = $(BIN)/aztec42_link
 EMU = $(BIN)/emu2
-AZCFLAGS = +0 -b -n
+AZCFLAGS = +0 -b -n -DACC_DOS
+SOURCES = acc.c args.c plan.c exec.c
+OBJECTS = acc.o args.o plan.o exec.o
 
 .DELETE_ON_ERROR:
-.PHONY: all dos check check-unix check-dos clean
+.PHONY: all dos check check-unix check-dos check-exec clean
 
 all: acc
 
-acc: acc.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ acc.c $(LDLIBS)
+acc: $(SOURCES) acc.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $(SOURCES) $(LDLIBS)
 
 dos: acc.exe
 
-acc.o: acc.c
-	$(AZCC) $(AZCFLAGS) -o $@ acc.c
+$(OBJECTS): acc.h
 
-acc.exe: acc.o
-	$(AZLD) -o $@ acc.o -lc
+.c.o:
+	$(AZCC) $(AZCFLAGS) -o $@ $<
 
-check: check-unix check-dos
+acc.exe: $(OBJECTS)
+	$(AZLD) -o $@ $(OBJECTS) -lc
+
+check: check-unix check-dos check-exec
 
 check-unix: acc
-	sh check.sh ./acc
+	sh check.sh "$(abspath ../../share/aztec42)" "$(CURDIR)/acc"
 
 check-dos: acc.exe
-	sh check.sh $(EMU) acc.exe
+	EMU2_DRIVE_D="$(abspath ../../share/aztec42)" sh check.sh 'D:\' "$(abspath $(EMU))" "$(CURDIR)/acc.exe"
+
+check-exec: acc
+	sh exec-check.sh "$(abspath ../../share/aztec42)" "$(CURDIR)/acc" "$(abspath $(EMU))"
 
 clean:
-	rm -f acc acc.exe acc.o acc.dbg acc.sym sbegin.o
+	rm -f acc acc.exe $(OBJECTS) acc.dbg acc.sym sbegin.o

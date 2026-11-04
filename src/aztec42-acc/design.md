@@ -6,10 +6,26 @@ Replace the orchestration in DOS `c.exe` and the cross-host
 `aztec42_cc`/`aztec42_link` wrappers with one portable C driver.
 Keep the existing compiler, code generator, assembler, linker, and runtime.
 
-**Current implementation:** a C89 foundation supporting only `-help` and
-`-version`, with explicit errors for other invocations. Compilation and
-linking through acc are not implemented yet. Everything below describing
-the compiler interface is the implementation design, not existing behavior.
+**Current implementation:** a shared C89 argument parser and command planner,
+built for Unix and MS-DOS. `-###` validates inputs, installation files, search
+paths, target/model combinations, and output collisions, then prints backend
+argument vectors and intended output publications without creating files.
+The planner supports C/assembly/object/archive inputs, `-c`, `-S`, target,
+model, CPU, math, language, optimization, warning, include/definition/library,
+and runtime-suppression options listed by `-help`. Ordered library inputs
+and model-specific startup/runtime/math selection are covered by checks.
+
+Compilation and linking through acc are **not implemented yet**; invocations
+without `-###` fail explicitly. The planner currently requires `-toolroot`
+or `ACCROOT`. Executable-relative discovery, execution adapters, real private
+workspaces, child environment construction, command-tail serialization,
+response files, debug artifacts, raw backend switches, `-emu`, and
+`-save-temps` remain unimplemented. Explicit assembly with user `-D` options,
+80286 selection, or inline hardware floating point is rejected pending
+backend qualification. `-v` is accepted but adds nothing to `-###` output.
+The symbolic `E:` paths in a plan are not allocated directories or runnable
+commands. The rest of this document remains the complete intended contract,
+not a claim that every described feature exists.
 
 ## Reading guide
 
@@ -59,7 +75,8 @@ make check
 `make` builds native `acc`. `make dos` builds `acc.exe` using the existing
 cross wrappers and the installed patched small-model DOS runtime.
 `make check` tests both executables, running the DOS binary under `emu2`.
-`make check-unix` does not require the Aztec installation.
+Both planner test suites require the installed Aztec tools and libraries;
+`make check-unix` does not execute them or require emu2.
 Compiler flags and tool paths can be overridden as make variables.
 
 ### Installation location (agreed)
@@ -89,9 +106,11 @@ records the exact retained/excluded tool policy.
 
 On Unix, public paths use host syntax; on DOS they use DOS syntax.
 Cross acc translates path-bearing environment settings before launching
-DOS tools. DOS acc.exe uses the native DOS values. Search-list delimiters,
-fallback ordering, temporary-parent semantics, and handling of inherited
-emu2 mappings are being refined separately.
+DOS tools. DOS acc.exe uses the native DOS values. Include/library searches
+use command-line directories, then environment directories, then installation
+defaults. Unix INCLUDE/CLIB lists use colons; native DOS and translated child
+lists use Aztec's semicolon convention. Cross acc owns its child emu2 mappings
+and ignores inherited drive/CWD/program-name settings.
 
 For native DOS, copy this project's sources into a working directory.
 For an installation at `C:\AZTEC`:
@@ -311,7 +330,8 @@ source-level `.dbg` information.
 - Target macros also reach explicit assembly as assembler symbols.
   Applying a shared definition to mixed C/assembly inputs must be valid for
   both; otherwise use separate invocations.
-- User include directories precede the selected toolchain include directory.
+- User include directories precede INCLUDE directories, which precede the
+  selected toolchain include directory.
   Existing quoted-include/current-directory semantics must be preserved.
 - The manual limits include search areas to eight. Count the effective list
   after installation/current-directory behavior is characterized; fail when
@@ -433,13 +453,31 @@ distinguish host paths from DOS paths. Do not dump the inherited environment.
 | --- | --- |
 | `ACCROOT` | Tool root fallback, below `-toolroot` |
 | `PATH` | Locate acc/emulator on Unix; construct a backend PATH for the selected installation |
-| `TMPDIR` on Unix, `TEMP` on DOS | Workspace parent; invalid explicit parent is an error |
-| `INCLUDE`, `CLIB`, `CCTEMP` | Honor caller configuration; cross acc translates host paths and constructs/adjusts DOS child values, while DOS acc.exe uses native values |
-| `EMU2_DRIVE_*`, `EMU2_PROGNAME`, `EMU2_APPEND` | Adapter must construct a coherent child mapping; policy for reusing inherited mappings remains an interview decision |
+| `INCLUDE`, `CLIB` | Search after command-line directories and before installation defaults; colon-separated host paths on Unix, Aztec semicolon-separated DOS paths on DOS; cross acc translates to child DOS lists |
+| `CCTEMP`, `TEMP`, `TMPDIR` | Unix workspace-parent precedence: CCTEMP, TEMP, TMPDIR, then system temporary parent; DOS: CCTEMP, TEMP, then current directory |
+| `EMU2_DRIVE_*`, `EMU2_DEFAULT_DRIVE`, `EMU2_CWD`, `EMU2_PROGNAME`, `EMU2_APPEND` | Construct coherent child settings; ignore inherited filesystem mappings/search settings without modifying the parent environment |
+| Other `EMU2_*` settings | Honor caller-supplied non-path settings, including CPU, debug, memory, DOS version, and console controls |
 | `AZTEC_STARTUP`, `AZTEC_NOSTARTUP` | Legacy wrapper settings, not acc configuration; diagnose if set during acc execution |
 
 No implicit flags from `CFLAGS`, `LDFLAGS`, or a configuration file.
 Build tools pass their chosen arguments explicitly.
+
+For INCLUDE and CLIB, an empty element inside a nonempty list means the
+invocation directory, preserving its position. For example `inc::other`
+on Unix and `inc;;other` on DOS both insert the current directory between
+the two explicit entries. Leading/trailing separators behave the same way.
+An unset or entirely empty variable contributes no environment entries;
+installation defaults are still appended. This is path-list behavior,
+not permission to accept empty command-line path operands.
+
+Unset or empty temporary variables fall through to the next choice.
+A nonempty invalid parent is an error, not permission to silently use another
+directory. On Unix, always create a fresh, uniquely named private directory
+under the selected parent (for example `/tmp/acc.XXXXXX` at the final fallback);
+never use `/tmp` itself as the workspace. Native DOS also creates a private
+workspace under its selected parent. Set child `CCTEMP` to that workspace's
+DOS path with a trailing backslash, without modifying the caller's environment.
+`CCTMP` is not an alias for Aztec's documented `CCTEMP`.
 
 Examples of proposed diagnostics:
 
@@ -923,8 +961,8 @@ prebuilt objects' ABI.
 Link order: explicit startup, ordered user objects/libraries, automatic
 runtime libraries. Requested math precedes the C library.
 The linker is single-pass: never sort or deduplicate user libraries.
-Preserve repeated `-l` requests. Search ordered `-L` directories before the
-toolchain library directory and pass explicit resolved paths, avoiding
+Preserve repeated `-l` requests. Search ordered `-L` directories, then CLIB
+directories, then the toolchain library directory and pass explicit resolved paths, avoiding
 confusion with Aztec's own `-L`.
 
 Always supply startup, even for an empty `main`; archive demand-loading
@@ -942,6 +980,57 @@ Unix: execute DOS backend tools through `emu2`; own drive mappings,
 DOS environment construction, and host-to-guest path translation.
 DOS: invoke tools directly using returning child execution and retrieve
 child exit status. Do not implement execution via `system()`.
+
+### Agreed Unix-to-emu2 base mapping
+
+| Guest location | Host location | Purpose |
+| --- | --- | --- |
+| `C:\` | Invocation working directory | Preserve caller-relative paths and include lookup |
+| `D:\` | Selected Aztec installation root | Backend BIN, INCLUDE, and LIB |
+| `E:\` | Unique private workspace selected through temporary-variable precedence | Generated objects, linker response files, and compiler intermediates |
+
+Do not allocate additional drives or map the host filesystem root.
+On Unix all backend-visible source, include, library, response, and output
+paths must lie beneath the invocation directory, selected Aztec root, or
+private workspace. This includes paths supplied through INCLUDE and CLIB.
+Reject external locations before tool execution; do not copy them into the
+workspace as an implicit workaround.
+
+Resolve relative paths and existing symlinks before checking containment,
+using directory boundaries rather than string-prefix matching. For a new
+output, resolve its existing parent directory. Reject a symlink escape from
+the three roots. Tool/emulator executable discovery and selection of the
+temporary parent are host operations, not restrictions requiring those
+locations to be under C:. The selected private workspace becomes E:.
+
+When roots overlap, choose the most specific containing root; for identical
+roots prefer the explicit role E:, then D:, then C:. Path containment is a
+translation contract, not a security guarantee against concurrent filesystem
+changes. Native DOS retains normal native DOS path handling; the three-root
+restriction applies to the Unix cross adapter.
+
+Map the private CCTEMP workspace itself to E:, not a shared fixed temporary
+directory. Child `CCTEMP` is `E:\`, including the trailing backslash.
+The host parent selected by CCTEMP/TEMP/TMPDIR does not need its own drive
+merely to create the workspace. The public variable remains spelled CCTEMP.
+
+Set `EMU2_DEFAULT_DRIVE=C`, guest working directory `C:\`, and
+`EMU2_PROGNAME` to the actual tool's DOS path, for example `D:\BIN\CC.EXE`.
+Child backend PATH selects `D:\BIN`. Build INCLUDE and CLIB from the
+resolved, translated search lists. Invoke emu2 with its host executable path
+and DOS-environment argument mechanism; emulator control variables belong
+to the host child environment, not the DOS environment.
+
+Ignore inherited drive, CWD, default-drive, program-name, and APPEND settings
+when constructing these child settings. Do not rely on APPEND to conceal
+missing library paths. Do not strip unrelated emu2 settings.
+Honor inherited non-path emu2 settings, including `EMU2_CPU`, debug logging,
+memory limits, DOS-version overrides, and console settings.
+`-march` controls generated target code only; it must not change the CPU
+executing the compiler. If `EMU2_CPU` is unset, retain emu2's default.
+Caller-selected execution limits may cause tool failures, which acc reports
+normally rather than overriding the settings or retrying under other values.
+These mappings provide path representation, not filesystem isolation.
 
 Discovery precedence: `-toolroot`, `ACCROOT`, then the parent of the resolved
 installed driver's `bin` directory. In this repository that root is normally
