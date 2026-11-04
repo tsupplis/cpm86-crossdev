@@ -6,15 +6,37 @@ upgrade patch, or numbered patch chain is used.
 
 The installation sequence is:
 
-    Fetch originals -> unpack -> apply runtime.patch -> build -> install libraries
+    Fetch/import -> unpack -> patch -> build -> extract startups -> install
 
-The baseline is AztecC86.zip plus DOS11.ARC from az8634b.zip. The fetchers
-stage these archives; `unpack` extracts and normalizes the source line endings.
-`cross_aztec42_build` then invokes `apply_patches`, builds every memory model,
-installs the libraries and refreshes the startup objects.
+The single `src/fetch/cross_aztec42` fetcher performs this whole sequence.
+Like the other fetchers, it is sourced only by `fetch_tools`, uses the
+provided environment/helpers, and has no command-line interface.
+The baseline is AztecC86.zip plus DOS11.ARC from az8634b.zip.
+`unpack` extracts and normalizes source line endings.
+
+The preserved build tree is `archive/aztec42`: sources in `src/`, original
+tools (including the archive extractor and compiler backup) in `bin/`, build
+headers in `include/`, rebuilt libraries in `lib/`, and patch/build markers
+at its root. The final `share/aztec42` contains only `bin/`, `include/`,
+and `lib/`. Builds use `AZTEC42_ROOT` to direct all Aztec 4.2 wrappers to
+the archive tree, without modifying the active installation.
+
+On the first run against a legacy installation, the entire tree is copied
+into archive before any cleanup, preserving local source/header edits and
+build state. If both source trees exist and differ, installation stops for
+reconciliation. Products are copied into share after the build succeeds;
+the preserved archive sources are not installed.
+
+The final tool set excludes `arcv.com`, `c.exe`, `cc.exe.bak`, `crc.exe`,
+`diff.exe`, `grep.exe`, `ls.com`/`ls.exe`, `rm.c`, `rm.exe`, `z.exe`, and
+`term.exe`. Other tools, including the debug/OMF converters, standalone
+preprocessor, make, debuggers, profiler, and source utilities, are retained.
+The patched compiler itself remains installed. Separately installed binaries
+such as future acc executables are retained when absent from the build tree.
+The Aztec 5.2 overlay fetcher is unchanged.
 
 `apply_patches` checks the whole patch before writing. Its single marker,
-`share/aztec42/patched-runtime`, contains the identity of runtime.patch.
+`archive/aztec42/patched-runtime`, contains the identity of runtime.patch.
 A matching marker makes subsequent calls a no-op. A source tree already
 containing the full patch (including the former v9 installation) is adopted
 without applying anything again. Old numbered markers are removed. A new
@@ -23,25 +45,29 @@ or partially patched tree is rejected without changing its sources.
 
 ## Install and rebuild
 
-For a fresh installation, run `./fetch_tools` from the repository root.
-For an existing compatible installation, run:
+For installation, run `./fetch_tools` from the repository root.
+To rebuild an existing compatible installation:
 
-    sh src/fetch/cross_aztec42_build --rebuild
+    rm -f archive/aztec42/built
+    ./fetch_tools
     make -C src/aztecreg clean check dos-check
 
-The build fetcher normally skips an installation marked `built`; `--rebuild`
-forces a rebuild. A failed build leaves that marker absent, so the next run
-retries. You may edit sources under share/aztec42/src and headers under
-share/aztec42/include, then use the same rebuild command. If protected,
-give the files you intend to edit owner write permission first.
+The fetcher skips compilation when the archive build tree is marked `built`;
+removing that marker forces a rebuild. A failed build leaves it absent, so the next run
+retries. Edit sources under `archive/aztec42/src` and headers under
+`archive/aztec42/include`, then use the same rebuild command. Installation
+copies the resulting headers/libraries into share. Do not maintain a second
+editable source tree inside share.
 
 For an old partial installation that is rejected, preserve the whole directory
 before a fresh install (choose a backup name that does not already exist):
 
-    mv share/aztec42 share/aztec42.backup
+    mv archive/aztec42 archive/aztec42.backup
     ./fetch_tools
 
-Keep any local source edits in that backup for review and reapplication.
+If an old source-bearing share tree also exists, preserve it outside
+`share/aztec42` before retrying so it is not imported again.
+Keep local source edits in the backups for review and reapplication.
 The installer does not overwrite an incompatible source tree automatically.
 
 ## Regenerate the patch
@@ -135,15 +161,25 @@ and executes all six targets with the library specified only inside LF and
 CRLF response files. Caller-provided AZTEC_STARTUP/AZTEC_NOSTARTUP overrides
 still take precedence. This wrapper correction requires no runtime rebuild.
 
+`inf-check` compiles its own regression sources and links only installed
+libraries; it does not require the archive build tree. Assembly of the mixed
+floating-point backend is covered by building the runtime libraries.
+
 [Infinity support](INF.md) and [DOS file resizing](TRUNCATE.md) are included
 in the single runtime patch. Tests link installed libraries directly:
 
     make -C src/aztecreg clean check dos-check truncate-check expr-inf-check
     make -C src/aztecreg truncate-pce-check
 
-The PCE test requires the separate DOS 1.1 image checkout. The emu2 correction
-used by truncate-check is a temporary regression fixture, not an installation
-step or a second Aztec patch.
+The normal regression suite uses its own test sources and the installed
+tools, headers, and libraries. It does not require the toolchain sources or
+the archive directory.
+
+The optional PCE test requires the separate DOS 1.1 image checkout.
+`truncate-check` uses the installed emulator, or `TRUNCATE_EMULATOR` when
+explicitly supplied; it never builds an emulator. Its DOS 1.1 case requires
+the emulator's zero-count FCB write correction. An uncorrected emulator will
+fail that case rather than silently selecting or building another runner.
 
 CP/M close now propagates a failed BDOS 16 result as `-1` with `EIO`, so
 `fclose` and editor saves can detect a failed directory update. `close-check`

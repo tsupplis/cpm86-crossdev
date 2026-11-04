@@ -6,5 +6,5 @@ set -e
 echo INF: Patching the cpm86 emulator ...
 cpm86="$root/share/emu/cpm86.exe"
 if [ -f "$cpm86" ] && [ ! -f "$cpm86.bak" ]; then
-    sh "$root/src/patch/patch_cpm86" "$cpm86"
+    sh "$root/src/aztec34-patch/patch_cpm86" "$cpm86"
 fi

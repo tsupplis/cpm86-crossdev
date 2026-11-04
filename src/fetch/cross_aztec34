@@ -2,6 +2,7 @@
 
 set -e
 
+patched="$root/archive/aztec34/patched"
 echo INF: Checking Aztec 3.4 tools ...
 if [ ! -d "$root/share/aztec34/bin" ] || [ ! -f "$root/share/emu/cpm86.exe" ]; then
     fetch_get "https://www.aztecmuseum.ca/az8634b.zip"
@@ -19,6 +20,7 @@ if [ ! -d "$root/share/aztec34/bin" ] || [ ! -f "$root/share/emu/cpm86.exe" ]; t
     cp -R "$tmp/az8634b/obj/."      "$root/share/aztec34/lib"
     cp -R "$tmp/az8634b/src/."        "$root/share/aztec34/src"
     cp -R "$tmp/az8634b/include/."    "$root/share/aztec34/include"
+    rm -f "$patched" "$root/share/aztec34/bin/"*.bak
     rm -rf "$tmp"
     trap - EXIT
 fi
@@ -26,7 +28,38 @@ fi
 echo INF: "Patching Aztec 3.4 tools:  preprocessor fix and default batch mode ..."
 ccb34="$root/share/aztec34/bin/ccb.exe"
 cc34="$root/share/aztec34/bin/cc.exe"
-if [ -f "$cc34" ] && [ ! -f "$cc34.bak" ] && \
-   [ -f "$ccb34" ] && [ ! -f "$ccb34.bak" ]; then
-    (cd "$root/share" && sh "$root/src/patch/patch_aztec34_misc")
+if [ ! -f "$patched" ]; then
+    if [ -f "$cc34" ] && [ ! -f "$cc34.bak" ] && \
+       [ -f "$ccb34" ] && [ ! -f "$ccb34.bak" ]; then
+        (cd "$root/share" && sh "$root/src/aztec34-patch/patch_aztec34_misc")
+    fi
+    mkdir -p "$root/archive/aztec34"
+    touch "$patched"
 fi
+
+lib="$root/share/aztec34/lib"
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+extract_startup() {
+    archive=$1 member=$2 output=$3
+    [ -f "$lib/$archive" ] || return 0
+    if [ -f "$lib/$output" ] && [ ! "$lib/$archive" -nt "$lib/$output" ]; then
+        return 0
+    fi
+    (cd "$work" && "$root/bin/aztec34_lib" "D:\\LIB\\$archive" -x "$member")
+    mv -f "$work/$member.o" "$lib/$output"
+}
+extract_startup c86.lib begin begin86.o
+extract_startup d11.lib begin begin11.o
+extract_startup c.lib sbegin sbegin.o
+extract_startup cl.lib lbegin lbegin.o
+extract_startup clc.lib sbegin beginlc.o
+extract_startup cld.lib lbegin beginld.o
+rm -rf "$work"
+trap - EXIT
+
+rm -f "$root/share/aztec34/bin/arcv.com" "$root/share/aztec34/bin/"*.bak \
+      "$root/share/aztec34/bin/diff.exe" "$root/share/aztec34/bin/grep.exe" \
+      "$root/share/aztec34/bin/ls.exe" "$root/share/aztec34/bin/ls.com" \
+      "$root/share/aztec34/bin/z.exe" "$root/share/aztec34/bin/term.exe" \
+      "$root/share/aztec34/bin/crc.exe" "$root/share/aztec34/bin/pcz.exe"

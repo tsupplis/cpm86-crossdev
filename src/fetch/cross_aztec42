@@ -1,37 +1,102 @@
 #!/bin/sh
 
 set -e
+build="$root/archive/aztec42"
+installed="$root/share/aztec42"
+mkdir -p "$root/archive" "$root/share"
+work=$(mktemp -d "$root/archive/aztec42-work.XXXXXX")
+trap 'rm -rf "$work"' EXIT
 
-echo INF: Checking Aztec 4.2 tools ...
-if [ ! -d "$root/share/aztec42/bin" ]; then
-    fetch_get "https://www.aztecmuseum.ca/AztecC86.zip"
-    tmp="$root/archive/temp-aztec42"
-    rm -rf "$tmp"
-    mkdir -p "$tmp"
-    trap 'rm -rf "$tmp"' EXIT
-    (cd "$tmp" && unzip -L "$ARCHIVED_FILE")
-    mkdir -p "$root/share/aztec42/src"
-    cp -R "$tmp/aztecc86/bin"     "$root/share/aztec42/bin"
-    cp -R "$tmp/aztecc86/lib"     "$root/share/aztec42/lib"
-    # current AztecC86.zip doesn't have obj/, so
-    # only copy it if actually present.
-    [ -d "$tmp/aztecc86/obj" ] && cp -R "$tmp/aztecc86/obj" "$root/share/aztec42/obj"
-    cp -R "$tmp/aztecc86/arc/." "$root/share/aztec42/src"
-    cp -R "$tmp/aztecc86/include" "$root/share/aztec42/include"
-    rm -rf "$tmp"
-    trap - EXIT
+echo INF: Preparing Aztec 4.2 build tree ...
+if [ ! -d "$build" ]; then
+    if [ -d "$installed/src" ]; then
+        # Import sources, header edits, original binaries, and patch/build state.
+        cp -R "$installed" "$work/aztec42"
+    else
+        fetch_get "https://www.aztecmuseum.ca/AztecC86.zip"
+        (cd "$work" && unzip -L "$ARCHIVED_FILE")
+        mkdir -p "$work/aztec42/src"
+        cp -R "$work/aztecc86/bin" "$work/aztecc86/lib" \
+              "$work/aztecc86/include" "$work/aztec42/"
+        cp -R "$work/aztecc86/arc/." "$work/aztec42/src/"
+        if [ -d "$work/aztecc86/obj" ]; then
+            cp -R "$work/aztecc86/obj/." "$work/aztec42/lib/"
+        fi
+    fi
+    chmod -R u+w "$work/aztec42"
+    mv "$work/aztec42" "$build"
+fi
+if [ ! -d "$build/src" ] || [ ! -f "$build/bin/cc.exe" ]; then
+    echo "ERR: Incomplete build tree at $build; preserve local edits before restoring it." >&2
+    exit 1
+fi
+if [ -d "$installed/src" ]; then
+    if ! diff -r "$installed/src" "$build/src" >/dev/null; then
+        echo "ERR: Installed and archived Aztec sources differ; reconcile them before installing." >&2
+        exit 1
+    fi
+    if ! diff -r "$installed/include" "$build/include" >/dev/null; then
+        echo "ERR: Installed and archived Aztec headers differ; reconcile them before installing." >&2
+        exit 1
+    fi
 fi
 
-# DOS 1.x sources ship with 3.4. Older installations nested src twice.
-az42src="$root/share/aztec42/src"
-if [ ! -f "$root/share/aztec42/unpacked" ] && [ ! -f "$az42src/dos11.arc" ]; then
-    az34src="$root/share/aztec34/src"
-    [ -f "$az34src/dos11.arc" ] || az34src="$az34src/src"
-    cp "$az34src/dos11.arc" "$az42src/dos11.arc"
+# Read-only share files become editable only in the preserved build tree.
+chmod -R u+w "$build"
+if [ ! -f "$build/unpacked" ] && [ ! -f "$build/src/dos11.arc" ]; then
+    fetch_get "https://www.aztecmuseum.ca/az8634b.zip"
+    unzip -p "$ARCHIVED_FILE" AZ8634B/SRC/DOS11.ARC > "$work/dos11.arc"
+    mv "$work/dos11.arc" "$build/src/dos11.arc"
+fi
+if [ ! -f "$build/bin/cc.exe.bak" ]; then
+    (cd "$root/archive" && sh "$root/src/aztec42-patch/patch_aztec42_batch")
 fi
 
-echo INF: Patching Aztec 4.2 cc.exe for default batch mode ...
-cc42="$root/share/aztec42/bin/cc.exe"
-if [ -f "$cc42" ] && [ ! -f "$cc42.bak" ]; then
-    (cd "$root/share" && sh "$root/src/patch/patch_aztec42_batch")
+echo INF: Unpacking and patching Aztec 4.2 ...
+if [ ! -f "$build/unpacked" ]; then
+    (cd "$build" && "$root/src/aztec42-patch/unpack")
 fi
+(cd "$build" && "$root/src/aztec42-patch/apply_patches")
+export AZTEC42_ROOT="$build"
+echo INF: Building Aztec 4.2 ...
+refresh_startups=
+if [ ! -f "$build/built" ]; then
+    chmod u+x "$build/src/build"
+    (cd "$build/src" && PATH="$root/bin:$PATH" ./build)
+    cp -f "$build/src/libs/"* "$build/lib/"
+    cp -f "$build/src/screen/"*.lib "$build/lib/"
+    refresh_startups=1
+fi
+lib="$build/lib"
+extract_startup() {
+    archive=$1 member=$2 output=$3
+    [ -f "$lib/$archive" ] || return 0
+    if [ -z "$refresh_startups" ] && [ -f "$lib/$output" ] && [ ! "$lib/$archive" -nt "$lib/$output" ]; then
+        return 0
+    fi
+    (cd "$work" && "$root/bin/aztec42_lib" "D:\\LIB\\$archive" -x "$member")
+    mv -f "$work/$member.o" "$lib/$output"
+}
+extract_startup c86.lib begin begin86.o
+extract_startup d11.lib begin begin11.o
+extract_startup c.lib sbegin sbegin.o
+extract_startup cl.lib lbegin lbegin.o
+extract_startup clc.lib sbegin beginlc.o
+extract_startup cld.lib lbegin beginld.o
+if [ -n "$refresh_startups" ]; then touch "$build/built"; fi
+(cd "$root/src/tools" && "${MAKE:-make}")
+
+echo INF: Installing Aztec 4.2 runtime tools ...
+mkdir -p "$installed/bin" "$installed/include" "$installed/lib"
+cp -R "$build/bin/." "$installed/bin/"
+cp -R "$build/include/." "$installed/include/"
+cp -R "$build/lib/." "$installed/lib/"
+rm -f "$installed/bin/arcv.com" "$installed/bin/c.exe" \
+      "$installed/bin/cc.exe.bak" "$installed/bin/crc.exe" \
+      "$installed/bin/diff.exe" "$installed/bin/grep.exe" \
+      "$installed/bin/ls.com" "$installed/bin/ls.exe" \
+      "$installed/bin/rm.c" "$installed/bin/rm.exe" \
+      "$installed/bin/z.exe" "$installed/bin/term.exe"
+if [ -d "$installed/src" ]; then rm -rf "$installed/src"; fi
+rm -f "$installed/built" "$installed/unpacked" "$installed/tools_built" \
+      "$installed/patched-runtime"

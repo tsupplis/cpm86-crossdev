@@ -4,18 +4,6 @@ bin=$1
 source=$(pwd)
 work=$(mktemp -d "${TMPDIR:-/tmp}/aztrunc.XXXXXX")
 trap 'rm -rf "$work"' EXIT HUP INT TERM
-# DOS 1.1 needs the emulator's zero-count FCB write correction.
-# Build it only in this disposable tree, unless a runner is supplied.
-if [ -z "${TRUNCATE_EMULATOR:-}" ]; then
-    mkdir -p "$work/emulator"
-    cp -R "$bin/../archive/emu2/src" "$work/emulator/"
-    cp "$bin/../archive/emu2/GNUmakefile" "$bin/../archive/emu2/platform.mk" "$work/emulator/"
-    (cd "$work/emulator"
-     git apply --no-index --whitespace=nowarn "$source/emu2-truncate.patch"
-     "${MAKE:-make}" -j4)
-    TRUNCATE_EMULATOR="$work/emulator/emu2"
-    export TRUNCATE_EMULATOR
-fi
 cp "$source/truncate.c" "$work/test.c"
 cd "$work"
 for target in c clc cld cl d11; do
