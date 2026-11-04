@@ -18,12 +18,16 @@ static void usage(FILE *stream)
           "  -nostartfiles -nostdlib  Suppress automatic runtime parts\n"
           "  -toolroot=path           Aztec root (or ACCROOT)\n", stream);
     fputs(
+          "  -overlay-root=CODE,DATA  Build CP/M-86 root program and .rsm table\n"
+          "  -overlay=ROOT.rsm        Build a CP/M-86 .ovr using the root table\n"
           "  -emu=path                Unix emulator (default: emu2 in PATH)\n"
-          "  -### -v -save-temps      Plan only, show commands, retain workspace\n"
-          "Unix execution is supported; native DOS execution is not yet implemented.\n"
-          "Debug, raw flags and user response files are not implemented yet.\n"
-          "Options use a single dash; see design.md for limitations.\n",
+          "  -### -v -save-temps      Plan only, show commands, retain workspace\n",
           stream);
+    fputs("Unix and native DOS execution are supported for qualified plans.\n"
+          "Overlay options are CP/M-86 link-only; provide an explicit -o output.\n",
+          stream);
+    fputs("Debug, raw flags and user response files are not implemented yet.\n"
+          "Options use a single dash; see design.md for limitations.\n", stream);
 }
 
 int main(int argc, char **argv)

@@ -25,6 +25,10 @@ output=$("$@" -version)
 printf '%s\n' "$output" | tr -d '\r' |
     grep -qx 'acc 0.3-dev'
 
+output=$("$@" -help 2>&1)
+printf '%s\n' "$output" | grep -F -- '-overlay-root=CODE,DATA' >/dev/null
+printf '%s\n' "$output" | grep -F -- '-overlay=ROOT.rsm' >/dev/null
+
 expect_failure() {
     status=0
     output=$("$@" 2>&1) || status=$?
@@ -83,6 +87,10 @@ printf '%s\n' "$output" | grep -F 'begin86.o' >/dev/null
 printf '%s\n' "$output" | grep -F 'c86.lib' >/dev/null
 test ! -e hello.cmd
 test ! -e 'E:'
+limit=$(printf '%058d' 0)
+output=$("$@" -### -toolroot="$root" -c -DLONG="$limit" main.c 2>&1)
+limit=$(printf '%059d' 0)
+expect_error 'command-tail limit' "$@" -### -toolroot="$root" -c -DLONG="$limit" main.c
 
 output=$("$@" -### -toolroot="$root" -S -ansi -DTEST= -I. main.c 2>&1)
 output=$(printf '%s\n' "$output" | tr -d '\r')
@@ -122,6 +130,25 @@ printf '%s\n' "$output" | grep -E 'custom\.lib.*custom\.lib.*c86\.lib' >/dev/nul
 output=$("$@" -### -toolroot="$root" -nostartfiles main.o 2>&1)
 printf '%s\n' "$output" | grep -F 'c86.lib' >/dev/null
 if printf '%s\n' "$output" | grep -F 'begin86.o'; then exit 1; fi
+
+output=$("$@" -### -toolroot="$root" -overlay-root=1020,aOO \
+    main.o -o ovraza.cmd 2>&1)
+output=$(printf '%s\n' "$output" | tr -d '\r')
+printf '%s\n' "$output" | grep -F '"+c" "1020" "+d" "aOO" "-r"' >/dev/null
+printf '%s\n' "$output" | grep -F 'ovld.o' >/dev/null
+printf '%s\n' "$output" | grep -F 'c86.lib' >/dev/null
+printf '%s\n' "$output" | grep -F 'result.rsm' >/dev/null
+printf '%s\n' "$output" | grep -F 'ovraza.rsm' >/dev/null
+test ! -e ovraza.cmd
+test ! -e ovraza.rsm
+: > ovraza.rsm
+output=$("$@" -### -toolroot="$root" -overlay=ovraza.rsm \
+    main.o -o function.ovr 2>&1)
+output=$(printf '%s\n' "$output" | tr -d '\r')
+printf '%s\n' "$output" | grep -F 'ovraza.rsm' >/dev/null
+printf '%s\n' "$output" | grep -F 'ovbgn.o' >/dev/null
+if printf '%s\n' "$output" | grep -F 'c86.lib'; then exit 1; fi
+rm ovraza.rsm
 
 output=$("$@" -### -toolroot="$root" -nostdlib entry.asm 2>&1)
 output=$(printf '%s\n' "$output" | tr -d '\r')

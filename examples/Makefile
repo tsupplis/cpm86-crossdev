@@ -11,6 +11,8 @@ DMLDFLAGS=-lm -ld11
 LD=aztec34_link
 ACC=aztec42_cc
 ALD=aztec42_link
+ACC_DRIVER=../src/aztec42-acc/acc
+ACC_ROOT=../share/aztec42
 LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
 ASM86=cpm86_asm86
@@ -84,25 +86,31 @@ all: binaries
 
 binaries: $(8086_CMDS) $(8080_CMDS) 
 
-ovraza.cmd ovraza.rsm: ovrmain.o
+$(ACC_DRIVER):
+	$(MAKE) -C ../src/aztec42-acc acc
+
+ovraza.cmd ovraza.rsm: ovrmain.o $(ACC_DRIVER)
 	rm -f ovraza.cmd ovraza.rsm
-	$(ALD) +c 1020 +d aOO  -o ovraza.cmd -r ovrmain.o ovld.o $(LDFLAGS)
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
+	    -overlay-root=1020,aOO ovrmain.o -o ovraza.cmd
 	$(CMDINFO) ovraza.cmd
 
-ovrmain.o: ovrmain.c
-	$(ACC) $(CFLAGS) $<
+ovrmain.o: ovrmain.c $(ACC_DRIVER)
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
-ovrfunc1.ovr: ovrfunc1.o ovraza.rsm
-	$(ALD) -o $@ ovrfunc1.o ovraza.rsm ovbgn.o 
+ovrfunc1.ovr: ovrfunc1.o ovraza.rsm $(ACC_DRIVER)
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
+	    -overlay=ovraza.rsm $< -o $@
 
-ovrfunc1.o: ovrfunc1.c 
-	$(ACC) $(CFLAGS) $<
+ovrfunc1.o: ovrfunc1.c $(ACC_DRIVER)
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
-ovrfunc2.ovr: ovrfunc2.o ovraza.rsm
-	$(ALD) -o $@ ovrfunc2.o ovraza.rsm ovbgn.o 
+ovrfunc2.ovr: ovrfunc2.o ovraza.rsm $(ACC_DRIVER)
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
+	    -overlay=ovraza.rsm $< -o $@
 
-ovrfunc2.o: ovrfunc2.c 
-	$(ACC) $(CFLAGS) $<
+ovrfunc2.o: ovrfunc2.c $(ACC_DRIVER)
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
 hellocba.int: hellocba.bas
 	$(CBAS86) $<
@@ -452,4 +460,3 @@ clean:
 	@for f in *.h86; do \
 		case "$$f" in badgencm.h86) ;; *) rm -f "$$f" ;; esac; \
 	done
-

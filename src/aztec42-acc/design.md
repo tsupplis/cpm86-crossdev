@@ -7,25 +7,64 @@ Replace the orchestration in DOS `c.exe` and the cross-host
 Keep the existing compiler, code generator, assembler, linker, and runtime.
 
 **Current implementation:** a shared C89 argument parser and command planner,
-built for Unix and MS-DOS. `-###` validates inputs, installation files, search
-paths, target/model combinations, and output collisions, then prints backend
-argument vectors and intended output publications without creating files.
+built for Unix and MS-DOS, with Unix execution through emu2 and native DOS
+execution through DOS child-process APIs. `-###` validates inputs, installation
+files, search paths, target/model combinations, and output collisions, then
+prints backend argument vectors and intended output publications without
+creating files.
 The planner supports C/assembly/object/archive inputs, `-c`, `-S`, target,
 model, CPU, math, language, optimization, warning, include/definition/library,
 and runtime-suppression options listed by `-help`. Ordered library inputs
 and model-specific startup/runtime/math selection are covered by checks.
 
-Compilation and linking through acc are **not implemented yet**; invocations
-without `-###` fail explicitly. The planner currently requires `-toolroot`
-or `ACCROOT`. Executable-relative discovery, execution adapters, real private
-workspaces, child environment construction, command-tail serialization,
-response files, debug artifacts, raw backend switches, `-emu`, and
-`-save-temps` remain unimplemented. Explicit assembly with user `-D` options,
-80286 selection, or inline hardware floating point is rejected pending
-backend qualification. `-v` is accepted but adds nothing to `-###` output.
-The symbolic `E:` paths in a plan are not allocated directories or runnable
-commands. The rest of this document remains the complete intended contract,
-not a claim that every described feature exists.
+Unix acc compiles, assembles, and links the supported plans, verifies each
+completed product, and atomically publishes outputs through temporary files
+beside their destinations (including across filesystems). It preserves old
+outputs on backend failure and propagates child exit codes. A private workspace
+uses `CCTEMP`, `TEMP`, `TMPDIR`, then `/tmp` precedence. `-save-temps` retains
+it on success or failure; otherwise owned files are cleaned up, including
+after handled INT/TERM/HUP signals. `-v` prints the plan and workspace path.
+`-emu=path` selects an emulator; the default is `emu2` found through PATH.
+Child mappings are fixed C:/D:/E:; other inherited emu2 settings are retained.
+All include areas are already explicit ordered `-I` arguments, so the child
+`INCLUDE` is empty to avoid adding them a second time. Child `CLIB` contains
+the translated ordered library areas with terminating backslashes.
+
+The examples' CP/M-86 overlay workflow is supported by
+`-overlay-root=CODE,DATA` and `-overlay=ROOT.rsm`. A root link emits the
+requested `.cmd` plus its sibling `.rsm` and adds `ovld.o`; each overlay link
+emits a `.ovr`, consumes the root table, and adds `ovbgn.o`. Both overlay
+options require an explicit `-o`, apply only to CP/M-86 link mode, and are
+covered by build-and-run checks on Unix and native DOS binaries under emu2.
+
+The shared planner conservatively limits serialized compiler/assembler tails
+to 126 bytes including separators. Longer linker commands use an owned CRLF
+response file, also displayed by `-###`. Whitespace/control characters in
+backend arguments and guest paths longer than 63 characters are rejected
+rather than truncated or passed with unverified quoting.
+
+Native DOS execution uses a private workspace, a child environment block, and
+`fexecv`/`wait`; `E:` plan artifacts are translated to that workspace. Output
+replacement uses a same-directory staged copy and backup/restore because DOS
+rename semantics differ from Unix. Execution has been smoke-tested under emu2,
+including successful DOS compilation/linking/running and backend-failure
+preservation; a real DOS machine remains an additional validation target.
+Both builds currently require `-toolroot` or `ACCROOT`. Executable-relative
+discovery, user response files, debug artifacts, and raw backend switches
+remain unimplemented. Explicit assembly with user `-D` options, 80286
+selection, or inline hardware floating point is rejected pending backend
+qualification. Overlay support is limited to the documented root/overlay flow;
+custom ROM and segment layouts remain out of scope.
+
+Execution checks cover CP/M-86, DOS 1, all DOS 2 models, include/library
+precedence, software floating point, failure preservation, command-tail
+limits, saved linker responses, and concurrent builds. Hardware/sensing math
+families also compile and link for 80286 in each DOS 2 model, but are not run:
+emu2 does not support 80287 execution. This does not restrict acc's ability
+to generate hardware-FP code. The overlay checks reproduce the
+[examples/Makefile](../../examples/Makefile) flow, build the root `.cmd`/`.rsm`
+and both `.ovr` files, and verify both overlay calls' output. Math libraries
+always precede the matching C runtime archive, including model/float variants.
 
 ## Reading guide
 
@@ -70,11 +109,14 @@ From this directory on Unix:
 make
 make dos
 make check
+make check-exec
 ```
 
 `make` builds native `acc`. `make dos` builds `acc.exe` using the existing
 cross wrappers and the installed patched small-model DOS runtime.
 `make check` tests both executables, running the DOS binary under `emu2`.
+It also runs real Unix cross-driver compile/link/runtime checks;
+`make check-exec` runs only those execution checks.
 Both planner test suites require the installed Aztec tools and libraries;
 `make check-unix` does not execute them or require emu2.
 Compiler flags and tool paths can be overridden as make variables.
@@ -871,8 +913,8 @@ pipeline based on a raw argument.
 | `-V` | Linker progress output | Allow raw; distinct from driver command tracing |
 | `-B hexaddr` | DOS COM base address | Deferred custom layout |
 | `-C hexaddr`, `-D hexaddr`, `-U hexaddr` | Segment origins / ROM or COM placement | Deferred custom layout |
-| `-R` | Overlay root symbol table | Deferred overlay workflow |
-| `+C hexbytes`, `+D hexbytes` | Reserve overlay code/data areas | Deferred overlay workflow |
+| `-R` | Overlay root symbol table | Managed by `-overlay-root=CODE,DATA` |
+| `+C hexbytes`, `+D hexbytes` | Reserve overlay code/data areas | Managed by `-overlay-root=CODE,DATA` |
 
 Native numeric units are part of the interface. In particular, do not call
 linker `-S` a reliable runtime stack-size setting: the manual says startup
@@ -893,7 +935,7 @@ paragraphs or silently parse these raw operands as decimal.
 | `c -f files` | `acc @files` | Driver owns parsing and validation |
 | `c -s file.c` | `acc -w file.c` | Warning suppression is not assembly stage |
 | `AZTEC_NOSTARTUP=1 aztec42_link ...` | `acc -nostartfiles ...` | Environment-based hidden policy is removed |
-| Raw overlay/ROM link | Keep `aztec42_link` for now | No incomplete automatic conversion |
+| Example overlay root/overlay links | `-overlay-root=CODE,DATA` / `-overlay=ROOT.rsm` | Custom ROM and segment layouts remain unsupported |
 
 Do not replace wrapper filenames with acc aliases: their defaults and
 native option meanings differ. Migrate build recipes explicitly.
@@ -970,7 +1012,7 @@ does not guarantee entry/exit code. Missing startup/runtime files are
 errors unless explicitly disabled. Never infer the target from `-lc86`.
 
 Aztec chooses executable format by extension. Require `.cmd` for CP/M-86
-and `.exe`/`.com` for DOS. Overlay linking, custom segment placement,
+and `.exe`/`.com` for DOS. Custom segment placement,
 ROM output, and automatic `sqz` runs are not initial features. Retain the
 raw linker wrapper for workflows not yet covered by acc.
 
@@ -1090,16 +1132,20 @@ build systems.
 
 ## Implementation sequence and acceptance checks
 
-1. **Foundation (current):** build shared C89 source for Unix and DOS;
+1. **Foundation (implemented):** build shared C89 source for Unix and DOS;
    execute both and verify information/rejection paths.
-2. **Parser/planner:** implement options, ordered inputs, target profiles,
-   response files, and `-###`; test exact planned arguments without tools.
-3. **Unix cross adapter:** compile, assemble, and link through emu2;
+2. **Parser/planner (implemented subset):** options, ordered inputs, target
+   profiles, backend response serialization, and `-###`; user response parsing
+   remains pending.
+3. **Unix cross adapter (implemented):** compile, assemble, and link through emu2;
    verify actual intermediates, include lookup, and failures.
-4. **DOS adapter:** direct child launching/status retrieval; measure memory
-   headroom with real compiler children. Test on DOS or a full DOS emulator,
-   not just the Unix cross adapter.
-5. **Migration:** integrate installation/builds and migrate selected examples;
+4. **DOS adapter (implemented; emulator-tested):** direct child launching and
+   status retrieval, private workspace/environment, output publication, and
+   real compiler children. Validate on a real DOS installation when available.
+5. **Overlay workflow (implemented; emulator-tested):** link and publish the
+   root program plus `.rsm`, then create and run both example overlays through
+   acc. Validate on a real DOS installation when available.
+6. **Migration:** integrate installation/builds and migrate selected examples;
    retain existing wrappers until their behaviors and callers have replacements.
 
 Required integration coverage:

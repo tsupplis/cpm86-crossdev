@@ -28,6 +28,8 @@ typedef struct {
     char *output;
     char *root;
     char *emulator;
+    char *overlay_root;
+    char *overlay_table;
     Words includes;
     Words definitions;
     Words libraries;

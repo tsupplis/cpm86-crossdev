@@ -528,6 +528,22 @@ static int output_path(Context *ctx, Plan *plan, const char *host,
         add_word(&plan->host_outputs, resolved);
 }
 
+static int overlay_table_output(char *out, const char *output)
+{
+    const char *base;
+    char *suffix;
+
+    base = basename_of(output);
+    suffix = strrchr(output, '.');
+    if (suffix == NULL || suffix < base)
+        return fail("overlay root output requires a filename suffix", output);
+    if ((size_t)(suffix - output) + 5 >= ACC_PATH)
+        return fail("overlay root output path is too long", output);
+    memcpy(out, output, (size_t)(suffix - output));
+    strcpy(out + (suffix - output), ".rsm");
+    return 1;
+}
+
 static int required_tool(const Context *ctx, const char *name)
 {
     char path[ACC_PATH];
@@ -559,6 +575,9 @@ static int validate(const Request *r, Context *ctx)
 #ifndef ACC_DOS
     if (getcwd(ctx->cwd, sizeof(ctx->cwd)) == NULL)
         return fail("cannot determine working directory", NULL);
+#else
+    if (!canonical(ctx->cwd, ".", 0))
+        return 0;
 #endif
     if (!paths(ctx, &ctx->includes, &r->includes, "INCLUDE", "include") ||
         !paths(ctx, &ctx->libraries, &r->libraries, "CLIB", "lib"))
@@ -623,6 +642,10 @@ static int validate(const Request *r, Context *ctx)
         }
     }
     if (r->stage == 0 && !required_tool(ctx, "bin/ln.exe"))
+        return 0;
+    if (r->overlay_root != NULL && !required_tool(ctx, "lib/ovld.o"))
+        return 0;
+    if (r->overlay_table != NULL && !required_tool(ctx, "lib/ovbgn.o"))
         return 0;
     return 1;
 }
@@ -710,21 +733,50 @@ static int link_inputs(const Request *r, Context *ctx, Plan *plan)
     const char *runtime;
     const char *startup;
     const char *name;
+    const char *comma;
+    char overlay_output[ACC_PATH];
+    char overlay_guest[ACC_PATH];
+    char overlay_code[ACC_PATH];
+    char overlay_data[ACC_PATH];
+    int overlay_root;
+    int overlay;
     int i;
     int type;
     int object;
 
     output = r->output == NULL ? (r->target == 0 ? "a.cmd" : "a.exe") : r->output;
     suffix = strrchr(basename_of(output), '.');
+    overlay_root = r->overlay_root != NULL;
+    overlay = r->overlay_table != NULL;
     if (suffix == 0 ||
-        (r->target == 0 && !equal_name(suffix, ".cmd")) ||
-        (r->target != 0 && !equal_name(suffix, ".exe") && !equal_name(suffix, ".com")))
+        (overlay_root && !equal_name(suffix, ".cmd")) ||
+        (overlay && !equal_name(suffix, ".ovr")) ||
+        (!overlay_root && !overlay && r->target == 0 && !equal_name(suffix, ".cmd")) ||
+        (!overlay_root && !overlay && r->target != 0 &&
+         !equal_name(suffix, ".exe") && !equal_name(suffix, ".com")))
         return fail("output suffix conflicts with target", output);
-    if (equal_name(suffix, ".com") && r->model != 0)
+    if (!overlay_root && !overlay && equal_name(suffix, ".com") && r->model != 0)
         return fail("COM output requires small model", output);
-    if (!output_path(ctx, plan, output, equal_name(suffix, ".cmd") ? "E:\\result.cmd" :
-                     (equal_name(suffix, ".com") ? "E:\\result.com" : "E:\\result.exe"), r))
+    if (!output_path(ctx, plan, output,
+                     equal_name(suffix, ".cmd") ? "E:\\result.cmd" :
+                     (equal_name(suffix, ".ovr") ? "E:\\result.ovr" :
+                      (equal_name(suffix, ".com") ? "E:\\result.com" : "E:\\result.exe")),
+                     r))
         return 0;
+    if (overlay_root) {
+        if (!overlay_table_output(overlay_output, output) ||
+            !output_path(ctx, plan, overlay_output, "E:\\result.rsm", r))
+            return 0;
+        comma = strchr(r->overlay_root, ',');
+        if (comma == NULL)
+            return fail("invalid overlay root sizes", r->overlay_root);
+        if ((size_t)(comma - r->overlay_root) >= sizeof(overlay_code) ||
+            strlen(comma + 1) >= sizeof(overlay_data))
+            return fail("overlay root size is too long", r->overlay_root);
+        memcpy(overlay_code, r->overlay_root, (size_t)(comma - r->overlay_root));
+        overlay_code[comma - r->overlay_root] = '\0';
+        strcpy(overlay_data, comma + 1);
+    }
     cmd = tool_command(plan, ctx, "ln.exe");
     if (cmd == NULL || !add_word(&cmd->arguments, "-o") ||
         !add_word(&cmd->arguments, plan->products.items[0]))
@@ -733,9 +785,17 @@ static int link_inputs(const Request *r, Context *ctx, Plan *plan)
     cmd->source = copy_text(output);
     if (cmd->product == NULL || cmd->source == NULL)
         return 0;
+    if (overlay_root &&
+        (!add_word(&cmd->arguments, "+c") ||
+         !add_word(&cmd->arguments, overlay_code) ||
+         !add_word(&cmd->arguments, "+d") ||
+         !add_word(&cmd->arguments, overlay_data)))
+        return 0;
+    if (overlay_root && !add_word(&cmd->arguments, "-r"))
+        return 0;
     runtime = r->target == 0 ? "c86.lib" : (r->target == 1 ? "d11.lib" : runtimes[r->model]);
     startup = r->target == 0 ? "begin86.o" : (r->target == 1 ? "begin11.o" : startups[r->model]);
-    if (!r->nostart && !r->nostdlib) {
+    if (!overlay_root && !overlay && !r->nostart && !r->nostdlib) {
         if (!stock(ctx, startup, path) || !mapped(&cmd->arguments, ctx, "", path))
             return 0;
     }
@@ -765,7 +825,23 @@ static int link_inputs(const Request *r, Context *ctx, Plan *plan)
             return 0;
         }
     }
-    if (!r->nostdlib && (!stock(ctx, runtime, path) ||
+    if (overlay_root &&
+        (!stock(ctx, "ovld.o", path) || !mapped(&cmd->arguments, ctx, "", path)))
+        return 0;
+    if (overlay) {
+        suffix = strrchr(basename_of(r->overlay_table), '.');
+        if (suffix == NULL || !equal_name(suffix, ".rsm") ||
+            !readable(r->overlay_table) ||
+            !guest_path(ctx, r->overlay_table, overlay_guest))
+            return fail("overlay root input must end in .rsm", r->overlay_table);
+        if (equal_name(overlay_guest, plan->outputs.items[0]))
+            return fail("overlay output aliases its root symbol table", r->overlay_table);
+        if (!mapped(&cmd->arguments, ctx, "", r->overlay_table) ||
+            !stock(ctx, "ovbgn.o", path) ||
+            !mapped(&cmd->arguments, ctx, "", path))
+            return 0;
+    }
+    if (!overlay && !r->nostdlib && (!stock(ctx, runtime, path) ||
                         !mapped(&cmd->arguments, ctx, "", path)))
         return 0;
     return 1;
@@ -794,8 +870,11 @@ static int serialize_commands(Plan *plan)
         if (!equal_name(basename_of(cmd->arguments.items[0]), "ln.exe"))
             return fail("compiler/assembler command exceeds the verified DOS command-tail limit",
                         cmd->source);
-        cmd->response = cmd->arguments;
-        memset(&cmd->arguments, 0, sizeof(cmd->arguments));
+        for (i = 0; i < cmd->arguments.count; ++i) {
+            if (!add_word(&cmd->response, cmd->arguments.items[i]))
+                return 0;
+        }
+        free_words(&cmd->arguments);
         if (!add_word(&cmd->arguments, cmd->response.items[0]) ||
             !add_word(&cmd->arguments, "-f") ||
             !add_word(&cmd->arguments, "E:\\link.rsp"))

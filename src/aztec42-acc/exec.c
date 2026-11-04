@@ -7,12 +7,493 @@
 #include "acc.h"
 
 #ifdef ACC_DOS
+#define ACC_DOS_PATH 64
+#include <dos.h>
+#include <fcntl.h>
+#include <stat.h>
+#include <stdlib.h>
+#include <string.h>
+
+extern unsigned _PSP;
+extern int fexecv(const char *, char **);
+extern int wait(void);
+extern int mkdir(const char *);
+extern char *mktemp(char *);
+
+static int dos_error(const char *message, const char *path)
+{
+    fprintf(stderr, "acc: %s: %s\n", message, path);
+    return 0;
+}
+
+static int dos_join(char *out, const char *parent, const char *name)
+{
+    size_t size;
+
+    size = strlen(parent);
+    if (size + strlen(name) + 2 > ACC_DOS_PATH)
+        return fail("DOS path is too long", name);
+    strcpy(out, parent);
+    if (size != 0 && out[size - 1] != '\\' && out[size - 1] != '/')
+        strcat(out, "\\");
+    strcat(out, name);
+    return 1;
+}
+
+static char far *dos_far(unsigned segment, unsigned offset)
+{
+    unsigned long address;
+
+    address = ((unsigned long)segment << 16) | offset;
+    return (char far *)address;
+}
+
+static int env_name_equal(const char far *entry, const char *name)
+{
+    size_t i;
+    unsigned char a;
+    unsigned char b;
+
+    for (i = 0; name[i] != '\0'; ++i) {
+        a = (unsigned char)entry[i];
+        b = (unsigned char)name[i];
+        if (a >= 'a' && a <= 'z')
+            a = (unsigned char)(a - 'a' + 'A');
+        if (b >= 'a' && b <= 'z')
+            b = (unsigned char)(b - 'a' + 'A');
+        if (a != b)
+            return 0;
+    }
+    return entry[i] == '=';
+}
+
+static int env_copy(char far **target, const char *value)
+{
+    while (*value != '\0')
+        *(*target)++ = *value++;
+    *(*target)++ = '\0';
+    return 1;
+}
+
+static int dos_environment(unsigned original, unsigned *replacement,
+                           const Plan *plan, const char *work)
+{
+    char far *source;
+    char far *target;
+    char far *entry;
+    char path[ACC_DOS_PATH];
+    char clib[ACC_PATH];
+    char temp[ACC_DOS_PATH];
+    char variable[ACC_DOS_PATH + 8];
+    unsigned long bytes;
+    unsigned paragraphs;
+    int segment;
+    int i;
+
+    if (!dos_join(path, plan->root, "bin"))
+        return 0;
+    if (strlen(path) + 6 >= sizeof(variable))
+        return fail("DOS tool path is too long for environment", path);
+    strcpy(variable, "PATH=");
+    strcat(variable, path);
+    strcpy(clib, "CLIB=");
+    for (i = 0; i < plan->library_paths.count; ++i) {
+        if (strlen(clib) + strlen(plan->library_paths.items[i]) + 3 >= sizeof(clib))
+            return fail("DOS library path is too long for environment", NULL);
+        if (i != 0)
+            strcat(clib, ";");
+        strcat(clib, plan->library_paths.items[i]);
+        if (clib[strlen(clib) - 1] != '\\')
+            strcat(clib, "\\");
+    }
+    if (strlen(work) + 8 >= sizeof(temp))
+        return fail("DOS temporary path is too long for environment", work);
+    strcpy(temp, "CCTEMP=");
+    strcat(temp, work);
+    if (temp[strlen(temp) - 1] != '\\')
+        strcat(temp, "\\");
+
+    source = dos_far(original, 0);
+    bytes = 0;
+    while (bytes < 8190 && (source[bytes] != '\0' || source[bytes + 1] != '\0'))
+        ++bytes;
+    if (bytes >= 8190)
+        return fail("inherited DOS environment is too large", NULL);
+    ++bytes;
+    bytes += strlen(variable) + 1 + strlen(clib) + 1 +
+        strlen("INCLUDE=") + 1 + strlen(temp) + 1 + 2;
+    paragraphs = (unsigned)((bytes + 15) / 16);
+    segment = dos(0x48, paragraphs, 0, 0, 0, 0);
+    if (segment == -1)
+        return fail("cannot allocate child environment block", NULL);
+    *replacement = (unsigned)segment;
+    target = dos_far(*replacement, 0);
+    entry = source;
+    while (*entry != '\0') {
+        if (!env_name_equal(entry, "PATH") &&
+            !env_name_equal(entry, "CLIB") &&
+            !env_name_equal(entry, "INCLUDE") &&
+            !env_name_equal(entry, "CCTEMP")) {
+            while (*entry != '\0')
+                *target++ = *entry++;
+            *target++ = '\0';
+        } else {
+            while (*entry != '\0')
+                ++entry;
+            ++entry;
+        }
+    }
+    env_copy(&target, variable);
+    env_copy(&target, "INCLUDE=");
+    env_copy(&target, clib);
+    env_copy(&target, temp);
+    *target++ = '\0';
+    *target = '\0';
+    return 1;
+}
+
+static int dos_workspace(char *out, const Plan *plan)
+{
+    const char *parent;
+    char candidate[ACC_DOS_PATH];
+    char pattern[ACC_DOS_PATH];
+    int attempt;
+    size_t base;
+
+    parent = getenv("CCTEMP");
+    if (parent == NULL || *parent == '\0')
+        parent = getenv("TEMP");
+    if (parent == NULL || *parent == '\0')
+        parent = plan->cwd;
+    base = strlen(parent) + ((parent[0] != '\0' &&
+                              parent[strlen(parent) - 1] != '\\') ? 1 : 0);
+    if (base + 7 > 63)
+        return fail("DOS workspace parent exceeds 63-character path limit", parent);
+    if (!dos_join(pattern, parent, "AXXXXXX"))
+        return 0;
+    base = strlen(pattern) - 7;
+    for (attempt = 0; attempt < 26; ++attempt) {
+        pattern[base] = (char)('A' + attempt);
+        strcpy(candidate, pattern);
+        if (mktemp(candidate) == NULL || *candidate == '\0')
+            return fail("cannot generate a unique DOS workspace name", pattern);
+        if (mkdir(candidate) == 0) {
+            strcpy(out, candidate);
+            return 1;
+        }
+    }
+    return fail("cannot create a unique DOS workspace", parent);
+}
+
+static int owned_path(char *out, const char *work, const char *guest)
+{
+    if (strncmp(guest, "E:\\", 3) != 0 ||
+        strchr(guest + 3, '\\') != NULL || strchr(guest + 3, '/') != NULL)
+        return fail("invalid planned workspace artifact", guest);
+    return dos_join(out, work, guest + 3);
+}
+
+static int response_file(const Command *cmd, const char *work)
+{
+    char path[ACC_DOS_PATH];
+    char argument[ACC_DOS_PATH];
+    FILE *stream;
+    int i;
+    int ok;
+
+    if (!owned_path(path, work, "E:\\link.rsp"))
+        return 0;
+    stream = fopen(path, "w");
+    if (stream == NULL)
+        return dos_error("cannot create linker response file", path);
+    for (i = 1; i < cmd->response.count; ++i) {
+        if (strncmp(cmd->response.items[i], "E:\\", 3) == 0) {
+            if (!owned_path(argument, work, cmd->response.items[i])) {
+                fclose(stream);
+                return 0;
+            }
+            fprintf(stream, "%s\r\n", argument);
+        } else {
+            fprintf(stream, "%s\r\n", cmd->response.items[i]);
+        }
+    }
+    ok = !ferror(stream);
+    if (fclose(stream) != 0)
+        ok = 0;
+    return ok ? 1 : dos_error("cannot write linker response file", path);
+}
+
+static int dos_launch(const Command *cmd, const Plan *plan, unsigned envseg,
+                     const char *work)
+{
+    char tool[ACC_DOS_PATH];
+    char rsp_path[ACC_DOS_PATH];
+    char *translated[ACC_LIMIT];
+    char *arguments[ACC_LIMIT + 1];
+    int translated_count;
+    unsigned far *psp;
+    unsigned oldenv;
+    int i;
+    int result;
+    int wait_status;
+
+    if (strlen(plan->root) + 13 >= sizeof(tool))
+        return fail("DOS tool path is too long", plan->root), 1;
+    strcpy(tool, plan->root);
+    if (tool[strlen(tool) - 1] != '\\')
+        strcat(tool, "\\");
+    strcat(tool, "bin\\");
+    {
+        const char *name = strrchr(cmd->arguments.items[0], '\\');
+        if (name == NULL) {
+            fail("invalid planned DOS tool path", cmd->arguments.items[0]);
+            return 1;
+        }
+        strcat(tool, name + 1);
+    }
+    arguments[0] = tool;
+    translated_count = 0;
+    for (i = 1; i < cmd->arguments.count; ++i) {
+        if (strncmp(cmd->arguments.items[i], "E:\\", 3) == 0) {
+            if (translated_count >= ACC_LIMIT) {
+                while (translated_count > 0)
+                    free(translated[--translated_count]);
+                return 1;
+            }
+            translated[translated_count] = malloc(ACC_DOS_PATH);
+            if (translated[translated_count] == NULL) {
+                while (translated_count > 0)
+                    free(translated[--translated_count]);
+                fail("out of memory translating DOS arguments", NULL);
+                return 1;
+            }
+            if (!owned_path(translated[translated_count], work,
+                            cmd->arguments.items[i])) {
+                free(translated[translated_count]);
+                while (translated_count > 0)
+                    free(translated[--translated_count]);
+                return 1;
+            }
+            arguments[i] = translated[translated_count++];
+        } else {
+            arguments[i] = cmd->arguments.items[i];
+        }
+    }
+    if (cmd->response.count != 0) {
+        if (!dos_join(rsp_path, work, "link.rsp"))
+            return 1;
+        arguments[1] = "-f";
+        arguments[2] = rsp_path;
+        arguments[3] = NULL;
+    } else {
+        arguments[cmd->arguments.count] = NULL;
+    }
+    psp = (unsigned far *)dos_far(_PSP, 0);
+    oldenv = psp[0x2c / 2];
+    psp[0x2c / 2] = envseg;
+    result = fexecv(tool, arguments);
+    psp[0x2c / 2] = oldenv;
+    if (result == -1) {
+        fprintf(stderr, "acc: cannot execute %s for %s\n", tool, cmd->source);
+        while (translated_count > 0)
+            free(translated[--translated_count]);
+        return 1;
+    }
+    wait_status = wait();
+    if (wait_status < 0) {
+        fprintf(stderr, "acc: cannot retrieve child status for %s\n", tool);
+        while (translated_count > 0)
+            free(translated[--translated_count]);
+        return 1;
+    }
+    while (translated_count > 0)
+        free(translated[--translated_count]);
+    result = wait_status & 0xff;
+    if (result != 0)
+        fprintf(stderr, "acc: backend failed: %s for %s (status %d)\n",
+                tool, cmd->source, result);
+    (void)plan;
+    return result;
+}
+
+static int dos_product(char *out, const char *work, const char *guest)
+{
+    return owned_path(out, work, guest);
+}
+
+static int dos_verify_product(const char *path)
+{
+    struct stat status;
+
+    if (stat(path, &status) != 0 || (status.st_attr & ST_DIRECT) != 0 ||
+        status.st_size == 0)
+        return fail("backend did not create its output", path);
+    return 1;
+}
+
+static int dos_publish(const char *source, const char *destination)
+{
+    char parent[ACC_DOS_PATH];
+    char staged[ACC_DOS_PATH];
+    char backup[ACC_DOS_PATH];
+    char pattern[ACC_DOS_PATH];
+    char buffer[512];
+    char *slash;
+    int in;
+    int out;
+    int amount;
+    int wrote;
+    int offset;
+    int had_old;
+    int ok;
+
+    strcpy(parent, destination);
+    slash = strrchr(parent, '\\');
+    if (slash == NULL)
+        return fail("planned output has no DOS directory", destination);
+    *slash = '\0';
+    in = open(source, O_RDONLY);
+    if (in == -1)
+        return dos_error("cannot open completed output", source);
+    if (!dos_join(pattern, parent, "AXXXXXX.TMP")) {
+        close(in);
+        return 0;
+    }
+    if (mktemp(pattern) == NULL || *pattern == '\0') {
+        close(in);
+        return fail("cannot reserve DOS publication name", destination);
+    }
+    strcpy(staged, pattern);
+    out = open(staged, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    if (out == -1) {
+        close(in);
+        return dos_error("cannot create staged output", staged);
+    }
+    ok = 1;
+    while ((amount = read(in, buffer, sizeof(buffer))) > 0) {
+        offset = 0;
+        while (offset < amount) {
+            wrote = write(out, buffer + offset, amount - offset);
+            if (wrote <= 0) {
+                ok = 0;
+                break;
+            }
+            offset += wrote;
+        }
+        if (!ok)
+            break;
+    }
+    if (amount < 0)
+        ok = 0;
+    if (close(in) != 0 || close(out) != 0)
+        ok = 0;
+    if (!ok) {
+        unlink(staged);
+        return dos_error("cannot copy completed output", destination);
+    }
+    had_old = access(destination, 0) == 0;
+    if (had_old) {
+        if (!dos_join(pattern, parent, "AXXXXXX.BAK") ||
+            mktemp(pattern) == NULL || *pattern == '\0' ||
+            rename(destination, pattern) != 0) {
+            unlink(staged);
+            return dos_error("cannot preserve previous output", destination);
+        }
+        strcpy(backup, pattern);
+    }
+    if (rename(staged, destination) != 0) {
+        if (had_old && rename(backup, destination) != 0)
+            fprintf(stderr, "acc: cannot restore previous output: %s\n", destination);
+        unlink(staged);
+        return dos_error("cannot publish output", destination);
+    }
+    if (had_old && unlink(backup) != 0)
+        return dos_error("cannot remove previous output backup", backup);
+    return 1;
+}
+
+static int dos_cleanup(const char *work, const Plan *plan)
+{
+    const Command *cmd;
+    char path[ACC_DOS_PATH];
+    int ok;
+    int i;
+
+    ok = 1;
+    for (cmd = plan->first; cmd != NULL; cmd = cmd->next) {
+        if (owned_path(path, work, cmd->product) && access(path, 0) == 0 &&
+            unlink(path) != 0)
+            ok = dos_error("cannot remove workspace artifact", path);
+    }
+    for (i = 0; i < plan->products.count; ++i) {
+        if (owned_path(path, work, plan->products.items[i]) &&
+            access(path, 0) == 0 && unlink(path) != 0)
+            ok = dos_error("cannot remove workspace output", path);
+    }
+    if (dos_join(path, work, "link.rsp") && access(path, 0) == 0 &&
+        unlink(path) != 0)
+        ok = dos_error("cannot remove response file", path);
+    if (rmdir(work) != 0)
+        ok = dos_error("cannot remove private workspace", work);
+    return ok;
+}
+
 int execute_plan(const Request *request, const Plan *plan)
 {
-    (void)request;
-    (void)plan;
-    fail("native DOS execution is not implemented yet; use -###", NULL);
-    return 1;
+    const Command *cmd;
+    unsigned far *psp;
+    unsigned original_env;
+    unsigned child_env;
+    char work[ACC_DOS_PATH];
+    char product[ACC_DOS_PATH];
+    int status;
+    int i;
+    int environment_ready;
+
+    if (request->target < 0 || request->target > 2)
+        return fail("invalid target profile", NULL);
+    psp = (unsigned far *)dos_far(_PSP, 0);
+    original_env = psp[0x2c / 2];
+    child_env = 0;
+    environment_ready = 0;
+    work[0] = '\0';
+    status = 0;
+    if (!dos_workspace(work, plan))
+        return 1;
+    if (!dos_environment(original_env, &child_env, plan, work)) {
+        rmdir(work);
+        return 1;
+    }
+    environment_ready = 1;
+    if (request->verbose)
+        fprintf(stderr, "acc: workspace: %s\n", work);
+    for (cmd = plan->first; cmd != NULL; cmd = cmd->next) {
+        if (cmd->response.count != 0 && !response_file(cmd, work)) {
+            status = 1;
+            break;
+        }
+        status = dos_launch(cmd, plan, child_env, work);
+        if (status != 0)
+            break;
+        if (!dos_product(product, work, cmd->product) ||
+            !dos_verify_product(product)) {
+            status = 1;
+            break;
+        }
+    }
+    for (i = 0; status == 0 && i < plan->outputs.count; ++i) {
+        if (!dos_product(product, work, plan->products.items[i]) ||
+            !dos_verify_product(product) ||
+            !dos_publish(product, plan->host_outputs.items[i]))
+            status = 1;
+    }
+    if (request->save_temps)
+        fprintf(stderr, "acc: workspace retained: %s\n", work);
+    else if (!dos_cleanup(work, plan) && status == 0)
+        status = 1;
+    if (environment_ready)
+        dos(0x49, child_env, 0, 0, 0, 0);
+    return status;
 }
 #else
 #include <stdlib.h>
@@ -241,7 +722,7 @@ static void on_signal(int number)
 }
 
 static int launch(const Plan *plan, const Command *cmd, const char *work,
-                  const char *emulator, char *clib)
+                  char *emulator, char *clib)
 {
     char tool[ACC_PATH];
     char bindir[ACC_PATH];
@@ -292,7 +773,7 @@ static int launch(const Plan *plan, const Command *cmd, const char *work,
     environment[n++] = progname;
     environment[n] = NULL;
     k = 0;
-    arguments[k++] = (char *)emulator;
+    arguments[k++] = emulator;
     arguments[k++] = tool;
     for (i = 1; i < cmd->arguments.count; ++i)
         arguments[k++] = cmd->arguments.items[i];
@@ -316,8 +797,8 @@ static int launch(const Plan *plan, const Command *cmd, const char *work,
     }
     free(environment);
     do {
-        if (interrupted)
-            kill(pid, interrupted);
+        if (interrupted && kill(pid, interrupted) != 0 && errno != ESRCH)
+            io_error("cannot interrupt emulator", emulator);
         waited = waitpid(pid, &status, 0);
     } while (waited == -1 && errno == EINTR);
     if (waited == -1) {
@@ -504,12 +985,11 @@ int execute_plan(const Request *request, const Plan *plan)
     }
     for (i = 0; status == 0 && !interrupted && i < plan->outputs.count; ++i) {
         if (!owned_path(product, work, plan->products.items[i]) ||
+            !verify_product(product) ||
             !publish(product, plan->host_outputs.items[i]))
             status = 1;
     }
 done:
-    if (interrupted)
-        status = 128 + interrupted;
     if (work[0] != '\0') {
         if (request->save_temps)
             fprintf(stderr, "acc: workspace retained: %s\n", work);
@@ -528,6 +1008,10 @@ done:
         }
     }
     free(emulator);
+    if (interrupted) {
+        fprintf(stderr, "acc: interrupted by signal %d\n", (int)interrupted);
+        status = 128 + interrupted;
+    }
     return status;
 }
 #endif

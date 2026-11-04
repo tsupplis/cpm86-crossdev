@@ -122,6 +122,7 @@ int parse_request(Request *r, int argc, char **argv)
 {
     const char *arg;
     const char *value;
+    const char *comma;
     int i;
     int selected;
     char option;
@@ -198,6 +199,19 @@ int parse_request(Request *r, int argc, char **argv)
             if (!set_text(&r->emulator, arg + 5))
                 return 0;
 #endif
+        } else if (strncmp(arg, "-overlay-root=", 14) == 0) {
+            value = arg + 14;
+            comma = strchr(value, ',');
+            if (r->overlay_root != NULL || comma == NULL || comma == value ||
+                comma[1] == '\0' || strchr(comma + 1, ',') != NULL)
+                return fail("expected one CODE,DATA pair for -overlay-root", arg);
+            if (!set_text(&r->overlay_root, value))
+                return 0;
+        } else if (strncmp(arg, "-overlay=", 9) == 0) {
+            if (r->overlay_table != NULL || arg[9] == '\0')
+                return fail("expected one root .rsm path for -overlay", arg);
+            if (!set_text(&r->overlay_table, arg + 9))
+                return 0;
         } else if (arg[1] != '\0' && strchr("oIDLl", arg[1]) != NULL) {
             option = arg[1];
             value = arg + 2;
@@ -235,6 +249,12 @@ int parse_request(Request *r, int argc, char **argv)
         return fail("no input", NULL);
     if (r->target != 2 && r->model != 0)
         return fail("non-small model requires -target=dos2", NULL);
+    if ((r->overlay_root != NULL || r->overlay_table != NULL) &&
+        (r->target != 0 || r->stage != 0 ||
+         (r->overlay_root != NULL && r->overlay_table != NULL)))
+        return fail("overlays require one CP/M-86 link mode", NULL);
+    if ((r->overlay_root != NULL || r->overlay_table != NULL) && r->output == NULL)
+        return fail("overlay links require an explicit -o output", NULL);
     return 1;
 }
 
@@ -243,6 +263,8 @@ void free_request(Request *r)
     free(r->output);
     free(r->root);
     free(r->emulator);
+    free(r->overlay_root);
+    free(r->overlay_table);
     free_words(&r->includes);
     free_words(&r->definitions);
     free_words(&r->libraries);

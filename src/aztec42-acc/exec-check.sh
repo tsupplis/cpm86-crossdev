@@ -3,10 +3,12 @@ set -eu
 root=$1
 acc=$2
 emu=$3
+examples=$4
 work=$(mktemp -d "${TMPDIR:-/tmp}/acc-exec.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 unset INCLUDE CLIB ACCROOT CCTEMP TEMP AZTEC_STARTUP AZTEC_NOSTARTUP
 cd "$work"
+work=$(pwd -P)
 mkdir temps
 TMPDIR=$work/temps
 export TMPDIR
@@ -40,6 +42,9 @@ run_acc -S main.c
 test -s main.asm
 run_acc -c main.asm -o asm.o
 test -s asm.o
+run_acc asm.o -o asm.cmd
+output=$("$emu" asm.cmd)
+printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
 run_acc main.o -o main.cmd
 output=$("$emu" main.cmd)
 printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
@@ -54,6 +59,9 @@ for model in small medium compact large; do
     output=$("$emu" main.exe)
     printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
 done
+printf 'int main(void) { return 0; }\n' > empty.c
+run_acc -target=dos2 empty.c -o empty.exe
+"$emu" empty.exe
 assert_clean
 
 cat > math.c <<'C'
@@ -85,6 +93,8 @@ for model in small medium compact large; do
             -mfloat="$floating" math.c -lm -o hard.exe
         test -s hard.exe
     done
+    run_acc -S -target=dos2 -march=i80286 -mfloat=8087 math.c -o hard.asm
+    grep -Ei '^[[:space:]]*f(ld|st|mul|sub|add|div)' hard.asm >/dev/null
 done
 
 mkdir inc1 inc2 libs1 libs2
@@ -97,21 +107,27 @@ cat > include.c <<'C'
 #include "local.h"
 int main(void) { printf("%d\n", VALUE + LOCAL); return 0; }
 C
-INCLUDE=inc2 run_acc -Iinc1 include.c -o inc.cmd
+(INCLUDE=inc2 run_acc -Iinc1 include.c -o inc.cmd)
 output=$("$emu" inc.cmd)
 printf '%s\n' "$output" | tr -d '\r' | grep -qx 14
-INCLUDE=':inc2:' run_acc include.c -o inc.cmd
+(INCLUDE=':inc2:' run_acc include.c -o inc.cmd)
 output=$("$emu" inc.cmd)
 printf '%s\n' "$output" | tr -d '\r' | grep -qx 25
 printf 'int pick(void) { return 11; }\n' > pick.c
 printf 'int pick(void); int main(void) { return pick(); }\n' > use.c
+run_acc -target=dos2 use.c pick.c -o both.exe
+status=0
+"$emu" both.exe || status=$?
+test "$status" = 11
 run_acc -target=dos2 -c pick.c
 EMU2_DRIVE_C=$work EMU2_CWD="C:\\" "$emu" "$root/bin/lb.exe" libs1/pick.lib pick.o
 cp libs1/pick.lib libs2/pick.lib
-CLIB=libs2 run_acc -target=dos2 -Llibs1 use.c -lpick -o use.exe
+(CLIB=libs2 run_acc -target=dos2 -Llibs1 use.c -lpick -o use.exe)
 status=0
 "$emu" use.exe || status=$?
 test "$status" = 11
+PATH=$(dirname "$emu"):$PATH "$acc" -toolroot="$root" -c main.c -o path.o
+test -s path.o
 
 printf 'not C source !!!\n' > bad.c
 printf 'old object\n' > bad.o
@@ -132,7 +148,7 @@ exit "${FAKE_STATUS:-0}"
 SH
 chmod +x fake
 FAKE_STATUS=7 expect_error 7 -emu=./fake -c main.c
-expect_error 1 -emu=./fake -c main.c
+FAKE_STATUS=0 expect_error 1 -emu=./fake -c main.c
 printf '%s\n' "$output" | grep -F 'did not create its output' >/dev/null
 assert_clean
 rm called
@@ -145,12 +161,12 @@ test ! -e called
 expect_error 1 -emu=./missing -c main.c
 assert_clean
 
-EMU2_DRIVE_C=/bad EMU2_DRIVE_D=/bad EMU2_DRIVE_E=/bad \
+(EMU2_DRIVE_C=/bad EMU2_DRIVE_D=/bad EMU2_DRIVE_E=/bad \
     EMU2_CWD='Z:\BAD' EMU2_DEFAULT_DRIVE=Z EMU2_PROGNAME='Z:\BAD.EXE' \
     EMU2_APPEND='Z:\BAD' EMU2_CPU=8086 \
-    run_acc -c main.c -o env.o
+    run_acc -c main.c -o env.o)
 test -s env.o
-EMU2_CPU=8088 FAKE_STATUS=9 expect_error 9 -emu=./fake -c main.c
+(EMU2_CPU=8088 FAKE_STATUS=9 expect_error 9 -emu=./fake -c main.c)
 grep -qx '8088' env.log
 grep -Fx "$root" env.log >/dev/null
 grep -Fx "$work" env.log >/dev/null
@@ -161,6 +177,32 @@ kill -TERM "$$"
 SH
 chmod +x signal
 expect_error 143 -emu=./signal -c main.c
+assert_clean
+cat > hold <<'SH'
+#!/bin/sh
+trap 'exit 0' TERM
+printf 'ready\n' > ready
+while :; do :; done
+SH
+chmod +x hold
+"$acc" -toolroot="$root" -emu=./hold -c main.c > interrupt.log 2>&1 &
+driver=$!
+attempt=0
+while [ ! -e ready ]; do
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge 100 ]; then
+        kill -TERM "$driver"
+        wait "$driver" || :
+        cat interrupt.log
+        exit 1
+    fi
+    sleep 0.05
+done
+kill -TERM "$driver"
+status=0
+wait "$driver" || status=$?
+test "$status" = 143
+grep -F 'acc: interrupted by signal' interrupt.log >/dev/null
 assert_clean
 
 run_acc -c main.c -o left.o &
@@ -183,10 +225,32 @@ rm -rf "$saved"
 assert_clean
 
 mkdir high middle
-CCTEMP=$work/high TEMP=$work/middle run_acc -save-temps -c main.c > saved.log 2>&1
+(CCTEMP=$work/high TEMP=$work/middle run_acc -save-temps -c main.c) > saved.log 2>&1
 saved=$(sed -n 's/^acc: workspace retained: //p' saved.log)
 case $saved in "$work"/high/acc.*) ;; *) cat saved.log; exit 1;; esac
 rm -rf "$saved"
-CCTEMP=$work/missing expect_error 1 -c main.c
+(CCTEMP=$work/missing expect_error 1 -c main.c)
+assert_clean
+
+mkdir overlays
+cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
+(
+    cd overlays
+    run_acc -target=cpm86 -c ovrmain.c
+    run_acc -target=cpm86 -c ovrfunc1.c
+    run_acc -target=cpm86 -c ovrfunc2.c
+    run_acc -target=cpm86 -overlay-root=1020,aOO ovrmain.o -o ovraza.cmd
+    test -s ovraza.cmd
+    test -s ovraza.rsm
+    run_acc -target=cpm86 -overlay=ovraza.rsm ovrfunc1.o -o ovrfunc1.ovr
+    run_acc -target=cpm86 -overlay=ovraza.rsm ovrfunc2.o -o ovrfunc2.ovr
+    test -s ovrfunc1.ovr
+    test -s ovrfunc2.ovr
+    output=$("$emu" ovraza.cmd)
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Hello from c (ansi cc with overlay1): fn1(10,20)=80'
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Hello from c (ansi cc with overlay2): fn2(10,20)=130'
+)
 assert_clean
 printf 'ACC EXEC CHECK PASS\n'

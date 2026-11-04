@@ -9,7 +9,7 @@ SOURCES = acc.c args.c plan.c exec.c
 OBJECTS = acc.o args.o plan.o exec.o
 
 .DELETE_ON_ERROR:
-.PHONY: all dos check check-unix check-dos check-exec clean
+.PHONY: all dos check check-unix check-dos check-exec check-exec-dos clean
 
 all: acc
 
@@ -26,7 +26,7 @@ $(OBJECTS): acc.h
 acc.exe: $(OBJECTS)
 	$(AZLD) -o $@ $(OBJECTS) -lc
 
-check: check-unix check-dos check-exec
+check: check-unix check-dos check-exec check-exec-dos
 
 check-unix: acc
 	sh check.sh "$(abspath ../../share/aztec42)" "$(CURDIR)/acc"
@@ -35,7 +35,12 @@ check-dos: acc.exe
 	EMU2_DRIVE_D="$(abspath ../../share/aztec42)" sh check.sh 'D:\' "$(abspath $(EMU))" "$(CURDIR)/acc.exe"
 
 check-exec: acc
-	sh exec-check.sh "$(abspath ../../share/aztec42)" "$(CURDIR)/acc" "$(abspath $(EMU))"
+	sh exec-check.sh "$(abspath ../../share/aztec42)" "$(CURDIR)/acc" \
+		"$(abspath $(EMU))" "$(abspath ../../examples)"
+
+check-exec-dos: acc.exe
+	sh exec-dos-check.sh "$(CURDIR)/acc.exe" "$(abspath $(EMU))" \
+		"$(abspath ../../share/aztec42)" "$(abspath ../../examples)"
 
 clean:
 	rm -f acc acc.exe $(OBJECTS) acc.dbg acc.sym sbegin.o
