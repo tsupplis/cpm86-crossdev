@@ -19,17 +19,19 @@ cpm86-crossdev/
 │   │   ├── native_emu2        # git-clone + build fetcher example
 │   │   └── …
 │   ├── aztec42-patch/   # one original-source runtime.patch and build recipes
+│   ├── aztec34-patch/   # binary patches for the 3.4 compiler and bundled emulator
+│   ├── aztec42-acc/     # portable Unix/DOS Aztec driver foundation and design
 │   ├── drpackages/      # DR C, F77, PL/I, Pascal MT+, CB86 packages (stored in-tree)
 │   ├── drtools/         # DR Personal Basic binary (stored in-tree)
 │   ├── mstools/         # Microsoft tools stored in-tree
 │   ├── ansi2kr/         # ANSI C to K&R converter source & Makefile
-│   ├── patch/           # binary patch scripts for cpm86.exe, aztec34 cpp
 │   ├── tools/           # native helper tools (doscat, hexcom) built by make
 │   ├── turbo/           # Turbo Pascal binary/data files stored in-tree
 ├── archive/             # download cache + build trees for native tools (never removed by clear_tools)
 │   ├── emu2/            # emu2-cpm86 source (cloned once, .git stripped)
 │   ├── tnylpo/          # tnylpo source (cloned once, .git stripped)
 │   ├── cmdtools/        # cpm86-cmdtools source (cloned once, .git stripped)
+│   ├── aztec42/         # preserved runtime sources, build tools, libraries and state
 │   ├── nasm/            # nasm source (extracted from tarball)
 │   ├── upx/             # upx source (extracted from tarball)
 │   └── *.zip / *.tar.gz / …  # downloaded archives
@@ -66,6 +68,11 @@ cpm86-crossdev/
 └── examples/            # sample source files
 ```
 
+The [acc driver design](src/aztec42-acc/design.md) documents the proposed
+portable Unix/DOS driver using C4 views, Mermaid diagrams, and a detailed
+single-dash interface-to-Aztec mapping. The current project is a buildable
+foundation, not yet a replacement for the compiler/linker wrappers.
+
 `fetch_tools` runs every fetcher in `src/fetch/` in a fixed order.  Each
 fetcher receives `$root` (the absolute project root) and the `fetch_get`
 function from `src/fetch/_archive`.  Each fetcher runs in its own isolated
@@ -91,13 +98,32 @@ tool (run under an emulator) or builds a native host binary:
 | `cross_` | Downloads/stages a cross-development tool into `share/` — runs under emu2 or tnylpo at build time | `cross_aztec34`, `cross_drtools`, `cross_turbo` |
 | `native_` | Clones or downloads source and compiles a native host binary into `bin/` | `native_emu2`, `native_nasm`, `native_tnylpo` |
 
-`cross_aztec34` stages the 3.4 distribution, including the DOS 1.x
-source archive. `cross_aztec42` stages the 4.2 compiler and its source
-archives, adds the 3.4 DOS 1.x sources, and applies the compiler batch-mode
-patch. `cross_aztec42_build` applies the single `runtime.patch` directly to
-the unpacked originals (no incremental chain), builds the libraries
-through the wrappers in `bin/`, and installs them into `share/aztec42/lib`.
-`cross_aztec_startups` extracts the matching startup for each linker target.
+`cross_aztec34` stages and patches the 3.4 distribution, extracts its startup
+objects, and removes the explicitly excluded utilities and compiler backups.
+Patch completion is recorded in `archive/aztec34/patched` because the backup
+files are no longer retained in share.
+
+`cross_aztec42` is the single download/import, unpack, patch, build, and
+install entry point. It preserves runtime sources, original tools, and
+patch/build markers under `archive/aztec42`, imports legacy source/header
+edits before cleanup, and adds DOS11.ARC from the cached 3.4 distribution.
+It applies the compiler batch-mode fix and the single `runtime.patch`,
+then builds all libraries using the wrappers with
+`AZTEC42_ROOT="$root/archive/aztec42"`. This override selects the toolchain
+root consistently for compiler, assembler, linker, and object/library tools;
+normal wrapper use still defaults to `share/aztec42`.
+Startup extraction is included in this fetcher and runs against the build tree.
+
+Only `bin/`, `include/`, and `lib/` are published into `share/aztec42`.
+The explicitly excluded tools are listed in the patch recipe; remaining
+development/interop tools are retained. The final directory has no source
+tree, compiler backup, or build markers. A failed build leaves the existing
+installation in place. `clear_tools` removes the installed share tree but
+preserves the archive build tree for offline reinstallation.
+`cross_aztec52_upgrade` is unchanged and remains outside the default flow.
+There are only two active Aztec fetchers: `cross_aztec34` and `cross_aztec42`.
+Both are sourced by `fetch_tools`, have no command-line interface, and
+include their own startup extraction. There is no separate build/startup fetcher.
 The rebuild command and regression targets are in the
 [Aztec patch recipe](src/aztec42-patch/README.md).
 
@@ -501,4 +527,3 @@ investigating emulator bugs or adding new BDOS support.
 | FCB layout (offset table) | https://www.seasip.info/Cpm/fcb.html |
 | CP/M file formats (OMF-86, SYM, …) | https://www.seasip.info/Cpm/formats.html |
 | Last-record byte count (`r2`) | https://www.seasip.info/Cpm/bytelen.html |
-

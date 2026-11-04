@@ -1,7 +1,7 @@
 #!/bin/sh
 prog=lb.exe
 emu2=`dirname $0`/emu2
-EMU2_DRIVE_D="`dirname $0`/../share/aztec42"
+EMU2_DRIVE_D="${AZTEC42_ROOT:-$(dirname "$0")/../share/aztec42}"
 export EMU2_DRIVE_D
 if [ -z "$TMPDIR" ]; then
     TMPDIR="/tmp/emu2-`id -u`"

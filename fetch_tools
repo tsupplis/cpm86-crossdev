@@ -262,8 +262,6 @@ run_fetcher native_nasm
 run_fetcher native_mlbr
 run_fetcher cross_lzexe
 run_fetcher cross_pklite
-run_fetcher cross_aztec42_build
-run_fetcher cross_aztec_startups
 run_fetcher native_cmdtools
 run_fetcher cross_ports
 run_fetcher cross_msc51

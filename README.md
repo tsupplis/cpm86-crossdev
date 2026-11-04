@@ -629,7 +629,7 @@ always present. The startup is selected from the C library you link against:
 | `-lcl` | DOS large code and data | `lbegin.o` |
 
 These startup objects are produced from the C libraries by `fetch_tools`
-(`src/fetch/cross_aztec_startups`). Without this, Aztec's single‑pass `ln` only pulls
+(inside the Aztec 3.4 and 4.2 fetchers). Without this, Aztec's single‑pass `ln` only pulls
 the startup from the library on demand, so a program that references no libc
 symbol — e.g. `int main(void){ return 0; }` — would link with **no** startup and
 crash on exit, and a program that references the startup indirectly (e.g.
@@ -646,7 +646,8 @@ the repository root to rebuild the installed sources, refresh the linker
 startup objects, and run the regressions.
 
 ```sh
-sh src/fetch/cross_aztec42_build --rebuild
+rm -f archive/aztec42/built
+./fetch_tools
 make -C src/aztecreg clean check dos-check
 ```
 
@@ -763,5 +764,3 @@ Drive D = tool dir (contains <code>xlisp.cmd</code>), drive C = CWD, so <code>.l
 ## License
 
 The whole repository is under MIT [License](LICENSE.md) unless specified otherwise in a subdirectory.
-
-
