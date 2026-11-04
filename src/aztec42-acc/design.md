@@ -65,6 +65,9 @@ to generate hardware-FP code. The overlay checks reproduce the
 [examples/Makefile](../../examples/Makefile) flow, build the root `.cmd`/`.rsm`
 and both `.ovr` files, and verify both overlay calls' output. Math libraries
 always precede the matching C runtime archive, including model/float variants.
+The standard Aztec C examples and primary `src/aztecreg` build recipes now use
+acc. Wrapper-specific auxiliary regression scripts remain on the legacy
+wrappers as independent compatibility checks; those wrappers are not retired.
 
 ## Reading guide
 
@@ -1145,8 +1148,9 @@ build systems.
 5. **Overlay workflow (implemented; emulator-tested):** link and publish the
    root program plus `.rsm`, then create and run both example overlays through
    acc. Validate on a real DOS installation when available.
-6. **Migration:** integrate installation/builds and migrate selected examples;
-   retain existing wrappers until their behaviors and callers have replacements.
+6. **Migration (in progress):** migrate the remaining wrapper-based regression
+   consumers after equivalent acc coverage exists; retain the wrappers for
+   auxiliary compatibility checks until parity and caller migration are complete.
 
 Required integration coverage:
 

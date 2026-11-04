@@ -232,6 +232,36 @@ rm -rf "$saved"
 (CCTEMP=$work/missing expect_error 1 -c main.c)
 assert_clean
 
+mkdir migrated-examples
+cp "$examples/helloazc.c" "$examples/helloaza.c" "$examples/helloaz7.c" \
+    "$examples/mathazc.c" migrated-examples/
+(
+    cd migrated-examples
+    run_acc -target=cpm86 helloazc.c -o helloazc.cmd
+    output=$("$emu" helloazc.cmd)
+    printf '%s\n' "$output" | tr -d '\r' | grep -q '^Hello from c (aztec cc)'
+    run_acc -target=cpm86 helloaza.c -o helloaza.cmd
+    output=$("$emu" helloaza.cmd)
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -q '^Hello from c (ansi cc): add(10,20)=30'
+    run_acc -target=cpm86 helloaz7.c -lm -o helloaz7.cmd
+    output=$("$emu" helloaz7.cmd)
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -q '^Hello from c (ansi cc): fdiv(22,7)=3.1429'
+    run_acc -target=cpm86 mathazc.c -lm -o mathazc.cmd
+    output=$("$emu" mathazc.cmd)
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Test double   math: 5635678.0 / 1234.0 = 4567.00 (4567)'
+    run_acc -target=dos1 helloaza.c -o helloazd.exe
+    output=$("$emu" helloazd.exe)
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -q '^Hello from c (ansi cc): add(10,20)=30'
+    run_acc -target=dos1 mathazc.c -lm -o mathazd.exe
+    output=$("$emu" mathazd.exe)
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Test double   math: 5635678.0 / 1234.0 = 4567.00 (4567)'
+)
+
 mkdir overlays
 cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
 (

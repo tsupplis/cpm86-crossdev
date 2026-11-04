@@ -246,6 +246,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | C                         | aztec34_ord   | ord.exe          | Aztec C library ordering helper (v3.4)                 |
 | C                         | aztec34_sqz   | sqz.exe          | Aztec C object optimizer (v3.4)                        |
 | C                         | aztec42_as    | as.exe           | Aztec assembler (v4.2)                                 |
+| C                         | aztec42_acc   | (native)         | Unified Aztec C compiler/linker driver (v4.2)          |
 | C                         | aztec42_cc    | cc.exe           | Aztec ANSI C compiler (v4.2)                           |
 | C                         | aztec42_hex86 | hex86.exe        | Aztec C H86 generator (v4.2)                           |
 | C                         | aztec42_lib   | lb.exe           | Aztec C lib (v4.2)                                     |
@@ -584,6 +585,10 @@ This is not necessary with the wrappers.
 
 <table width="100%">
 <tr><th>Variant</th><th>Commands</th></tr>
+<tr><td>Aztec C 4.2 unified driver</td><td><pre style="margin:0">
+aztec42_acc -target=cpm86 helloc.c -o helloc.cmd
+cmdinfo helloc.cmd
+</pre></td></tr>
 <tr><td>Aztec C 4.2 (preferred, almost‑ANSI)</td><td><pre style="margin:0">
 aztec42_cc helloc.c
 aztec42_sqz helloc.o
@@ -612,6 +617,12 @@ msc5_link hellomsc.obj \;
 emu2 hellomsc.exe
 </pre></td></tr>
 </table>
+
+`aztec42_acc` is the unified compiler/linker driver. Build it with
+`make -C src/aztec42-acc`; it accepts `-toolroot=path` or uses
+`AZTEC42_ROOT` (defaulting to `share/aztec42` relative to the repository).
+The `aztec42_cc` and `aztec42_link` commands remain available for workflows
+not yet migrated.
 
 #### C runtime startup
 

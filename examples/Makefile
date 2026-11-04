@@ -9,9 +9,7 @@ DLDFLAGS=-ld11
 MLDFLAGS=-lm -lc86
 DMLDFLAGS=-lm -ld11
 LD=aztec34_link
-ACC=aztec42_cc
-ALD=aztec42_link
-ACC_DRIVER=../src/aztec42-acc/acc
+ACC_DRIVER=../bin/aztec42_acc
 ACC_ROOT=../share/aztec42
 LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
@@ -86,30 +84,34 @@ all: binaries
 
 binaries: $(8086_CMDS) $(8080_CMDS) 
 
-$(ACC_DRIVER):
+.PHONY: acc-driver
+acc-driver:
 	$(MAKE) -C ../src/aztec42-acc acc
 
-ovraza.cmd ovraza.rsm: ovrmain.o $(ACC_DRIVER)
+ovraza.cmd: ovrmain.o acc-driver
 	rm -f ovraza.cmd ovraza.rsm
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
 	    -overlay-root=1020,aOO ovrmain.o -o ovraza.cmd
 	$(CMDINFO) ovraza.cmd
 
-ovrmain.o: ovrmain.c $(ACC_DRIVER)
+ovraza.rsm: ovraza.cmd
+	@test -s $@
+
+ovrmain.o: ovrmain.c acc-driver
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
-ovrfunc1.ovr: ovrfunc1.o ovraza.rsm $(ACC_DRIVER)
+ovrfunc1.ovr: ovrfunc1.o ovraza.rsm acc-driver
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
 	    -overlay=ovraza.rsm $< -o $@
 
-ovrfunc1.o: ovrfunc1.c $(ACC_DRIVER)
+ovrfunc1.o: ovrfunc1.c acc-driver
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
-ovrfunc2.ovr: ovrfunc2.o ovraza.rsm $(ACC_DRIVER)
+ovrfunc2.ovr: ovrfunc2.o ovraza.rsm acc-driver
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
 	    -overlay=ovraza.rsm $< -o $@
 
-ovrfunc2.o: ovrfunc2.c $(ACC_DRIVER)
+ovrfunc2.o: ovrfunc2.c acc-driver
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
 hellocba.int: hellocba.bas
@@ -222,35 +224,26 @@ hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
   
-helloazd.exe: helloaza.o
-	$(ALD) -o $@ $< $(DLDFLAGS)
+helloazd.exe: helloaza.c acc-driver
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=dos1 $< -o $@
 
-helloaza.cmd: helloaza.o
-	$(ALD) -o $@ $< $(LDFLAGS)
+helloaza.cmd: helloaza.c acc-driver
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -o $@
 	$(CMDINFO) $@
 
-helloaza.o: helloaza.c
-	$(ACC) $(CFLAGS) $<
+mathazd.exe: mathazc.c acc-driver
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=dos1 $< -lm -o $@
 
-mathazd.exe: mathazc.o
-	$(ALD) -o $@ $< $(DMLDFLAGS)
-
-mathazc.cmd: mathazc.o
-	$(ALD) -o $@ $< $(MLDFLAGS)
+mathazc.cmd: mathazc.c acc-driver
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -lm -o $@
 	$(CMDINFO) $@
 
-mathazc.o: mathazc.c
-	$(ACC) $(CFLAGS) $<
-
-helloaz7.cmd: helloaz7.o
-	$(ALD) -o $@ $< $(MLDFLAGS)
+helloaz7.cmd: helloaz7.c acc-driver
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -lm -o $@
 	$(CMDINFO) $@
 
-helloaz7.o: helloaz7.c
-	$(ACC) $(CFLAGS) $<
-
-helloazc.cmd: helloazc.o
-	$(LD) -o $@ $< $(LDFLAGS)
+helloazc.cmd: helloazc.c acc-driver
+	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -o $@
 	$(CMDINFO) $@
 
 hellof77.cmd: hellof77.obj

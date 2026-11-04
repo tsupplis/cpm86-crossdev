@@ -1,4 +1,6 @@
 BIN := $(abspath ../../bin)
+ACC := $(abspath ../../bin/aztec42_acc)
+ACCROOT := $(abspath ../../share/aztec42)
 LIBDIR := ../../share/aztec42/lib
 LIB := $(LIBDIR)/c86.lib
 
@@ -10,23 +12,27 @@ LIB := $(LIBDIR)/c86.lib
 check: regress.cmd legacy.o status-check header-check link-check response-check inf-check close-check
 	@output=$$("$(BIN)/emu2" regress.cmd) && printf '%s\n' "$$output" && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
 
-regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib
-	$(BIN)/aztec42_link -o $@ regress.o -lm -lc86
+.PHONY: acc-driver
+acc-driver:
+	$(MAKE) -C ../aztec42-acc acc
 
-regress.o: regress.c $(wildcard ../../share/aztec42/include/*.h)
-	$(BIN)/aztec42_cc +0 -o $@ regress.c
+regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib acc-driver
+	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 regress.o -lm -o $@
+
+regress.o: regress.c $(wildcard ../../share/aztec42/include/*.h) acc-driver
+	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 clean:
 	rm -f dosreg.o dosreg.com dosreg.exe legacy.o regress.o regress.cmd status.o probe31.o probe32.o exit31.cmd exit32.cmd
 
-status.o: status.c
-	$(BIN)/aztec42_cc +0 -o $@ $<
+status.o: status.c acc-driver
+	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 probe31.o probe32.o: probe%.o: probe.asm
 	$(BIN)/aztec42_as -dVERSION=0$*h -o $@ $<
 
-exit31.cmd exit32.cmd: exit%.cmd: status.o probe%.o $(LIB)
-	$(BIN)/aztec42_link -o $@ status.o probe$*.o -lc86
+exit31.cmd exit32.cmd: exit%.cmd: status.o probe%.o $(LIB) acc-driver
+	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 status.o probe$*.o -o $@
 
 .PHONY: status-check
 status-check: exit31.cmd exit32.cmd
@@ -37,19 +43,20 @@ status-check: exit31.cmd exit32.cmd
 	done
 	@output=$$("$(BIN)/emu2" exit32.cmd negative) && printf '%s\n' "$$output" | tr -d '\r' | grep -qx VF
 
-legacy.o: legacy.c $(wildcard ../../share/aztec42/include/*.h)
-	$(BIN)/aztec42_cc +0 -o $@ $<
+legacy.o: legacy.c $(wildcard ../../share/aztec42/include/*.h) acc-driver
+	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 .PHONY: dos-check
 dos-check:
-	@set -e; for model in '' lc ld l; do \
-		$(BIN)/aztec42_cc -DDOS_TIME +"$$model" +0 -o dosreg.o regress.c; \
-		$(BIN)/aztec42_link -o dosreg.exe dosreg.o -lm$$model -lc$$model; \
+	@set -e; for model in small medium compact large; do \
+		$(ACC) -toolroot=$(ACCROOT) -target=dos2 -mcmodel="$$model" \
+		    -DDOS_TIME -c -o dosreg.o regress.c; \
+		$(ACC) -toolroot=$(ACCROOT) -target=dos2 -mcmodel="$$model" \
+		    dosreg.o -lm -o dosreg.exe; \
 		output=$$($(BIN)/emu2 dosreg.exe); printf '%s\n' "$$output"; \
 		printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS' || exit 1; \
 	done
-	@$(BIN)/aztec42_cc -DDOS_TIME +0 -o dosreg.o regress.c
-	@$(BIN)/aztec42_link -o dosreg.com dosreg.o -lm -ld11
+	@$(ACC) -toolroot=$(ACCROOT) -target=dos1 -DDOS_TIME regress.c -lm -o dosreg.com
 	@output=$$($(BIN)/emu2 dosreg.com) && printf '%s\n' "$$output" && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
 
 .PHONY: header-check

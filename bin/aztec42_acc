@@ -1,0 +1,12 @@
+#!/bin/sh
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || exit 1
+driver=$script_dir/../src/aztec42-acc/acc
+toolroot=${AZTEC42_ROOT:-$script_dir/../share/aztec42}
+if [ ! -x "$driver" ]; then
+    printf 'aztec42_acc: build the driver first with make -C src/aztec42-acc\n' >&2
+    exit 1
+fi
+if [ "$#" -eq 1 ] && { [ "$1" = "-help" ] || [ "$1" = "-version" ]; }; then
+    exec "$driver" "$@"
+fi
+exec "$driver" -toolroot="$toolroot" "$@"
