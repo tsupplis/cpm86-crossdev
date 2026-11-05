@@ -47,7 +47,7 @@ legacy.o: legacy.c $(wildcard ../../share/aztec42/include/*.h) acc-driver
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 .PHONY: dos-check
-dos-check:
+dos-check: time-check
 	@set -e; for model in small medium compact large; do \
 		$(ACC) -toolroot=$(ACCROOT) -target=dos2 -mcmodel="$$model" \
 		    -DDOS_TIME -c -o dosreg.o regress.c; \
@@ -97,3 +97,7 @@ truncate-pce-check:
 .PHONY: close-check
 close-check:
 	sh closecheck "$(BIN)"
+
+.PHONY: time-check
+time-check:
+	sh timecheck "$(BIN)"

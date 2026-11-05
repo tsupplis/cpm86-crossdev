@@ -805,7 +805,7 @@ index 0000000..22c93b7
 +#include <string.h>
 +#endif
 diff --git a/before/include/time.h b/after/include/time.h
-index 9ea9a8c..8c16c0f 100644
+index 9ea9a8c..68a9fff 100644
 --- a/before/include/time.h
 +++ b/after/include/time.h
 @@ -1,8 +1,11 @@
@@ -820,7 +820,23 @@ index 9ea9a8c..8c16c0f 100644
  typedef long time_t;
  typedef long clock_t;
  
-@@ -32,3 +35,5 @@ char *asctime(), *ctime();
+@@ -20,11 +23,15 @@ struct tm {
+ };
+ 
+ #ifndef __NOPROTO__
++double difftime(time_t end, time_t beginning);
++time_t mktime(struct tm *timeptr);
+ clock_t clock(void);
+ time_t time(time_t *timer);
+ struct tm *gmtime(time_t *timer), *localtime(time_t *timer);
+ char *asctime(struct tm *timeptr), *ctime(time_t *timer);
+ #else
++double difftime();
++time_t mktime();
+ clock_t clock();
+ time_t time();
+ struct tm *gmtime(), *localtime();
+@@ -32,3 +39,5 @@ char *asctime(), *ctime();
  #endif
  
  #endif
@@ -892,7 +908,7 @@ index 680d361..23d0820 100644
  make clean
  :COMPACT
 diff --git a/before/src/c.bld b/after/src/c.bld
-index 29ecc16..f009890 100644
+index 29ecc16..93190f6 100644
 --- a/before/src/c.bld
 +++ b/after/src/c.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -913,7 +929,7 @@ index 29ecc16..f009890 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -138,3 +149,14 @@ mch86/movmem.o
+@@ -138,3 +149,16 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/ssbrk.o
  dos20/filelock.o
@@ -928,6 +944,8 @@ index 29ecc16..f009890 100644
 +misc/ftrunc.o
 +dos20/trcheck.o
 +dos20/trresize.o
++dos20/calday.o
++dos20/mktime.o
 diff --git a/before/src/c86.bld b/after/src/c86.bld
 index 7c6c0af..680e5a7 100644
 --- a/before/src/c86.bld
@@ -1008,7 +1026,7 @@ index 7c6c0af..680e5a7 100644
 +stdio/fsetpos.o
 +stdio/rewind.o
 diff --git a/before/src/cl.bld b/after/src/cl.bld
-index 4c20aad..e959cee 100644
+index 4c20aad..23508ef 100644
 --- a/before/src/cl.bld
 +++ b/after/src/cl.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1029,7 +1047,7 @@ index 4c20aad..e959cee 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,14 @@ mch86/movmem.o
+@@ -136,3 +147,16 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/lsbrk.o
  dos20/filelock.o
@@ -1044,8 +1062,10 @@ index 4c20aad..e959cee 100644
 +misc/ftrunc.o
 +dos20/trcheck.o
 +dos20/trresize.o
++dos20/calday.o
++dos20/mktime.o
 diff --git a/before/src/clc.bld b/after/src/clc.bld
-index 9b4060b..6d92b14 100644
+index 9b4060b..b8f7771 100644
 --- a/before/src/clc.bld
 +++ b/after/src/clc.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1066,7 +1086,7 @@ index 9b4060b..6d92b14 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,14 @@ dos20/isatty.o
+@@ -136,3 +147,16 @@ dos20/isatty.o
  dos20/ssbrk.o
  dos20/stksiz.o
  dos20/filelock.o
@@ -1081,8 +1101,10 @@ index 9b4060b..6d92b14 100644
 +misc/ftrunc.o
 +dos20/trcheck.o
 +dos20/trresize.o
++dos20/calday.o
++dos20/mktime.o
 diff --git a/before/src/cld.bld b/after/src/cld.bld
-index c03eba7..27e9dde 100644
+index c03eba7..78a39b8 100644
 --- a/before/src/cld.bld
 +++ b/after/src/cld.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1103,7 +1125,7 @@ index c03eba7..27e9dde 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,14 @@ mch86/movmem.o
+@@ -136,3 +147,16 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/lsbrk.o
  dos20/filelock.o
@@ -1118,6 +1140,8 @@ index c03eba7..27e9dde 100644
 +misc/ftrunc.o
 +dos20/trcheck.o
 +dos20/trresize.o
++dos20/calday.o
++dos20/mktime.o
 diff --git a/before/src/cpm86/begin.asm b/after/src/cpm86/begin.asm
 index 841a8f8..5ea9b01 100644
 --- a/before/src/cpm86/begin.asm
@@ -1690,10 +1714,10 @@ index 9233144..5a6a42c 100644
  write(fd, buff, len)
 diff --git a/after/src/d11.bld b/after/src/d11.bld
 new file mode 100644
-index 0000000..952f65c
+index 0000000..8678448
 --- /dev/null
 +++ b/after/src/d11.bld
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,134 @@
 +stdio/tmpfile.o
 +stdio/perror.o
 +stdio/fdopen.o
@@ -1826,6 +1850,8 @@ index 0000000..952f65c
 +misc/truncate.o
 +misc/ftrunc.o
 +dos11/trunc11.o
++dos20/calday.o
++dos20/mktime.o
 diff --git a/after/src/dos11/access.c b/after/src/dos11/access.c
 new file mode 100644
 index 0000000..a3fef4b
@@ -2189,6 +2215,21 @@ index c4557f6..9ad5d00 100644
 +	return 0;
  }
  
+diff --git a/after/src/dos20/calday.c b/after/src/dos20/calday.c
+new file mode 100644
+index 0000000..7586ebe
+--- /dev/null
++++ b/after/src/dos20/calday.c
+@@ -0,0 +1,9 @@
++/* Gregorian day number relative to 1980-01-01; year >= 1, month 0..11. */
++long _azcalday(long year, int month)
++{
++    static int before[] = {0,31,59,90,120,151,181,212,243,273,304,334};
++    long y;
++    y = year - 1;
++    return 365L*y + y/4 - y/100 + y/400 - 722814L + before[month]
++        + (month > 1 && year%4 == 0 && (year%100 != 0 || year%400 == 0));
++}
 diff --git a/before/src/dos20/croot.c b/after/src/dos20/croot.c
 index 74177c0..11dad2c 100644
 --- a/before/src/dos20/croot.c
@@ -2224,13 +2265,43 @@ index 74177c0..11dad2c 100644
  	(*cls_)();
  	_exit(code);
  }
+diff --git a/before/src/dos20/localtim.c b/after/src/dos20/localtim.c
+index 33f5810..414b6cd 100644
+--- a/before/src/dos20/localtim.c
++++ b/after/src/dos20/localtim.c
+@@ -19,9 +19,8 @@ long *clock;
+ 		unsigned u[2];
+ 	} un;
+ 	static struct tm tm;
+-	static int days[12] = {
+-		-1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333
+-	};
++	long day;
++	extern long _azcalday(long, int);
+ 
+ 	un.l = *clock;
+ 	tm.tm_sec = (un.u[0]&31) * 2;
+@@ -30,8 +29,10 @@ long *clock;
+ 	tm.tm_mday = un.u[1] & 31;
+ 	tm.tm_mon = ((un.u[1]>>5) & 15) - 1;
+ 	tm.tm_year = ((un.u[1]>>9) & 127) + 80;
+-	tm.tm_yday = days[tm.tm_mon] + tm.tm_mday +
+-					(tm.tm_mon > 1 && (tm.tm_year&3) == 0);
+-	tm.tm_wday = (tm.tm_yday + tm.tm_year + ((tm.tm_year-1)>>2) + 1) % 7;
++    day = _azcalday((long)tm.tm_year+1900, tm.tm_mon) + tm.tm_mday-1;
++    tm.tm_yday = (int)(day - _azcalday((long)tm.tm_year+1900, 0));
++    tm.tm_wday = (int)((day+2)%7); /* 1980-01-01 was Tuesday. */
++    tm.tm_isdst = 0;
++    tm.tm_hsec = 0;
+ 	return &tm;
+ }
 diff --git a/before/src/dos20/makefile b/after/src/dos20/makefile
-index 1d79bc0..de8b67c 100644
+index 1d79bc0..cfa3c4f 100644
 --- a/before/src/dos20/makefile
 +++ b/after/src/dos20/makefile
 @@ -1,22 +1,23 @@
 -OBJ=access.o asctime.o bdos.o bdosx.o chmod.o clk.o clock.o croot.o csread.o\
-+OBJ=trcheck.o trresize.o access.o asctime.o bdos.o bdosx.o chmod.o clk.o clock.o croot.o csread.o\
++OBJ=calday.o mktime.o trcheck.o trresize.o access.o asctime.o bdos.o bdosx.o chmod.o clk.o clock.o croot.o csread.o\
  	ctime.o dioctl.o dos.o dosdir.o dostime.o dosx.o dup.o exec.o execl.o\
  	execlp.o execv.o execvp.o fcbinit.o fexec.o fexecl.o fexecv.o filelock.o\
  	ftime.o getcwd.o getenv.o io.o ioctl.o isatty.o localtim.o mkdir.o mon.o\
@@ -2260,6 +2331,52 @@ index 1d79bc0..de8b67c 100644
  
  bld bldlc: $(OBJ) sbegin.o ssbrk.o lmalloc.o
  	@echo dos20 done
+diff --git a/after/src/dos20/mktime.c b/after/src/dos20/mktime.c
+new file mode 100644
+index 0000000..369bdbc
+--- /dev/null
++++ b/after/src/dos20/mktime.c
+@@ -0,0 +1,40 @@
++#include <time.h>
++
++extern long _azcalday(long, int);
++
++time_t mktime(struct tm *p)
++{
++    long year, month, days, seconds, carry;
++    int mon;
++    union { time_t value; unsigned word[2]; } packed;
++    struct tm result;
++
++    year = (long)p->tm_year + 1900;
++    month = p->tm_mon;
++    carry = month / 12;
++    if (month % 12 < 0) --carry;
++    year += carry;
++    mon = (int)(month - carry*12);
++    /* Even extreme 16-bit day/time fields cannot reach the DOS range
++       from outside these bounds. Keep calendar arithmetic positive. */
++    if (year < 1 || year > 9999) return (time_t)-1;
++    seconds = (long)p->tm_hour*3600 + (long)p->tm_min*60 + p->tm_sec;
++    carry = seconds / 86400L;
++    if (seconds % 86400L < 0) --carry;
++    seconds -= carry*86400L;
++    days = _azcalday(year, mon) + (long)p->tm_mday - 1 + carry;
++    if (days < 0 || days >= _azcalday(2108L, 0)) return (time_t)-1;
++    year = 1980;
++    while (days >= _azcalday(year+1, 0)) ++year;
++    mon = 11;
++    while (days < _azcalday(year, mon)) --mon;
++    packed.word[1] = ((unsigned)(year-1980)<<9) | ((mon+1)<<5)
++        | (unsigned)(days-_azcalday(year, mon)+1);
++    packed.word[0] = ((unsigned)(seconds/3600)<<11)
++        | ((unsigned)(seconds/60%60)<<5) | (unsigned)(seconds%60/2);
++    /* DOS has no timezone/DST database; match localtime's civil time.
++       Return normalized fields at the packed timestamp's precision. */
++    result = *localtime(&packed.value);
++    *p = result;
++    return packed.value;
++}
 diff --git a/after/src/dos20/os.c b/after/src/dos20/os.c
 new file mode 100644
 index 0000000..f764e09
@@ -2475,10 +2592,15 @@ index 0000000..20435fd
 +	del *.com
 +	del *.cmd
 diff --git a/before/src/m.bld b/after/src/m.bld
-index 4fe2f4e..69a1af5 100644
+index 4fe2f4e..7538968 100644
 --- a/before/src/m.bld
 +++ b/after/src/m.bld
-@@ -18,9 +18,11 @@ stdio/fscanf.o
+@@ -1,3 +1,4 @@
++math/difftime.o
+ math/asin.o
+ math/atan.o
+ math/floor.o
+@@ -18,9 +19,11 @@ stdio/fscanf.o
  stdio/scanf.o
  misc/sscanf.o
  misc/fscan.o
@@ -2491,10 +2613,15 @@ index 4fe2f4e..69a1af5 100644
  math/fsubs.o
 +math/fmod.o
 diff --git a/before/src/m87.bld b/after/src/m87.bld
-index 09ca386..0fc2f61 100644
+index 09ca386..24f4af7 100644
 --- a/before/src/m87.bld
 +++ b/after/src/m87.bld
-@@ -14,6 +14,7 @@ stdio/fscanf.o
+@@ -1,3 +1,4 @@
++math/difftime87.o
+ math/floor87.o
+ math/pow87.o
+ math/log87.o
+@@ -14,6 +15,7 @@ stdio/fscanf.o
  stdio/scanf.o
  misc/sscanf.o
  misc/fscan87.o
@@ -2503,10 +2630,15 @@ index 09ca386..0fc2f61 100644
  math/ftoa87.o
  math/asin87.o
 diff --git a/before/src/m87s.bld b/after/src/m87s.bld
-index 37b9863..70f9e03 100644
+index 37b9863..4e1a60e 100644
 --- a/before/src/m87s.bld
 +++ b/after/src/m87s.bld
-@@ -18,9 +18,11 @@ stdio/fscanf.o
+@@ -1,3 +1,4 @@
++math/difftime.o
+ math/asin.o
+ math/atan.o
+ math/floor.o
+@@ -18,9 +19,11 @@ stdio/fscanf.o
  stdio/scanf.o
  misc/sscanf.o
  misc/fscan.o
@@ -2519,7 +2651,7 @@ index 37b9863..70f9e03 100644
  math/fsubs87s.o
 +math/fmod.o
 diff --git a/before/src/makefile b/after/src/makefile
-index a6fbade..0da6762 100644
+index a6fbade..1ec8b98 100644
 --- a/before/src/makefile
 +++ b/after/src/makefile
 @@ -1,3 +1,6 @@
@@ -2699,7 +2831,32 @@ index a6fbade..0da6762 100644
 -arc:
 -	mkarcv build.arc <build.bld
 +d11time:
-+	$(MAKE) -C dos20 MODEL= AMODEL=0 time.o clock.o localtim.o ctime.o asctime.o
++	$(MAKE) -C dos20 MODEL= AMODEL=0 time.o clock.o localtim.o ctime.o asctime.o calday.o mktime.o
+diff --git a/after/src/math/difftime.c b/after/src/math/difftime.c
+new file mode 100644
+index 0000000..8412afb
+--- /dev/null
++++ b/after/src/math/difftime.c
+@@ -0,0 +1,19 @@
++#include <time.h>
++
++extern long _azcalday(long, int);
++
++/* Decode before subtracting: packed DOS timestamps are not seconds. */
++double difftime(time_t end, time_t beginning)
++{
++    union { time_t value; unsigned word[2]; } a, b;
++    long days, seconds;
++    a.value = end;
++    b.value = beginning;
++    days = _azcalday((long)(a.word[1]>>9)+1980, (a.word[1]>>5&15)-1)
++         - _azcalday((long)(b.word[1]>>9)+1980, (b.word[1]>>5&15)-1)
++         + (a.word[1]&31) - (b.word[1]&31);
++    seconds = ((long)(a.word[0]>>11)-(b.word[0]>>11))*3600
++            + ((long)(a.word[0]>>5&63)-(b.word[0]>>5&63))*60
++            + ((long)(a.word[0]&31)-(b.word[0]&31))*2;
++    return (double)days*86400.0 + (double)seconds;
++}
 diff --git a/after/src/math/fmod.c b/after/src/math/fmod.c
 new file mode 100644
 index 0000000..2f95569
@@ -3177,17 +3334,17 @@ index a0949e0..4e2e6c3 100644
  	if (f > C0) {
  		znum = (znum = f-0.5) - 0.5; /* the assignment prevents const. eval */
 diff --git a/before/src/math/makefile b/after/src/math/makefile
-index 5fbe219..9f95ce7 100644
+index 5fbe219..95fd6b3 100644
 --- a/before/src/math/makefile
 +++ b/after/src/math/makefile
 @@ -1,23 +1,24 @@
 -OBJ=asin.o atan.o exp.o fabs.o floor.o log.o pow.o random.o\
-+OBJ=fmod.o strtod.o asin.o atan.o exp.o fabs.o floor.o log.o pow.o random.o\
++OBJ=difftime.o fmod.o strtod.o asin.o atan.o exp.o fabs.o floor.o log.o pow.o random.o\
  	sin.o sinh.o sqrt.o tan.o tanh.o atof.o ftoa.o\
  	fpst.o frexp.o fsubs.o sqrt87s.o frexp87s.o fsubs87s.o
  
 -OBJ87=asin87.o atan87.o exp87.o fabs87.o floor87.o log87.o pow87.o random87.o\
-+OBJ87=strtod87.o asin87.o atan87.o exp87.o fabs87.o floor87.o log87.o pow87.o random87.o\
++OBJ87=difftime87.o strtod87.o asin87.o atan87.o exp87.o fabs87.o floor87.o log87.o pow87.o random87.o\
  	exp1087.o sin87.o sinh87.o sqrt87.o tan87.o tanh87.o atof87.o ftoa87.o\
  	fmod87.o chk87.o frexp87.o isnan.o fpst.o fsubs87.o
  
@@ -3213,7 +3370,7 @@ index 5fbe219..9f95ce7 100644
  
  bld bldlc bldld bldl: $(OBJ)
  	@echo math done
-@@ -27,34 +28,38 @@ bld87 bld87lc bld87ld bld87l: $(OBJ87)
+@@ -27,34 +28,42 @@ bld87 bld87lc bld87ld bld87l: $(OBJ87)
  
  atof87.o: atof.asm
  	$(AS) -dMODEL=$(AMODEL) -dINLINE atof.asm -o $@
@@ -3261,6 +3418,10 @@ index 5fbe219..9f95ce7 100644
 +
 +strtod87.o: strtod.c
 +	$(CC) +$(MODEL) -n +e strtod.c -o $@
++	$(SQZ) $@
++
++difftime87.o: difftime.c
++	$(CC) +$(MODEL) -n +e difftime.c -o $@
 +	$(SQZ) $@
 diff --git a/after/src/math/strtod.c b/after/src/math/strtod.c
 new file mode 100644

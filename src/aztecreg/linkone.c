@@ -91,6 +91,10 @@ int main(void)
     ftruncate(3, 0L);
 #elif CASE == 37
     truncate("test.tmp", 0L);
+#elif CASE == 38
+    difftime(0x00210000L, 0x00210000L);
+#elif CASE == 39
+    { struct tm t; memset(&t, 0, sizeof t); t.tm_year=80; t.tm_mday=1; mktime(&t); }
 #endif
     return 0;
 }

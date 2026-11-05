@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+bin=$1
+source=$(pwd)/dostime.c
+work=$(mktemp -d "${TMPDIR:-/tmp}/aztime.XXXXXX")
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+cp "$source" "$work/test.c"
+cd "$work"
+for target in c d11 clc cld cl; do
+    case $target in clc) model=lc;; cld) model=ld;; cl) model=l;; *) model=;; esac
+    for math in m m87s m87; do
+        fp=
+        if [ "$math" = m87 ]; then fp=+e; fi
+        "$bin/aztec42_cc" +"$model" +0 $fp -o test.o test.c
+        "$bin/aztec42_link" -o test.exe test.o -l"$math$model" -l"$target"
+        # emu2 has no hardware 8087; the inline library is link-checked.
+        if [ "$math" = m87 ]; then
+            echo "$target/$math: DOS TIME LINK PASS (hardware 8087 required)"
+            continue
+        fi
+        output=$("$bin/emu2" test.exe)
+        printf '%s: %s\n' "$target/$math" "$output"
+        printf '%s\n' "$output" | tr -d '\r' | grep -qx 'DOS TIME PASS'
+    done
+done
