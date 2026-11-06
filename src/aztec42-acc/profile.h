@@ -23,7 +23,7 @@ typedef enum {
 typedef enum { TARGET_CPM86, TARGET_DOS1, TARGET_DOS2 } target_t;
 typedef enum { MODEL_SMALL, MODEL_MEDIUM, MODEL_COMPACT, MODEL_LARGE } model_t;
 typedef enum { CPU_I8086, CPU_I80186, CPU_I80286 } cpu_t;
-typedef enum { FLOAT_SOFT, FLOAT_AUTO, FLOAT_8087, FLOAT_8087_FAST } float_backend_t;
+typedef enum { FLOAT_SOFT, FLOAT_AUTO, FLOAT_8087 } float_backend_t;
 
 /* -Osize / -Ospeed; DEFAULT keeps the compiler's native preference. */
 typedef enum { OPTIMIZE_DEFAULT, OPTIMIZE_SIZE, OPTIMIZE_SPEED } optimize_t;
@@ -32,7 +32,7 @@ typedef enum { OPTIMIZE_DEFAULT, OPTIMIZE_SIZE, OPTIMIZE_SPEED } optimize_t;
 #define TARGET_COUNT 3
 #define MODEL_COUNT 4
 #define CPU_COUNT 3
-#define FLOAT_COUNT 4
+#define FLOAT_COUNT 3
 extern const char *const target_names[TARGET_COUNT];
 extern const char *const model_names[MODEL_COUNT];
 extern const char *const cpu_names[CPU_COUNT];
@@ -50,8 +50,9 @@ const char *profile_model_flag(model_t model);
 const char *profile_float_flag(float_backend_t floating);
 const char *profile_optimize_flag(optimize_t optimize);
 
-/* Assembler (as) flag for CPU. */
+/* Assembler (as) flags for explicit .asm sources: CPU, then coprocessor. */
 const char *profile_assembler_cpu_flag(cpu_t cpu);
+const char *profile_assembler_float_flag(cpu_t cpu, float_backend_t floating);
 
 /*
  * Preprocessor definition identifying TARGET, as one cc argument:

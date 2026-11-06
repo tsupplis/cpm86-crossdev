@@ -64,7 +64,7 @@ expect_failure "$@" -### -toolroot="$root" -D9BAD main.c
 expect_failure "$@" -### -toolroot="$root" main.c -o
 expect_failure "$@" -### -toolroot="$root" @args.rsp
 expect_failure "$@" -### -toolroot="$root" -c -Wc,-A main.c
-expect_failure "$@" -### -toolroot="$root" -mfloat=8087-fast main.c
+expect_error 'invalid option value' "$@" -### -toolroot="$root" -mfloat=8087-fast main.c
 expect_error 'cannot read input' "$@" -### -toolroot="$root" missing.c
 expect_error 'select the target/model' "$@" -### -toolroot="$root" main.o -lc86
 expect_error 'output aliases an input' "$@" -### -toolroot="$root" -c main.c -o main.c
@@ -163,7 +163,8 @@ output=$("$@" -### -toolroot="$root" -c -march=i80186 -march=i80286 main.c 2>&1)
 printf '%s\n' "$output" | grep -F '"+2"' >/dev/null
 output=$("$@" -### -toolroot="$root" -c -march=i80186 entry.asm 2>&1)
 printf '%s\n' "$output" | grep -F '"-186"' >/dev/null
-expect_error 'not qualified yet' "$@" -### -toolroot="$root" -march=i80286 entry.asm
+output=$("$@" -### -toolroot="$root" -c -march=i80286 -mfloat=8087 entry.asm 2>&1)
+printf '%s\n' "$output" | grep -F '"-186" "-2"' >/dev/null
 output=$("$@" -### -toolroot="$root" -c -mfloat=8087 -Ospeed -w main.c 2>&1)
 printf '%s\n' "$output" | grep -F '"+e" "+f" "-s"' >/dev/null
 

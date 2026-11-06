@@ -360,7 +360,8 @@ Quality rules:
     (`acc -target=dos2 ... -o acc.exe`) instead of the
     `aztec42_cc`/`aztec42_link` wrappers.
   - `build.bat` remains the native DOS bootstrap.
-  - A check proves the fixed point: the `acc.exe` built this way rebuilds
+  - **Done** (`make check-self-host`): a check proves the fixed point: the
+    `acc.exe` built this way rebuilds
     itself under emu2 with an identical plan.
 
 Documentation style (design.md, MANUAL.md): seasoned engineers as the

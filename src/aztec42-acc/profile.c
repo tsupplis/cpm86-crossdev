@@ -19,13 +19,14 @@ const char *const model_names[MODEL_COUNT] = {
 };
 const char *const cpu_names[CPU_COUNT] = { "i8086", "i80186", "i80286" };
 const char *const float_names[FLOAT_COUNT] = {
-    "soft", "auto", "8087", "8087-fast"
+    "soft", "auto", "8087"
 };
 
 /* cc flags, indexed by enum; 0 means "no flag". */
 static const char *const cpu_flags[] = { "+0", "+1", "+2" };
 static const char *const model_flags[] = { 0, "+lc", "+ld", "+l" };
-static const char *const float_flags[] = { 0, 0, "+e", "+ej" };
+/* No unsafe +ej mode: cc v4.10d rejects it ("unknown option: j"). */
+static const char *const float_flags[] = { 0, 0, "+e" };
 static const char *const optimize_flags[] = { 0, "+c", "+f" };
 
 /* Indexed by Target; both DOS targets share one macro. */
@@ -44,7 +45,7 @@ static const char *const dos2_runtimes[] = {
 
 /*
  * Math libraries, indexed [family][Model]: software, sensing (uses an 8087
- * when one is present) and hardware.  8087-fast uses the hardware family.
+ * when one is present) and hardware.
  */
 static const char *const maths[3][MODEL_COUNT] = {
     { "m.lib", "mlc.lib", "mld.lib", "ml.lib" },
@@ -93,12 +94,24 @@ const char *profile_optimize_flag(optimize_t optimize)
 }
 
 /*
- * as flag for CPU.  Only -186 is known; explicit 80286 assembly is
- * rejected by the planner until its as behaviour is verified.
+ * as flag for CPU: -186 for the 80186 and the 80286, whose real-mode
+ * instruction set is the 80186's; as has no separate 80286 option.
  */
 const char *profile_assembler_cpu_flag(cpu_t cpu)
 {
-    return cpu == CPU_I80186 ? "-186" : 0;
+    return cpu == CPU_I8086 ? 0 : "-186";
+}
+
+/*
+ * as coprocessor flag: 8087 instructions always assemble, with a WAIT
+ * inserted before each.  With an 80286 and inline floating point, -2
+ * selects 80287 code without those WAITs, as cc +2 +e does itself
+ * (release notes: compiler support for inline 80287 instructions).
+ */
+const char *profile_assembler_float_flag(cpu_t cpu, float_backend_t floating)
+{
+    return cpu == CPU_I80286 &&
+        floating == FLOAT_8087 ? "-2" : 0;
 }
 
 /* -D argument identifying the target operating system. */
@@ -152,7 +165,7 @@ const char *profile_runtime(target_t target, model_t model)
 /* Math library selected by -lm for the floating backend and model. */
 const char *profile_math(float_backend_t floating, model_t model)
 {
-    return maths[floating == FLOAT_8087_FAST ? FLOAT_8087 : floating][model];
+    return maths[floating][model];
 }
 
 /* Compared as DOS file names: -lC86 and -lc86 name the same library. */

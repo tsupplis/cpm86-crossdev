@@ -23,13 +23,16 @@
 
 
 
-@case err-8087-fast
+
+
+@case err-8087-fast-unsupported
 -###
 -toolroot=@ROOT@
+-c
 -mfloat=8087-fast
 main.c
 @out
-acc: unsafe inline floating point is not qualified yet: -mfloat=8087-fast
+acc: invalid option value: 8087-fast
 [exit 1]
 @end
 
@@ -45,14 +48,20 @@ acc: path requires unsupported DOS filename aliasing: .o
 [exit 1]
 @end
 
-@case err-asm-286
+@case assemble-286-8087
 -###
 -toolroot=@ROOT@
+-c
 -march=i80286
+-mfloat=8087
 entry.asm
 @out
-acc: explicit assembly CPU/coprocessor mapping is not qualified yet
-[exit 1]
+acc: plan stage=object target=none model=small cpu=i80286
+acc: plan float=8087 optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\as.exe" "-186" "-2" "-D__i186__=1" "-D__i286__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+publish: "E:\\u0001.o" -> "C:\\entry.o"
+[exit 0]
 @end
 
 @case err-bad-march

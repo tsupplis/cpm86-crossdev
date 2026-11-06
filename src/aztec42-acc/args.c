@@ -167,9 +167,6 @@ int parse_request(request_t *r, int argc, char **argv)
             selected = profile_choice(arg + 8, float_names, FLOAT_COUNT);
             if (selected < 0)
                 return 0;
-            /* +ej skips register saves; unsafe until runtime-qualified. */
-            if (selected == FLOAT_8087_FAST)
-                return fail("unsafe inline floating point is not qualified yet", arg);
             r->floating = (float_backend_t)selected;
         } else if (strncmp(arg, "-toolroot=", 10) == 0) {
             if (arg[10] == '\0')

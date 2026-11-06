@@ -138,9 +138,9 @@ Opt-in: `#include <azdefs.h>` (installed in the tool root's `include/`).
 | Non-small model: `dos2` `.exe` only | only DOS 2 `.exe` programs can use large models |
 | Explicit non-`dos2` `-target` with a non-small model | rejected at once, even with `-c` |
 | Overlays: small model; root `.cmd` (cpm86) or `.exe` (dos); not `.com` | Tech Info 2.1 |
-| `-mfloat=8087-fast` rejected | not runtime-qualified |
-| Explicit `.asm` with `-march=i80286` or `-mfloat=8087` rejected | not qualified |
+| No `8087-fast` (unsafe `cc +ej`) | documented in the 4.10a notes, rejected by cc v4.10d (`unknown option: j`) |
 | `-D` for `.asm`: decimal constant values only | `as -Dsym=const` |
+| Explicit `.asm`: `-march=i80186`/`i80286` pass `as -186`; `i80286` with `-mfloat=8087` adds `as -2` (80287, no WAIT) | 8087 instructions always assemble; as v4.10d also accepts 80186 instructions without `-186` (probed) |
 
 ## Backend options (`-Wc`, `-Wa`, `-Wl`)
 

@@ -221,7 +221,7 @@ limits, logging) are kept. On DOS, host paths are guest paths.
 | Target, model, CPU, float flags; startup, runtime, math libraries | `profile.c` | MANUAL.md "Link target", "Defaults" |
 | Raw `-Wc`/`-Wa`/`-Wl` options | `raw.c` | MANUAL.md "Backend options" |
 | Always emitted | `plan.c` | `cc -b` (no pause), `cc -n` unless `-g` |
-| Never emitted | | `cc -3` (K&R), `ln -N`, `as -ZAP`, foreign ABI modes |
+| Never emitted | | `cc -3` (K&R), `cc +ej` (unsupported by v4.10d), `ln -N`, `as -ZAP`, foreign ABI modes |
 
 Link argument order (single-pass `ln`): `-o`, overlay `+c +d -r`, raw
 options, `-g`, startup, inputs in command-line order, overlay loader or
@@ -252,6 +252,8 @@ Verified against the v4.10d binaries under emu2; each is an execution test.
 | `-k` disables `far`; `-T` writes source comments | raw probes |
 | `ln -S`/`-X` take separate hex operands | raw probes |
 | `-g` writes `.dbg` for `.cmd` and `.exe` | raw probes, both hosts |
+| `cc +ej` (8087 without register saves) is rejected by v4.10d: `unknown option: j`; `-mfloat=8087-fast` removed | `exec-check.sh` (probe history) |
+| `as -2` drops the WAITs of 8087 code (355 to 346 bytes); `as` accepts 80186 instructions with or without `-186` | `exec-check.sh` explicit-assembly probes |
 | Predefined: `__STDC__ __FILE__ __LINE__ __DATE__ __TIME__ __FUNC__ MPU8086`; no CPU-tier or optimisation signal | P6 probes |
 | DOS overlays with an `.exe` root | `exec-check.sh`, `exec-dos-check.sh`, `examples` |
 
@@ -263,4 +265,5 @@ Verified against the v4.10d binaries under emu2; each is an execution test.
 | Legacy checks | `check-unix`, `check-dos` | environment, argv and filesystem edge cases |
 | Execution | `check-exec`, `check-exec-dos` | build and run under emu2, probes, failures, overlays |
 | Coverage gate | `check-coverage` | every option, value, raw option and diagnostic is tested or exempted with a reason (`tests/coverage-exempt.txt`) |
+| Self-hosting | `check-self-host` | DOS `acc.exe` plans every module like `acc` and rebuilds a byte-identical `acc.exe` |
 | Expectations | `bless` | rewrites golden output from both builds |

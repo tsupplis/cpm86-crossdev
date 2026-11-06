@@ -98,6 +98,26 @@ for model in small medium compact large; do
     grep -Ei '^[[:space:]]*f(ld|st|mul|sub|add|div)' hard.asm >/dev/null
 done
 
+# Explicit assembly, verified by building (emu2 cannot run 8087 code).
+# acc passes as -186 for -march=i80186 and i80286, as documented; as v4.10d
+# turns out to accept 80186 instructions either way (probed), so the
+# objects must be identical whatever -march says.
+run_acc -S -march=i80186 math.c -o cpu186.asm
+awk '/^[[:space:]]*leave/ && !done { print "\tpush 5"; print "\tpop ax";
+     print "\tshl ax,3"; print "\timul ax,bx,7"; print "\tpusha"; print "\tpopa";
+     done = 1 } { print }' cpu186.asm > more186.asm
+grep -q 'pusha' more186.asm
+run_acc -c -march=i80186 more186.asm -o cpu186a.o
+run_acc -c -march=i80286 more186.asm -o cpu186b.o
+run_acc -c more186.asm -o cpu186c.o
+cmp cpu186a.o cpu186b.o
+cmp cpu186a.o cpu186c.o
+# 8087 instructions always assemble; with an 80286, as -2 drops the WAITs.
+run_acc -S -mfloat=8087 math.c -o fpu.asm
+run_acc -c -mfloat=8087 fpu.asm -o fpu86.o
+run_acc -c -march=i80286 -mfloat=8087 fpu.asm -o fpu286.o
+test "$(wc -c < fpu286.o)" -lt "$(wc -c < fpu86.o)"
+
 mkdir inc1 inc2 libs1 libs2
 printf '#define VALUE 11\n' > inc1/pick.h
 printf '#define VALUE 22\n' > inc2/pick.h

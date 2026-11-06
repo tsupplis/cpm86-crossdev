@@ -515,9 +515,6 @@ static int validate(const request_t *r, plan_context_t *ctx)
         }
         if (kind != INPUT_LIBRARY && kind != INPUT_LIBNAME)
             ++count;
-        /* No probe yet proves how as handles 80286 or inline 8087 code. */
-        if (kind == INPUT_ASM && (r->cpu == CPU_I80286 || r->floating == FLOAT_8087))
-            return fail("explicit assembly CPU/coprocessor mapping is not qualified yet", NULL);
     }
     if (count == 0)
         return fail("at least one source or object input is required", NULL);
@@ -636,7 +633,8 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
             (r->quiet && !add_word(args, "-s")) ||
             (r->stage == STAGE_ASSEMBLY && !add_word(args, "-A")))
             return 0;
-    } else if (!add_flag(args, profile_assembler_cpu_flag(r->cpu))) {
+    } else if (!add_flag(args, profile_assembler_cpu_flag(r->cpu)) ||
+               !add_flag(args, profile_assembler_float_flag(r->cpu, r->floating))) {
         return 0;
     }
     raw.assembly_stage = r->stage == STAGE_ASSEMBLY;
