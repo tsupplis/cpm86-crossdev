@@ -115,6 +115,12 @@ const char *profile_assembler_float_flag(cpu_t cpu, float_backend_t floating)
 }
 
 /* -D argument identifying the target operating system. */
+/* Compiler identity macro, defined for every compilation (C and assembler). */
+const char *profile_identity_macro(void)
+{
+    return "-D__AZTEC__=1";
+}
+
 const char *profile_target_macro(target_t target)
 {
     return target_macros[target];

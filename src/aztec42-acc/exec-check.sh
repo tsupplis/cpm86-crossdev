@@ -375,6 +375,29 @@ C
     output=$("$emu" ident.cmd)
     printf '%s\n' "$output" | tr -d '\r' |
         grep -qx 'Aztec C 4.3.0 (https://github.com/tsupplis/cpm86-crossdev)'
+    # acc defines __AZTEC__ (as 1) without azdefs.h; azdefs.h needs it.
+    cat > family.c <<'C'
+#include <stdio.h>
+#ifndef __AZTEC__
+int family_missing[-1];
+#endif
+int family_value[(__AZTEC__ == 1) ? 1 : -1];
+#ifdef __AZTEC_C__
+int identity_leaked[-1];
+#endif
+int main(void) { puts("family ok"); return 0; }
+C
+    run_acc family.c -o family.cmd
+    "$emu" family.cmd | tr -d '\r' | grep -qx 'family ok'
+    cat > guard.c <<'C'
+#undef __AZTEC__
+#include "azdefs.h"
+#ifdef __AZTEC_C__
+int guard_failed[-1];
+#endif
+int main(void) { return 0; }
+C
+    run_acc -c guard.c
     cat > cpu.c <<'C'
 #ifdef EXPECT286
 #if !defined(__i186__) || !defined(__i286__)

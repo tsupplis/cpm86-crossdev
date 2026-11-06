@@ -27,6 +27,12 @@
 
 
 
+
+
+
+
+
+
 @case link-default-name
 -###
 -toolroot=@ROOT@
@@ -51,7 +57,7 @@ hello.cmd
 acc: plan stage=link target=cpm86 model=small cpu=i8086
 acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__AZTEC__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
 response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "D:\\lib\\begin86.o" "E:\\u0001.o" "D:\\lib\\c86.lib"
 publish: "E:\\u0002.cmd" -> "C:\\hello.cmd"
@@ -364,7 +370,7 @@ entry.asm
 acc: plan stage=link target=cpm86 model=small cpu=i8086
 acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\as.exe" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+tool: "D:\\bin\\as.exe" "-D__AZTEC__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
 response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "E:\\u0001.o"
 publish: "E:\\u0002.cmd" -> "C:\\a.cmd"
@@ -483,7 +489,7 @@ main.o
 acc: plan stage=link target=cpm86 model=small cpu=i8086
 acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__AZTEC__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
 response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "D:\\lib\\begin86.o" "E:\\u0001.o" "C:\\custom.lib" "C:\\main.o" "D:\\lib\\c86.lib"
 publish: "E:\\u0002.cmd" -> "C:\\a.cmd"
@@ -582,9 +588,9 @@ main.o
 acc: plan stage=link target=cpm86 model=small cpu=i8086
 acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__AZTEC__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 tool: "D:\\bin\\sqz.exe" "E:\\u0001.o"
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\other.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__AZTEC__=1" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\other.c"
 tool: "D:\\bin\\sqz.exe" "E:\\u0002.o"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0004.rsp"
 response: "E:\\u0004.rsp" "-o" "E:\\u0003.cmd" "D:\\lib\\begin86.o" "E:\\u0001.o" "E:\\u0002.o" "C:\\main.o" "D:\\lib\\c86.lib"
@@ -601,7 +607,7 @@ main.c
 acc: plan stage=link target=cpm86 model=small cpu=i8086
 acc: plan float=soft optimize=default debug=on
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-D__AZTEC__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
 response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "-g" "D:\\lib\\begin86.o" "E:\\u0001.o" "D:\\lib\\c86.lib"
 publish: "E:\\u0002.cmd" -> "C:\\a.cmd"

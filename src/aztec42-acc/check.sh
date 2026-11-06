@@ -87,9 +87,9 @@ printf '%s\n' "$output" | grep -F 'begin86.o' >/dev/null
 printf '%s\n' "$output" | grep -F 'c86.lib' >/dev/null
 test ! -e hello.cmd
 test ! -e 'E:'
-limit=$(printf '%072d' 0)
+limit=$(printf '%058d' 0)
 output=$("$@" -### -toolroot="$root" -c -DLONG="$limit" main.c 2>&1)
-limit=$(printf '%073d' 0)
+limit=$(printf '%059d' 0)
 expect_error 'command line too long' "$@" -### -toolroot="$root" -c -DLONG="$limit" main.c
 
 output=$("$@" -### -toolroot="$root" -S -DTEST= -I. main.c 2>&1)

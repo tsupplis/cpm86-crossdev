@@ -27,6 +27,12 @@
 
 
 
+
+
+
+
+
+
 @case err-8087-fast-unsupported
 -###
 -toolroot=@ROOT@
@@ -61,7 +67,7 @@ entry.asm
 acc: plan stage=object target=none model=small cpu=i80286
 acc: plan float=8087 optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\as.exe" "-186" "-2" "-D__i186__=1" "-D__i286__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+tool: "D:\\bin\\as.exe" "-186" "-2" "-D__AZTEC__=1" "-D__i186__=1" "-D__i286__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
 publish: "E:\\u0001.o" -> "C:\\entry.o"
 [exit 0]
 @end
@@ -113,7 +119,7 @@ acc: input is incompatible with selected stage: main.o
 -###
 -toolroot=@ROOT@
 -c
--DLONG=0000000000000000000000000000000000000000000000000000000000000000000000000
+-DLONG=00000000000000000000000000000000000000000000000000000000000
 main.c
 @out
 acc: compiler command line too long (127 > 126 bytes; reduce -I/-D or shorten paths): main.c
@@ -506,6 +512,17 @@ acc: K&R mode is not supported: acc compiles ANSI C: -traditional
 main.c
 @out
 acc: strict ANSI mode is not supported: it disables near and far: -ansi
+[exit 1]
+@end
+
+@case err-compiler-macro-conflict
+-###
+-toolroot=@ROOT@
+-c
+-D__AZTEC__=5
+main.c
+@out
+acc: conflicting compiler macro: __AZTEC__=5
 [exit 1]
 @end
 

@@ -544,6 +544,13 @@ static int validate(const request_t *r, plan_context_t *ctx)
              (r->target == TARGET_CPM86 || strcmp(macro + 10, "1") != 0)))
             return fail("conflicting target macro", macro);
     }
+    /* acc defines __AZTEC__ as 1: a user definition must agree. */
+    for (i = 0; i < r->definitions.count; ++i) {
+        macro = r->definitions.items[i];
+        if (strncmp(macro, "__AZTEC__=", 10) == 0 &&
+            strcmp(macro + 10, "1") != 0)
+            return fail("conflicting compiler macro", macro);
+    }
     /* acc defines the CPU tier macros: a user definition must agree. */
     for (i = 0; i < r->definitions.count; ++i) {
         macro = r->definitions.items[i];
@@ -669,6 +676,8 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
                         raw_options->items[i], &raw))
             return 0;
     }
+    if (!add_word(args, profile_identity_macro()))
+        return 0;
     /* Compilation is OS-neutral unless -target is given. */
     if (r->target_given && !add_word(args, profile_target_macro(r->target)))
         return 0;

@@ -55,6 +55,12 @@ const char *profile_assembler_cpu_flag(cpu_t cpu);
 const char *profile_assembler_float_flag(cpu_t cpu, float_backend_t floating);
 
 /*
+ * Preprocessor definition identifying the compiler family, as one argument:
+ * -D__AZTEC__=1.  Defined for every compilation, with or without -target.
+ */
+const char *profile_identity_macro(void);
+
+/*
  * Preprocessor definition identifying TARGET, as one cc argument:
  * -D__CPM86__=1 or -D__MSDOS__=1.  Defined only for an explicit -target.
  */

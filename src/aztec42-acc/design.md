@@ -17,7 +17,7 @@ wrappers; keeps the Aztec compiler, assembler, linker and runtime.
 | 1 | One output per source; one executable per link |
 | 2 | No blind forwarding: every backend flag is managed, allow-listed (`raw.c`) or rejected |
 | 3 | Compilation is OS-neutral; the link target follows the `-o` suffix |
-| 4 | The driver defines only OS and CPU macros; the rest is native or `azdefs.h` |
+| 4 | The driver defines only `__AZTEC__`, OS and CPU macros; the rest is native or `azdefs.h` (guarded by `__AZTEC__`) |
 | 5 | Validate everything before running anything; `-###` never touches the filesystem |
 | 6 | One C89 source tree for Unix and Aztec C 4.2 on DOS 2; `acc` builds `acc.exe` |
 | 7 | Planning is data; the printed plan is the test oracle |
