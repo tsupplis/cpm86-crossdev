@@ -11,14 +11,12 @@ if [ ! -d "$root/share/aztec34/bin" ] || [ ! -f "$root/share/emu/cpm86.exe" ]; t
     mkdir -p "$tmp"
     trap 'rm -rf "$tmp"' EXIT
     (cd "$tmp" && unzip -L "$ARCHIVED_FILE")
-    mkdir -p "$root/share/aztec34/src"
     mkdir -p "$root/share/emu"
     mkdir -p "$root/share/aztec34/bin" "$root/share/aztec34/lib" "$root/share/aztec34/include"
     cp -R "$tmp/az8634b/bin/."        "$root/share/aztec34/bin"
     cp -R "$tmp/az8634b/lib/."        "$root/share/aztec34/lib"
     cp    "$tmp/az8634b/emu/cpm.exe" "$root/share/emu/cpm86.exe"
     cp -R "$tmp/az8634b/obj/."      "$root/share/aztec34/lib"
-    cp -R "$tmp/az8634b/src/."        "$root/share/aztec34/src"
     cp -R "$tmp/az8634b/include/."    "$root/share/aztec34/include"
     rm -f "$patched" "$root/share/aztec34/bin/"*.bak
     rm -rf "$tmp"
@@ -62,4 +60,6 @@ rm -f "$root/share/aztec34/bin/arcv.com" "$root/share/aztec34/bin/"*.bak \
       "$root/share/aztec34/bin/diff.exe" "$root/share/aztec34/bin/grep.exe" \
       "$root/share/aztec34/bin/ls.exe" "$root/share/aztec34/bin/ls.com" \
       "$root/share/aztec34/bin/z.exe" "$root/share/aztec34/bin/term.exe" \
-      "$root/share/aztec34/bin/crc.exe" "$root/share/aztec34/bin/pcz.exe"
+      "$root/share/aztec34/bin/crc.exe" "$root/share/aztec34/bin/pcz.exe" \
+      "$root/share/aztec34/bin/ctags.com" "$root/share/aztec34/bin/cpm.exe"
+rm -rf "$root/share/aztec34/src"

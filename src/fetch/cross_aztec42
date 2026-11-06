@@ -96,7 +96,9 @@ rm -f "$installed/bin/arcv.com" "$installed/bin/c.exe" \
       "$installed/bin/diff.exe" "$installed/bin/grep.exe" \
       "$installed/bin/ls.com" "$installed/bin/ls.exe" \
       "$installed/bin/rm.c" "$installed/bin/rm.exe" \
-      "$installed/bin/z.exe" "$installed/bin/term.exe"
+      "$installed/bin/z.exe" "$installed/bin/term.exe" \
+      "$installed/bin/hd.com" "$installed/bin/ctags.com" \
+      "$installed/bin/ctoeng.com" "$installed/bin/engtoc.com"
 if [ -d "$installed/src" ]; then rm -rf "$installed/src"; fi
 rm -f "$installed/built" "$installed/unpacked" "$installed/tools_built" \
       "$installed/patched-runtime"
