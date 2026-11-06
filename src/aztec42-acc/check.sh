@@ -188,10 +188,18 @@ if printf '%s\n' "$output" | grep -Fi 'libs2\\pick.lib'; then exit 1; fi
 ln -s "$hostroot" sdk
 output=$("$@" -### -toolroot=sdk -c main.c 2>&1)
 if [ "$#" -gt 1 ]; then
+    printf '%s\n' "$output" | grep -Fi '"C:\\sdk\\bin\\cc.exe"' >/dev/null
+    # acc.exe receives at most 125 characters of arguments intact: emu2, like
+    # DOS, joins them with single spaces and cuts the tail at 126.  Tail
+    # length here is 33 + the number of zeros.
+    zeros=$(printf '%092d' 0)
+    expect_error 'compiler command line too long' "$@" -### -toolroot="$root" \
+        -c "-DX=$zeros" main.c
+    expect_error 'command line fills the DOS limit' "$@" -### -toolroot="$root" \
+        -c "-DX=${zeros}0" main.c
     # The workspace parent must leave room for 8.3 names within 63 characters.
     expect_error 'DOS workspace parent exceeds' "$@" -toolroot="$root" -c main.c -- \
         CCTEMP='C:\aaaaaaaa\bbbbbbbb\cccccccc\dddddddd\eeeeeeee\ffffffff\gggggggg'
-    printf '%s\n' "$output" | grep -Fi '"C:\\sdk\\bin\\cc.exe"' >/dev/null
     output=$("$@" -### -c main.c -- ACCROOT='C:\sdk' 2>&1)
     printf '%s\n' "$output" | grep -Fi '"C:\\sdk\\bin\\cc.exe"' >/dev/null
 else

@@ -446,6 +446,12 @@ done:
     return ok;
 }
 
+/* Unix passes argv intact: there is no command tail to truncate. */
+int host_command_line_ok(void)
+{
+    return 1;
+}
+
 /*
  * Run PLAN: resolve the emulator, create the workspace, run each command
  * (writing its response file first) and verify its product, then publish

@@ -54,6 +54,8 @@ int main(int argc, char **argv)
     int ok;
     int status;
 
+    if (!host_command_line_ok())
+        return 1;
     if (argc == 2 && strcmp(argv[1], "-help") == 0) {
         usage(stdout);
         return 0;

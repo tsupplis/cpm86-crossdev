@@ -44,4 +44,11 @@ int add_word(word_list_t *words, const char *text);
 /* Free every string owned by WORDS and leave the list empty. */
 void free_words(word_list_t *words);
 
+/*
+ * execunix.c / execdos.c: non-zero if this program received its whole
+ * command line.  Always true on Unix; on DOS, a full command tail may have
+ * been truncated.  Returns 0 after a diagnostic.
+ */
+int host_command_line_ok(void);
+
 #endif

@@ -18,6 +18,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Longest DOS command tail: DOS and emu2 silently drop what follows. */
+#define DOS_TAIL_MAX 126
+
 /* Size of a DOS path buffer: 63 characters plus the terminator. */
 #define ACC_DOS_PATH 64
 
@@ -506,6 +509,22 @@ static void on_interrupt(int number)
 {
     (void)number;
     interrupted = 1;
+}
+
+/*
+ * Reject a full command tail (PSP offset 80h holds its length): the
+ * arguments may have been cut, and running a different command than the
+ * one typed must never happen silently.
+ */
+int host_command_line_ok(void)
+{
+    unsigned char far *psp;
+
+    psp = (unsigned char far *)dos_far(_PSP, 0);
+    if (psp[0x80] >= DOS_TAIL_MAX)
+        return fail("command line fills the DOS limit (126 bytes) and may be "
+                    "truncated; list link inputs in a .inp file", 0);
+    return 1;
 }
 
 /*
