@@ -1,5 +1,5 @@
 BIN := $(abspath ../../bin)
-ACC := $(abspath ../../bin/aztec42_acc)
+ACC := $(abspath ../../bin/aztec43_acc)
 ACCROOT := $(abspath ../../share/aztec42)
 LIBDIR := ../../share/aztec42/lib
 LIB := $(LIBDIR)/c86.lib

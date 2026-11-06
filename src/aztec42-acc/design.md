@@ -32,7 +32,7 @@ wrappers; keeps the Aztec compiler, assembler, linker and runtime.
 | Native DOS bootstrap | `build.bat <aztec-root>` (cc/ln directly; not run by `make`) |
 | Installed layout | `<root>/bin/acc`, `<root>/bin/acc.exe`, `<root>/include/azdefs.h` |
 | Installer | `make install INSTALL_ROOT=<root>`, run by the [fetcher](../fetch/cross_aztec42) |
-| Launcher | `bin/aztec42_acc` adds `-toolroot`; it adds no policy |
+| Launcher | `bin/aztec43_acc` adds `-toolroot`; it adds no policy |
 
 Portability rules: C89, 16-bit `int`/`size_t`, 64 KB data, no large stack
 buffers, null tests against `0` (Aztec's `NULL` is `((void *)0)` and warns
