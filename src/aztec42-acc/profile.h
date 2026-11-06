@@ -1,0 +1,75 @@
+/*
+ * Target profiles: every fact about the Aztec C86 runtime and backend
+ * flags that depends on the selected target, memory model, CPU, floating
+ * point backend, language mode or optimisation preference.
+ *
+ * The planner asks these functions instead of spelling backend flags or
+ * library names itself, so each mapping lives in exactly one place.
+ * Functions returning a flag return 0 when the setting needs no flag.
+ */
+#ifndef PROFILE_H
+#define PROFILE_H
+
+/* Final product of an invocation. */
+typedef enum {
+    STAGE_LINK,         /* default: build an executable */
+    STAGE_OBJECT,       /* -c: compile or assemble to objects */
+    STAGE_ASSEMBLY      /* -S: compile to assembly */
+} stage_t;
+
+/* Values of -target, -mcmodel, -march and -mfloat, in option order. */
+typedef enum { TARGET_CPM86, TARGET_DOS1, TARGET_DOS2 } target_t;
+typedef enum { MODEL_SMALL, MODEL_MEDIUM, MODEL_COMPACT, MODEL_LARGE } model_t;
+typedef enum { CPU_I8086, CPU_I80186, CPU_I80286 } cpu_t;
+typedef enum { FLOAT_SOFT, FLOAT_AUTO, FLOAT_8087, FLOAT_8087_FAST } float_backend_t;
+
+/* -ansi / -traditional; DEFAULT keeps the compiler's native mode. */
+typedef enum { LANGUAGE_DEFAULT, LANGUAGE_ANSI, LANGUAGE_TRADITIONAL } language_t;
+
+/* -Osize / -Ospeed; DEFAULT keeps the compiler's native preference. */
+typedef enum { OPTIMIZE_DEFAULT, OPTIMIZE_SIZE, OPTIMIZE_SPEED } optimize_t;
+
+/* Option spellings, indexed by the enums above. */
+#define TARGET_COUNT 3
+#define MODEL_COUNT 4
+#define CPU_COUNT 3
+#define FLOAT_COUNT 4
+extern const char *const target_names[TARGET_COUNT];
+extern const char *const model_names[MODEL_COUNT];
+extern const char *const cpu_names[CPU_COUNT];
+extern const char *const float_names[FLOAT_COUNT];
+
+/*
+ * Return the index of VALUE in NAMES[0..COUNT-1], or -1 after an
+ * "invalid option value" diagnostic.
+ */
+int profile_choice(const char *value, const char *const *names, int count);
+
+/* Compiler (cc) flags. */
+const char *profile_cpu_flag(cpu_t cpu);
+const char *profile_model_flag(model_t model);
+const char *profile_float_flag(float_backend_t floating);
+const char *profile_language_flag(language_t language);
+const char *profile_optimize_flag(optimize_t optimize);
+
+/* Assembler (as) flag for CPU. */
+const char *profile_assembler_cpu_flag(cpu_t cpu);
+
+/* Preprocessor definition identifying TARGET, as one cc argument. */
+const char *profile_target_macro(target_t target);
+
+/* Executable name used when -o is absent. */
+const char *profile_default_executable(target_t target);
+
+/*
+ * File names, in the tool root's lib/, of the startup object, C runtime
+ * and math library of a profile.
+ */
+const char *profile_startup(target_t target, model_t model);
+const char *profile_runtime(target_t target, model_t model);
+const char *profile_math(float_backend_t floating, model_t model);
+
+/* Non-zero if -lNAME names a stock C runtime (selected by the profile). */
+int profile_is_runtime(const char *name);
+
+#endif

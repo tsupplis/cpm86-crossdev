@@ -1,24 +1,76 @@
+# acc build and test driver: every build and test goes through these targets.
+#
+#   make                 both builds: acc (Unix) and acc.exe (DOS)
+#   make unix            Unix acc   (objects in obj/unix, strict C89)
+#   make dos             DOS acc.exe (objects in obj/dos), compiled and
+#                        linked by the Unix acc itself (self-hosting)
+#   make check           every suite on both builds
+#   make check-plan      golden -### plans, Unix build (tests/plan/*.cases)
+#   make check-plan-dos  the same cases, DOS build under emu2
+#   make bless           rewrite golden expectations from both builds
+#   make install         copy acc and acc.exe into the Aztec tool root
+#   make clean           remove binaries and objects
+#   SHFLAGS=-x           trace the shell test scripts, e.g. make check-exec SHFLAGS=-x
+
+# Unix toolchain.
 CC = cc
 CFLAGS = -O2 -std=c89 -pedantic -Wall -Wextra -Werror
+
+# DOS build: Aztec C 4.2 driven by the Unix acc built above.  acc runs the
+# Aztec tools under emu2 and moves long linker commands into a response
+# file, which the DOS 126-byte command tail requires for this many objects.
 BIN = ../../bin
-AZCC = $(BIN)/aztec42_cc
-AZLD = $(BIN)/aztec42_link
-EMU = $(BIN)/emu2
-INSTALL_ROOT = ../../share/aztec42
-INSTALL_BIN = $(INSTALL_ROOT)/bin
-AZCFLAGS = +0 -b -n -DACC_DOS
-SOURCES = acc.c args.c plan.c exec.c
-OBJECTS = acc.o args.o plan.o exec.o
+EMU = $(abspath $(BIN)/emu2)
+ROOT = $(abspath ../../share/aztec42)
+ACC_DOS_BUILD = ./acc -toolroot=$(ROOT) -emu=$(EMU) -target=dos2
+DOS_CFLAGS = -DACC_DOS
+
+EXAMPLES = $(abspath ../../examples)
+INSTALL_BIN = $(ROOT)/bin
+
+# Shared by both builds; each build adds its own executor.
+COMMON = acc.c words.c args.c profile.c path.c plan.c print.c
+HEADERS = acc.h request.h profile.h path.h plan.h
+UNIX_OBJECTS = $(COMMON:%.c=obj/unix/%.o) obj/unix/execunix.o
+DOS_OBJECTS = $(COMMON:%.c=obj/dos/%.o) obj/dos/execdos.o
 
 .DELETE_ON_ERROR:
-.PHONY: all dos install check check-unix check-dos check-exec check-exec-dos clean
+.PHONY: all unix dos install check check-plan check-plan-dos check-unix \
+	check-dos check-exec check-exec-dos bless clean
 
-all: acc
+all: unix dos
 
-acc: $(SOURCES) acc.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $(SOURCES) $(LDLIBS)
+unix: acc
 
 dos: acc.exe
+
+# --- Unix build ---------------------------------------------------------
+
+obj/unix/%.o: %.c $(HEADERS)
+	@mkdir -p obj/unix
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+acc: $(UNIX_OBJECTS)
+	$(CC) $(LDFLAGS) -o $@ $(UNIX_OBJECTS) $(LDLIBS)
+
+# --- DOS build ----------------------------------------------------------
+
+# Aztec cc has no -Werror: any WARNING in its output fails the object.
+obj/dos/%.o: %.c $(HEADERS) acc
+	@mkdir -p obj/dos
+	@echo "$(ACC_DOS_BUILD) $(DOS_CFLAGS) -c -o $@ $<"
+	@$(ACC_DOS_BUILD) $(DOS_CFLAGS) -c -o $@ $< > $@.log 2>&1 || \
+		{ cat $@.log; rm -f $@ $@.log; exit 1; }
+	@cat $@.log; \
+	if grep -q 'WARNING' $@.log; then \
+		rm -f $@ $@.log; echo "$<: Aztec warnings are errors" >&2; exit 1; \
+	fi; \
+	rm -f $@.log
+
+acc.exe: $(DOS_OBJECTS) acc
+	$(ACC_DOS_BUILD) -o $@ $(DOS_OBJECTS)
+
+# --- Installation -------------------------------------------------------
 
 install: $(INSTALL_BIN)/acc $(INSTALL_BIN)/acc.exe
 
@@ -32,29 +84,34 @@ $(INSTALL_BIN)/acc.exe: acc.exe
 	cp -f acc.exe $@
 	chmod 644 $@
 
-$(OBJECTS): acc.h
+# --- Tests --------------------------------------------------------------
 
-.c.o:
-	$(AZCC) $(AZCFLAGS) -o $@ $<
+check: check-plan check-plan-dos check-unix check-dos check-exec check-exec-dos
 
-acc.exe: $(OBJECTS)
-	$(AZLD) -o $@ $(OBJECTS) -lc
+check-plan: acc
+	sh $(SHFLAGS) tests/run-plan.sh "$(ROOT)" "$(CURDIR)/acc"
 
-check: check-unix check-dos check-exec check-exec-dos
+check-plan-dos: acc.exe
+	EMU2_DRIVE_D="$(ROOT)" sh $(SHFLAGS) tests/run-plan.sh 'D:\' "$(EMU)" "$(CURDIR)/acc.exe"
+
+# The Unix build owns the expected output; the DOS run only records the
+# cases where the DOS build legitimately differs.
+bless: acc acc.exe
+	ACC_BLESS=1 sh $(SHFLAGS) tests/run-plan.sh "$(ROOT)" "$(CURDIR)/acc"
+	ACC_BLESS=1 EMU2_DRIVE_D="$(ROOT)" sh $(SHFLAGS) tests/run-plan.sh 'D:\' "$(EMU)" "$(CURDIR)/acc.exe"
 
 check-unix: acc
-	sh check.sh "$(abspath ../../share/aztec42)" "$(CURDIR)/acc"
+	sh $(SHFLAGS) check.sh "$(ROOT)" "$(CURDIR)/acc"
 
 check-dos: acc.exe
-	EMU2_DRIVE_D="$(abspath ../../share/aztec42)" sh check.sh 'D:\' "$(abspath $(EMU))" "$(CURDIR)/acc.exe"
+	EMU2_DRIVE_D="$(ROOT)" sh $(SHFLAGS) check.sh 'D:\' "$(EMU)" "$(CURDIR)/acc.exe"
 
 check-exec: acc
-	sh exec-check.sh "$(abspath ../../share/aztec42)" "$(CURDIR)/acc" \
-		"$(abspath $(EMU))" "$(abspath ../../examples)"
+	sh $(SHFLAGS) exec-check.sh "$(ROOT)" "$(CURDIR)/acc" "$(EMU)" "$(EXAMPLES)"
 
 check-exec-dos: acc.exe
-	sh exec-dos-check.sh "$(CURDIR)/acc.exe" "$(abspath $(EMU))" \
-		"$(abspath ../../share/aztec42)" "$(abspath ../../examples)"
+	sh $(SHFLAGS) exec-dos-check.sh "$(CURDIR)/acc.exe" "$(EMU)" "$(ROOT)" "$(EXAMPLES)"
 
 clean:
-	rm -f acc acc.exe $(OBJECTS) acc.dbg acc.sym sbegin.o
+	rm -rf obj
+	rm -f acc acc.exe acc.dbg acc.sym *.o

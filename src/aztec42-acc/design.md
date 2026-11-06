@@ -565,183 +565,130 @@ public acc options.
 
 ## C4 architecture
 
-These are **proposed C4 views**, rendered with ordinary Mermaid flowcharts
-for broad Markdown support rather than experimental Mermaid C4 syntax.
-Labels explicitly identify people, systems, containers, and components.
-Only the information-option foundation exists today.
+Views of the implemented driver. One component per source module.
 
-### Level 1: system context
+### Level 1: context
 
-<!-- mermaid-checked: no \n, no em-dash/en-dash, no {} in labels, subgraphs are id["label"], arrows are -->|"label"|, all subgraphs closed by end, ids unique -->
-```mermaid
-flowchart TD
-    ctxDev["Person: C or assembly developer"]
-    ctxBuild["External system: make or DOS build scripts"]
-    ctxAcc["System: acc portable Aztec driver"]
-    ctxTools["External system: Aztec 4.10d toolchain"]
-    ctxEmu["External system: emu2 DOS execution"]
-    ctxFiles[("Local files: sources and target artifacts")]
-    ctxDev -->|"Compiler-style command line"| ctxAcc
-    ctxBuild -->|"Arguments and exit status"| ctxAcc
-    ctxAcc -->|"Native DOS tool commands"| ctxTools
-    ctxAcc -->|"Unix-hosted DOS tool commands"| ctxEmu
-    ctxEmu -->|"Execute DOS binaries"| ctxTools
-    ctxAcc -->|"Read inputs and publish results"| ctxFiles
-    ctxTools -->|"Read and write planned paths"| ctxFiles
-```
-
-The system boundary is driver policy and orchestration. Compilation,
-assembly, and executable generation stay outside it. There are no network
-services, databases, or cloud dependencies.
-
-### Level 2: containers and execution boundaries
-
-In C4, a container is an executable or data store, not necessarily Docker.
-The two acc executables are alternative deployments of the same source,
-not two simultaneously required services.
-
-<!-- mermaid-checked: no \n, no em-dash/en-dash, no {} in labels, subgraphs are id["label"], arrows are -->|"label"|, all subgraphs closed by end, ids unique -->
 ```mermaid
 flowchart LR
-    subgraph ctrSystem["System boundary: acc"]
-        ctrUnix["Container: Unix acc executable"]
-        ctrDos["Container: DOS acc.exe executable"]
-    end
-    ctrEmu["External container: emu2"]
-    subgraph ctrBackend["External system: selected Aztec installation"]
-        ctrCc["Executable: cc.exe"]
-        ctrGen["Executable: cgen.exe"]
-        ctrAs["Executable: as.exe"]
-        ctrLn["Executable: ln.exe"]
-        ctrLib[("Store: headers and runtime archives")]
-    end
-    ctrWork[("Store: private invocation workspace")]
-    ctrOut[("Store: user sources and published outputs")]
-    ctrUnix -->|"Spawn tools through"| ctrEmu
-    ctrEmu -->|"Launch compiler"| ctrCc
-    ctrEmu -->|"Launch explicit assembler"| ctrAs
-    ctrEmu -->|"Launch linker"| ctrLn
-    ctrDos -->|"Direct child launch"| ctrCc
-    ctrDos -->|"Direct child launch"| ctrAs
-    ctrDos -->|"Direct child launch"| ctrLn
-    ctrCc -->|"Compiler-owned second pass"| ctrGen
-    ctrGen -->|"Compiler-owned assembly stage"| ctrAs
-    ctrCc -->|"Read headers"| ctrLib
-    ctrLn -->|"Read startup and archives"| ctrLib
-    ctrUnix -->|"Own temporary artifacts"| ctrWork
-    ctrDos -->|"Own temporary artifacts"| ctrWork
-    ctrUnix -->|"Read and publish"| ctrOut
-    ctrDos -->|"Read and publish"| ctrOut
+    dev["Person: developer or build script"]
+    acc["System: acc"]
+    aztec["External: Aztec C86 4.10d tools"]
+    emu["External: emu2 (Unix hosts)"]
+    fs[("Files: sources, outputs")]
+    dev -->|"argv, exit status"| acc
+    acc -->|"DOS tool commands"| emu
+    emu -->|"runs"| aztec
+    acc -->|"runs (DOS host)"| aztec
+    acc -->|"reads inputs, publishes outputs"| fs
+    aztec -->|"reads, writes workspace"| fs
 ```
 
-The pass arrows denote the compiler-owned pipeline, not a promise about its
-private process-replacement protocol. acc uses only the supported `cc`
-interface. The linker consumes planned intermediate objects from the
-workspace; the driver publishes only completed outputs.
+### Level 2: containers
 
-### Technology stack summary
-
-| Layer | Technology | Version/constraint | Purpose |
-| --- | --- | --- | --- |
-| Shared driver | C | C89 subset accepted by Aztec | CLI, target policy, planning |
-| Unix adapter | Native process/filesystem APIs | Per supported Unix host | Run emu2 and translate paths |
-| DOS adapter | Aztec runtime and DOS child APIs | DOS 2.x+, 8086 baseline | Run DOS tools and collect status |
-| Backend | Aztec compiler/assembler/linker | Installed v4.10d | Generate target artifacts |
-| Cross execution | emu2 | Repository-installed implementation | Execute DOS backend on Unix |
-| Persistent data | Local filesystem | Host/DOS representation limits | Sources, installation, outputs |
-
-Architectural decisions:
-
-- Shared policy is independent of host execution and output target OS.
-- Private compiler passes remain backend-owned.
-- Filesystem ownership and explicit failures are part of the driver contract.
-
-### Level 3: components inside either acc executable
-
-<!-- mermaid-checked: no \n, no em-dash/en-dash, no {} in labels, subgraphs are id["label"], arrows are -->|"label"|, all subgraphs closed by end, ids unique -->
 ```mermaid
 flowchart LR
-    subgraph cmpShared["Shared C89 driver"]
-        cmpCli["Component: token parser"]
-        cmpProfile["Component: target resolver"]
-        cmpPlan["Component: command planner"]
-        cmpRun["Component: sequential executor"]
-        cmpDiag["Component: diagnostics and plan printer"]
+    subgraph sys["System: acc"]
+        unix["acc: Unix executable"]
+        dos["acc.exe: DOS 2.x executable"]
     end
-    subgraph cmpPlatform["Selected platform adapter"]
-        cmpPaths["Component: discovery and path mapping"]
-        cmpWork["Component: workspace and publication"]
-        cmpSpawn["Component: child execution"]
+    subgraph root["Aztec tool root"]
+        tools["bin/: cc, cgen, as, ln"]
+        lib[("lib/, include/")]
     end
-    cmpCli -->|"Normalized request and token origins"| cmpProfile
-    cmpProfile -->|"Validated target profile"| cmpPlan
-    cmpPaths -->|"Resolved installation and guest paths"| cmpPlan
-    cmpPlan -->|"Commands and artifact ownership"| cmpRun
-    cmpRun -->|"Launch one tool at a time"| cmpSpawn
-    cmpRun -->|"Create and publish artifacts"| cmpWork
-    cmpPlan -->|"Dry-run representation"| cmpDiag
-    cmpRun -->|"Stage results and errors"| cmpDiag
+    work[("Private workspace: guest E:")]
+    unix -->|"emu2: C: cwd, D: root, E: workspace"| tools
+    dos -->|"fexecv, wait"| tools
+    tools --> lib
+    tools --> work
+    unix --> work
+    dos --> work
 ```
 
-### Component inventory and dependency rules
-
-| Component | Responsibility | Must not do |
+| Container | Build | Executor |
 | --- | --- | --- |
-| Token parser | Expand responses, validate grammar, retain input order/origins | Launch tools or infer target from libraries |
-| Target resolver | Apply defaults, validate ABI combinations, select runtime/macros | Probe arbitrary libraries by executing them |
-| Command planner | Map options, assign artifacts, preserve link order, check limits | Run a second inconsistent command generator |
-| Sequential executor | Run dependency-ordered stages, stop on failure | Continue after failed compilation |
-| Diagnostics/plan printer | Render argument boundaries, profile, errors | Evaluate displayed commands as shell text |
-| Discovery/path mapping | Locate tools and translate typed path operands | Rewrite arbitrary macro text |
-| Workspace/publication | Own temporary files, protect existing outputs | Delete user files or assume Unix rename on DOS |
-| Child execution | Serialize/launch tool arguments and return status | Make target/model policy decisions |
+| `acc` | host `cc -std=c89` | `execunix.c` |
+| `acc.exe` | Aztec C 4.2 via `acc` (self-hosted) | `execdos.c` |
 
-These are responsibility boundaries, not a requirement for eight source
-files or dynamic dispatch. Select the platform at build time with narrow
-interfaces and compile-time conditionals. No plugin loading or host shell
-dependency is needed.
+### Level 3: components
 
-### Level 4: conceptual code/data model
-
-This view constrains implementation data ownership. These types do not yet
-exist in the foundation; it is not a reverse-engineered class diagram.
-Use C structs, tagged enums, and bounded heap-owned arrays, not C++ classes.
-
-<!-- mermaid-checked: no \n, no em-dash/en-dash, no {} in labels, subgraphs are id["label"], arrows are -->|"label"|, all subgraphs closed by end, ids unique -->
 ```mermaid
 flowchart LR
-    mdlToken["Proposed struct: Token"]
-    mdlRequest["Proposed struct: DriverRequest"]
-    mdlProfile["Proposed struct: TargetProfile"]
-    mdlPlan["Proposed struct: ExecutionPlan"]
-    mdlCommand["Proposed struct: ToolCommand"]
-    mdlArg["Proposed struct: ToolArgument"]
-    mdlArtifact["Proposed struct: Artifact"]
-    mdlResult["Proposed struct: StageResult"]
-    mdlToken -->|"Parsed with source location into"| mdlRequest
-    mdlRequest -->|"Resolved using"| mdlProfile
-    mdlRequest -->|"Planned into"| mdlPlan
-    mdlProfile -->|"Supplies ABI and runtime to"| mdlPlan
-    mdlPlan -->|"Owns ordered commands"| mdlCommand
-    mdlCommand -->|"Owns typed arguments"| mdlArg
-    mdlCommand -->|"Requires and produces"| mdlArtifact
-    mdlCommand -->|"Execution yields"| mdlResult
+    main["acc.c: main, -help"]
+    args["args.c: argv to request_t"]
+    profile["profile.c: target tables"]
+    plan["plan.c: request_t to plan_t"]
+    path["path.c: host and guest paths"]
+    print["print.c: -### rendering"]
+    exec["execunix.c, execdos.c: run plan_t"]
+    words["words.c: lists, diagnostics"]
+    main --> args
+    main --> plan
+    main --> print
+    main --> exec
+    args --> profile
+    plan --> profile
+    plan --> path
+    print --> profile
+    profile --> path
 ```
 
-| Proposed type | Essential fields/invariants |
-| --- | --- |
-| `Token` | Text, argv/response origin, line; owned until request construction finishes |
-| `DriverRequest` | Stage, scalar settings, ordered inputs/definitions/paths/raw tokens; no guest paths |
-| `TargetProfile` | Target, CPU, model, float mode, macro, startup, C/math archive names; immutable after validation |
-| `ExecutionPlan` | Ordered commands, artifact list, requested publications; same input to dry-run and execution |
-| `ToolCommand` | Tool identity, typed argv, child environment, working directory, prerequisite/output artifact IDs |
-| `ToolArgument` | Literal, joined-option path, or separate path operand; never guess translation from text |
-| `Artifact` | Host/guest representation, owner, format suffix, temporary/final role, publication state |
-| `StageResult` | Launch failure versus exit code versus abnormal termination; never success-shaped fallback |
+`words.c` is used by every component (arrows omitted).
 
-Use checked counts and allocations suitable for 16-bit builds. Free request,
-plan, and workspace resources through explicit lifetime owners; do not rely
-on process exit for publication/cleanup correctness.
+| Component | Owns | Never |
+| --- | --- | --- |
+| `args.c` | option syntax, value lists, macro normalisation | touches the filesystem |
+| `profile.c` | flags, startup, runtime, math libraries per target/model/CPU/float | decides policy beyond lookup |
+| `path.c` | canonical paths, guest mapping, DOS 8.3/63-char validation | approximates an unrepresentable path |
+| `plan.c` | validation, command emission, link order, response file | creates or modifies files |
+| `print.c` | stable `-###` format | evaluates commands |
+| `execunix.c` | emu2 launch, workspace, atomic publication, signals | makes planning decisions |
+| `execdos.c` | child environment, launch, workspace, backup/restore publication | makes planning decisions |
+
+Interfaces: `request.h`, `plan.h`, `profile.h`, `path.h`, `acc.h`.
+
+### Level 4: data
+
+```mermaid
+classDiagram
+    class request_t {
+        stage_t stage
+        target_t target
+        model_t model
+        cpu_t cpu
+        float_backend_t floating
+        language_t language
+        optimize_t optimize
+        word_list_t includes, definitions, libraries, inputs
+        char* output, root, emulator, program
+    }
+    class plan_t {
+        command_t* first
+        word_list_t outputs, products, host_outputs
+        word_list_t library_paths
+        int temps
+        char root, cwd
+    }
+    class command_t {
+        word_list_t arguments
+        word_list_t response
+        char* response_file, product, source
+    }
+    class path_map_t {
+        char root
+        char cwd
+    }
+    request_t --> plan_t : build_plan
+    plan_t "1" *-- "n" command_t
+    plan_t ..> path_map_t : guest mapping
+```
+
+| Invariant | |
+| --- | --- |
+| `plan_t` arguments | guest form only (`C:`, `D:`, `E:`) |
+| `E:` | per-invocation private workspace; every temporary is `E:\uNNNN.ext` from one counter, removed at exit |
+| Publication | after every command succeeds; all or nothing |
+| Ownership | `word_list_t` owns its strings; `free_request`, `free_plan` release all |
 
 ## Backend mapping reference
 

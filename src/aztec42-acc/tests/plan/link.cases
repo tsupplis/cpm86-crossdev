@@ -1,0 +1,473 @@
+# Link plans: targets, models, math libraries, overlays, response file.
+# Format: see run-plan.sh.
+
+
+
+
+
+
+
+
+
+@case link-default-name
+-###
+-toolroot=@ROOT@
+main.o
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-default
+-###
+-toolroot=@ROOT@
+main.c
+-o
+hello.cmd
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
+response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "D:\\lib\\begin86.o" "E:\\u0001.o" "D:\\lib\\c86.lib"
+publish: "E:\\u0002.cmd" -> "C:\\hello.cmd"
+[exit 0]
+@end
+
+@case link-dos1
+-###
+-toolroot=@ROOT@
+-target=dos1
+main.o
+@out
+acc: plan stage=link target=dos1 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\begin11.o" "C:\\main.o" "D:\\lib\\d11.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-com
+-###
+-toolroot=@ROOT@
+-target=dos2
+main.o
+-o
+hello.com
+@out
+acc: plan stage=link target=dos2 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.com" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\c.lib"
+publish: "E:\\u0001.com" -> "C:\\hello.com"
+[exit 0]
+@end
+
+@case link-dos2-compact-8087
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=compact
+-mfloat=8087
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=compact cpu=i8086
+acc: plan float=8087 language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginld.o" "C:\\main.o" "D:\\lib\\m87ld.lib" "D:\\lib\\cld.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-compact-auto
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=compact
+-mfloat=auto
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=compact cpu=i8086
+acc: plan float=auto language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginld.o" "C:\\main.o" "D:\\lib\\m87sld.lib" "D:\\lib\\cld.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-compact-soft
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=compact
+-mfloat=soft
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=compact cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginld.o" "C:\\main.o" "D:\\lib\\mld.lib" "D:\\lib\\cld.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-large-8087
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=large
+-mfloat=8087
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=large cpu=i8086
+acc: plan float=8087 language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\lbegin.o" "C:\\main.o" "D:\\lib\\m87l.lib" "D:\\lib\\cl.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-large-auto
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=large
+-mfloat=auto
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=large cpu=i8086
+acc: plan float=auto language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\lbegin.o" "C:\\main.o" "D:\\lib\\m87sl.lib" "D:\\lib\\cl.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-large-soft
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=large
+-mfloat=soft
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=large cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\lbegin.o" "C:\\main.o" "D:\\lib\\ml.lib" "D:\\lib\\cl.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-medium-8087
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=medium
+-mfloat=8087
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=medium cpu=i8086
+acc: plan float=8087 language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginlc.o" "C:\\main.o" "D:\\lib\\m87lc.lib" "D:\\lib\\clc.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-medium-auto
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=medium
+-mfloat=auto
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=medium cpu=i8086
+acc: plan float=auto language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginlc.o" "C:\\main.o" "D:\\lib\\m87slc.lib" "D:\\lib\\clc.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-medium-soft
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=medium
+-mfloat=soft
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=medium cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginlc.o" "C:\\main.o" "D:\\lib\\mlc.lib" "D:\\lib\\clc.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-small-8087
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=small
+-mfloat=8087
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=small cpu=i8086
+acc: plan float=8087 language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\m87.lib" "D:\\lib\\c.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-small-auto
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=small
+-mfloat=auto
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=small cpu=i8086
+acc: plan float=auto language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\m87s.lib" "D:\\lib\\c.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-dos2-small-soft
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=small
+-mfloat=soft
+main.o
+-lm
+@out
+acc: plan stage=link target=dos2 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\m.lib" "D:\\lib\\c.lib"
+publish: "E:\\u0001.exe" -> "C:\\a.exe"
+[exit 0]
+@end
+
+@case link-library-files
+-###
+-toolroot=@ROOT@
+main.o
+custom.lib
+custom.lib
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "C:\\custom.lib" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-library-order
+-###
+-toolroot=@ROOT@
+-L.
+main.o
+-lcustom
+-lm
+-lcustom
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "D:\\lib\\m.lib" "C:\\custom.lib" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-nostartfiles
+-###
+-toolroot=@ROOT@
+-nostartfiles
+main.o
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "C:\\main.o" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-nostdlib-asm
+-###
+-toolroot=@ROOT@
+-nostdlib
+entry.asm
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\as.exe" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
+response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "E:\\u0001.o"
+publish: "E:\\u0002.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-overlay-root
+-###
+-toolroot=@ROOT@
+-overlay-root=1020,aOO
+main.o
+-o
+ovraza.cmd
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "+c" "1020" "+d" "aOO" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\ovraza.cmd"
+publish: "E:\\u0001.rsm" -> "C:\\ovraza.rsm"
+[exit 0]
+@end
+
+@case link-overlay
+-###
+-toolroot=@ROOT@
+-overlay=ovraza.rsm
+main.o
+-o
+function.ovr
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.ovr" "C:\\main.o" "C:\\ovraza.rsm" "D:\\lib\\ovbgn.o"
+publish: "E:\\u0001.ovr" -> "C:\\function.ovr"
+[exit 0]
+@end
+
+@case link-response-file
+-###
+-toolroot=@ROOT@
+main.o
+custom.lib
+custom.lib
+custom.lib
+custom.lib
+custom.lib
+custom.lib
+custom.lib
+custom.lib
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-inp
+-###
+-toolroot=@ROOT@
+list.inp
+-o
+hello.cmd
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\hello.cmd"
+[exit 0]
+@end
+
+@case link-inp-crlf
+-###
+-toolroot=@ROOT@
+crlf.inp
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-inp-library
+-###
+-toolroot=@ROOT@
+list.inp
+-lm
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "D:\\lib\\m.lib" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-sources-and-objects
+-###
+-toolroot=@ROOT@
+main.c
+custom.lib
+main.o
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
+response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "D:\\lib\\begin86.o" "E:\\u0001.o" "C:\\custom.lib" "C:\\main.o" "D:\\lib\\c86.lib"
+publish: "E:\\u0002.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end

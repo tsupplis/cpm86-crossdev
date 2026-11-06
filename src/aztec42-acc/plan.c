@@ -1,359 +1,98 @@
+/*
+ * Planning: request_t -> plan_t.  See plan.h.
+ *
+ * build_plan validates the whole request first (installation, inputs,
+ * search areas, profile compatibility), then emits one compiler or
+ * assembler command per source, an optional linker command, and finally
+ * moves long linker commands into a response file.  The filesystem is only
+ * probed, never modified, so -### is always side-effect free.
+ *
+ * Every target-dependent spelling (flags, startup, libraries) comes from
+ * profile.c; every host/guest path decision from path.c.
+ */
 #ifndef ACC_DOS
 #define _XOPEN_SOURCE 700
 #endif
 #include "acc.h"
+#include "request.h"
+#include "plan.h"
+#include "path.h"
+#include "profile.h"
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#ifdef ACC_DOS
-#include <dos.h>
-#include <stat.h>
-extern int _sys(int function, char *argument, int extra);
-#define SEP '\\'
-#else
+#ifndef ACC_DOS
 #include <sys/stat.h>
 #include <unistd.h>
-#define SEP '/'
 #endif
 
+/*
+ * Longest command tail DOS passes to a child, in bytes, excluding the
+ * terminating CR.  Aztec's fexecv silently truncates longer tails.
+ */
+#define DOS_TAIL_LIMIT 126
+
+/* What a positional input is, from its suffix ("-lNAME" names a library). */
+typedef enum {
+    INPUT_UNKNOWN,
+    INPUT_C,            /* .c: compiled by cc */
+    INPUT_ASM,          /* .asm or .s: assembled by as */
+    INPUT_OBJECT,       /* .o: linked as is */
+    INPUT_LIBRARY,      /* .lib: linked as is */
+    INPUT_LIBNAME,      /* -lNAME: resolved through the library areas */
+    INPUT_LIST          /* .inp: a list of .o and .lib files to link */
+} input_kind_t;
+
+/* Planning state that does not outlive build_plan. */
 typedef struct {
-    char root[ACC_PATH];
-    char cwd[ACC_PATH];
-    Words includes;
-    Words libraries;
-    Words objects;
-    Words sources;
-} Context;
+    path_map_t map;            /* host anchors of guest drives C: and D: */
+    word_list_t includes;         /* host include areas: -I, INCLUDE, tool root */
+    word_list_t libraries;        /* host library areas: -L, CLIB, tool root */
+    word_list_t objects;          /* workspace objects produced for the linker */
+    word_list_t inputs;     /* effective inputs: .inp files expanded in place */
+    word_list_t sources;          /* guest paths of file inputs, for duplicates */
+} plan_context_t;
 
-static int canonical(char *out, const char *path, int output);
-
-static int dos_component(const char *text, size_t base, size_t ext, int dot,
-                         const char *host)
-{
-    char name[9];
-    size_t i;
-
-    if (dot && (base == 0 || ext == 0))
-        return fail("path requires unsupported DOS filename aliasing", host);
-    for (i = 0; i < base; ++i)
-        name[i] = (char)toupper((unsigned char)text[i]);
-    name[base] = '\0';
-    if (strcmp(name, "CON") == 0 || strcmp(name, "PRN") == 0 ||
-        strcmp(name, "AUX") == 0 || strcmp(name, "NUL") == 0 ||
-        (base == 4 && name[3] >= '1' && name[3] <= '9' &&
-         (strncmp(name, "COM", 3) == 0 || strncmp(name, "LPT", 3) == 0)))
-        return fail("path names a reserved DOS device", host);
-    return 1;
-}
-
-static int join_path(char *out, const char *parent, const char *name)
-{
-    size_t size;
-#ifdef ACC_DOS
-    char *p;
-#endif
-
-    size = strlen(parent);
-    if (size + strlen(name) + 2 > ACC_PATH)
-        return fail("path is too long", name);
-    strcpy(out, parent);
-    if (size != 0 && out[size - 1] != '/' && out[size - 1] != '\\') {
-        out[size++] = SEP;
-        out[size] = '\0';
-    }
-    strcat(out, name);
-#ifdef ACC_DOS
-    for (p = out; *p != '\0'; ++p) {
-        if (*p == '/')
-            *p = '\\';
-    }
-#endif
-    return 1;
-}
-
-static int directory(const char *path)
-{
-    struct stat status;
-#ifdef ACC_DOS
-    char cwd[ACC_PATH];
-    char normalized[ACC_PATH];
-
-    if (!canonical(normalized, path, 0))
-        return 0;
-    path = normalized;
-    /* DOS find-first (used by stat) cannot describe a drive's root. */
-    if (strlen(path) == 3 && isalpha((unsigned char)path[0]) &&
-        path[1] == ':' && (path[2] == '\\' || path[2] == '/'))
-        return _sys(0x47, cwd, toupper((unsigned char)path[0]) - 'A' + 1) != -1;
-#endif
-
-    if (stat(path, &status) != 0)
-        return 0;
-#ifdef ACC_DOS
-    return (status.st_attr & ST_DIRECT) != 0;
-#else
-    return S_ISDIR(status.st_mode);
-#endif
-}
-
-static int readable(const char *path)
-{
-    FILE *stream;
-
-    if (directory(path))
-        return 0;
-    stream = fopen(path, "r");
-    if (stream == NULL)
-        return 0;
-    return fclose(stream) == 0;
-}
-
-static int canonical(char *out, const char *path, int output)
-{
-#ifdef ACC_DOS
-    char combined[ACC_PATH];
-    char cwd[ACC_PATH];
-    char root[4];
-    char *read;
-    char *write;
-    char *start;
-    int drive;
-    size_t length;
-
-    if (strlen(path) >= ACC_PATH)
-        return fail("path is too long", path);
-    drive = bdos(0x19, 0, 0);
-    if (isalpha((unsigned char)path[0]) && path[1] == ':') {
-        drive = toupper((unsigned char)path[0]) - 'A';
-        path += 2;
-    }
-    root[0] = (char)('A' + drive);
-    root[1] = ':';
-    root[2] = '\\';
-    root[3] = '\0';
-    if (*path == '\\' || *path == '/') {
-        if (!join_path(combined, root, path + 1))
-            return 0;
-    } else {
-        if (_sys(0x47, cwd, drive + 1) == -1)
-            return fail("cannot determine DOS working directory", root);
-        if (!join_path(out, root, cwd) || !join_path(combined, out, path))
-            return 0;
-    }
-    strcpy(out, root);
-    write = out + 3;
-    read = combined + 3;
-    while (*read != '\0') {
-        start = read;
-        while (*read != '\0' && *read != '\\')
-            ++read;
-        length = (size_t)(read - start);
-        if (length == 2 && start[0] == '.' && start[1] == '.') {
-            while (write > out + 3 && write[-1] != '\\')
-                --write;
-            if (write > out + 3)
-                --write;
-        } else if (length != 0 && !(length == 1 && start[0] == '.')) {
-            if (write > out + 3)
-                *write++ = '\\';
-            memcpy(write, start, length);
-            write += length;
-        }
-        if (*read != '\0')
-            ++read;
-    }
-    *write = '\0';
-    if (output && write > out + 3) {
-        strcpy(combined, out);
-        read = strrchr(combined, '\\');
-        if (read == combined + 2)
-            read[1] = '\0';
-        else
-            *read = '\0';
-        if (!directory(combined))
-            return fail("path parent does not exist", out);
-    }
-    return 1;
-#else
-    char parent[ACC_PATH];
-    char *resolved;
-    char *slash;
-    struct stat status;
-    int ok;
-
-    resolved = realpath(path, NULL);
-    if (resolved != NULL) {
-        if (strlen(resolved) >= ACC_PATH) {
-            free(resolved);
-            return fail("resolved path is too long", path);
-        }
-        strcpy(out, resolved);
-        free(resolved);
-        return 1;
-    }
-    if (!output)
-        return fail("cannot resolve path", path);
-    if (lstat(path, &status) == 0)
-        return fail("cannot resolve existing output", path);
-    if (strlen(path) >= sizeof(parent))
-        return fail("path is too long", path);
-    strcpy(parent, path);
-    slash = strrchr(parent, '/');
-    if (slash == NULL) {
-        resolved = realpath(".", NULL);
-    } else {
-        *slash = '\0';
-        resolved = realpath(parent[0] == '\0' ? "/" : parent, NULL);
-    }
-    if (resolved == NULL)
-        return fail("output parent does not exist", path);
-    ok = join_path(out, resolved, slash == NULL ? path : slash + 1);
-    free(resolved);
-    return ok;
-#endif
-}
-
-#ifndef ACC_DOS
-static const char *within(const char *path, const char *root)
-{
-    size_t size;
-
-    size = strlen(root);
-    if (strncmp(path, root, size) != 0)
-        return NULL;
-    if (size == 1 && root[0] == '/')
-        return path + 1;
-    if (path[size] == '\0')
-        return path + size;
-    if (path[size] == '/')
-        return path + size + 1;
-    return NULL;
-}
-#endif
-
-static int guest_path(const Context *ctx, const char *host, char *out)
-{
-    char resolved[ACC_PATH];
-#ifndef ACC_DOS
-    const char *relative;
-#endif
-    char *p;
-    char *component;
-    size_t base;
-    size_t ext;
-    int dot;
-
-    if (!canonical(resolved, host, 1))
-        return 0;
-#ifdef ACC_DOS
-    (void)ctx;
-    strcpy(out, resolved);
-#else
-    relative = within(resolved, ctx->root);
-    if (relative != NULL && strlen(ctx->root) >= strlen(ctx->cwd)) {
-        strcpy(out, "D:\\");
-    } else {
-        relative = within(resolved, ctx->cwd);
-        if (relative != NULL) {
-            strcpy(out, "C:\\");
-        } else {
-            relative = within(resolved, ctx->root);
-            if (relative == NULL)
-                return fail("path lies outside invocation directory and Aztec root", host);
-            strcpy(out, "D:\\");
-        }
-    }
-    if (strlen(relative) + 4 > ACC_PATH)
-        return fail("DOS path is too long", host);
-    if (strchr(relative, '\\') != NULL)
-        return fail("path cannot be represented safely in DOS", host);
-    strcat(out, relative);
-#endif
-    base = 0;
-    ext = 0;
-    dot = 0;
-    component = out;
-    /* No implicit long-name aliases or DOS quoting guesses. */
-    for (p = out; *p != '\0'; ++p) {
-        if (*p == '/')
-            *p = '\\';
-        if (*p == ':' && p == out + 1) {
-            base = 0;
-            component = p + 1;
-            continue;
-        }
-        if (*p == '\\') {
-            if (!dos_component(component, base, ext, dot, host))
-                return 0;
-            base = ext = 0;
-            dot = 0;
-            component = p + 1;
-        } else if (*p == '.') {
-            if (dot)
-                return fail("path requires unsupported DOS filename aliasing", host);
-            dot = 1;
-        } else {
-            if ((unsigned char)*p < 33 || (unsigned char)*p > 126 ||
-                strchr("\";,:*?<>|+=[]", *p) != NULL)
-                return fail("path cannot be represented safely in DOS", host);
-            if (dot)
-                ++ext;
-            else
-                ++base;
-            if (base > 8 || ext > 3)
-                return fail("path requires unsupported DOS filename aliasing", host);
-        }
-    }
-    if (strlen(out) > 63)
-        return fail("path exceeds the supported DOS path limit (63 characters)", host);
-    return dos_component(component, base, ext, dot, host);
-}
-
-static int equal_name(const char *a, const char *b)
-{
-    while (*a != '\0' && *b != '\0') {
-        if (tolower((unsigned char)*a) != tolower((unsigned char)*b))
-            return 0;
-        ++a;
-        ++b;
-    }
-    return *a == *b;
-}
-
-static const char *basename_of(const char *path)
-{
-    const char *start;
-
-    start = path;
-    while (*path != '\0') {
-        if (*path == '/' || *path == '\\' || *path == ':')
-            start = path + 1;
-        ++path;
-    }
-    return start;
-}
-
-static int classify(const char *path)
+/* Classify input PATH by its suffix (case-insensitive, as on DOS). */
+static input_kind_t classify(const char *path)
 {
     const char *dot;
 
     if (strncmp(path, "-l", 2) == 0)
-        return 4;
-    dot = strrchr(basename_of(path), '.');
+        return INPUT_LIBNAME;
+    dot = strrchr(path_basename(path), '.');
     if (dot == 0)
-        return -1;
-    if (equal_name(dot, ".c"))
-        return 0;
-    if (equal_name(dot, ".asm") || equal_name(dot, ".s"))
-        return 1;
-    if (equal_name(dot, ".o"))
-        return 2;
-    if (equal_name(dot, ".lib"))
-        return 3;
-    return -1;
+        return INPUT_UNKNOWN;
+    if (path_equal(dot, ".c"))
+        return INPUT_C;
+    if (path_equal(dot, ".asm") || path_equal(dot, ".s"))
+        return INPUT_ASM;
+    if (path_equal(dot, ".o"))
+        return INPUT_OBJECT;
+    if (path_equal(dot, ".lib"))
+        return INPUT_LIBRARY;
+    if (path_equal(dot, ".inp"))
+        return INPUT_LIST;
+    return INPUT_UNKNOWN;
 }
 
-static int env_paths(Words *paths, const char *name)
+/* Non-zero if KIND is translated to an object before linking. */
+static int is_source(input_kind_t kind)
+{
+    return kind == INPUT_C || kind == INPUT_ASM;
+}
+
+/* Non-zero if KIND names a file the user supplied (not -lNAME). */
+static int is_file(input_kind_t kind)
+{
+    return kind != INPUT_UNKNOWN && kind != INPUT_LIBNAME;
+}
+
+/*
+ * Append to PATHS the areas listed in environment variable NAME, using the
+ * host list separator (';' on DOS, ':' on Unix).  An empty element means
+ * the current directory.  An unset or empty variable adds nothing.
+ */
+static int env_paths(word_list_t *paths, const char *name)
 {
     const char *value;
     const char *p;
@@ -385,7 +124,13 @@ static int env_paths(Words *paths, const char *name)
     return 1;
 }
 
-static int paths(Context *ctx, Words *dest, const Words *user,
+/*
+ * Build the ordered search list DEST: the user's areas (USER), then those
+ * of environment VARIABLE, then SUBDIR of the tool root.  Every area must
+ * exist and be reachable as a guest path, so problems surface before any
+ * tool runs rather than as a confusing backend error.
+ */
+static int paths(plan_context_t *ctx, word_list_t *dest, const word_list_t *user,
                  const char *variable, const char *subdir)
 {
     char buffer[ACC_PATH];
@@ -396,28 +141,41 @@ static int paths(Context *ctx, Words *dest, const Words *user,
         if (!add_word(dest, user->items[i]))
             return 0;
     }
-    if (!env_paths(dest, variable) || !join_path(buffer, ctx->root, subdir) ||
+    if (!env_paths(dest, variable) || !path_join(buffer, ctx->map.root, subdir) ||
         !add_word(dest, buffer))
         return 0;
     for (i = 0; i < dest->count; ++i) {
-        if (!directory(dest->items[i]))
+        if (!path_is_directory(dest->items[i]))
             return fail("search directory does not exist", dest->items[i]);
-        if (!guest_path(ctx, dest->items[i], guest))
+        if (!path_guest(&ctx->map, dest->items[i], guest))
             return 0;
     }
     return 1;
 }
 
-static Command *command(Plan *plan, const char *tool)
+/*
+ * Store in OUT (at least 16 bytes) the next workspace temporary name,
+ * E:\uNNNN.SUFFIX.  SUFFIX has at most 3 characters (8.3 names).
+ */
+static int temp_name(plan_t *plan, const char *suffix, char *out)
 {
-    Command *result;
+    if (plan->temps == PLAN_TEMP_LIMIT)
+        return fail("too many workspace temporaries", NULL);
+    sprintf(out, "E:\\u%04d.%s", ++plan->temps, suffix);
+    return 1;
+}
 
-    result = calloc(1, sizeof(Command));
-    if (result == NULL) {
+/* Append a new command running guest program TOOL to PLAN; NULL on error. */
+static command_t *command(plan_t *plan, const char *tool)
+{
+    command_t *result;
+
+    result = calloc(1, sizeof(command_t));
+    if (result == 0) {
         fail("out of memory", NULL);
         return NULL;
     }
-    if (plan->last == NULL)
+    if (plan->last == 0)
         plan->first = result;
     else
         plan->last->next = result;
@@ -427,19 +185,21 @@ static Command *command(Plan *plan, const char *tool)
     return result;
 }
 
-static Command *tool_command(Plan *plan, const Context *ctx, const char *name)
+/* Append a command running backend NAME from the tool root's bin/. */
+static command_t *tool_command(plan_t *plan, const plan_context_t *ctx, const char *name)
 {
     char bindir[ACC_PATH];
     char path[ACC_PATH];
     char guest[ACC_PATH];
 
-    if (!join_path(bindir, ctx->root, "bin") ||
-        !join_path(path, bindir, name) || !guest_path(ctx, path, guest))
+    if (!path_join(bindir, ctx->map.root, "bin") ||
+        !path_join(path, bindir, name) || !path_guest(&ctx->map, path, guest))
         return NULL;
     return command(plan, guest);
 }
 
-static int option(Words *args, const char *prefix, const char *value)
+/* Append PREFIX immediately followed by VALUE as one argument. */
+static int option(word_list_t *args, const char *prefix, const char *value)
 {
     char buffer[ACC_PATH];
 
@@ -450,47 +210,63 @@ static int option(Words *args, const char *prefix, const char *value)
     return add_word(args, buffer);
 }
 
-static int mapped(Words *args, const Context *ctx,
+/* Append PREFIX followed by the guest form of host path HOST. */
+static int mapped(word_list_t *args, const plan_context_t *ctx,
                   const char *prefix, const char *host)
 {
     char guest[ACC_PATH];
 
-    return guest_path(ctx, host, guest) && option(args, prefix, guest);
+    return path_guest(&ctx->map, host, guest) && option(args, prefix, guest);
 }
 
-static int stock(Context *ctx, const char *name, char *host)
+/*
+ * Store in HOST the path of installation file NAME in the tool root's lib/
+ * (startup objects, runtime and math libraries).  Fails if it is missing.
+ */
+static int stock(plan_context_t *ctx, const char *name, char *host)
 {
     char libdir[ACC_PATH];
 
-    if (!join_path(libdir, ctx->root, "lib") || !join_path(host, libdir, name))
+    if (!path_join(libdir, ctx->map.root, "lib") || !path_join(host, libdir, name))
         return 0;
-    if (!readable(host))
+    if (!path_readable(host))
         return fail("missing installation library or startup", host);
     return 1;
 }
 
-static int user_library(Context *ctx, const char *name, char *host)
+/*
+ * Resolve -lNAME to the first NAME.lib in the library areas, in order, and
+ * store its host path in HOST.  NAME must be a plain name: paths and
+ * suffixes belong in positional inputs instead.
+ */
+static int user_library(plan_context_t *ctx, const char *name, char *host)
 {
     char filename[ACC_PATH];
     int i;
 
-    if (*name == '\0' || strpbrk(name, "/\\:.") != NULL)
+    if (*name == '\0' || strpbrk(name, "/\\:.") != 0)
         return fail("invalid library name", name);
     if (strlen(name) + 5 >= sizeof(filename))
         return fail("library name is too long", name);
     strcpy(filename, name);
     strcat(filename, ".lib");
     for (i = 0; i < ctx->libraries.count; ++i) {
-        if (!join_path(host, ctx->libraries.items[i], filename))
+        if (!path_join(host, ctx->libraries.items[i], filename))
             return 0;
-        if (readable(host))
+        if (path_readable(host))
             return 1;
     }
     return fail("library not found", name);
 }
 
-static int output_path(Context *ctx, Plan *plan, const char *host,
-                       const char *product, const Request *r)
+/*
+ * Register HOST as a published output whose workspace product is PRODUCT.
+ * Rejects directories, two outputs with the same guest name, and an output
+ * that is (or, on Unix, hard-links to) one of the inputs: publishing would
+ * destroy that input.
+ */
+static int output_path(plan_context_t *ctx, plan_t *plan, const char *host,
+                       const char *product)
 {
     char guest[ACC_PATH];
     char source[ACC_PATH];
@@ -501,41 +277,45 @@ static int output_path(Context *ctx, Plan *plan, const char *host,
     struct stat input;
 #endif
 
-    if (directory(host))
+    if (path_is_directory(host))
         return fail("output is a directory", host);
-    if (!guest_path(ctx, host, guest))
+    if (!path_guest(&ctx->map, host, guest))
         return 0;
     for (i = 0; i < plan->outputs.count; ++i) {
-        if (equal_name(plan->outputs.items[i], guest))
+        if (path_equal(plan->outputs.items[i], guest))
             return fail("output collision", host);
     }
-    for (i = 0; i < r->inputs.count; ++i) {
-        if (classify(r->inputs.items[i]) == 4)
+    for (i = 0; i < ctx->inputs.count; ++i) {
+        if (classify(ctx->inputs.items[i]) == INPUT_LIBNAME)
             continue;
-        if (!guest_path(ctx, r->inputs.items[i], source))
+        if (!path_guest(&ctx->map, ctx->inputs.items[i], source))
             return 0;
-        if (equal_name(source, guest))
+        if (path_equal(source, guest))
             return fail("output aliases an input", host);
 #ifndef ACC_DOS
         if (stat(host, &destination) == 0 &&
-            stat(r->inputs.items[i], &input) == 0 &&
+            stat(ctx->inputs.items[i], &input) == 0 &&
             destination.st_dev == input.st_dev && destination.st_ino == input.st_ino)
             return fail("output aliases an input", host);
 #endif
     }
-    return canonical(resolved, host, 1) &&
+    return path_canonical(resolved, host, 1) &&
         add_word(&plan->outputs, guest) && add_word(&plan->products, product) &&
         add_word(&plan->host_outputs, resolved);
 }
 
+/*
+ * Store in OUT the overlay symbol table that ln -r writes for root OUTPUT:
+ * the same name with suffix .rsm.
+ */
 static int overlay_table_output(char *out, const char *output)
 {
     const char *base;
     char *suffix;
 
-    base = basename_of(output);
+    base = path_basename(output);
     suffix = strrchr(output, '.');
-    if (suffix == NULL || suffix < base)
+    if (suffix == 0 || suffix < base)
         return fail("overlay root output requires a filename suffix", output);
     if ((size_t)(suffix - output) + 5 >= ACC_PATH)
         return fail("overlay root output path is too long", output);
@@ -544,155 +324,291 @@ static int overlay_table_output(char *out, const char *output)
     return 1;
 }
 
-static int required_tool(const Context *ctx, const char *name)
+/* Fail unless installation file NAME (relative to the tool root) exists. */
+static int required_tool(const plan_context_t *ctx, const char *name)
 {
     char path[ACC_PATH];
 
-    if (!join_path(path, ctx->root, name))
+    if (!path_join(path, ctx->map.root, name))
         return 0;
-    if (!readable(path))
+    if (!path_readable(path))
         return fail("required backend tool is missing", path);
     return 1;
 }
 
-static int validate(const Request *r, Context *ctx)
+/*
+ * Store in OUT the tool root that contains this acc, when acc runs from
+ * <root>/bin and <root>/bin/cc.exe exists.  Unix only: DOS 2 does not pass
+ * a program its own path.  Returns 0 when there is no such root.
+ */
+static int discover_root(const request_t *r, char *out)
+{
+#ifdef ACC_DOS
+    (void)r;
+    (void)out;
+    return 0;
+#else
+    char tool[ACC_PATH];
+    char *slash;
+    int level;
+
+    if (r->program == 0 || !path_program(out, r->program))
+        return 0;
+    for (level = 0; level < 2; ++level) {
+        slash = strrchr(out, '/');
+        if (slash == 0 || slash == out)
+            return 0;
+        *slash = '\0';
+    }
+    return strlen(out) + 12 < sizeof(tool) && path_join(tool, out, "bin") &&
+        path_join(tool, tool, "cc.exe") && path_readable(tool);
+#endif
+}
+
+/*
+ * Append to CTX->inputs the entries of link list LIST: one .o or .lib path
+ * per line, relative to the invocation directory.  LF or CRLF line ends
+ * and blank lines are accepted.  Options, comments, blanks inside a path,
+ * sources and nested lists are errors, so a list can never change how the
+ * link is configured.
+ */
+static int read_list(plan_context_t *ctx, const char *list)
+{
+    char line[ACC_PATH];
+    FILE *stream;
+    const char *p;
+    size_t length;
+    input_kind_t kind;
+    int ok;
+
+    if (!path_readable(list) || (stream = fopen(list, "r")) == 0)
+        return fail("cannot read input", list);
+    ok = 1;
+    while (ok && fgets(line, sizeof(line), stream) != 0) {
+        length = strlen(line);
+        if (length == sizeof(line) - 1 && line[length - 1] != '\n') {
+            ok = fail("line too long in link list", list);
+            break;
+        }
+        while (length != 0 && (line[length - 1] == '\n' || line[length - 1] == '\r'))
+            line[--length] = '\0';
+        if (length == 0)
+            continue;
+        for (p = line; *p != '\0'; ++p) {
+            if ((unsigned char)*p <= 32 || (unsigned char)*p == 127)
+                ok = fail("blank or control character in link list entry", line);
+        }
+        kind = classify(line);
+        if (ok && kind != INPUT_OBJECT && kind != INPUT_LIBRARY)
+            ok = fail("link list entries must be .o or .lib files", line);
+        if (ok)
+            ok = add_word(&ctx->inputs, line);
+    }
+    fclose(stream);
+    return ok;
+}
+
+/*
+ * Build CTX->inputs from the request's inputs, replacing the .inp file by
+ * its entries (order preserved, so -lNAME stays where the user put it).
+ * A list is a link-only alternative to naming files on the command line:
+ * at most one, and never mixed with other file inputs.
+ */
+static int expand_inputs(const request_t *r, plan_context_t *ctx)
+{
+    const char *item;
+    input_kind_t kind;
+    int lists;
+    int others;
+    int i;
+
+    lists = 0;
+    others = 0;
+    for (i = 0; i < r->inputs.count; ++i) {
+        item = r->inputs.items[i];
+        kind = classify(item);
+        if (kind == INPUT_LIST) {
+            if (r->stage != STAGE_LINK)
+                return fail("input is incompatible with selected stage", item);
+            if (++lists > 1)
+                return fail("only one .inp file is allowed", item);
+        } else if (kind != INPUT_LIBNAME) {
+            ++others;
+        }
+    }
+    if (lists != 0 && others != 0)
+        return fail("a .inp file cannot be combined with other file inputs", NULL);
+    for (i = 0; i < r->inputs.count; ++i) {
+        item = r->inputs.items[i];
+        if (classify(item) == INPUT_LIST ? !read_list(ctx, item) :
+            !add_word(&ctx->inputs, item))
+            return 0;
+    }
+    return 1;
+}
+
+/*
+ * Check everything the plan depends on before emitting any command: the
+ * tool root, search areas, legacy settings, every input, the number of
+ * compilation outputs, target macros, and every backend tool and startup
+ * the plan will need.  Fills CTX for the planning functions.
+ */
+static int validate(const request_t *r, plan_context_t *ctx)
 {
     char guest[ACC_PATH];
+    char discovered[ACC_PATH];
     const char *root;
     const char *macro;
     int i;
     int j;
-    int type;
+    input_kind_t kind;
     int count;
 
     root = r->root;
     if (root == 0 || *root == '\0')
         root = getenv("ACCROOT");
+    if ((root == 0 || *root == '\0') && discover_root(r, discovered))
+        root = discovered;
     if (root == 0 || *root == '\0')
-        return fail("set -toolroot or ACCROOT; executable-relative discovery is not implemented yet", NULL);
-    if (!directory(root) || !canonical(ctx->root, root, 0))
+        return fail("no Aztec tool root: use -toolroot=dir or ACCROOT", NULL);
+    if (!path_is_directory(root) || !path_canonical(ctx->map.root, root, 0))
         return fail("invalid Aztec installation root", root);
 #ifndef ACC_DOS
-    if (getcwd(ctx->cwd, sizeof(ctx->cwd)) == NULL)
+    if (getcwd(ctx->map.cwd, sizeof(ctx->map.cwd)) == 0)
         return fail("cannot determine working directory", NULL);
 #else
-    if (!canonical(ctx->cwd, ".", 0))
+    if (!path_canonical(ctx->map.cwd, ".", 0))
         return 0;
 #endif
     if (!paths(ctx, &ctx->includes, &r->includes, "INCLUDE", "include") ||
         !paths(ctx, &ctx->libraries, &r->libraries, "CLIB", "lib"))
         return 0;
+    /* cc searches at most 8 areas; the current directory is always one. */
     if (ctx->includes.count > 7)
         return fail("too many include areas for conservative Aztec limit (7 plus current directory)", NULL);
-    if (getenv("AZTEC_STARTUP") != NULL || getenv("AZTEC_NOSTARTUP") != NULL)
+    if (getenv("AZTEC_STARTUP") != 0 || getenv("AZTEC_NOSTARTUP") != 0)
         return fail("legacy AZTEC_STARTUP/AZTEC_NOSTARTUP settings are not supported", NULL);
+    if (!expand_inputs(r, ctx))
+        return 0;
     count = 0;
-    for (i = 0; i < r->inputs.count; ++i) {
-        type = classify(r->inputs.items[i]);
-        if (type < 0)
-            return fail("unsupported input suffix", r->inputs.items[i]);
-        if (r->stage != 0 && (type > 1 || (r->stage == 2 && type != 0)))
-            return fail("input is incompatible with selected stage", r->inputs.items[i]);
-        if (type != 4) {
-            if (!readable(r->inputs.items[i]))
-                return fail("cannot read input", r->inputs.items[i]);
-            if (!guest_path(ctx, r->inputs.items[i], guest))
+    for (i = 0; i < ctx->inputs.count; ++i) {
+        kind = classify(ctx->inputs.items[i]);
+        if (kind == INPUT_UNKNOWN)
+            return fail("unsupported input suffix", ctx->inputs.items[i]);
+        if (r->stage != STAGE_LINK &&
+            (!is_source(kind) || (r->stage == STAGE_ASSEMBLY && kind != INPUT_C)))
+            return fail("input is incompatible with selected stage", ctx->inputs.items[i]);
+        if (is_file(kind)) {
+            if (!path_readable(ctx->inputs.items[i]))
+                return fail("cannot read input", ctx->inputs.items[i]);
+            if (!path_guest(&ctx->map, ctx->inputs.items[i], guest))
                 return 0;
-            if (type < 3) {
+            if (kind != INPUT_LIBRARY) {
                 for (j = 0; j < ctx->sources.count; ++j) {
-                    if (equal_name(ctx->sources.items[j], guest))
-                        return fail("duplicate input", r->inputs.items[i]);
+                    if (path_equal(ctx->sources.items[j], guest))
+                        return fail("duplicate input", ctx->inputs.items[i]);
                 }
                 if (!add_word(&ctx->sources, guest))
                     return 0;
             }
         }
-        if (type < 3)
+        if (kind != INPUT_LIBRARY && kind != INPUT_LIBNAME)
             ++count;
-        if (type == 1 && (r->cpu == 2 || r->floating == 2))
+        /* No probe yet proves how as handles 80286 or inline 8087 code. */
+        if (kind == INPUT_ASM && (r->cpu == CPU_I80286 || r->floating == FLOAT_8087))
             return fail("explicit assembly CPU/coprocessor mapping is not qualified yet", NULL);
     }
     if (count == 0)
         return fail("at least one source or object input is required", NULL);
-    if (r->stage != 0 && r->output != NULL && count != 1)
+    if (r->stage != STAGE_LINK && r->output != 0 && count != 1)
         return fail("one -o cannot name multiple compilation outputs", NULL);
+    /* A user definition of the target macro must agree with -target. */
     for (i = 0; i < r->definitions.count; ++i) {
         macro = r->definitions.items[i];
         if (strncmp(macro, "__CPM86__=", 10) == 0) {
-            if (r->target != 0 || strcmp(macro + 10, "1") != 0)
+            if (r->target != TARGET_CPM86 || strcmp(macro + 10, "1") != 0)
                 return fail("conflicting target macro", macro);
         }
         if (strncmp(macro, "__DOS__=", 8) == 0) {
-            if (r->target == 0 || strcmp(macro + 8, "1") != 0)
+            if (r->target == TARGET_CPM86 || strcmp(macro + 8, "1") != 0)
                 return fail("conflicting target macro", macro);
         }
     }
     /* Verify every required tool before printing any command. */
-    for (i = 0; i < r->inputs.count; ++i) {
-        type = classify(r->inputs.items[i]);
-        if (type > 1)
+    for (i = 0; i < ctx->inputs.count; ++i) {
+        kind = classify(ctx->inputs.items[i]);
+        if (!is_source(kind))
             continue;
-        if (!required_tool(ctx, type == 0 ? "bin/cc.exe" : "bin/as.exe"))
+        if (!required_tool(ctx, kind == INPUT_C ? "bin/cc.exe" : "bin/as.exe"))
             return 0;
-        if (type == 0) {
+        if (kind == INPUT_C) {
+            /* cc runs cgen, then as unless -S stops it after cgen. */
             if (!required_tool(ctx, "bin/cgen.exe"))
                 return 0;
-            if (r->stage != 2 && !required_tool(ctx, "bin/as.exe"))
+            if (r->stage != STAGE_ASSEMBLY && !required_tool(ctx, "bin/as.exe"))
                 return 0;
         }
     }
-    if (r->stage == 0 && !required_tool(ctx, "bin/ln.exe"))
+    if (r->stage == STAGE_LINK && !required_tool(ctx, "bin/ln.exe"))
         return 0;
-    if (r->overlay_root != NULL && !required_tool(ctx, "lib/ovld.o"))
+    if (r->overlay_root != 0 && !required_tool(ctx, "lib/ovld.o"))
         return 0;
-    if (r->overlay_table != NULL && !required_tool(ctx, "lib/ovbgn.o"))
+    if (r->overlay_table != 0 && !required_tool(ctx, "lib/ovbgn.o"))
         return 0;
     return 1;
 }
 
-static int compile_input(const Request *r, Context *ctx, Plan *plan,
-                         const char *input, int index, int type)
+/* Append FLAG to ARGS unless it is NULL (the setting needs no flag). */
+static int add_flag(word_list_t *args, const char *flag)
 {
-    static const char *models[] = { "", "+lc", "+ld", "+l" };
-    Command *cmd;
-    Words *args;
+    return flag == 0 || add_word(args, flag);
+}
+
+/*
+ * Plan the compiler or assembler command for source INPUT.  The product
+ * gets the next workspace temporary name.
+ * In link mode it stays in the workspace for the linker; with -c or -S it
+ * is published as -o, or as INPUT with its suffix replaced.
+ */
+static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
+                         const char *input, input_kind_t kind)
+{
+    command_t *cmd;
+    word_list_t *args;
     char product[32];
     char output[ACC_PATH];
     char *dot;
     int i;
 
-    sprintf(product, "E:\\u%04d.%s", index, r->stage == 2 ? "asm" : "o");
-    cmd = tool_command(plan, ctx, type == 0 ? "cc.exe" : "as.exe");
-    if (cmd == NULL)
+    if (!temp_name(plan, r->stage == STAGE_ASSEMBLY ? "asm" : "o", product))
+        return 0;
+    cmd = tool_command(plan, ctx, kind == INPUT_C ? "cc.exe" : "as.exe");
+    if (cmd == 0)
         return 0;
     cmd->product = copy_text(product);
     cmd->source = copy_text(input);
-    if (cmd->product == NULL || cmd->source == NULL)
+    if (cmd->product == 0 || cmd->source == 0)
         return 0;
     args = &cmd->arguments;
-    if (type == 0) {
-        if (!add_word(args, r->cpu == 0 ? "+0" : (r->cpu == 1 ? "+1" : "+2")) ||
-            !add_word(args, "-b") || !add_word(args, "-n"))
+    if (kind == INPUT_C) {
+        /* -b: never wait for a key after errors; -n: no debugger data. */
+        if (!add_word(args, profile_cpu_flag(r->cpu)) ||
+            !add_word(args, "-b") || !add_word(args, "-n") ||
+            !add_flag(args, profile_model_flag(r->model)) ||
+            !add_flag(args, profile_float_flag(r->floating)) ||
+            !add_flag(args, profile_language_flag(r->language)) ||
+            !add_flag(args, profile_optimize_flag(r->optimize)) ||
+            (r->quiet && !add_word(args, "-s")) ||
+            (r->stage == STAGE_ASSEMBLY && !add_word(args, "-A")))
             return 0;
-        if (r->model != 0 && !add_word(args, models[r->model]))
-            return 0;
-        if (r->floating == 2 && !add_word(args, "+e"))
-            return 0;
-        if (r->language != 0 && !add_word(args, r->language == 1 ? "-ansi" : "-3"))
-            return 0;
-        if (r->optimize != 0 && !add_word(args, r->optimize == 1 ? "+c" : "+f"))
-            return 0;
-        if (r->quiet && !add_word(args, "-s"))
-            return 0;
-        if (r->stage == 2 && !add_word(args, "-A"))
-            return 0;
-    } else if (r->cpu == 1 && !add_word(args, "-186")) {
+    } else if (!add_flag(args, profile_assembler_cpu_flag(r->cpu))) {
         return 0;
     }
-    if (!add_word(args, r->target == 0 ? "-D__CPM86__=1" : "-D__DOS__=1"))
+    if (!add_word(args, profile_target_macro(r->target)))
         return 0;
     for (i = 0; i < r->definitions.count; ++i) {
-        if (type == 1)
+        /* as accepts only constant values; not validated yet. */
+        if (kind == INPUT_ASM)
             return fail("explicit assembly macro validation is not implemented yet", NULL);
         if (!option(args, "-D", r->definitions.items[i]))
             return 0;
@@ -704,29 +620,33 @@ static int compile_input(const Request *r, Context *ctx, Plan *plan,
     if (!add_word(args, "-o") || !add_word(args, product) ||
         !mapped(args, ctx, "", input))
         return 0;
-    if (r->stage == 0)
+    if (r->stage == STAGE_LINK)
         return add_word(&ctx->objects, product);
-    if (r->output != NULL) {
+    if (r->output != 0) {
         strcpy(output, r->output);
     } else {
-        strcpy(output, basename_of(input));
+        strcpy(output, path_basename(input));
         dot = strrchr(output, '.');
         *dot = '\0';
-        strcat(output, r->stage == 2 ? ".asm" : ".o");
+        strcat(output, r->stage == STAGE_ASSEMBLY ? ".asm" : ".o");
     }
-    return output_path(ctx, plan, output, product, r);
+    return output_path(ctx, plan, output, product);
 }
 
-static int link_inputs(const Request *r, Context *ctx, Plan *plan)
+/*
+ * Plan the linker command.  Argument order matters to the single-pass
+ * Aztec linker:
+ *   -o product [+c CODE +d DATA -r]   output and overlay root options
+ *   startup                           unless -nostartfiles/-nostdlib/overlay
+ *   inputs, in command-line order     with -lNAME resolved to a path
+ *   ovld.o | ROOT.rsm ovbgn.o         overlay loader or overlay start
+ *   C runtime                         last, unless -nostdlib or overlay
+ * The output suffix must match the target: .cmd for CP/M-86, .exe or .com
+ * for DOS, .ovr for an overlay.
+ */
+static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
 {
-    static const char *runtimes[] = { "c.lib", "clc.lib", "cld.lib", "cl.lib" };
-    static const char *startups[] = { "sbegin.o", "beginlc.o", "beginld.o", "lbegin.o" };
-    static const char *maths[3][4] = {
-        { "m.lib", "mlc.lib", "mld.lib", "ml.lib" },
-        { "m87s.lib", "m87slc.lib", "m87sld.lib", "m87sl.lib" },
-        { "m87.lib", "m87lc.lib", "m87ld.lib", "m87l.lib" }
-    };
-    Command *cmd;
+    command_t *cmd;
     char path[ACC_PATH];
     const char *output;
     const char *suffix;
@@ -741,34 +661,38 @@ static int link_inputs(const Request *r, Context *ctx, Plan *plan)
     int overlay_root;
     int overlay;
     int i;
-    int type;
+    input_kind_t kind;
     int object;
+    char product[16];
+    char table[16];
 
-    output = r->output == NULL ? (r->target == 0 ? "a.cmd" : "a.exe") : r->output;
-    suffix = strrchr(basename_of(output), '.');
-    overlay_root = r->overlay_root != NULL;
-    overlay = r->overlay_table != NULL;
+    output = r->output == 0 ? profile_default_executable(r->target) : r->output;
+    suffix = strrchr(path_basename(output), '.');
+    overlay_root = r->overlay_root != 0;
+    overlay = r->overlay_table != 0;
     if (suffix == 0 ||
-        (overlay_root && !equal_name(suffix, ".cmd")) ||
-        (overlay && !equal_name(suffix, ".ovr")) ||
-        (!overlay_root && !overlay && r->target == 0 && !equal_name(suffix, ".cmd")) ||
-        (!overlay_root && !overlay && r->target != 0 &&
-         !equal_name(suffix, ".exe") && !equal_name(suffix, ".com")))
+        (overlay_root && !path_equal(suffix, ".cmd")) ||
+        (overlay && !path_equal(suffix, ".ovr")) ||
+        (!overlay_root && !overlay && r->target == TARGET_CPM86 &&
+         !path_equal(suffix, ".cmd")) ||
+        (!overlay_root && !overlay && r->target != TARGET_CPM86 &&
+         !path_equal(suffix, ".exe") && !path_equal(suffix, ".com")))
         return fail("output suffix conflicts with target", output);
-    if (!overlay_root && !overlay && equal_name(suffix, ".com") && r->model != 0)
+    if (!overlay_root && !overlay && path_equal(suffix, ".com") && r->model != MODEL_SMALL)
         return fail("COM output requires small model", output);
-    if (!output_path(ctx, plan, output,
-                     equal_name(suffix, ".cmd") ? "E:\\result.cmd" :
-                     (equal_name(suffix, ".ovr") ? "E:\\result.ovr" :
-                      (equal_name(suffix, ".com") ? "E:\\result.com" : "E:\\result.exe")),
-                     r))
+    /* The product keeps the output suffix: ln selects the format from it. */
+    if (!temp_name(plan, suffix + 1, product) ||
+        !output_path(ctx, plan, output, product))
         return 0;
     if (overlay_root) {
+        /* ln -r writes the symbol table beside its output, as .rsm. */
+        strcpy(table, product);
+        strcpy(strrchr(table, '.'), ".rsm");
         if (!overlay_table_output(overlay_output, output) ||
-            !output_path(ctx, plan, overlay_output, "E:\\result.rsm", r))
+            !output_path(ctx, plan, overlay_output, table))
             return 0;
         comma = strchr(r->overlay_root, ',');
-        if (comma == NULL)
+        if (comma == 0)
             return fail("invalid overlay root sizes", r->overlay_root);
         if ((size_t)(comma - r->overlay_root) >= sizeof(overlay_code) ||
             strlen(comma + 1) >= sizeof(overlay_data))
@@ -778,12 +702,12 @@ static int link_inputs(const Request *r, Context *ctx, Plan *plan)
         strcpy(overlay_data, comma + 1);
     }
     cmd = tool_command(plan, ctx, "ln.exe");
-    if (cmd == NULL || !add_word(&cmd->arguments, "-o") ||
-        !add_word(&cmd->arguments, plan->products.items[0]))
+    if (cmd == 0 || !add_word(&cmd->arguments, "-o") ||
+        !add_word(&cmd->arguments, product))
         return 0;
-    cmd->product = copy_text(plan->products.items[0]);
+    cmd->product = copy_text(product);
     cmd->source = copy_text(output);
-    if (cmd->product == NULL || cmd->source == NULL)
+    if (cmd->product == 0 || cmd->source == 0)
         return 0;
     if (overlay_root &&
         (!add_word(&cmd->arguments, "+c") ||
@@ -793,28 +717,28 @@ static int link_inputs(const Request *r, Context *ctx, Plan *plan)
         return 0;
     if (overlay_root && !add_word(&cmd->arguments, "-r"))
         return 0;
-    runtime = r->target == 0 ? "c86.lib" : (r->target == 1 ? "d11.lib" : runtimes[r->model]);
-    startup = r->target == 0 ? "begin86.o" : (r->target == 1 ? "begin11.o" : startups[r->model]);
+    runtime = profile_runtime(r->target, r->model);
+    startup = profile_startup(r->target, r->model);
     if (!overlay_root && !overlay && !r->nostart && !r->nostdlib) {
         if (!stock(ctx, startup, path) || !mapped(&cmd->arguments, ctx, "", path))
             return 0;
     }
     object = 0;
-    for (i = 0; i < r->inputs.count; ++i) {
-        name = r->inputs.items[i];
-        type = classify(name);
-        if (type < 2) {
+    for (i = 0; i < ctx->inputs.count; ++i) {
+        name = ctx->inputs.items[i];
+        kind = classify(name);
+        if (is_source(kind)) {
             if (!add_word(&cmd->arguments, ctx->objects.items[object++]))
                 return 0;
-        } else if (type == 4) {
+        } else if (kind == INPUT_LIBNAME) {
             name += 2;
+            /* -lm selects the math family matching -mfloat and -mcmodel. */
             if (strcmp(name, "m") == 0) {
-                if (!stock(ctx, maths[r->floating][r->model], path))
+                if (!stock(ctx, profile_math(r->floating, r->model), path))
                     return 0;
             } else {
-                if (equal_name(name, "c") || equal_name(name, "c86") ||
-                    equal_name(name, "d11") || equal_name(name, "cl") ||
-                    equal_name(name, "clc") || equal_name(name, "cld"))
+                /* The runtime is implied by the profile and linked last. */
+                if (profile_is_runtime(name))
                     return fail("select the target/model instead of an explicit stock C runtime", name);
                 if (!user_library(ctx, name, path))
                     return 0;
@@ -829,12 +753,12 @@ static int link_inputs(const Request *r, Context *ctx, Plan *plan)
         (!stock(ctx, "ovld.o", path) || !mapped(&cmd->arguments, ctx, "", path)))
         return 0;
     if (overlay) {
-        suffix = strrchr(basename_of(r->overlay_table), '.');
-        if (suffix == NULL || !equal_name(suffix, ".rsm") ||
-            !readable(r->overlay_table) ||
-            !guest_path(ctx, r->overlay_table, overlay_guest))
+        suffix = strrchr(path_basename(r->overlay_table), '.');
+        if (suffix == 0 || !path_equal(suffix, ".rsm") ||
+            !path_readable(r->overlay_table) ||
+            !path_guest(&ctx->map, r->overlay_table, overlay_guest))
             return fail("overlay root input must end in .rsm", r->overlay_table);
-        if (equal_name(overlay_guest, plan->outputs.items[0]))
+        if (path_equal(overlay_guest, plan->outputs.items[0]))
             return fail("overlay output aliases its root symbol table", r->overlay_table);
         if (!mapped(&cmd->arguments, ctx, "", r->overlay_table) ||
             !stock(ctx, "ovbgn.o", path) ||
@@ -847,14 +771,24 @@ static int link_inputs(const Request *r, Context *ctx, Plan *plan)
     return 1;
 }
 
-static int serialize_commands(Plan *plan)
+/*
+ * Check that every command can be passed to DOS unchanged.  Arguments with
+ * blanks or control characters are refused: DOS has no reliable quoting.
+ * Every linker command is moved into a response file (the next workspace
+ * temporary) and run as "ln -f FILE", so link size never depends on the
+ * DOS command tail.  cc and as have no response files: a compiler command
+ * longer than the tail is an error.
+ */
+static int serialize_commands(plan_t *plan)
 {
-    Command *cmd;
+    char name[16];
+    char message[128];
+    command_t *cmd;
     const unsigned char *p;
     size_t length;
     int i;
 
-    for (cmd = plan->first; cmd != NULL; cmd = cmd->next) {
+    for (cmd = plan->first; cmd != 0; cmd = cmd->next) {
         length = 0;
         for (i = 1; i < cmd->arguments.count; ++i) {
             p = (const unsigned char *)cmd->arguments.items[i];
@@ -865,11 +799,15 @@ static int serialize_commands(Plan *plan)
             }
             length += strlen(cmd->arguments.items[i]) + 1;
         }
-        if (length <= 126)
+        if (!path_equal(path_basename(cmd->arguments.items[0]), "ln.exe")) {
+            if (length > DOS_TAIL_LIMIT) {
+                sprintf(message, "compiler command line too long (%u > %d bytes; "
+                        "reduce -I/-D or shorten paths)", (unsigned)length,
+                        DOS_TAIL_LIMIT);
+                return fail(message, cmd->source);
+            }
             continue;
-        if (!equal_name(basename_of(cmd->arguments.items[0]), "ln.exe"))
-            return fail("compiler/assembler command exceeds the verified DOS command-tail limit",
-                        cmd->source);
+        }
         for (i = 0; i < cmd->arguments.count; ++i) {
             if (!add_word(&cmd->response, cmd->arguments.items[i]))
                 return 0;
@@ -877,109 +815,67 @@ static int serialize_commands(Plan *plan)
         free_words(&cmd->arguments);
         if (!add_word(&cmd->arguments, cmd->response.items[0]) ||
             !add_word(&cmd->arguments, "-f") ||
-            !add_word(&cmd->arguments, "E:\\link.rsp"))
+            !temp_name(plan, "rsp", name) ||
+            (cmd->response_file = copy_text(name)) == 0 ||
+            !add_word(&cmd->arguments, name))
             return 0;
     }
     return 1;
 }
 
-int build_plan(const Request *r, Plan *plan)
+/*
+ * Validate R, then plan: one command per source in input order, the linker
+ * in link mode, and command serialisation.  The plan_context_t is heap-allocated
+ * because its fixed path buffers would not fit a 16-bit DOS stack.
+ */
+int build_plan(const request_t *r, plan_t *plan)
 {
-    Context *ctx;
+    plan_context_t *ctx;
     int i;
     int ok;
-    int type;
+    input_kind_t kind;
     char guest[ACC_PATH];
 
-    ctx = calloc(1, sizeof(Context));
-    if (ctx == NULL)
+    ctx = calloc(1, sizeof(plan_context_t));
+    if (ctx == 0)
         return fail("out of memory", NULL);
     ok = validate(r, ctx);
     if (ok) {
-        strcpy(plan->root, ctx->root);
-        strcpy(plan->cwd, ctx->cwd);
+        strcpy(plan->root, ctx->map.root);
+        strcpy(plan->cwd, ctx->map.cwd);
         for (i = 0; ok && i < ctx->libraries.count; ++i)
-            ok = guest_path(ctx, ctx->libraries.items[i], guest) &&
+            ok = path_guest(&ctx->map, ctx->libraries.items[i], guest) &&
                 add_word(&plan->library_paths, guest);
     }
-    for (i = 0; ok && i < r->inputs.count; ++i) {
-        type = classify(r->inputs.items[i]);
-        if (type < 2)
-            ok = compile_input(r, ctx, plan, r->inputs.items[i], i + 1, type);
+    for (i = 0; ok && i < ctx->inputs.count; ++i) {
+        kind = classify(ctx->inputs.items[i]);
+        if (is_source(kind))
+            ok = compile_input(r, ctx, plan, ctx->inputs.items[i], kind);
     }
-    if (ok && r->stage == 0)
+    if (ok && r->stage == STAGE_LINK)
         ok = link_inputs(r, ctx, plan);
     if (ok)
         ok = serialize_commands(plan);
     free_words(&ctx->includes);
     free_words(&ctx->libraries);
     free_words(&ctx->objects);
+    free_words(&ctx->inputs);
     free_words(&ctx->sources);
     free(ctx);
     return ok;
 }
 
-static void quoted(const char *text)
+/* Release every command, list and string owned by PLAN. */
+void free_plan(plan_t *plan)
 {
-    fputc('"', stderr);
-    while (*text != '\0') {
-        if (*text == '"' || *text == '\\')
-            fputc('\\', stderr);
-        if ((unsigned char)*text < 32)
-            fprintf(stderr, "\\x%02x", (unsigned int)(unsigned char)*text);
-        else
-            fputc(*text, stderr);
-        ++text;
-    }
-    fputc('"', stderr);
-}
+    command_t *cmd;
+    command_t *next;
 
-void print_plan(const Request *r, const Plan *plan)
-{
-    static const char *targets[] = { "cpm86", "dos1", "dos2" };
-    static const char *models[] = { "small", "medium", "compact", "large" };
-    const Command *cmd;
-    int i;
-
-    fprintf(stderr, "acc: plan target=%s model=%s cpu=i%d86\n",
-            targets[r->target], models[r->model], r->cpu == 0 ? 80 : (r->cpu == 1 ? 801 : 802));
-    fputs(r->dryrun ?
-          "acc: E: is a symbolic private workspace; no files are created\n" :
-          "acc: E: maps the invocation's private workspace\n", stderr);
-    for (cmd = plan->first; cmd != 0; cmd = cmd->next) {
-        fputs("tool:", stderr);
-        for (i = 0; i < cmd->arguments.count; ++i) {
-            fputc(' ', stderr);
-            quoted(cmd->arguments.items[i]);
-        }
-        fputc('\n', stderr);
-        if (cmd->response.count != 0) {
-            fputs("response: \"E:\\\\link.rsp\"", stderr);
-            for (i = 1; i < cmd->response.count; ++i) {
-                fputc(' ', stderr);
-                quoted(cmd->response.items[i]);
-            }
-            fputc('\n', stderr);
-        }
-    }
-    for (i = 0; i < plan->outputs.count; ++i) {
-        fputs("publish: ", stderr);
-        quoted(plan->products.items[i]);
-        fputs(" -> ", stderr);
-        quoted(plan->outputs.items[i]);
-        fputc('\n', stderr);
-    }
-}
-
-void free_plan(Plan *plan)
-{
-    Command *cmd;
-    Command *next;
-
-    for (cmd = plan->first; cmd != NULL; cmd = next) {
+    for (cmd = plan->first; cmd != 0; cmd = next) {
         next = cmd->next;
         free_words(&cmd->arguments);
         free_words(&cmd->response);
+        free(cmd->response_file);
         free(cmd->product);
         free(cmd->source);
         free(cmd);

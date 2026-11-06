@@ -1,0 +1,473 @@
+# Rejected invocations: the exact diagnostic and exit status.
+# Format: see run-plan.sh.
+
+
+
+
+
+
+
+
+
+@case err-8087-fast
+-###
+-toolroot=@ROOT@
+-mfloat=8087-fast
+main.c
+@out
+acc: unsafe inline floating point is not qualified yet: -mfloat=8087-fast
+[exit 1]
+@end
+
+@case err-alias-name
+-###
+-toolroot=@ROOT@
+-c
+main.c
+-o
+.o
+@out
+acc: path requires unsupported DOS filename aliasing: .o
+[exit 1]
+@end
+
+@case err-asm-286
+-###
+-toolroot=@ROOT@
+-march=i80286
+entry.asm
+@out
+acc: explicit assembly CPU/coprocessor mapping is not qualified yet
+[exit 1]
+@end
+
+@case err-bad-march
+-###
+-toolroot=@ROOT@
+-march=bad
+-march=i8086
+main.c
+@out
+acc: invalid option value: bad
+[exit 1]
+@end
+
+@case err-bad-model
+-###
+-toolroot=@ROOT@
+-target=dos2
+-mcmodel=garbage
+main.c
+@out
+acc: invalid option value: garbage
+[exit 1]
+@end
+
+@case err-c-and-s
+-###
+-toolroot=@ROOT@
+-c
+-S
+main.c
+@out
+acc: -S cannot be combined with -c
+[exit 1]
+@end
+
+@case err-c-object
+-###
+-toolroot=@ROOT@
+-c
+main.o
+@out
+acc: input is incompatible with selected stage: main.o
+[exit 1]
+@end
+
+@case err-command-tail
+-###
+-toolroot=@ROOT@
+-c
+-DLONG=00000000000000000000000000000000000000000000000000000000000
+main.c
+@out
+acc: compiler command line too long (127 > 126 bytes; reduce -I/-D or shorten paths): main.c
+[exit 1]
+@end
+
+@case err-cpm86-large
+-###
+-toolroot=@ROOT@
+-target=cpm86
+-mcmodel=large
+main.c
+@out
+acc: non-small model requires -target=dos2
+[exit 1]
+@end
+
+@case err-debug
+-###
+-toolroot=@ROOT@
+-g
+main.c
+@out
+acc: unsupported or unknown option: -g
+[exit 1]
+@end
+
+@case err-double-dash
+--help
+@out
+acc: unsupported or unknown option: --help
+[exit 1]
+@end
+
+@case err-duplicate-input
+-###
+-toolroot=@ROOT@
+main.c
+./main.c
+@out
+acc: duplicate input: ./main.c
+[exit 1]
+@end
+
+@case err-explicit-runtime
+-###
+-toolroot=@ROOT@
+main.o
+-lc86
+@out
+acc: select the target/model instead of an explicit stock C runtime: c86
+[exit 1]
+@end
+
+@case err-library-only
+-###
+-toolroot=@ROOT@
+custom.lib
+@out
+acc: at least one source or object input is required
+[exit 1]
+@end
+
+@case err-macro-conflict
+-###
+-toolroot=@ROOT@
+-DTEST=1
+-DTEST=2
+main.c
+@out
+acc: conflicting macro definitions: TEST=2
+[exit 1]
+@end
+
+@case err-macro-name
+-###
+-toolroot=@ROOT@
+-D9BAD
+main.c
+@out
+acc: invalid macro name: 9BAD
+[exit 1]
+@end
+
+@case err-missing-input
+-###
+-toolroot=@ROOT@
+missing.c
+@out
+acc: cannot read input: missing.c
+[exit 1]
+@end
+
+@case err-missing-library
+-###
+-toolroot=nolib
+main.o
+@out
+acc: missing installation library or startup: <CWD>/nolib/lib/begin86.o
+[exit 1]
+@dos
+acc: missing installation library or startup: C:\nolib\lib\begin86.o
+[exit 1]
+@end
+
+@case err-missing-operand
+-###
+-toolroot=@ROOT@
+main.c
+-o
+@out
+acc: missing option operand: -o
+[exit 1]
+@end
+
+@case err-missing-tool
+-###
+-toolroot=fake
+-c
+main.c
+@out
+acc: required backend tool is missing: <CWD>/fake/bin/cc.exe
+[exit 1]
+@dos
+acc: required backend tool is missing: C:\fake\bin\cc.exe
+[exit 1]
+@end
+
+@case err-no-arguments
+@out
+acc: no input
+[exit 1]
+@end
+
+@case err-no-root
+-###
+-c
+main.c
+@out
+acc: no Aztec tool root: use -toolroot=dir or ACCROOT
+[exit 1]
+@end
+
+@case err-one-output-two-sources
+-###
+-toolroot=@ROOT@
+-c
+main.c
+other.c
+-o
+both.o
+@out
+acc: one -o cannot name multiple compilation outputs
+[exit 1]
+@end
+
+@case err-output-alias-dot
+-###
+-toolroot=@ROOT@
+-c
+main.c
+-o
+./main.c
+@out
+acc: output aliases an input: ./main.c
+[exit 1]
+@end
+
+@case err-output-alias
+-###
+-toolroot=@ROOT@
+-c
+main.c
+-o
+main.c
+@out
+acc: output aliases an input: main.c
+[exit 1]
+@end
+
+@case err-output-collision
+-###
+-toolroot=@ROOT@
+-c
+main.c
+sub/main.c
+@out
+acc: output collision: main.o
+[exit 1]
+@end
+
+@case err-output-parent
+-###
+-toolroot=@ROOT@
+-c
+main.c
+-o
+missing/a.o
+@out
+acc: output parent does not exist: missing/a.o
+[exit 1]
+@dos
+acc: path parent does not exist: C:\missing\a.o
+[exit 1]
+@end
+
+@case err-reserved-device
+-###
+-toolroot=@ROOT@
+-c
+main.c
+-o
+nul.o
+@out
+acc: path names a reserved DOS device: nul.o
+[exit 1]
+@end
+
+@case err-response-file
+-###
+-toolroot=@ROOT@
+@args.rsp
+@out
+acc: response files are not supported: list link inputs in a .inp file: @args.rsp
+[exit 1]
+@end
+
+@case err-s-asm
+-###
+-toolroot=@ROOT@
+-S
+entry.asm
+@out
+acc: input is incompatible with selected stage: entry.asm
+[exit 1]
+@end
+
+@case err-suffix-target
+-###
+-toolroot=@ROOT@
+main.c
+-o
+wrong.exe
+@out
+acc: output suffix conflicts with target: wrong.exe
+[exit 1]
+@end
+
+@case err-target-macro
+-###
+-toolroot=@ROOT@
+-D__DOS__
+main.c
+@out
+acc: conflicting target macro: __DOS__=1
+[exit 1]
+@end
+
+@case err-unknown-option
+-unknown
+@out
+acc: unsupported or unknown option: -unknown
+[exit 1]
+@end
+
+@case err-inp-with-source
+-###
+-toolroot=@ROOT@
+list.inp
+main.c
+@out
+acc: a .inp file cannot be combined with other file inputs
+[exit 1]
+@end
+
+@case err-inp-with-object
+-###
+-toolroot=@ROOT@
+main.o
+list.inp
+@out
+acc: a .inp file cannot be combined with other file inputs
+[exit 1]
+@end
+
+@case err-inp-twice
+-###
+-toolroot=@ROOT@
+list.inp
+crlf.inp
+@out
+acc: only one .inp file is allowed: crlf.inp
+[exit 1]
+@end
+
+@case err-inp-compile
+-###
+-toolroot=@ROOT@
+-c
+list.inp
+@out
+acc: input is incompatible with selected stage: list.inp
+[exit 1]
+@end
+
+@case err-inp-source-entry
+-###
+-toolroot=@ROOT@
+source.inp
+@out
+acc: link list entries must be .o or .lib files: main.c
+[exit 1]
+@end
+
+@case err-inp-blank-in-entry
+-###
+-toolroot=@ROOT@
+blank.inp
+@out
+acc: blank or control character in link list entry: main.o extra
+[exit 1]
+@end
+
+@case err-inp-nested
+-###
+-toolroot=@ROOT@
+nested.inp
+@out
+acc: link list entries must be .o or .lib files: other.inp
+[exit 1]
+@end
+
+@case err-inp-option-entry
+-###
+-toolroot=@ROOT@
+option.inp
+@out
+acc: link list entries must be .o or .lib files: -lm
+[exit 1]
+@end
+
+@case err-inp-missing
+-###
+-toolroot=@ROOT@
+missing.inp
+@out
+acc: cannot read input: missing.inp
+[exit 1]
+@end
+
+@case err-inp-empty
+-###
+-toolroot=@ROOT@
+empty.inp
+@out
+acc: at least one source or object input is required
+[exit 1]
+@end
+
+@case err-s-output-two-sources
+-###
+-toolroot=@ROOT@
+-S
+main.c
+other.c
+-o
+x.asm
+@out
+acc: one -o cannot name multiple compilation outputs
+[exit 1]
+@end
+
+@case err-same-base-sources
+-###
+-toolroot=@ROOT@
+-c
+main.c
+sub/main.c
+@out
+acc: output collision: main.o
+[exit 1]
+@end

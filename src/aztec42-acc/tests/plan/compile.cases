@@ -1,0 +1,235 @@
+# Compile (-c), compile to assembly (-S) and assemble inputs.
+# Format: see run-plan.sh.
+
+
+
+
+
+
+
+
+
+@case assemble-186
+-###
+-toolroot=@ROOT@
+-c
+-march=i80186
+entry.asm
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i80186
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\as.exe" "-186" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+publish: "E:\\u0001.o" -> "C:\\entry.o"
+[exit 0]
+@end
+
+@case assemble-asm
+-###
+-toolroot=@ROOT@
+-c
+entry.asm
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\as.exe" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+publish: "E:\\u0001.o" -> "C:\\entry.o"
+[exit 0]
+@end
+
+@case compile-8087-speed-quiet
+-###
+-toolroot=@ROOT@
+-c
+-mfloat=8087
+-Ospeed
+-w
+main.c
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=8087 language=default optimize=speed
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+e" "+f" "-s" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-c
+-###
+-toolroot=@ROOT@
+-c
+main.c
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-dos2-large
+-###
+-toolroot=@ROOT@
+-c
+-target=dos2
+-mcmodel=large
+main.c
+@out
+acc: plan stage=object target=dos2 model=large cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+l" "-D__DOS__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-include-lib-dirs
+-###
+-toolroot=@ROOT@
+-Iinc1
+-Llibs1
+main.c
+-lpick
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-IC:\\inc1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
+response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "D:\\lib\\begin86.o" "E:\\u0001.o" "C:\\libs1\\pick.lib" "D:\\lib\\c86.lib"
+publish: "E:\\u0002.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case compile-long-define
+-###
+-toolroot=@ROOT@
+-c
+-DLONG=0000000000000000000000000000000000000000000000000000000000
+main.c
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-DLONG=0000000000000000000000000000000000000000000000000000000000" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-march-last
+-###
+-toolroot=@ROOT@
+-c
+-march=i80186
+-march=i80286
+main.c
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i80286
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+2" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-output
+-###
+-toolroot=@ROOT@
+-c
+main.c
+-o
+out.o
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\out.o"
+[exit 0]
+@end
+
+@case compile-s-ansi
+-###
+-toolroot=@ROOT@
+-S
+-ansi
+-DTEST=
+-I.
+main.c
+@out
+acc: plan stage=assembly target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=ansi optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ansi" "-A" "-D__CPM86__=1" "-DTEST=" "-IC:\\" "-ID:\\include" "-o" "E:\\u0001.asm" "C:\\main.c"
+publish: "E:\\u0001.asm" -> "C:\\main.asm"
+[exit 0]
+@end
+
+@case compile-size-traditional
+-###
+-toolroot=@ROOT@
+-c
+-Osize
+-traditional
+main.c
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=traditional optimize=size
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-3" "+c" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-two-sources
+-###
+-toolroot=@ROOT@
+-c
+main.c
+other.c
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\other.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+publish: "E:\\u0002.o" -> "C:\\other.o"
+[exit 0]
+@end
+
+@case compile-s-two-sources
+-###
+-toolroot=@ROOT@
+-S
+main.c
+other.c
+@out
+acc: plan stage=assembly target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-A" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.asm" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-A" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0002.asm" "C:\\other.c"
+publish: "E:\\u0001.asm" -> "C:\\main.asm"
+publish: "E:\\u0002.asm" -> "C:\\other.asm"
+[exit 0]
+@end
+
+@case compile-c-mixed-sources
+-###
+-toolroot=@ROOT@
+-c
+main.c
+entry.asm
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=soft language=default optimize=default
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\as.exe" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\entry.asm"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+publish: "E:\\u0002.o" -> "C:\\entry.o"
+[exit 0]
+@end

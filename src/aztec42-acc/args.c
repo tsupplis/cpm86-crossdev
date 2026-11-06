@@ -1,92 +1,40 @@
+/*
+ * Command-line parsing: argv -> request_t.
+ *
+ * Options use one dash and are case-sensitive.  Short options with
+ * operands (-o -I -D -L -l) accept attached or separated operands;
+ * descriptive options require "=value"; anything else is an input.
+ * Parsing checks syntax only and never touches the filesystem.
+ */
 #include "acc.h"
+#include "request.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-int fail(const char *message, const char *detail)
-{
-    fprintf(stderr, "acc: %s", message);
-    if (detail != 0)
-        fprintf(stderr, ": %s", detail);
-    fputc('\n', stderr);
-    return 0;
-}
-
-char *copy_text(const char *text)
-{
-    char *result;
-    size_t size;
-
-    size = strlen(text);
-    if (size >= ACC_PATH) {
-        fail("argument is too long", text);
-        return NULL;
-    }
-    result = malloc(size + 1);
-    if (result == NULL) {
-        fail("out of memory", NULL);
-        return NULL;
-    }
-    strcpy(result, text);
-    return result;
-}
-
-int add_word(Words *words, const char *text)
-{
-    char *value;
-
-    if (words->count == ACC_LIMIT)
-        return fail("too many arguments (limit 128 per list)", NULL);
-    value = copy_text(text);
-    if (value == NULL)
-        return 0;
-    words->items[words->count++] = value;
-    return 1;
-}
-
-void free_words(Words *words)
-{
-    int i;
-
-    for (i = 0; i < words->count; ++i)
-        free(words->items[i]);
-    words->count = 0;
-}
-
+/*
+ * Replace the string owned by *SLOT with a copy of VALUE (last option
+ * wins).  Returns 0 after a diagnostic; *SLOT is unchanged then.
+ */
 static int set_text(char **slot, const char *value)
 {
     char *text;
 
     text = copy_text(value);
-    if (text == NULL)
+    if (text == 0)
         return 0;
     free(*slot);
     *slot = text;
     return 1;
 }
 
-static int selection(const char *value, const char *choices)
-{
-    const char *end;
-    int index;
-    size_t length;
-
-    index = 0;
-    while (*choices != '\0') {
-        end = strchr(choices, '|');
-        length = end == 0 ? strlen(choices) : (size_t)(end - choices);
-        if (strlen(value) == length && strncmp(value, choices, length) == 0)
-            return index;
-        if (end == 0)
-            break;
-        choices = end + 1;
-        ++index;
-    }
-    fail("invalid option value", value);
-    return -1;
-}
-
-static int define_macro(Words *definitions, const char *text)
+/*
+ * Validate macro definition TEXT ("NAME" or "NAME=VALUE") and append it to
+ * DEFINITIONS as "NAME=VALUE" ("NAME" alone means "NAME=1", as in cc).
+ * Repeating an identical definition is accepted; redefining a name with a
+ * different value is an error, because cc would silently keep one of them.
+ */
+static int define_macro(word_list_t *definitions, const char *text)
 {
     char normalized[ACC_PATH];
     const char *end;
@@ -118,31 +66,40 @@ static int define_macro(Words *definitions, const char *text)
     return add_word(definitions, normalized);
 }
 
-int parse_request(Request *r, int argc, char **argv)
+/*
+ * Parse ARGV into R (see request.h).  Options are processed left to right;
+ * repeated scalar options keep the last value, lists keep their order.
+ * Checks done here need only the options themselves; everything that needs
+ * the filesystem or the installation is left to build_plan.
+ */
+int parse_request(request_t *r, int argc, char **argv)
 {
     const char *arg;
     const char *value;
     const char *comma;
     int i;
     int selected;
+    stage_t stage;
     char option;
 
+    if (argc > 0 && !set_text(&r->program, argv[0]))
+        return 0;
     for (i = 1; i < argc; ++i) {
         arg = argv[i];
         if (*arg == '\0')
             return fail("empty argument", NULL);
         if (*arg == '@')
-            return fail("response-file parsing is not implemented yet", arg);
+            return fail("response files are not supported: list link inputs in a .inp file", arg);
         if (*arg != '-') {
             if (!add_word(&r->inputs, arg))
                 return 0;
             continue;
         }
         if (strcmp(arg, "-c") == 0 || strcmp(arg, "-S") == 0) {
-            selected = strcmp(arg, "-c") == 0 ? 1 : 2;
-            if (r->stage != 0 && r->stage != selected)
+            stage = strcmp(arg, "-c") == 0 ? STAGE_OBJECT : STAGE_ASSEMBLY;
+            if (r->stage != STAGE_LINK && r->stage != stage)
                 return fail("-S cannot be combined with -c", NULL);
-            r->stage = selected;
+            r->stage = stage;
         } else if (strcmp(arg, "-###") == 0) {
             r->dryrun = 1;
         } else if (strcmp(arg, "-v") == 0) {
@@ -156,35 +113,36 @@ int parse_request(Request *r, int argc, char **argv)
         } else if (strcmp(arg, "-nostdlib") == 0) {
             r->nostdlib = 1;
         } else if (strcmp(arg, "-ansi") == 0) {
-            r->language = 1;
+            r->language = LANGUAGE_ANSI;
         } else if (strcmp(arg, "-traditional") == 0) {
-            r->language = 2;
+            r->language = LANGUAGE_TRADITIONAL;
         } else if (strcmp(arg, "-Osize") == 0) {
-            r->optimize = 1;
+            r->optimize = OPTIMIZE_SIZE;
         } else if (strcmp(arg, "-Ospeed") == 0) {
-            r->optimize = 2;
+            r->optimize = OPTIMIZE_SPEED;
         } else if (strncmp(arg, "-target=", 8) == 0) {
-            selected = selection(arg + 8, "cpm86|dos1|dos2");
+            selected = profile_choice(arg + 8, target_names, TARGET_COUNT);
             if (selected < 0)
                 return 0;
-            r->target = selected;
+            r->target = (target_t)selected;
         } else if (strncmp(arg, "-mcmodel=", 9) == 0) {
-            selected = selection(arg + 9, "small|medium|compact|large");
+            selected = profile_choice(arg + 9, model_names, MODEL_COUNT);
             if (selected < 0)
                 return 0;
-            r->model = selected;
+            r->model = (model_t)selected;
         } else if (strncmp(arg, "-march=", 7) == 0) {
-            selected = selection(arg + 7, "i8086|i80186|i80286");
+            selected = profile_choice(arg + 7, cpu_names, CPU_COUNT);
             if (selected < 0)
                 return 0;
-            r->cpu = selected;
+            r->cpu = (cpu_t)selected;
         } else if (strncmp(arg, "-mfloat=", 8) == 0) {
-            selected = selection(arg + 8, "soft|auto|8087|8087-fast");
+            selected = profile_choice(arg + 8, float_names, FLOAT_COUNT);
             if (selected < 0)
                 return 0;
-            if (selected == 3)
+            /* +ej skips register saves; unsafe until runtime-qualified. */
+            if (selected == FLOAT_8087_FAST)
                 return fail("unsafe inline floating point is not qualified yet", arg);
-            r->floating = selected;
+            r->floating = (float_backend_t)selected;
         } else if (strncmp(arg, "-toolroot=", 10) == 0) {
             if (arg[10] == '\0')
                 return fail("empty tool root", arg);
@@ -202,17 +160,17 @@ int parse_request(Request *r, int argc, char **argv)
         } else if (strncmp(arg, "-overlay-root=", 14) == 0) {
             value = arg + 14;
             comma = strchr(value, ',');
-            if (r->overlay_root != NULL || comma == NULL || comma == value ||
-                comma[1] == '\0' || strchr(comma + 1, ',') != NULL)
+            if (r->overlay_root != 0 || comma == 0 || comma == value ||
+                comma[1] == '\0' || strchr(comma + 1, ',') != 0)
                 return fail("expected one CODE,DATA pair for -overlay-root", arg);
             if (!set_text(&r->overlay_root, value))
                 return 0;
         } else if (strncmp(arg, "-overlay=", 9) == 0) {
-            if (r->overlay_table != NULL || arg[9] == '\0')
+            if (r->overlay_table != 0 || arg[9] == '\0')
                 return fail("expected one root .rsm path for -overlay", arg);
             if (!set_text(&r->overlay_table, arg + 9))
                 return 0;
-        } else if (arg[1] != '\0' && strchr("oIDLl", arg[1]) != NULL) {
+        } else if (arg[1] != '\0' && strchr("oIDLl", arg[1]) != 0) {
             option = arg[1];
             value = arg + 2;
             if (*value == '\0') {
@@ -247,20 +205,22 @@ int parse_request(Request *r, int argc, char **argv)
     }
     if (r->inputs.count == 0)
         return fail("no input", NULL);
-    if (r->target != 2 && r->model != 0)
+    if (r->target != TARGET_DOS2 && r->model != MODEL_SMALL)
         return fail("non-small model requires -target=dos2", NULL);
-    if ((r->overlay_root != NULL || r->overlay_table != NULL) &&
-        (r->target != 0 || r->stage != 0 ||
-         (r->overlay_root != NULL && r->overlay_table != NULL)))
+    if ((r->overlay_root != 0 || r->overlay_table != 0) &&
+        (r->target != TARGET_CPM86 || r->stage != STAGE_LINK ||
+         (r->overlay_root != 0 && r->overlay_table != 0)))
         return fail("overlays require one CP/M-86 link mode", NULL);
-    if ((r->overlay_root != NULL || r->overlay_table != NULL) && r->output == NULL)
+    if ((r->overlay_root != 0 || r->overlay_table != 0) && r->output == 0)
         return fail("overlay links require an explicit -o output", NULL);
     return 1;
 }
 
-void free_request(Request *r)
+/* Release every string and list owned by R. */
+void free_request(request_t *r)
 {
     free(r->output);
+    free(r->program);
     free(r->root);
     free(r->emulator);
     free(r->overlay_root);

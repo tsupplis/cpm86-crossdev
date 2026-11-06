@@ -1,39 +1,54 @@
+/*
+ * acc entry point: -help, -version, then parse, plan, print, execute.
+ * See acc.h for the pipeline and portability rules.
+ */
 #include "acc.h"
+#include "request.h"
+#include "plan.h"
 #include <stdlib.h>
 #include <string.h>
 
+/* Driver version; independent of the Aztec toolchain version. */
+#define ACC_VERSION "acc 0.3-dev"
+
+/*
+ * Option summary printed by -help.  Kept to what the driver implements;
+ * MANUAL.md is the full reference.  Split into several fputs calls to
+ * stay under the C89 minimum string literal length.
+ */
 static void usage(FILE *stream)
 {
     fputs("Usage: acc [options] inputs | -help | -version\n"
-          "Aztec C 4.2 portable compiler driver.\n"
-          "  -c / -S                  Stop at object / assembly output\n"
-          "  -o file -I dir -D macro   Output, includes, definitions\n"
-          "  -L dir -l name           Library search and ordered inputs\n"
-          "  -target=cpm86|dos1|dos2   Select target runtime\n"
-          "  -mcmodel=small|medium|compact|large\n"
-          "  -march=i8086|i80186|i80286\n", stream);
-    fputs(
-          "  -mfloat=soft|auto|8087    Select math backend\n"
-          "  -ansi -traditional -Osize -Ospeed -w\n"
-          "  -nostartfiles -nostdlib  Suppress automatic runtime parts\n"
-          "  -toolroot=path           Aztec root (or ACCROOT)\n", stream);
-    fputs(
-          "  -overlay-root=CODE,DATA  Build CP/M-86 root program and .rsm table\n"
-          "  -overlay=ROOT.rsm        Build a CP/M-86 .ovr using the root table\n"
-          "  -emu=path                Unix emulator (default: emu2 in PATH)\n"
-          "  -### -v -save-temps      Plan only, show commands, retain workspace\n",
+          "Aztec C 4.2 compiler driver.\n"
+          "  inputs: .c .asm .o .lib, or one .inp (list of .o/.lib to link)\n"
+          "  -c | -S                    object or assembly per source\n"
+          "  -o file                    output name\n"
+          "  -I dir  -D name[=value]    include area, macro\n"
+          "  -L dir  -l name            library area, library\n", stream);
+    fputs("  -target=cpm86|dos1|dos2\n"
+          "  -mcmodel=small|medium|compact|large   (large models: dos2)\n"
+          "  -march=i8086|i80186|i80286\n"
+          "  -mfloat=soft|auto|8087\n"
+          "  -ansi | -traditional       language mode\n"
+          "  -Osize | -Ospeed  -w       code preference, no warnings\n", stream);
+    fputs("  -nostartfiles | -nostdlib  omit startup | startup and libc\n"
+          "  -overlay-root=CODE,DATA    overlay root (.cmd) and .rsm table\n"
+          "  -overlay=ROOT.rsm          overlay (.ovr) for that root\n"
+          "  -toolroot=dir              Aztec tool root (else ACCROOT)\n"
+          "  -emu=path                  emulator, Unix only (else emu2)\n"
+          "  -### | -v | -save-temps    plan only | show plan | keep temps\n",
           stream);
-    fputs("Unix and native DOS execution are supported for qualified plans.\n"
-          "Overlay options are CP/M-86 link-only; provide an explicit -o output.\n",
-          stream);
-    fputs("Debug, raw flags and user response files are not implemented yet.\n"
-          "Options use a single dash; see design.md for limitations.\n", stream);
 }
 
+/*
+ * Run one invocation.  -help and -version must be the only argument.
+ * Exit status: 0 on success, 1 for driver errors, otherwise the status of
+ * the first failing backend tool.
+ */
 int main(int argc, char **argv)
 {
-    Request *request;
-    Plan *plan;
+    request_t *request;
+    plan_t *plan;
     int ok;
     int status;
 
@@ -42,12 +57,13 @@ int main(int argc, char **argv)
         return 0;
     }
     if (argc == 2 && strcmp(argv[1], "-version") == 0) {
-        puts("acc 0.3-dev");
+        puts(ACC_VERSION);
         return 0;
     }
-    request = calloc(1, sizeof(Request));
-    plan = calloc(1, sizeof(Plan));
-    if (request == NULL || plan == NULL) {
+    /* Heap, not stack: both structures are large for a 16-bit DOS stack. */
+    request = calloc(1, sizeof(request_t));
+    plan = calloc(1, sizeof(plan_t));
+    if (request == 0 || plan == 0) {
         free(request);
         free(plan);
         fail("out of memory", NULL);

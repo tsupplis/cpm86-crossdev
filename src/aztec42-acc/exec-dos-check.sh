@@ -29,6 +29,12 @@ test -s hello.exe
 test -s many.exe
 "$emu" "$work/many.exe"
 
+dos_acc -target=dos2 -c main.c
+printf 'main.o\r\n' > objects.inp
+dos_acc -target=dos2 objects.inp -o fromlist.exe
+test -s fromlist.exe
+"$emu" "$work/fromlist.exe"
+
 cp hello.exe preserved.exe
 status=0
 "$emu" "$acc" -toolroot='D:\' -target=dos2 bad.c -o hello.exe \

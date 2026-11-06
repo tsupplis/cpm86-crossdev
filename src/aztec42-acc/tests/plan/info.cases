@@ -1,0 +1,50 @@
+# Information options and invocations that need no installation.
+# Format: see run-plan.sh.
+
+
+
+
+
+
+
+
+
+@case info-help-extra
+-help
+extra
+@out
+acc: unsupported or unknown option: -help
+[exit 1]
+@end
+
+@case info-help
+-help
+@out
+Usage: acc [options] inputs | -help | -version
+Aztec C 4.2 compiler driver.
+  inputs: .c .asm .o .lib, or one .inp (list of .o/.lib to link)
+  -c | -S                    object or assembly per source
+  -o file                    output name
+  -I dir  -D name[=value]    include area, macro
+  -L dir  -l name            library area, library
+  -target=cpm86|dos1|dos2
+  -mcmodel=small|medium|compact|large   (large models: dos2)
+  -march=i8086|i80186|i80286
+  -mfloat=soft|auto|8087
+  -ansi | -traditional       language mode
+  -Osize | -Ospeed  -w       code preference, no warnings
+  -nostartfiles | -nostdlib  omit startup | startup and libc
+  -overlay-root=CODE,DATA    overlay root (.cmd) and .rsm table
+  -overlay=ROOT.rsm          overlay (.ovr) for that root
+  -toolroot=dir              Aztec tool root (else ACCROOT)
+  -emu=path                  emulator, Unix only (else emu2)
+  -### | -v | -save-temps    plan only | show plan | keep temps
+[exit 0]
+@end
+
+@case info-version
+-version
+@out
+acc 0.3-dev
+[exit 0]
+@end

@@ -154,7 +154,7 @@ assert_clean
 rm called
 long=$(printf '%0140d' 0)
 expect_error 1 -emu=./fake -c -DLONG="$long" main.c
-printf '%s\n' "$output" | grep -F 'command-tail limit' >/dev/null
+printf '%s\n' "$output" | grep -F 'command line too long' >/dev/null
 test ! -e called
 expect_error 1 -emu=./fake -c '-DSTR="two words"' main.c
 test ! -e called
@@ -214,11 +214,21 @@ wait "$right"
 cmp left.o right.o
 assert_clean
 
+run_acc -c main.c
+printf 'main.o\n' > objects.inp
+run_acc objects.inp -o inp.cmd
+output=$("$emu" inp.cmd)
+printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
+assert_clean
+
 run_acc -save-temps -v main.o -lm -lm -lm -lm -lm -lm -lm -lm \
     -o long.cmd > saved.log 2>&1
 saved=$(sed -n 's/^acc: workspace retained: //p' saved.log)
 case $saved in "$work"/temps/acc.*) ;; *) cat saved.log; exit 1;; esac
-test -s "$saved/link.rsp"
+# The response file is named by the plan; it must be in the workspace.
+response=$(sed -n 's/^response: "E:\\\\\([^"]*\)".*/\1/p' saved.log)
+test -n "$response"
+test -s "$saved/$response"
 output=$("$emu" long.cmd)
 printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
 rm -rf "$saved"

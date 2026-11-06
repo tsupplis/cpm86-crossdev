@@ -90,7 +90,7 @@ test ! -e 'E:'
 limit=$(printf '%058d' 0)
 output=$("$@" -### -toolroot="$root" -c -DLONG="$limit" main.c 2>&1)
 limit=$(printf '%059d' 0)
-expect_error 'command-tail limit' "$@" -### -toolroot="$root" -c -DLONG="$limit" main.c
+expect_error 'command line too long' "$@" -### -toolroot="$root" -c -DLONG="$limit" main.c
 
 output=$("$@" -### -toolroot="$root" -S -ansi -DTEST= -I. main.c 2>&1)
 output=$(printf '%s\n' "$output" | tr -d '\r')
@@ -137,7 +137,7 @@ output=$(printf '%s\n' "$output" | tr -d '\r')
 printf '%s\n' "$output" | grep -F '"+c" "1020" "+d" "aOO" "-r"' >/dev/null
 printf '%s\n' "$output" | grep -F 'ovld.o' >/dev/null
 printf '%s\n' "$output" | grep -F 'c86.lib' >/dev/null
-printf '%s\n' "$output" | grep -F 'result.rsm' >/dev/null
+printf '%s\n' "$output" | grep -E 'E:\\\\u[0-9]{4}\.rsm' >/dev/null
 printf '%s\n' "$output" | grep -F 'ovraza.rsm' >/dev/null
 test ! -e ovraza.cmd
 test ! -e ovraza.rsm
@@ -200,6 +200,18 @@ else
     expect_error 'path lies outside' "$@" -### -toolroot="$root" -c away.c
     cp main.c 'bad\name.c'
     expect_error 'cannot be represented safely in DOS' "$@" -### -toolroot="$root" -c 'bad\name.c'
+
+    # Tool root discovery: acc finds <root> when it runs as <root>/bin/acc
+    # and <root>/bin/cc.exe exists; -toolroot and ACCROOT are not needed.
+    mkdir -p found/bin found/include found/lib lone/bin
+    cp "$1" found/bin/acc
+    cp "$1" lone/bin/acc
+    : > found/bin/cc.exe
+    expect_error 'required backend tool is missing' found/bin/acc -### -c main.c
+    expect_error 'cgen.exe' found/bin/acc -### -c main.c
+    expect_error 'required backend tool is missing' env PATH="$work/found/bin:$PATH" acc -### -c main.c
+    expect_error 'no Aztec tool root' lone/bin/acc -### -c main.c
+    expect_error 'invalid Aztec installation root' found/bin/acc -### -toolroot=nowhere -c main.c
 fi
 mkdir -p fake/bin fake/include fake/lib
 expect_error 'required backend tool is missing' "$@" -### -toolroot=fake -c main.c
