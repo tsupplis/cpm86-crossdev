@@ -140,6 +140,7 @@ small-model, single-segment program.
 
 | Macro | Defined when |
 | --- | --- |
+| `__AZTEC__=1` | always, on every `cc` and `as` command (a user `-D__AZTEC__` must be 1) |
 | `__CPM86__=1` | `-target=cpm86` |
 | `__MSDOS__=1` | `-target=dos1` or `dos2` |
 | `__i186__=1` | `-march=i80186` or `i80286` |
@@ -150,7 +151,7 @@ A user `-D` of an OS macro (with `-target`) or a CPU macro must agree.
 
 ### `azdefs.h`
 
-Opt-in: `#include <azdefs.h>` (installed in the tool root's `include/`).
+Opt-in: `#include <azdefs.h>` (installed in the tool root's `include/`). Its content is guarded by `__AZTEC__`, so it is empty when the file is compiled without `acc`.
 
 | Macro | Value |
 | --- | --- |
