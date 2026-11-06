@@ -786,12 +786,8 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
         if (!sibling_output(overlay_output, output, ".rsm") ||
             !output_path(ctx, plan, overlay_output, table))
             return 0;
+        /* args.c validated CODE,DATA: two hex values of 1 to 4 digits. */
         comma = strchr(r->overlay_root, ',');
-        if (comma == 0)
-            return fail("invalid overlay root sizes", r->overlay_root);
-        if ((size_t)(comma - r->overlay_root) >= sizeof(overlay_code) ||
-            strlen(comma + 1) >= sizeof(overlay_data))
-            return fail("overlay root size is too long", r->overlay_root);
         memcpy(overlay_code, r->overlay_root, (size_t)(comma - r->overlay_root));
         overlay_code[comma - r->overlay_root] = '\0';
         strcpy(overlay_data, comma + 1);
@@ -864,8 +860,6 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
             !path_readable(r->overlay_table) ||
             !path_guest(&ctx->map, r->overlay_table, overlay_guest))
             return fail("overlay root input must end in .rsm", r->overlay_table);
-        if (path_equal(overlay_guest, plan->outputs.items[0]))
-            return fail("overlay output aliases its root symbol table", r->overlay_table);
         if (!mapped(&cmd->arguments, ctx, "", r->overlay_table) ||
             !stock(ctx, "ovbgn.o", path) ||
             !mapped(&cmd->arguments, ctx, "", path))

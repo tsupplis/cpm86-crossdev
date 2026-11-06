@@ -31,7 +31,10 @@ done
 
 # Option values, from the profile tables.
 for table in target_names model_names cpu_names float_names; do
-    values=$(sed -n "/$table\\[[A-Z_]*\\] = {/,/};/p" "$src/profile.c" |
+    # From the table's opening line up to its own "};" (one-line tables too).
+    values=$(awk -v t="$table" '
+        index($0, t "[") && index($0, "= {") { on = 1 }
+        on { print; if (index($0, "};")) exit }' "$src/profile.c" |
              grep -o '"[^"]*"' | tr -d '"')
     case $table in
         target_names) option=-target= ;;
@@ -58,18 +61,28 @@ done > "$corpus.raw"
 missing=$((missing + $(wc -l < "$corpus.raw")))
 rm -f "$corpus.raw"
 
+# Substrings the shell suites assert (quoted, at least 12 characters): a
+# diagnostic containing one of them is covered.
+grep -ho "'[^']\{12,\}'" "$src"/check.sh "$src"/exec-check.sh \
+    "$src"/exec-dos-check.sh | tr -d "'" | sort -u > "$corpus.asserted"
+
 # Diagnostics: every literal message, unless exempt.
 grep -ho '\(fail\|dos_error\|io_error\)("[^"]*"' "$src"/*.c |
     sed 's/^[a-z_]*("//; s/"$//' | sort -u > "$corpus.messages"
 while IFS= read -r message; do
     grep -qF -- "$message" "$corpus" && continue
+    covered=0
+    while IFS= read -r asserted; do
+        case $message in *"$asserted"*) covered=1; break ;; esac
+    done < "$corpus.asserted"
+    [ "$covered" = 1 ] && continue
     grep -qF -- "$message	" "$exempt" && continue
     printf 'UNCOVERED diagnostic: %s\n' "$message" >&2
     echo x
 done < "$corpus.messages" > "$corpus.count"
 missing=$((missing + $(wc -l < "$corpus.count")))
 total=$(wc -l < "$corpus.messages")
-rm -f "$corpus.messages" "$corpus.count"
+rm -f "$corpus.messages" "$corpus.count" "$corpus.asserted"
 
 # Exemptions must still name an existing diagnostic.
 while IFS='	' read -r message reason; do

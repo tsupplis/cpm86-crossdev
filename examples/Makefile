@@ -9,8 +9,7 @@ DLDFLAGS=-ld11
 MLDFLAGS=-lm -lc86
 DMLDFLAGS=-lm -ld11
 LD=aztec34_link
-ACC_DRIVER=../bin/aztec42_acc
-ACC_ROOT=../share/aztec42
+ACC_DRIVER=aztec42_acc
 LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
 ASM86=cpm86_asm86
@@ -60,15 +59,13 @@ MSOMC1=msc1_mc1
 MSOMC2=msc1_mc2
 MSOLINK=msc1_link
 
-# DOS 2 build of the same overlay example.  ovrmain loads ovrfunc1.ovr and
-# ovrfunc2.ovr from the current directory, so it lives in ovrdos/.
-OVRDOS = ovrdos/ovrazd.exe ovrdos/ovrfunc1.ovr ovrdos/ovrfunc2.ovr
 
 ASM86_CMDS=hellob.cmd hello801.cmd hello86.cmd
 RASM86_CMDS=helloa.cmd helloab.cmd hello802.cmd
 ASM_CMDS=hellomas.cmd hellonas.cmd hello803.cmd hello804.cmd hellot86.com
 AZTEC_CMDS=helloazc.cmd helloaza.cmd helloaz7.cmd upxaz7.cmd hello802.cmd mathazc.cmd \
-    helloazd.exe mathazd.exe upxazd.exe ovraza.cmd ovrfunc1.ovr ovrfunc2.ovr $(OVRDOS)
+    helloazd.exe mathazd.exe upxazd.exe ovraza.cmd ovrfunc1.ovr ovrfunc2.ovr \
+    ovrazd.exe ovrfnd1.ovr ovrfnd2.ovr
 DRC_CMDS=hellodrc.cmd hellodra.cmd hellodr7.cmd upxdrc.cmd upxdra.cmd upxdr7.cmd mathdrc.cmd
 BASIC_CMDS=hellocbs.cmd hellocvt.cmd hellocba.int
 MSC_CMDS=hellomsc.exe hellomso.exe exepkmsc.exe lzexemsc.exe upxmsc.exe
@@ -90,7 +87,7 @@ binaries: $(8086_CMDS) $(8080_CMDS)
 
 ovraza.cmd: ovrmain.o
 	rm -f ovraza.cmd ovraza.rsm
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
+	$(ACC_DRIVER) -target=cpm86 \
 	    -overlay-root=1020,a00 ovrmain.o -o ovraza.cmd
 	$(CMDINFO) ovraza.cmd
 
@@ -98,36 +95,48 @@ ovraza.rsm: ovraza.cmd
 	@test -s $@
 
 ovrmain.o: ovrmain.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
+	$(ACC_DRIVER) -target=cpm86 -c $<
 
 ovrfunc1.ovr: ovrfunc1.o ovraza.rsm
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
+	$(ACC_DRIVER) -target=cpm86 \
 	    -overlay=ovraza.rsm $< -o $@
 
 ovrfunc1.o: ovrfunc1.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
+	$(ACC_DRIVER) -target=cpm86 -c $<
 
 ovrfunc2.ovr: ovrfunc2.o ovraza.rsm
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
+	$(ACC_DRIVER) -target=cpm86 \
 	    -overlay=ovraza.rsm $< -o $@
 
 ovrfunc2.o: ovrfunc2.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
+	$(ACC_DRIVER) -target=cpm86 -c $<
 
-# DOS 2 build of the overlay example (OVRDOS, defined above).
+# DOS 2 build of the overlay example: ovrmain.c loads ovrfnd1/ovrfnd2
+# when compiled with -target=dos2 (__MSDOS__).
+ovrazd.exe: ovrmaind.o
+	rm -f ovrazd.exe ovrazd.rsm
+	$(ACC_DRIVER) \
+	    -overlay-root=1020,a00 ovrmaind.o -o ovrazd.exe
 
-ovrdos/ovrazd.exe: ovrdos/ovrmain.o
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -overlay-root=1020,a00 $< -o $@
-
-ovrdos/ovrazd.rsm: ovrdos/ovrazd.exe
+ovrazd.rsm: ovrazd.exe
 	@test -s $@
 
-ovrdos/ovrfunc1.ovr ovrdos/ovrfunc2.ovr: ovrdos/%.ovr: ovrdos/%.o ovrdos/ovrazd.rsm
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -overlay=ovrdos/ovrazd.rsm $< -o $@
+ovrmaind.o: ovrmain.c
+	$(ACC_DRIVER) -target=dos2 -c $< -o $@
 
-ovrdos/%.o: %.c
-	@mkdir -p ovrdos
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=dos2 -c $< -o $@
+ovrfnd1.ovr: ovrfnd1.o ovrazd.rsm
+	$(ACC_DRIVER) -target=dos2 \
+	    -overlay=ovrazd.rsm $< -o $@
+
+ovrfnd1.o: ovrfunc1.c
+	$(ACC_DRIVER) -target=dos2 -c $< -o $@
+
+ovrfnd2.ovr: ovrfnd2.o ovrazd.rsm
+	$(ACC_DRIVER) -target=dos2 \
+	    -overlay=ovrazd.rsm $< -o $@
+
+ovrfnd2.o: ovrfunc2.c
+	$(ACC_DRIVER) -target=dos2 -c $< -o $@
 
 hellocba.int: hellocba.bas
 	$(CBAS86) $<
@@ -240,25 +249,25 @@ hellob.cmd: hellob.h86
 	$(CMDINFO) $@
   
 helloazd.exe: helloaza.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=dos1 $< -o $@
+	$(ACC_DRIVER) -target=dos1 $< -o $@
 
 helloaza.cmd: helloaza.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -o $@
+	$(ACC_DRIVER) -target=cpm86 $< -o $@
 	$(CMDINFO) $@
 
 mathazd.exe: mathazc.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=dos1 $< -lm -o $@
+	$(ACC_DRIVER) -target=dos1 $< -lm -o $@
 
 mathazc.cmd: mathazc.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -lm -o $@
+	$(ACC_DRIVER) -target=cpm86 $< -lm -o $@
 	$(CMDINFO) $@
 
 helloaz7.cmd: helloaz7.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -lm -o $@
+	$(ACC_DRIVER) -target=cpm86 $< -lm -o $@
 	$(CMDINFO) $@
 
 helloazc.cmd: helloazc.c
-	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -o $@
+	$(ACC_DRIVER) -target=cpm86 $< -o $@
 	$(CMDINFO) $@
 
 hellof77.cmd: hellof77.obj
@@ -459,7 +468,6 @@ test-8080: $(8080_CMDS)
 	sh test_tnylpo $(8080_CMDS)
 
 clean:
-	$(RM) -r ovrdos
 	$(RM) *.ovr *.rsm .prt *.prn *.o *.log *.sym *.prn *.lst *.obj *.r86 *.bin *.lin \
 		  *.mp2 *exe *.map *.err *.int *.prn *.hex *.out *.raw *.com \
 	      ctemp.tok pastemp.tok hellomas.a 8087.sim hellocvt.cb hellomsb.cb \

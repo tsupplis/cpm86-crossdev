@@ -68,18 +68,18 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
         grep -qx 'Hello from c (ansi cc with overlay2): fn2(10,20)=130'
 )
 
-# P5 on the DOS build: a DOS 2 overlay program.
-mkdir ovrdos
-cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" ovrdos/
+# P5 on the DOS build: the DOS 2 overlay program, beside the CP/M-86 one.
 (
-    cd ovrdos
-    export EMU2_CWD='C:\ovrdos'
-    dos_acc -c ovrmain.c ovrfunc1.c ovrfunc2.c
-    dos_acc -overlay-root=1020,a00 ovrmain.o -o ovrazd.exe
+    cd overlays
+    export EMU2_CWD='C:\overlays'
+    dos_acc -target=dos2 -c ovrmain.c -o ovrmaind.o
+    dos_acc -target=dos2 -c ovrfunc1.c -o ovrfnd1.o
+    dos_acc -target=dos2 -c ovrfunc2.c -o ovrfnd2.o
+    dos_acc -overlay-root=1020,a00 ovrmaind.o -o ovrazd.exe
     test -s ovrazd.rsm
-    dos_acc -overlay=ovrazd.rsm ovrfunc1.o -o ovrfunc1.ovr
-    dos_acc -overlay=ovrazd.rsm ovrfunc2.o -o ovrfunc2.ovr
-    output=$("$emu" "$work/ovrdos/ovrazd.exe")
+    dos_acc -target=dos2 -overlay=ovrazd.rsm ovrfnd1.o -o ovrfnd1.ovr
+    dos_acc -target=dos2 -overlay=ovrazd.rsm ovrfnd2.o -o ovrfnd2.ovr
+    output=$("$emu" "$work/overlays/ovrazd.exe")
     printf '%s\n' "$output" | tr -d '\r' |
         grep -qx 'Hello from c (ansi cc with overlay1): fn1(10,20)=80'
     printf '%s\n' "$output" | tr -d '\r' |

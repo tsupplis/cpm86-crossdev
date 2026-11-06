@@ -86,6 +86,7 @@ bin/mzchecksum
 **/math*.exe
 **/math*.cmd
 **/ovr*.cmd
+**/ovr*.exe
 **/ovr*.rsm
 **/ovr*.ovr
 **/upx*.cmd

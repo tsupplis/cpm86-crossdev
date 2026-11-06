@@ -295,17 +295,17 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
 )
 assert_clean
 
-# P5: the same overlay program as a DOS 2 .exe root; target from the suffix.
-mkdir ovrdos
-cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" ovrdos/
+# P5: the same overlay program as a DOS 2 .exe root (target from the
+# suffix), beside the CP/M-86 one: -target=dos2 selects ovrfnd1/ovrfnd2.
 (
-    cd ovrdos
-    run_acc -c ovrmain.c ovrfunc1.c ovrfunc2.c
-    run_acc -overlay-root=1020,a00 ovrmain.o -o ovrazd.exe
-    test -s ovrazd.exe
+    cd overlays
+    run_acc -target=dos2 -c ovrmain.c -o ovrmaind.o
+    run_acc -target=dos2 -c ovrfunc1.c -o ovrfnd1.o
+    run_acc -target=dos2 -c ovrfunc2.c -o ovrfnd2.o
+    run_acc -overlay-root=1020,a00 ovrmaind.o -o ovrazd.exe
     test -s ovrazd.rsm
-    run_acc -overlay=ovrazd.rsm ovrfunc1.o -o ovrfunc1.ovr
-    run_acc -overlay=ovrazd.rsm ovrfunc2.o -o ovrfunc2.ovr
+    run_acc -target=dos2 -overlay=ovrazd.rsm ovrfnd1.o -o ovrfnd1.ovr
+    run_acc -target=dos2 -overlay=ovrazd.rsm ovrfnd2.o -o ovrfnd2.ovr
     output=$("$emu" ovrazd.exe)
     printf '%s\n' "$output" | tr -d '\r' |
         grep -qx 'Hello from c (ansi cc with overlay1): fn1(10,20)=80'
