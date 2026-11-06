@@ -121,10 +121,19 @@ only pay for a null hook in their existing startup module.
 DOS 1.1 reuses the DOS 2.x time, clock, localtime, gmtime, ctime and asctime
 objects. Aztec time_t retains its packed DOS date/time representation, with
 two-second resolution. clock() retains Aztec's hundredths-of-a-second
-wall-clock convention, including midnight rollover. Existing callers retain those Aztec representations. CP/M-86 has no time/clock
-implementation.
+wall-clock convention, including midnight rollover. Existing callers retain those Aztec representations.
 
-DOS 1.1 and all DOS 2 memory models supply `mktime` and `difftime`.
+CP/M-86, Concurrent CP/M-86 and Concurrent DOS have `time`, `clock`,
+`localtime`, `gmtime`, `ctime`, `asctime` and `mktime` too. `cpm86/time.asm`
+reads the clock through the BDOS with the version rules of cpm86-hacking's
+`util.lib` (BDOS 105 above version 22h, the system data area at 22h), and
+returns the same packed DOS `time_t`; the calendar code is the DOS objects.
+`clock` has one-second resolution. `make -C src/aztecreg cpmtime-check` runs
+the conversion routines on DOS. The whole path was run as a CP/M-86 program
+under emu2 (BDOS version 31h, `T_GET`) and on CP/M-86 1.1 under PCE (BDOS
+version 22h, system data area); both pass.
+
+All targets supply `mktime` and `difftime`.
 They use the existing packed DOS `time_t`, not a Unix timestamp. `mktime`
 normalizes month/day/hour/minute/second fields, ignores input weekday/year-day,
 and returns `(time_t)-1` without changing the input on dates outside
@@ -134,11 +143,9 @@ There is no timezone/DST database: `tm_isdst` and the Aztec `tm_hsec`
 extension become zero, matching local civil time. `difftime` computes signed
 seconds between valid packed timestamps, including differences exceeding
 32-bit signed seconds. The shared Gregorian calendar also fixes `localtime`
-weekday/year-day calculations after February 2100. These functions are not
-supported by the CP/M runtime. `difftime` resides in the math libraries,
+weekday/year-day calculations after February 2100. `difftime` resides in the math libraries,
 like `atof`/`strtod`: link the chosen math library before the DOS C library.
-`mktime` needs only the DOS C library. Like the existing shared time
-declarations, their prototypes are in `time.h`; callers must select a DOS runtime.
+`mktime` needs only the C library. Their prototypes are in `time.h`.
 `make -C src/aztecreg time-check` runs all five DOS libraries with software
 and interrupt-based 8087 math, and link-checks inline 8087 math (emu2 has no
 hardware 8087). It is also part of `dos-check`.

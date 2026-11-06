@@ -20,7 +20,8 @@ Math libraries `m`, `m87`, `m87s` link **before** the C library (`-lm -lc`).
 | Conformance | Header guards on every header; `assert.h` re-evaluates `NDEBUG` on each inclusion | all |
 | New functions | `atexit`, `bsearch`, `div`, `ldiv`, `labs`, `memmove`, `strcspn`, `strspn`, `strpbrk`, `strtok`, `strerror`, `strtoul`, `remove`, `fgetpos`, `fsetpos`, `rewind` | all |
 | New functions | `vprintf`, `vfprintf`, `vsprintf`, `abs` | all |
-| New functions | `mktime`, `difftime` | DOS |
+| New functions | `mktime`, `difftime` | all |
+| New functions | `time`, `clock`, `localtime`, `gmtime`, `ctime`, `asctime` for CP/M-86, Concurrent CP/M-86 and Concurrent DOS (assembly clock interface over the DOS runtime's calendar code) | CP/M |
 | New functions | `strftime` (C locale, no OS dependency) | all |
 | New functions | `fmod`, `strtod` (C89 decimal syntax) in the math libraries | all |
 | Robustness | One range-checked parser behind `strtol`, `strtoul`, `atoi`, `atol`; `ERANGE` on overflow | all |
@@ -61,7 +62,7 @@ Legend: **Y** conforms; **P** partial (see notes); **N** missing; **E** Aztec ex
 | `<stdio.h>` | P | `setvbuf` missing. Also provides `snprintf`, `vsnprintf` (E: C99, not in C89) |
 | `<stdlib.h>` | P | Multibyte functions missing; `getenv`, `system` DOS only |
 | `<string.h>` | P | `strcoll`, `strxfrm` missing (declarations removed) |
-| `<time.h>` | P | `time`, `clock`, `localtime`, `mktime` DOS only; packed DOS `time_t` (section 3) |
+| `<time.h>` | P | Packed DOS `time_t` on every target (section 3) |
 
 ### Functions by header
 
@@ -87,15 +88,15 @@ Legend: **Y** conforms; **P** partial (see notes); **N** missing; **E** Aztec ex
 | | `strcoll`, `strxfrm` | N | |
 | `math.h` | `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `exp`, `log`, `log10`, `pow`, `sqrt`, `ceil`, `floor`, `fabs`, `frexp`, `ldexp`, `modf` | Y | `log(0)` is `-INFINITY` with `ERANGE`; negative is NaN with `EDOM` (+) |
 | | `fmod`+ | Y | Zero divisor or infinite numerator: quiet NaN, `EDOM` |
-| `time.h` | `time`, `clock`, `localtime`, `gmtime`, `ctime`, `asctime` | P | DOS only |
-| | `mktime`+, `difftime`+ | P | DOS only; 1980-2107, no time zones (section 3) |
+| `time.h` | `time`, `clock`, `localtime`, `gmtime`, `ctime`, `asctime` | P | All targets; packed DOS `time_t`, no time zones; `clock` has 1-second resolution on CP/M (section 3) |
+| | `mktime`+, `difftime`+ | P | All targets; 1980-2107, no time zones (section 3) |
 | | `strftime`+ | Y | All targets; C locale (section 3) |
 | `setjmp.h`, `signal.h` | `setjmp`, `longjmp`, `signal`, `raise` | Y | |
 | `locale.h` | `setlocale`, `localeconv` | N | |
 
 External names are significant to 8 characters (`vsnprintf` links as `vsnprint`).
 
-## 3. Time library (DOS)
+## 3. Time library
 
 | Item | Behaviour |
 | --- | --- |
@@ -106,7 +107,15 @@ External names are significant to 8 characters (`vsnprintf` links as `vsnprint`)
 | `localtime` | Gregorian weekday and day of year, correct after February 2100; `tm_isdst` is 0 |
 | `strftime` | All targets, including CP/M-86. C locale: `%a %A %b %B %c %d %H %I %j %m %M %p %S %U %w %W %x %X %y %Y %Z %%`, plus `%e` (space-padded day). `%Z` is empty (no time zone). `%c` is `%a %b %e %H:%M:%S %Y`. Returns 0 if the result does not fit, with an empty string. An unknown specifier is copied as written |
 | DOS 1.1 | Shares the DOS 2 time objects |
-| CP/M-86 | No clock or calendar functions; `strftime` only formats a `struct tm` you fill in |
+| CP/M-86, Concurrent CP/M-86, Concurrent DOS | `time` and `clock` are assembly (`cpm86/time.asm`); `localtime`, `gmtime`, `ctime`, `asctime`, `mktime` are the DOS objects, so `time_t` is the same packed format |
+
+| BDOS version (function 12) | Source | Notes |
+| --- | --- | --- |
+| Above 22h: MP/M II and later, CP/M-86 v4, Concurrent CP/M, Concurrent DOS | BDOS 105 (`T_GET`) | Day count (1 is 1978-01-01), BCD hour and minute; BCD seconds returned in `AL` |
+| 22h: CP/M-86 1.1 | System data area, BDOS 31h, offset 20h | The string `MM/DD/YY<sep>HH:MM:SS`; `YY` is 2000 to 2099 |
+| Below 22h | none | `time` and `clock` return -1 |
+
+`time` returns -1 for dates before 1980 or after 2107, or a bad clock value. `clock` is the time of day in hundredths of a second from a one-second clock, with the DOS runtime's rollover. The BDOS call helpers save `BP`, `SI`, `DI`, `DS` and `ES`, because the BDOS can change them; the system data area read keeps `ES` only until the string is copied.
 
 ## 4. Floating point limits
 
@@ -169,7 +178,7 @@ Ctrl-C delivery needs a real console and was not tested. `raise`, `sysint`, `bdo
 | Gap | Effect | Workaround |
 | --- | --- | --- |
 | `setvbuf`, `strcoll`, `strxfrm`, locale, multibyte | Not available | none |
-| `mktime`, `difftime`, `clock`, `time`, `localtime`, `gmtime`, `ctime`, `asctime` | DOS only | none on CP/M-86; `strftime` works on any `struct tm` |
+| CP/M `clock` | Resolution is one second | none |
 | `ftruncate`, `truncate` | DOS only; declared in `<dos.h>` | none on CP/M-86 |
 
 ## 7. Regression coverage
@@ -178,6 +187,8 @@ Ctrl-C delivery needs a real console and was not tested. `raise`, `sysint`, `bdo
 | --- | --- |
 | `check dos-check` | CP/M-86, DOS 1.1 and the four DOS 2 models; isolated link of 31 entry points on all six targets |
 | `time-check` | DOS time and clock with software and interrupt 8087 math; link check of inline 8087 |
+| PCE, CP/M-86 1.1 (BDOS 22h) | `time`, `clock`, `ctime`, `localtime`, `gmtime`, `mktime`, `difftime`, `strftime` against the system-data clock: all checks pass. emu2 (BDOS 31h, `T_GET`) passes the same program |
+| `cpmtime-check` | The CP/M clock conversions, run on DOS from the `c86` library: every day from 1978 to 2107 decoded from a BDOS stamp and packed, compared with `mktime`; the 1.1 date string; invalid stamps and dates |
 | `inf-check`, `expr-inf-check` | Infinity and NaN; the `expr` suite (11,298 checks) |
 | `truncate-check`, `truncate-pce-check` | Resize on DOS 1.1 and 2, under emu2 and PCE |
 | `response-check` | Library selection from LF and CRLF response files |
