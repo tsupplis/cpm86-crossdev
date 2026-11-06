@@ -293,4 +293,75 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
         grep -qx 'Hello from c (ansi cc with overlay2): fn2(10,20)=130'
 )
 assert_clean
+
+# P4 probes: every allow-listed backend option is accepted by the real tool
+# and, where observable, has its documented effect.
+mkdir raw
+cp main.c raw/
+(
+    cd raw
+    pass() {
+        output=$("$emu" "$1")
+        printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
+    }
+    # The backend must reject the build; its exact status is not asserted.
+    fails() {
+        status=0
+        run_acc "$@" > fails.log 2>&1 || status=$?
+        test "$status" -ne 0
+    }
+    # cc -L: a function with 120 locals overflows the default table.
+    {
+        printf 'int f(void){int '
+        i=0
+        while [ $i -lt 119 ]; do printf 'v%d,' $i; i=$((i + 1)); done
+        printf 'v119; v0 = 1; return v0;}\n'
+    } > locals.c
+    fails -c locals.c
+    run_acc -c -Wc,-L300 locals.c
+    test -s locals.o
+    # cc table sizes and code options: compile, link and run.
+    run_acc -Wc,-E120 -Wc,-y100 -Wc,-z1000 -Wc,+U -Wc,+R -Wc,+A -Wc,+M \
+        main.c -o opts.cmd
+    pass opts.cmd
+    run_acc -target=dos2 -mcmodel=large -Wc,+s main.c -o strings.exe
+    pass strings.exe
+    # cc -k: far is no longer a keyword.
+    printf 'char far *p;\nint main(void) { return 0; }\n' > far.c
+    run_acc -c far.c
+    fails -c -Wc,-k far.c
+    # cc -T: C source statements appear as comments in the assembly.
+    run_acc -S -Wc,-T main.c -o commented.asm
+    grep -q '^;.*puts' commented.asm
+    # as -S, -C, and -D with a constant.
+    run_acc -S main.c
+    run_acc -c -Wa,-S3 -Wa,-C main.asm -o squeezed.o > listing.log
+    run_acc squeezed.o -o squeezed.cmd
+    pass squeezed.cmd
+    awk '/^[[:space:]]*end([[:space:]]|$)/ && !done { print "\tdw ACCVAL"; done = 1 }
+         { print }' main.asm > valued.asm
+    grep -q 'ACCVAL' valued.asm
+    run_acc -c -DACCVAL=5 valued.asm
+    run_acc valued.o -o valued.cmd
+    pass valued.cmd
+    rm -f valued.o
+    status=0
+    { run_acc -c valued.asm && run_acc valued.o -o unvalued.cmd; } \
+        > undefined.log 2>&1 || status=$?
+    test "$status" -ne 0
+    # ln -M -V; DOS memory hints -S and -X.
+    run_acc -c main.c
+    run_acc -Wl,-M -Wl,-V main.o -o quiet.cmd > verbose.log
+    pass quiet.cmd
+    run_acc -Wl,-S400 -Wl,-X1000 main.o -o memory.exe
+    pass memory.exe
+    # -g: sdb information, published as .dbg beside the program.
+    run_acc -g main.c -o debug.exe
+    test -s debug.dbg
+    pass debug.exe
+    run_acc -g main.c -o debug.cmd
+    test -s debug.dbg
+    pass debug.cmd
+)
+assert_clean
 printf 'ACC EXEC CHECK PASS\n'

@@ -57,13 +57,13 @@ expect_failure "$@" -### -toolroot="$root" -target=dos2 -mcmodel=garbage main.c
 expect_failure "$@" -### -toolroot="$root" -c main.c other.c -o both.o
 expect_failure "$@" -### -toolroot="$root" -S entry.asm
 expect_failure "$@" -### -toolroot="$root" -c main.o
-expect_failure "$@" -### -toolroot="$root" main.c -o wrong.exe
-expect_failure "$@" -### -toolroot="$root" -D__DOS__ main.c
+expect_failure "$@" -### -toolroot="$root" -target=cpm86 main.c -o wrong.exe
+expect_failure "$@" -### -toolroot="$root" -target=cpm86 -D__MSDOS__ main.c
 expect_failure "$@" -### -toolroot="$root" -DTEST=1 -DTEST=2 main.c
 expect_failure "$@" -### -toolroot="$root" -D9BAD main.c
 expect_failure "$@" -### -toolroot="$root" main.c -o
 expect_failure "$@" -### -toolroot="$root" @args.rsp
-expect_failure "$@" -### -toolroot="$root" -g main.c
+expect_failure "$@" -### -toolroot="$root" -c -Wc,-A main.c
 expect_failure "$@" -### -toolroot="$root" -mfloat=8087-fast main.c
 expect_error 'cannot read input' "$@" -### -toolroot="$root" missing.c
 expect_error 'select the target/model' "$@" -### -toolroot="$root" main.o -lc86
@@ -82,14 +82,14 @@ expect_error 'output collision' "$@" -### -toolroot="$root" -c main.c sub/main.c
 output=$("$@" -### -toolroot="$root" main.c -o hello.cmd 2>&1)
 output=$(printf '%s\n' "$output" | tr -d '\r')
 printf '%s\n' "$output" | grep -Fi '"D:\\bin\\cc.exe" "+0" "-b" "-n"' >/dev/null
-printf '%s\n' "$output" | grep -F '"-D__CPM86__=1"' >/dev/null
+if printf '%s\n' "$output" | grep -F '__CPM86__'; then exit 1; fi
 printf '%s\n' "$output" | grep -F 'begin86.o' >/dev/null
 printf '%s\n' "$output" | grep -F 'c86.lib' >/dev/null
 test ! -e hello.cmd
 test ! -e 'E:'
-limit=$(printf '%058d' 0)
+limit=$(printf '%072d' 0)
 output=$("$@" -### -toolroot="$root" -c -DLONG="$limit" main.c 2>&1)
-limit=$(printf '%059d' 0)
+limit=$(printf '%073d' 0)
 expect_error 'command line too long' "$@" -### -toolroot="$root" -c -DLONG="$limit" main.c
 
 output=$("$@" -### -toolroot="$root" -S -ansi -DTEST= -I. main.c 2>&1)

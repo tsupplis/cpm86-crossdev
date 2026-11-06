@@ -18,6 +18,7 @@
 #include "plan.h"
 #include "path.h"
 #include "profile.h"
+#include "raw.h"
 #include <stdlib.h>
 #include <string.h>
 #ifndef ACC_DOS
@@ -305,22 +306,22 @@ static int output_path(plan_context_t *ctx, plan_t *plan, const char *host,
 }
 
 /*
- * Store in OUT the overlay symbol table that ln -r writes for root OUTPUT:
- * the same name with suffix .rsm.
+ * Store in OUT the side file that ln writes beside OUTPUT: the same name
+ * with SUFFIX (".rsm" for ln -r, ".dbg" for ln -g).
  */
-static int overlay_table_output(char *out, const char *output)
+static int sibling_output(char *out, const char *output, const char *suffix)
 {
     const char *base;
-    char *suffix;
+    const char *dot;
 
     base = path_basename(output);
-    suffix = strrchr(output, '.');
-    if (suffix == 0 || suffix < base)
-        return fail("overlay root output requires a filename suffix", output);
-    if ((size_t)(suffix - output) + 5 >= ACC_PATH)
-        return fail("overlay root output path is too long", output);
-    memcpy(out, output, (size_t)(suffix - output));
-    strcpy(out + (suffix - output), ".rsm");
+    dot = strrchr(output, '.');
+    if (dot == 0 || dot < base)
+        return fail("output requires a filename suffix", output);
+    if ((size_t)(dot - output) + 5 >= ACC_PATH)
+        return fail("output path is too long", output);
+    memcpy(out, output, (size_t)(dot - output));
+    strcpy(out + (dot - output), suffix);
     return 1;
 }
 
@@ -520,19 +521,29 @@ static int validate(const request_t *r, plan_context_t *ctx)
     }
     if (count == 0)
         return fail("at least one source or object input is required", NULL);
+    /* A raw option for a tool that does not run is a mistake, not a no-op. */
+    for (i = 0, j = 0; i < ctx->inputs.count; ++i)
+        j |= classify(ctx->inputs.items[i]) == INPUT_C ? 1 :
+            classify(ctx->inputs.items[i]) == INPUT_ASM ? 2 : 0;
+    if (r->cc_options.count != 0 && !(j & 1))
+        return fail("-Wc given, but no C source is compiled", NULL);
+    if (r->as_options.count != 0 && !(j & 2))
+        return fail("-Wa given, but no .asm source is assembled", NULL);
+    if (r->ln_options.count != 0 && r->stage != STAGE_LINK)
+        return fail("-Wl given, but nothing is linked", NULL);
     if (r->stage != STAGE_LINK && r->output != 0 && count != 1)
         return fail("one -o cannot name multiple compilation outputs", NULL);
-    /* A user definition of the target macro must agree with -target. */
-    for (i = 0; i < r->definitions.count; ++i) {
+    /*
+     * With -target, acc defines that system's macro as 1: a user definition
+     * of either OS macro must agree.  Without -target, both are user's.
+     */
+    for (i = 0; r->target_given && i < r->definitions.count; ++i) {
         macro = r->definitions.items[i];
-        if (strncmp(macro, "__CPM86__=", 10) == 0) {
-            if (r->target != TARGET_CPM86 || strcmp(macro + 10, "1") != 0)
-                return fail("conflicting target macro", macro);
-        }
-        if (strncmp(macro, "__DOS__=", 8) == 0) {
-            if (r->target == TARGET_CPM86 || strcmp(macro + 8, "1") != 0)
-                return fail("conflicting target macro", macro);
-        }
+        if ((strncmp(macro, "__CPM86__=", 10) == 0 &&
+             (r->target != TARGET_CPM86 || strcmp(macro + 10, "1") != 0)) ||
+            (strncmp(macro, "__MSDOS__=", 10) == 0 &&
+             (r->target == TARGET_CPM86 || strcmp(macro + 10, "1") != 0)))
+            return fail("conflicting target macro", macro);
     }
     /* Verify every required tool before printing any command. */
     for (i = 0; i < ctx->inputs.count; ++i) {
@@ -558,6 +569,18 @@ static int validate(const request_t *r, plan_context_t *ctx)
     return 1;
 }
 
+/* Non-zero if TEXT is a non-empty run of decimal digits. */
+static int decimal_value(const char *text)
+{
+    if (*text == '\0')
+        return 0;
+    for (; *text != '\0'; ++text) {
+        if (*text < '0' || *text > '9')
+            return 0;
+    }
+    return 1;
+}
+
 /* Append FLAG to ARGS unless it is NULL (the setting needs no flag). */
 static int add_flag(word_list_t *args, const char *flag)
 {
@@ -573,6 +596,8 @@ static int add_flag(word_list_t *args, const char *flag)
 static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
                          const char *input, input_kind_t kind)
 {
+    raw_context_t raw;
+    const word_list_t *raw_options;
     command_t *cmd;
     word_list_t *args;
     char product[32];
@@ -593,10 +618,10 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
     if (kind == INPUT_C) {
         /* -b: never wait for a key after errors; -n: no debugger data. */
         if (!add_word(args, profile_cpu_flag(r->cpu)) ||
-            !add_word(args, "-b") || !add_word(args, "-n") ||
+            !add_word(args, "-b") || (!r->debug && !add_word(args, "-n")) ||
             !add_flag(args, profile_model_flag(r->model)) ||
             !add_flag(args, profile_float_flag(r->floating)) ||
-            !add_flag(args, profile_language_flag(r->language)) ||
+            (r->strict_ansi && !add_word(args, "-ansi")) ||
             !add_flag(args, profile_optimize_flag(r->optimize)) ||
             (r->quiet && !add_word(args, "-s")) ||
             (r->stage == STAGE_ASSEMBLY && !add_word(args, "-A")))
@@ -604,12 +629,24 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
     } else if (!add_flag(args, profile_assembler_cpu_flag(r->cpu))) {
         return 0;
     }
-    if (!add_word(args, profile_target_macro(r->target)))
+    raw.assembly_stage = r->stage == STAGE_ASSEMBLY;
+    raw.large_data = r->model == MODEL_COMPACT || r->model == MODEL_LARGE;
+    raw.dos_link = 0;
+    raw.dos2_exe = 0;
+    raw_options = kind == INPUT_C ? &r->cc_options : &r->as_options;
+    for (i = 0; i < raw_options->count; ++i) {
+        if (!raw_append(args, kind == INPUT_C ? RAW_COMPILER : RAW_ASSEMBLER,
+                        raw_options->items[i], &raw))
+            return 0;
+    }
+    /* Compilation is OS-neutral unless -target is given. */
+    if (r->target_given && !add_word(args, profile_target_macro(r->target)))
         return 0;
     for (i = 0; i < r->definitions.count; ++i) {
-        /* as accepts only constant values; not validated yet. */
-        if (kind == INPUT_ASM)
-            return fail("explicit assembly macro validation is not implemented yet", NULL);
+        /* as -Dsym=const: the value must be a decimal constant. */
+        if (kind == INPUT_ASM && !decimal_value(strchr(r->definitions.items[i], '=') + 1))
+            return fail("assembler -D values must be decimal constants",
+                        r->definitions.items[i]);
         if (!option(args, "-D", r->definitions.items[i]))
             return 0;
     }
@@ -631,6 +668,38 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
         strcat(output, r->stage == STAGE_ASSEMBLY ? ".asm" : ".o");
     }
     return output_path(ctx, plan, output, product);
+}
+
+/*
+ * Resolve the link target into PLAN.  The -o suffix selects the system:
+ * .cmd is CP/M-86; .exe and .com are DOS 2, or DOS 1 with -target=dos1.
+ * An explicit -target must agree with the suffix.  Without -o, -target
+ * decides, else CP/M-86 (a.cmd).  An overlay (.ovr) uses -target, else
+ * CP/M-86.
+ */
+static int resolve_target(const request_t *r, plan_t *plan)
+{
+    const char *suffix;
+    int dos;
+
+    plan->target = r->target_given ? r->target : TARGET_CPM86;
+    plan->target_known = 1;
+    if (r->output == 0 || r->overlay_table != 0)
+        return 1;
+    suffix = strrchr(path_basename(r->output), '.');
+    if (suffix == 0)
+        return fail("output needs a .cmd, .exe or .com suffix", r->output);
+    if (path_equal(suffix, ".cmd"))
+        dos = 0;
+    else if (path_equal(suffix, ".exe") || path_equal(suffix, ".com"))
+        dos = 1;
+    else
+        return fail("output needs a .cmd, .exe or .com suffix", r->output);
+    if (r->target_given && dos != (r->target != TARGET_CPM86))
+        return fail("output suffix conflicts with target", r->output);
+    if (!r->target_given)
+        plan->target = dos ? TARGET_DOS2 : TARGET_CPM86;
+    return 1;
 }
 
 /*
@@ -665,30 +734,36 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
     int object;
     char product[16];
     char table[16];
+    raw_context_t raw;
 
-    output = r->output == 0 ? profile_default_executable(r->target) : r->output;
+    output = r->output == 0 ? profile_default_executable(plan->target) : r->output;
     suffix = strrchr(path_basename(output), '.');
     overlay_root = r->overlay_root != 0;
     overlay = r->overlay_table != 0;
-    if (suffix == 0 ||
-        (overlay_root && !path_equal(suffix, ".cmd")) ||
-        (overlay && !path_equal(suffix, ".ovr")) ||
-        (!overlay_root && !overlay && r->target == TARGET_CPM86 &&
-         !path_equal(suffix, ".cmd")) ||
-        (!overlay_root && !overlay && r->target != TARGET_CPM86 &&
-         !path_equal(suffix, ".exe") && !path_equal(suffix, ".com")))
+    if ((overlay_root && !path_equal(suffix, ".cmd")) ||
+        (overlay && !path_equal(suffix, ".ovr")))
         return fail("output suffix conflicts with target", output);
-    if (!overlay_root && !overlay && path_equal(suffix, ".com") && r->model != MODEL_SMALL)
-        return fail("COM output requires small model", output);
+    /* Only DOS 2 .exe programs can use large models (Tech Info 1.1.1). */
+    if (r->model != MODEL_SMALL &&
+        (plan->target != TARGET_DOS2 || !path_equal(suffix, ".exe")))
+        return fail("non-small model requires a dos2 .exe output", output);
     /* The product keeps the output suffix: ln selects the format from it. */
     if (!temp_name(plan, suffix + 1, product) ||
         !output_path(ctx, plan, output, product))
         return 0;
+    if (r->debug) {
+        /* ln -g writes the sdb information beside its output, as .dbg. */
+        strcpy(table, product);
+        strcpy(strrchr(table, '.'), ".dbg");
+        if (!sibling_output(overlay_output, output, ".dbg") ||
+            !output_path(ctx, plan, overlay_output, table))
+            return 0;
+    }
     if (overlay_root) {
         /* ln -r writes the symbol table beside its output, as .rsm. */
         strcpy(table, product);
         strcpy(strrchr(table, '.'), ".rsm");
-        if (!overlay_table_output(overlay_output, output) ||
+        if (!sibling_output(overlay_output, output, ".rsm") ||
             !output_path(ctx, plan, overlay_output, table))
             return 0;
         comma = strchr(r->overlay_root, ',');
@@ -717,8 +792,19 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
         return 0;
     if (overlay_root && !add_word(&cmd->arguments, "-r"))
         return 0;
-    runtime = profile_runtime(r->target, r->model);
-    startup = profile_startup(r->target, r->model);
+    raw.assembly_stage = 0;
+    raw.large_data = r->model == MODEL_COMPACT || r->model == MODEL_LARGE;
+    raw.dos_link = plan->target != TARGET_CPM86;
+    raw.dos2_exe = plan->target == TARGET_DOS2 && path_equal(suffix, ".exe");
+    for (i = 0; i < r->ln_options.count; ++i) {
+        if (!raw_append(&cmd->arguments, RAW_LINKER, r->ln_options.items[i], &raw))
+            return 0;
+    }
+    /* -g applies to every file listed after it: startup, inputs, libraries. */
+    if (r->debug && !add_word(&cmd->arguments, "-g"))
+        return 0;
+    runtime = profile_runtime(plan->target, r->model);
+    startup = profile_startup(plan->target, r->model);
     if (!overlay_root && !overlay && !r->nostart && !r->nostdlib) {
         if (!stock(ctx, startup, path) || !mapped(&cmd->arguments, ctx, "", path))
             return 0;
@@ -840,6 +926,10 @@ int build_plan(const request_t *r, plan_t *plan)
     if (ctx == 0)
         return fail("out of memory", NULL);
     ok = validate(r, ctx);
+    plan->target = r->target;
+    plan->target_known = r->target_given;
+    if (ok && r->stage == STAGE_LINK)
+        ok = resolve_target(r, plan);
     if (ok) {
         strcpy(plan->root, ctx->map.root);
         strcpy(plan->cwd, ctx->map.cwd);

@@ -26,12 +26,11 @@ const char *const float_names[FLOAT_COUNT] = {
 static const char *const cpu_flags[] = { "+0", "+1", "+2" };
 static const char *const model_flags[] = { 0, "+lc", "+ld", "+l" };
 static const char *const float_flags[] = { 0, 0, "+e", "+ej" };
-static const char *const language_flags[] = { 0, "-ansi", "-3" };
 static const char *const optimize_flags[] = { 0, "+c", "+f" };
 
 /* Indexed by Target; both DOS targets share one macro. */
 static const char *const target_macros[] = {
-    "-D__CPM86__=1", "-D__DOS__=1", "-D__DOS__=1"
+    "-D__CPM86__=1", "-D__MSDOS__=1", "-D__MSDOS__=1"
 };
 static const char *const executables[] = { "a.cmd", "a.exe", "a.exe" };
 
@@ -85,12 +84,6 @@ const char *profile_model_flag(model_t model)
 const char *profile_float_flag(float_backend_t floating)
 {
     return float_flags[floating];
-}
-
-/* cc language mode flag: -ansi, -3 (v3 rules), or none. */
-const char *profile_language_flag(language_t language)
-{
-    return language_flags[language];
 }
 
 /* cc code preference flag: +c (compact), +f (fast), or none. */

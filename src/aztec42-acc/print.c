@@ -5,6 +5,7 @@
  * tests in tests/plan:
  *
  *   acc: plan stage=S target=T ...         every resolved setting
+ *                                         (target=none: OS-neutral compile)
  *   acc: E: ...                           meaning of the E: drive
  *   tool: "PROGRAM" "ARG" ...             one line per backend command
  *   response: "FILE" "LINE" ...           linker response file, if any
@@ -20,9 +21,6 @@
 
 /* Names of settings that have no option value list, indexed by enum. */
 static const char *const stage_names[] = { "link", "object", "assembly" };
-static const char *const language_names[] = {
-    "default", "ansi", "traditional"
-};
 static const char *const optimize_names[] = { "default", "size", "speed" };
 
 /* Write TEXT to stderr as a quoted, escaped word. */
@@ -59,11 +57,12 @@ void print_plan(const request_t *r, const plan_t *plan)
     int i;
 
     fprintf(stderr, "acc: plan stage=%s target=%s model=%s cpu=%s\n",
-            stage_names[r->stage], target_names[r->target],
+            stage_names[r->stage],
+            plan->target_known ? target_names[plan->target] : "none",
             model_names[r->model], cpu_names[r->cpu]);
-    fprintf(stderr, "acc: plan float=%s language=%s optimize=%s\n",
-            float_names[r->floating], language_names[r->language],
-            optimize_names[r->optimize]);
+    fprintf(stderr, "acc: plan float=%s optimize=%s ansi=%s debug=%s\n",
+            float_names[r->floating], optimize_names[r->optimize],
+            r->strict_ansi ? "strict" : "native", r->debug ? "on" : "off");
     fputs(r->dryrun ?
           "acc: E: is a symbolic private workspace; no files are created\n" :
           "acc: E: maps the invocation's private workspace\n", stderr);

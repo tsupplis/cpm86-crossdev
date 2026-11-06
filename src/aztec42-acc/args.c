@@ -112,10 +112,23 @@ int parse_request(request_t *r, int argc, char **argv)
             r->nostart = 1;
         } else if (strcmp(arg, "-nostdlib") == 0) {
             r->nostdlib = 1;
+        } else if (strcmp(arg, "-g") == 0) {
+            r->debug = 1;
+        } else if (strncmp(arg, "-Wc,", 4) == 0 ||
+                   strncmp(arg, "-Wa,", 4) == 0 ||
+                   strncmp(arg, "-Wl,", 4) == 0) {
+            /* One backend option per -W; commas are not separators. */
+            if (arg[4] == '\0')
+                return fail("empty backend option", arg);
+            if (!add_word(arg[2] == 'c' ? &r->cc_options :
+                          arg[2] == 'a' ? &r->as_options : &r->ln_options,
+                          arg + 4))
+                return 0;
         } else if (strcmp(arg, "-ansi") == 0) {
-            r->language = LANGUAGE_ANSI;
+            r->strict_ansi = 1;
         } else if (strcmp(arg, "-traditional") == 0) {
-            r->language = LANGUAGE_TRADITIONAL;
+            /* cc -3 (v3.40b K&R rules) is deliberately not exposed. */
+            return fail("K&R mode is not supported: acc compiles ANSI C", arg);
         } else if (strcmp(arg, "-Osize") == 0) {
             r->optimize = OPTIMIZE_SIZE;
         } else if (strcmp(arg, "-Ospeed") == 0) {
@@ -125,6 +138,7 @@ int parse_request(request_t *r, int argc, char **argv)
             if (selected < 0)
                 return 0;
             r->target = (target_t)selected;
+            r->target_given = 1;
         } else if (strncmp(arg, "-mcmodel=", 9) == 0) {
             selected = profile_choice(arg + 9, model_names, MODEL_COUNT);
             if (selected < 0)
@@ -205,10 +219,12 @@ int parse_request(request_t *r, int argc, char **argv)
     }
     if (r->inputs.count == 0)
         return fail("no input", NULL);
-    if (r->target != TARGET_DOS2 && r->model != MODEL_SMALL)
+    /* Without -target the model is checked at link time, from -o. */
+    if (r->target_given && r->target != TARGET_DOS2 && r->model != MODEL_SMALL)
         return fail("non-small model requires -target=dos2", NULL);
     if ((r->overlay_root != 0 || r->overlay_table != 0) &&
-        (r->target != TARGET_CPM86 || r->stage != STAGE_LINK ||
+        ((r->target_given && r->target != TARGET_CPM86) ||
+         r->stage != STAGE_LINK ||
          (r->overlay_root != 0 && r->overlay_table != 0)))
         return fail("overlays require one CP/M-86 link mode", NULL);
     if ((r->overlay_root != 0 || r->overlay_table != 0) && r->output == 0)
@@ -229,4 +245,7 @@ void free_request(request_t *r)
     free_words(&r->definitions);
     free_words(&r->libraries);
     free_words(&r->inputs);
+    free_words(&r->cc_options);
+    free_words(&r->as_options);
+    free_words(&r->ln_options);
 }

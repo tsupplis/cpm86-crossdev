@@ -68,6 +68,12 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
         grep -qx 'Hello from c (ansi cc with overlay2): fn2(10,20)=130'
 )
 
+# P4 on the DOS build: -g with .dbg publication, a linker memory hint.
+"$emu" "$acc" -toolroot='D:\' -g -Wl,-S400 main.c -o debug.exe
+test -s debug.exe
+test -s debug.dbg
+"$emu" "$work/debug.exe"
+
 for path in A??????; do
     if [ -d "$path" ]; then
         printf 'DOS acc left a private workspace: %s\n' "$path" >&2

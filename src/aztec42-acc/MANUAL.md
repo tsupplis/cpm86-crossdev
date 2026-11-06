@@ -57,11 +57,11 @@ Response files (`@file`) do not exist; options always stay on the command line.
 | `-D name[=value]` | macro; `name` alone is `name=1` | conflicting redefinition is an error |
 | `-L dir` | library area | ordered |
 | `-l name` | library | |
-| `-target=` | output system | `cpm86` `dos1` `dos2` |
+| `-target=` | OS macro when compiling; link target (else from `-o`) | `cpm86` `dos1` `dos2` |
 | `-mcmodel=` | memory model | `small` `medium` `compact` `large` |
 | `-march=` | CPU | `i8086` `i80186` `i80286` |
 | `-mfloat=` | floating point | `soft` `auto` `8087` |
-| `-ansi` `-traditional` | language mode | |
+| `-ansi` | strict ANSI: also disables `near` `far` `huge` `pascal` `fortran` `cdecl` (breaks `dos.h`) | |
 | `-Osize` `-Ospeed` | code preference | |
 | `-w` | no compiler warnings | |
 | `-nostartfiles` | omit startup object | |
@@ -82,20 +82,43 @@ use `=`. Repeated scalar options: last wins.
 
 | Setting | Default |
 | --- | --- |
-| Target | `cpm86` |
-| Output | `a.cmd` (cpm86), `a.exe` (dos) |
+| Target, compiling | none: OS-neutral, no OS macro |
+| Target, linking | from the `-o` suffix, see below |
+| Output | `a.cmd`; `a.exe` with `-target=dos1`/`dos2` |
 | Model, CPU, float | `small`, `i8086`, `soft` |
-| Language, optimisation | compiler native |
+| Language | ANSI C (cc native mode); K&R (`cc -3`) is not available |
+| Optimisation | compiler native |
 | Debug data | off |
 | Error pause | never |
+
+## Link target
+
+| `-o` suffix | No `-target` | Allowed `-target` |
+| --- | --- | --- |
+| `.cmd` | `cpm86` | `cpm86` |
+| `.exe` | `dos2` | `dos1`, `dos2` |
+| `.com` | `dos2` | `dos1`, `dos2` |
+| none (no `-o`) | `cpm86`, `a.cmd` | any; `a.exe` for dos |
+
+Other suffixes are errors. There is no tiny model: a `.com` program is a
+small-model, single-segment program.
+
+## Predefined macros
+
+| Macro | Defined when |
+| --- | --- |
+| `__CPM86__=1` | `-target=cpm86` |
+| `__MSDOS__=1` | `-target=dos1` or `dos2` |
+| `__STDC__` `__FILE__` `__LINE__` `__DATE__` `__TIME__` `__FUNC__` `MPU8086` | always (compiler) |
+
+With `-target`, a user `-D` of either OS macro must agree with it.
 
 ## Constraints
 
 | Rule | Reason |
 | --- | --- |
-| Non-small model needs `-target=dos2` | only DOS 2 `.exe` programs can use large models |
-| `.com` needs the small model | single segment |
-| Output suffix must match the target | `.cmd` for cpm86; `.exe` or `.com` for dos |
+| Non-small model: `dos2` `.exe` only | only DOS 2 `.exe` programs can use large models |
+| Explicit non-`dos2` `-target` with a non-small model | rejected at once, even with `-c` |
 | Overlays are CP/M-86 only | not yet supported for DOS |
 | `-mfloat=8087-fast` rejected | not runtime-qualified |
 | Explicit `.asm` with `-march=i80286` or `-mfloat=8087` rejected | not qualified |

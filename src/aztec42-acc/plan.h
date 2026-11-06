@@ -40,6 +40,8 @@ typedef struct {
     word_list_t host_outputs;   /* host paths of published outputs */
     word_list_t library_paths;  /* guest library areas, for the child CLIB */
     int temps;                  /* workspace temporaries named so far */
+    target_t target;            /* resolved target, if target_known */
+    int target_known;           /* -target given, or link mode */
     char root[ACC_PATH];        /* host tool root (guest D:) */
     char cwd[ACC_PATH];         /* host invocation directory (guest C:) */
 } plan_t;

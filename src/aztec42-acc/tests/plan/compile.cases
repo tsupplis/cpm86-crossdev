@@ -9,6 +9,10 @@
 
 
 
+
+
+
+
 @case assemble-186
 -###
 -toolroot=@ROOT@
@@ -16,10 +20,10 @@
 -march=i80186
 entry.asm
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i80186
-acc: plan float=soft language=default optimize=default
+acc: plan stage=object target=none model=small cpu=i80186
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\as.exe" "-186" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+tool: "D:\\bin\\as.exe" "-186" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
 publish: "E:\\u0001.o" -> "C:\\entry.o"
 [exit 0]
 @end
@@ -30,10 +34,10 @@ publish: "E:\\u0001.o" -> "C:\\entry.o"
 -c
 entry.asm
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\as.exe" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+tool: "D:\\bin\\as.exe" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
 publish: "E:\\u0001.o" -> "C:\\entry.o"
 [exit 0]
 @end
@@ -47,10 +51,10 @@ publish: "E:\\u0001.o" -> "C:\\entry.o"
 -w
 main.c
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i8086
-acc: plan float=8087 language=default optimize=speed
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=8087 optimize=speed ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+e" "+f" "-s" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+e" "+f" "-s" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
@@ -61,10 +65,10 @@ publish: "E:\\u0001.o" -> "C:\\main.o"
 -c
 main.c
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
@@ -78,9 +82,9 @@ publish: "E:\\u0001.o" -> "C:\\main.o"
 main.c
 @out
 acc: plan stage=object target=dos2 model=large cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+l" "-D__DOS__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+l" "-D__MSDOS__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
@@ -94,9 +98,9 @@ main.c
 -lpick
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-IC:\\inc1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-IC:\\inc1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
 response: "E:\\u0003.rsp" "-o" "E:\\u0002.cmd" "D:\\lib\\begin86.o" "E:\\u0001.o" "C:\\libs1\\pick.lib" "D:\\lib\\c86.lib"
 publish: "E:\\u0002.cmd" -> "C:\\a.cmd"
@@ -107,13 +111,13 @@ publish: "E:\\u0002.cmd" -> "C:\\a.cmd"
 -###
 -toolroot=@ROOT@
 -c
--DLONG=0000000000000000000000000000000000000000000000000000000000
+-DLONG=000000000000000000000000000000000000000000000000000000000000000000000000
 main.c
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-DLONG=0000000000000000000000000000000000000000000000000000000000" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-DLONG=000000000000000000000000000000000000000000000000000000000000000000000000" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
@@ -126,10 +130,10 @@ publish: "E:\\u0001.o" -> "C:\\main.o"
 -march=i80286
 main.c
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i80286
-acc: plan float=soft language=default optimize=default
+acc: plan stage=object target=none model=small cpu=i80286
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+2" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+2" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
@@ -142,43 +146,41 @@ main.c
 -o
 out.o
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\out.o"
 [exit 0]
 @end
 
-@case compile-s-ansi
+@case compile-s-define-include
 -###
 -toolroot=@ROOT@
 -S
--ansi
 -DTEST=
 -I.
 main.c
 @out
-acc: plan stage=assembly target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=ansi optimize=default
+acc: plan stage=assembly target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ansi" "-A" "-D__CPM86__=1" "-DTEST=" "-IC:\\" "-ID:\\include" "-o" "E:\\u0001.asm" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-A" "-DTEST=" "-IC:\\" "-ID:\\include" "-o" "E:\\u0001.asm" "C:\\main.c"
 publish: "E:\\u0001.asm" -> "C:\\main.asm"
 [exit 0]
 @end
 
-@case compile-size-traditional
+@case compile-size
 -###
 -toolroot=@ROOT@
 -c
 -Osize
--traditional
 main.c
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=traditional optimize=size
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=size ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-3" "+c" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+c" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
@@ -190,11 +192,11 @@ publish: "E:\\u0001.o" -> "C:\\main.o"
 main.c
 other.c
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\other.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\other.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 publish: "E:\\u0002.o" -> "C:\\other.o"
 [exit 0]
@@ -207,11 +209,11 @@ publish: "E:\\u0002.o" -> "C:\\other.o"
 main.c
 other.c
 @out
-acc: plan stage=assembly target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan stage=assembly target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-A" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.asm" "C:\\main.c"
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-A" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0002.asm" "C:\\other.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-A" "-ID:\\include" "-o" "E:\\u0001.asm" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-A" "-ID:\\include" "-o" "E:\\u0002.asm" "C:\\other.c"
 publish: "E:\\u0001.asm" -> "C:\\main.asm"
 publish: "E:\\u0002.asm" -> "C:\\other.asm"
 [exit 0]
@@ -224,12 +226,187 @@ publish: "E:\\u0002.asm" -> "C:\\other.asm"
 main.c
 entry.asm
 @out
-acc: plan stage=object target=cpm86 model=small cpu=i8086
-acc: plan float=soft language=default optimize=default
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
-tool: "D:\\bin\\as.exe" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\entry.asm"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\as.exe" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\entry.asm"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 publish: "E:\\u0002.o" -> "C:\\entry.o"
+[exit 0]
+@end
+
+@case compile-target-cpm86
+-###
+-toolroot=@ROOT@
+-c
+-target=cpm86
+main.c
+@out
+acc: plan stage=object target=cpm86 model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__CPM86__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-target-dos1
+-###
+-toolroot=@ROOT@
+-c
+-target=dos1
+main.c
+@out
+acc: plan stage=object target=dos1 model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__MSDOS__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-large-no-target
+-###
+-toolroot=@ROOT@
+-c
+-mcmodel=large
+main.c
+@out
+acc: plan stage=object target=none model=large cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+l" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-user-msdos-no-target
+-###
+-toolroot=@ROOT@
+-c
+-D__MSDOS__
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__MSDOS__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-strict-ansi
+-###
+-toolroot=@ROOT@
+-c
+-ansi
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=strict debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ansi" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-raw-cc
+-###
+-toolroot=@ROOT@
+-c
+-Wc,-L300
+-Wc,-E120
+-Wc,-y100
+-Wc,-z1000
+-Wc,-k
+-Wc,+U
+-Wc,+R
+-Wc,+A
+-Wc,+M
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-L300" "-E120" "-y100" "-z1000" "-k" "+U" "+R" "+A" "+M" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-raw-source-comments
+-###
+-toolroot=@ROOT@
+-S
+-Wc,-T
+main.c
+@out
+acc: plan stage=assembly target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-A" "-T" "-ID:\\include" "-o" "E:\\u0001.asm" "C:\\main.c"
+publish: "E:\\u0001.asm" -> "C:\\main.asm"
+[exit 0]
+@end
+
+@case compile-raw-strings-large
+-###
+-toolroot=@ROOT@
+-c
+-mcmodel=large
+-Wc,+s
+main.c
+@out
+acc: plan stage=object target=none model=large cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+l" "+s" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-debug
+-###
+-toolroot=@ROOT@
+-c
+-g
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=on
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case assemble-raw
+-###
+-toolroot=@ROOT@
+-c
+-Wa,-S3
+-Wa,-C
+entry.asm
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\as.exe" "-S3" "-C" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+publish: "E:\\u0001.o" -> "C:\\entry.o"
+[exit 0]
+@end
+
+@case assemble-define
+-###
+-toolroot=@ROOT@
+-c
+-DVAL=5
+entry.asm
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\as.exe" "-DVAL=5" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+publish: "E:\\u0001.o" -> "C:\\entry.o"
 [exit 0]
 @end

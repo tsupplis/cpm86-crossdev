@@ -93,7 +93,7 @@ Rules:
 | CPU (`-march`) | `i8086` | n/a | `+0`; no CPU macro |
 | Model (`-mcmodel`) | `small` | `small`; non-small requires `dos2` | no `+l*` flag; `sbegin.o`/`c.lib` family |
 | Float (`-mfloat`) | `soft` | `soft` | no `+e`; `-lm` → `m.lib` family |
-| Language | **always ANSI** (D6) | n/a | cc `-ansi` on every compilation |
+| Language | ANSI: cc native mode (D6) | n/a | no flag; `-ansi` opt-in strict; never `-3` |
 | Optimisation | native default (neither `+c` nor `+f`) | n/a | none |
 | Debug | off | off | cc `-n`; ln without `-g` |
 | Warnings | on | on | cc without `-s` |
@@ -140,8 +140,8 @@ changes in this plan; **new** = added; **remove** = dropped.
 | `-mcmodel=small\|medium\|compact\|large` | –/`+lc`/`+ld`/`+l` | user owns ABI | startup/runtime/math family | change (check timing, P3) |
 | `-mfloat=soft\|auto\|8087` | –/–/`+e` | not rewritten | `-lm` → `m`/`m87s`/`m87` family | keep |
 | `-mfloat=8087-fast` | `+ej` | – | hardware family | keep rejected until runtime-qualified |
-| (always) | `-ansi` | – | – | change: ANSI only (D6, P3) |
-| `-ansi` / `-traditional` | – | – | – | **remove** (D6, P3) |
+| `-ansi` | `-ansi` (strict: disables `near`/`far`/`huge`, breaks `dos.h`) | – | – | keep, opt-in (D6) |
+| `-traditional` | – | – | – | **remove**: K&R `-3` not supported (D6) |
 | `-Osize` / `-Ospeed` | `+c` / `+f` | – | – | keep |
 | `-g` | omit `-n` | – | `-g` before inputs; publish `.dbg` beside output | new (P4, after probe) |
 | `-w` | `-s` | – | – | keep |
@@ -184,7 +184,7 @@ operand). Every argument is checked against the tables below. Two tiers:
 | `-y<n>` | outstanding switch cases | `-Wc,-y<n>` (**verified** spelling; lowercase) |
 | `-z<n>` | literal string table | `-Wc,-z<n>` (**verified** spelling; lowercase) |
 | `-n` | no debug information | managed by `-g` |
-| `-ansi` / `-3` | language mode | `-ansi` always emitted (D6); `-3` rejected |
+| `-ansi` / `-3` | language mode | `-ansi` opt-in strict (D6); `-3` never emitted |
 | `-c` | prototype-conversion warning toggle | rejected (toggle semantics) |
 | `-k` | disable extended keywords | `-Wc,-k` (probe) |
 | `-ze` | Microsoft near/far/huge | rejected (foreign ABI) |
@@ -402,7 +402,7 @@ containers, components, data) as Mermaid diagrams in sync with the code.
 | D3 | OS macro spelling | **closed**: `__CPM86__` and `__MSDOS__`. `__DOS__` was only defined by acc itself (no source or Aztec header tests it) |
 | D4 | K&R `aztec34` toolchain | **closed**: out of scope; acc supports only the ANSI compiler |
 | D5 | `CHAR_UNSIGNED` | **closed**: `char` is signed (verified), never defined |
-| D6 | Language mode | **closed**: ANSI only; cc always gets `-ansi`; the `-ansi`/`-traditional` options are removed |
+| D6 | Language mode | **closed**: ANSI only = cc native mode (ANSI plus the `near`/`far` extensions Aztec's own `dos.h` needs; forcing `-ansi` breaks it, verified). `-ansi` stays as opt-in strict mode; `-traditional` (`-3`, K&R) is removed |
 
 ---
 
@@ -417,7 +417,7 @@ build (Aztec C 4.2) and all checks.
 | **P0 Decisions** | D1–D6 settled (section 10). | done |
 | **P1 Foundation** (**done**) | Module split and enums (section 8); stable `-###` format with full settings header; golden harness capturing **current** behaviour on Unix and DOS; self-hosted `acc.exe` build plus fixed-point check; executable-relative tool root; `-help` cleanup (drop the `design.md` pointer and the wrong overlay wording); `MANUAL.md` skeleton. | – |
 | **P2 Invocation model** (**done**) | `-c`/`-S` with several sources (kept, rules documented and tested); mixed link compiles first and then links; `.inp`; unconditional linker response file; remove `@file`; length errors. | P1 |
-| **P3 Defaults and target-neutral compile** | No OS macro without `-target`; `__DOS__` renamed `__MSDOS__`; link target from the `-o` suffix with explicit-target agreement (D2); always `-ansi`, `-ansi`/`-traditional` removed (D6); model/target checks moved; defaults documented and covered by golden cases. | P1 |
+| **P3 Defaults and target-neutral compile** (**done**) | No OS macro without `-target`; `__DOS__` renamed `__MSDOS__`; link target from the `-o` suffix with explicit-target agreement (D2); native ANSI mode, `-ansi` opt-in strict, `-traditional` removed (D6); model/target checks moved; defaults documented and covered by golden cases. | P1 |
 | **P4 Native option completion** | `-Wc,`/`-Wa,`/`-Wl,` allow-lists, verified tier first, probe tier as each probe passes; `-g` with `.dbg` publication; `-D` for `.asm`. | P2 |
 | **P5 Overlays on DOS** | Accept `dos1`/`dos2` with a `.exe` root (a `.com` root is rejected: `.com` programs cannot use overlays); DOS example in `examples/Makefile`; execution tests on Unix and DOS builds. | P2 |
 | **P6 Preprocessor** | Driver CPU macros; `azdefs.h` (4.3.0); golden and execution tests. | P3 |

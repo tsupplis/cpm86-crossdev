@@ -1,7 +1,9 @@
 /*
  * Target profiles: every fact about the Aztec C86 runtime and backend
  * flags that depends on the selected target, memory model, CPU, floating
- * point backend, language mode or optimisation preference.
+ * point backend or optimisation preference.  acc compiles ANSI C only:
+ * cc's native mode (ANSI plus the near/far/huge extensions used by the
+ * Aztec headers), or strict -ansi; never -3 (v3.40b K&R rules).
  *
  * The planner asks these functions instead of spelling backend flags or
  * library names itself, so each mapping lives in exactly one place.
@@ -22,9 +24,6 @@ typedef enum { TARGET_CPM86, TARGET_DOS1, TARGET_DOS2 } target_t;
 typedef enum { MODEL_SMALL, MODEL_MEDIUM, MODEL_COMPACT, MODEL_LARGE } model_t;
 typedef enum { CPU_I8086, CPU_I80186, CPU_I80286 } cpu_t;
 typedef enum { FLOAT_SOFT, FLOAT_AUTO, FLOAT_8087, FLOAT_8087_FAST } float_backend_t;
-
-/* -ansi / -traditional; DEFAULT keeps the compiler's native mode. */
-typedef enum { LANGUAGE_DEFAULT, LANGUAGE_ANSI, LANGUAGE_TRADITIONAL } language_t;
 
 /* -Osize / -Ospeed; DEFAULT keeps the compiler's native preference. */
 typedef enum { OPTIMIZE_DEFAULT, OPTIMIZE_SIZE, OPTIMIZE_SPEED } optimize_t;
@@ -49,13 +48,15 @@ int profile_choice(const char *value, const char *const *names, int count);
 const char *profile_cpu_flag(cpu_t cpu);
 const char *profile_model_flag(model_t model);
 const char *profile_float_flag(float_backend_t floating);
-const char *profile_language_flag(language_t language);
 const char *profile_optimize_flag(optimize_t optimize);
 
 /* Assembler (as) flag for CPU. */
 const char *profile_assembler_cpu_flag(cpu_t cpu);
 
-/* Preprocessor definition identifying TARGET, as one cc argument. */
+/*
+ * Preprocessor definition identifying TARGET, as one cc argument:
+ * -D__CPM86__=1 or -D__MSDOS__=1.  Defined only for an explicit -target.
+ */
 const char *profile_target_macro(target_t target);
 
 /* Executable name used when -o is absent. */

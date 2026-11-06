@@ -29,8 +29,8 @@ EXAMPLES = $(abspath ../../examples)
 INSTALL_BIN = $(ROOT)/bin
 
 # Shared by both builds; each build adds its own executor.
-COMMON = acc.c words.c args.c profile.c path.c plan.c print.c
-HEADERS = acc.h request.h profile.h path.h plan.h
+COMMON = acc.c words.c args.c profile.c raw.c path.c plan.c print.c
+HEADERS = acc.h request.h profile.h raw.h path.h plan.h
 UNIX_OBJECTS = $(COMMON:%.c=obj/unix/%.o) obj/unix/execunix.o
 DOS_OBJECTS = $(COMMON:%.c=obj/dos/%.o) obj/dos/execdos.o
 

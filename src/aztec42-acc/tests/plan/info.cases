@@ -9,6 +9,10 @@
 
 
 
+
+
+
+
 @case info-help-extra
 -help
 extra
@@ -27,12 +31,14 @@ Aztec C 4.2 compiler driver.
   -o file                    output name
   -I dir  -D name[=value]    include area, macro
   -L dir  -l name            library area, library
-  -target=cpm86|dos1|dos2
-  -mcmodel=small|medium|compact|large   (large models: dos2)
+  -target=cpm86|dos1|dos2    OS macro; link target (else from -o)
+  -mcmodel=small|medium|compact|large   (large: dos2 .exe)
   -march=i8086|i80186|i80286
   -mfloat=soft|auto|8087
-  -ansi | -traditional       language mode
+  -ansi                      strict ANSI (no near/far/huge)
   -Osize | -Ospeed  -w       code preference, no warnings
+  -g                         sdb information, .dbg beside output
+  -Wc,opt -Wa,opt -Wl,opt    allow-listed cc/as/ln option
   -nostartfiles | -nostdlib  omit startup | startup and libc
   -overlay-root=CODE,DATA    overlay root (.cmd) and .rsm table
   -overlay=ROOT.rsm          overlay (.ovr) for that root

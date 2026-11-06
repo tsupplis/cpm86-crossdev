@@ -9,6 +9,10 @@
 
 
 
+
+
+
+
 @case err-8087-fast
 -###
 -toolroot=@ROOT@
@@ -88,7 +92,7 @@ acc: input is incompatible with selected stage: main.o
 -###
 -toolroot=@ROOT@
 -c
--DLONG=00000000000000000000000000000000000000000000000000000000000
+-DLONG=0000000000000000000000000000000000000000000000000000000000000000000000000
 main.c
 @out
 acc: compiler command line too long (127 > 126 bytes; reduce -I/-D or shorten paths): main.c
@@ -103,16 +107,6 @@ acc: compiler command line too long (127 > 126 bytes; reduce -I/-D or shorten pa
 main.c
 @out
 acc: non-small model requires -target=dos2
-[exit 1]
-@end
-
-@case err-debug
--###
--toolroot=@ROOT@
--g
-main.c
-@out
-acc: unsupported or unknown option: -g
 [exit 1]
 @end
 
@@ -329,6 +323,7 @@ acc: input is incompatible with selected stage: entry.asm
 @case err-suffix-target
 -###
 -toolroot=@ROOT@
+-target=cpm86
 main.c
 -o
 wrong.exe
@@ -340,10 +335,11 @@ acc: output suffix conflicts with target: wrong.exe
 @case err-target-macro
 -###
 -toolroot=@ROOT@
--D__DOS__
+-target=cpm86
+-D__MSDOS__
 main.c
 @out
-acc: conflicting target macro: __DOS__=1
+acc: conflicting target macro: __MSDOS__=1
 [exit 1]
 @end
 
@@ -469,5 +465,292 @@ main.c
 sub/main.c
 @out
 acc: output collision: main.o
+[exit 1]
+@end
+
+@case err-traditional-option
+-###
+-toolroot=@ROOT@
+-traditional
+main.c
+@out
+acc: K&R mode is not supported: acc compiles ANSI C: -traditional
+[exit 1]
+@end
+
+@case err-dos-target-cmd
+-###
+-toolroot=@ROOT@
+-target=dos2
+main.o
+-o
+x.cmd
+@out
+acc: output suffix conflicts with target: x.cmd
+[exit 1]
+@end
+
+@case err-large-default-cmd
+-###
+-toolroot=@ROOT@
+-mcmodel=large
+main.o
+@out
+acc: non-small model requires a dos2 .exe output: a.cmd
+[exit 1]
+@end
+
+@case err-large-com
+-###
+-toolroot=@ROOT@
+-mcmodel=large
+main.o
+-o
+x.com
+@out
+acc: non-small model requires a dos2 .exe output: x.com
+[exit 1]
+@end
+
+@case err-large-dos1-explicit
+-###
+-toolroot=@ROOT@
+-target=dos1
+-mcmodel=large
+-c
+main.c
+@out
+acc: non-small model requires -target=dos2
+[exit 1]
+@end
+
+@case err-output-no-suffix
+-###
+-toolroot=@ROOT@
+main.o
+-o
+program
+@out
+acc: output needs a .cmd, .exe or .com suffix: program
+[exit 1]
+@end
+
+@case err-output-bad-suffix
+-###
+-toolroot=@ROOT@
+main.o
+-o
+program.bin
+@out
+acc: output needs a .cmd, .exe or .com suffix: program.bin
+[exit 1]
+@end
+
+@case err-msdos-value
+-###
+-toolroot=@ROOT@
+-target=dos2
+-D__MSDOS__=2
+main.c
+@out
+acc: conflicting target macro: __MSDOS__=2
+[exit 1]
+@end
+
+@case err-raw-managed
+-###
+-toolroot=@ROOT@
+-c
+-Wc,-A
+main.c
+@out
+acc: backend option is not allowed or its operand is invalid: -A
+[exit 1]
+@end
+
+@case err-raw-managed-output
+-###
+-toolroot=@ROOT@
+-c
+-Wc,-Ofoo
+main.c
+@out
+acc: backend option is not allowed or its operand is invalid: -Ofoo
+[exit 1]
+@end
+
+@case err-raw-foreign-abi
+-###
+-toolroot=@ROOT@
+-c
+-Wc,+N
+main.c
+@out
+acc: backend option is not allowed or its operand is invalid: +N
+[exit 1]
+@end
+
+@case err-raw-operand-zero
+-###
+-toolroot=@ROOT@
+-c
+-Wc,-L0
+main.c
+@out
+acc: backend option is not allowed or its operand is invalid: -L0
+[exit 1]
+@end
+
+@case err-raw-operand-range
+-###
+-toolroot=@ROOT@
+-c
+-Wc,-L99999
+main.c
+@out
+acc: backend option is not allowed or its operand is invalid: -L99999
+[exit 1]
+@end
+
+@case err-raw-source-comments-object
+-###
+-toolroot=@ROOT@
+-c
+-Wc,-T
+main.c
+@out
+acc: backend option needs -S: -T
+[exit 1]
+@end
+
+@case err-raw-strings-small
+-###
+-toolroot=@ROOT@
+-c
+-Wc,+s
+main.c
+@out
+acc: backend option needs -mcmodel=compact or large: +s
+[exit 1]
+@end
+
+@case err-raw-cc-without-c
+-###
+-toolroot=@ROOT@
+-c
+-Wc,-L300
+entry.asm
+@out
+acc: -Wc given, but no C source is compiled
+[exit 1]
+@end
+
+@case err-raw-as-without-asm
+-###
+-toolroot=@ROOT@
+-c
+-Wa,-S3
+main.c
+@out
+acc: -Wa given, but no .asm source is assembled
+[exit 1]
+@end
+
+@case err-raw-ln-without-link
+-###
+-toolroot=@ROOT@
+-c
+-Wl,-M
+main.c
+@out
+acc: -Wl given, but nothing is linked
+[exit 1]
+@end
+
+@case err-raw-empty
+-###
+-toolroot=@ROOT@
+-c
+-Wc,
+main.c
+@out
+acc: empty backend option: -Wc,
+[exit 1]
+@end
+
+@case err-raw-as-delete-source
+-###
+-toolroot=@ROOT@
+-c
+-Wa,-ZAP
+entry.asm
+@out
+acc: backend option is not allowed or its operand is invalid: -ZAP
+[exit 1]
+@end
+
+@case err-raw-ln-undefined-ok
+-###
+-toolroot=@ROOT@
+-Wl,-N
+main.o
+@out
+acc: backend option is not allowed or its operand is invalid: -N
+[exit 1]
+@end
+
+@case err-raw-ln-stack-cpm86
+-###
+-toolroot=@ROOT@
+-Wl,-S400
+main.o
+@out
+acc: backend option needs a DOS link: -S400
+[exit 1]
+@end
+
+@case err-raw-ln-max-com
+-###
+-toolroot=@ROOT@
+-Wl,-X100
+main.o
+-o
+hello.com
+@out
+acc: backend option needs a dos2 .exe link: -X100
+[exit 1]
+@end
+
+@case err-raw-ln-hex
+-###
+-toolroot=@ROOT@
+-Wl,-SXYZ
+main.o
+-o
+hello.exe
+@out
+acc: backend option is not allowed or its operand is invalid: -SXYZ
+[exit 1]
+@end
+
+@case err-asm-define-text
+-###
+-toolroot=@ROOT@
+-c
+-DVAL=abc
+entry.asm
+@out
+acc: assembler -D values must be decimal constants: VAL=abc
+[exit 1]
+@end
+
+@case err-asm-define-empty
+-###
+-toolroot=@ROOT@
+-c
+-DVAL=
+entry.asm
+@out
+acc: assembler -D values must be decimal constants: VAL=
 [exit 1]
 @end

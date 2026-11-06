@@ -12,17 +12,19 @@
 #include "profile.h"
 
 /*
- * Zero-initialised means every default: link stage, CP/M-86, small model,
- * 8086, software floating point, native language and optimisation modes.
+ * Zero-initialised means every default: link stage, no explicit target,
+ * small model, 8086, software floating point, native optimisation.
  */
 typedef struct {
     stage_t stage;
-    target_t target;
+    target_t target;            /* meaningful only when target_given */
+    int target_given;           /* -target was given */
     model_t model;
     cpu_t cpu;
     float_backend_t floating;
-    language_t language;
     optimize_t optimize;
+    int strict_ansi;            /* -ansi: strict ANSI, no near/far/huge */
+    int debug;                  /* -g: sdb information and .dbg file */
     int quiet;                  /* -w: suppress compiler warnings */
     int nostart;                /* -nostartfiles */
     int nostdlib;               /* -nostdlib */
@@ -39,6 +41,9 @@ typedef struct {
     word_list_t definitions;    /* -D macros, normalised to NAME=VALUE */
     word_list_t libraries;      /* -L areas, in order */
     word_list_t inputs;         /* files and "-lNAME" entries, in order */
+    word_list_t cc_options;     /* -Wc, raw compiler options, in order */
+    word_list_t as_options;     /* -Wa, raw assembler options, in order */
+    word_list_t ln_options;     /* -Wl, raw linker options, in order */
 } request_t;
 
 /*
