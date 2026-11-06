@@ -64,6 +64,8 @@ Response files (`@file`) do not exist; options always stay on the command line.
 | `-ansi` | strict ANSI: also disables `near` `far` `huge` `pascal` `fortran` `cdecl` (breaks `dos.h`) | |
 | `-Osize` `-Ospeed` | code preference | |
 | `-w` | no compiler warnings | |
+| `-g` | sdb information; writes `<output>.dbg` beside the program | link: `.cmd` and `.exe` |
+| `-Wc,opt` `-Wa,opt` `-Wl,opt` | one allow-listed `cc` / `as` / `ln` option, see below | |
 | `-nostartfiles` | omit startup object | |
 | `-nostdlib` | omit startup and C runtime | |
 | `-overlay-root=CODE,DATA` | link an overlay root; writes `.cmd` and `.rsm` | hex sizes; needs `-o` |
@@ -122,7 +124,29 @@ With `-target`, a user `-D` of either OS macro must agree with it.
 | Overlays are CP/M-86 only | not yet supported for DOS |
 | `-mfloat=8087-fast` rejected | not runtime-qualified |
 | Explicit `.asm` with `-march=i80286` or `-mfloat=8087` rejected | not qualified |
-| `-D` with explicit `.asm` rejected | not qualified |
+| `-D` for `.asm`: decimal constant values only | `as -Dsym=const` |
+
+## Backend options (`-Wc`, `-Wa`, `-Wl`)
+
+One option per `-W`, spelled as the tool spells it; commas do not split.
+Anything not listed is rejected, as is a `-W` for a tool that does not run.
+
+| Tool | Option | Effect | Requires |
+| --- | --- | --- | --- |
+| cc | `-E<n>` `-L<n>` `-y<n>` `-z<n>` | table size: expressions, locals, switch cases, strings (1..32767) | |
+| cc | `-T` | C source as comments in the `.asm` | `-S` |
+| cc | `-k` | no `near` `far` `huge` `pascal` `fortran` `cdecl` | |
+| cc | `+U` `+R` `+A` `+M` | uninitialised globals extern; no register tracking; no-alias assertion; MUL for constants | |
+| cc | `+s` | strings in the code segment | `compact` or `large` |
+| as | `-S<n>` | squeeze passes | |
+| as | `-C` `-CA` `-CS` | listing to the console | |
+| ln | `-M` `-V` | no multiple-definition warnings; verbose | |
+| ln | `-S<hex>` | minimum stack+heap bytes | DOS link |
+| ln | `-X<hex>` | maximum stack+heap paragraphs | `dos2` `.exe` |
+
+Managed by acc, never raw: `-A -B -D -I -O -S -n -ansi -3 +F +C +0..2 +L* +e* -c` (cc);
+`-O -I -D -186 -2 -ZAP -L* -X` (as); `-O -L -F -T -N -B -C -D -U -R +C +D -g -q` (ln).
+Foreign ABI modes (`+N +D +DF -ze`) and `+b` are not available.
 
 ## Tool root
 

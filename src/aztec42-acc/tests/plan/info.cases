@@ -13,6 +13,12 @@
 
 
 
+
+
+
+
+
+
 @case info-help-extra
 -help
 extra
@@ -40,7 +46,7 @@ Aztec C 4.2 compiler driver.
   -g                         sdb information, .dbg beside output
   -Wc,opt -Wa,opt -Wl,opt    allow-listed cc/as/ln option
   -nostartfiles | -nostdlib  omit startup | startup and libc
-  -overlay-root=CODE,DATA    overlay root (.cmd) and .rsm table
+  -overlay-root=CODE,DATA    overlay root (.cmd/.exe), .rsm table
   -overlay=ROOT.rsm          overlay (.ovr) for that root
   -toolroot=dir              Aztec tool root (else ACCROOT)
   -emu=path                  emulator, Unix only (else emu2)

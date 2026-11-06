@@ -26,7 +26,10 @@ ACC_DOS_BUILD = ./acc -toolroot=$(ROOT) -emu=$(EMU) -target=dos2
 DOS_CFLAGS = -DACC_DOS
 
 EXAMPLES = $(abspath ../../examples)
-INSTALL_BIN = $(ROOT)/bin
+# The fetcher installs with INSTALL_ROOT=<tool root>.
+INSTALL_ROOT = $(ROOT)
+INSTALL_BIN = $(INSTALL_ROOT)/bin
+INSTALL_INCLUDE = $(INSTALL_ROOT)/include
 
 # Shared by both builds; each build adds its own executor.
 COMMON = acc.c words.c args.c profile.c raw.c path.c plan.c print.c
@@ -72,7 +75,12 @@ acc.exe: $(DOS_OBJECTS) acc
 
 # --- Installation -------------------------------------------------------
 
-install: $(INSTALL_BIN)/acc $(INSTALL_BIN)/acc.exe
+install: $(INSTALL_BIN)/acc $(INSTALL_BIN)/acc.exe $(INSTALL_INCLUDE)/azdefs.h
+
+$(INSTALL_INCLUDE)/azdefs.h: include/azdefs.h
+	mkdir -p $(INSTALL_INCLUDE)
+	cp -f include/azdefs.h $@
+	chmod 644 $@
 
 $(INSTALL_BIN)/acc: acc
 	mkdir -p $(INSTALL_BIN)
@@ -107,7 +115,8 @@ check-dos: acc.exe
 	EMU2_DRIVE_D="$(ROOT)" sh $(SHFLAGS) check.sh 'D:\' "$(EMU)" "$(CURDIR)/acc.exe"
 
 check-exec: acc
-	sh $(SHFLAGS) exec-check.sh "$(ROOT)" "$(CURDIR)/acc" "$(EMU)" "$(EXAMPLES)"
+	sh $(SHFLAGS) exec-check.sh "$(ROOT)" "$(CURDIR)/acc" "$(EMU)" "$(EXAMPLES)" \
+		"$(CURDIR)/include/azdefs.h"
 
 check-exec-dos: acc.exe
 	sh $(SHFLAGS) exec-dos-check.sh "$(CURDIR)/acc.exe" "$(EMU)" "$(ROOT)" "$(EXAMPLES)"

@@ -121,6 +121,10 @@ host overlays, and linker `-X` has no effect on it.
 
 ## 4. Public option map (driver → cc / as / ln)
 
+P4 status: every "probe" entry of section 5 passed its execution probe
+(`exec-check.sh`; the DOS build re-probes `-g` and `-Wl,-S` in
+`exec-dos-check.sh`) and is enabled; allow-list in `raw.c`.
+
 Status: **keep** = already implemented and unchanged; **change** = behaviour
 changes in this plan; **new** = added; **remove** = dropped.
 
@@ -321,11 +325,12 @@ reference.
 | `words.c` | word lists, diagnostics | no |
 | `args.c` | argv → `Request` (syntax only) | no |
 | `profile.c` | flags, startup, runtime and math tables per profile | no |
+| `raw.c` | `-Wc`/`-Wa`/`-Wl` allow-list | no |
 | `path.c` | canonical paths, guest mapping, DOS validation | probes only |
 | `plan.c` | `Request` → `Plan` (validation, mapping, serialisation) | probes only |
 | `print.c` | `-###`/`-v` rendering, the test oracle | no |
 | `execunix.c`, `execdos.c` | run a `Plan`: workspace, children, publication | yes |
-| `acc.h`, `request.h`, `plan.h`, `profile.h`, `path.h` | documented types and contracts | – |
+| `acc.h`, `request.h`, `plan.h`, `profile.h`, `raw.h`, `path.h` | documented types and contracts | – |
 
 Quality rules:
 
@@ -418,7 +423,7 @@ build (Aztec C 4.2) and all checks.
 | **P1 Foundation** (**done**) | Module split and enums (section 8); stable `-###` format with full settings header; golden harness capturing **current** behaviour on Unix and DOS; self-hosted `acc.exe` build plus fixed-point check; executable-relative tool root; `-help` cleanup (drop the `design.md` pointer and the wrong overlay wording); `MANUAL.md` skeleton. | – |
 | **P2 Invocation model** (**done**) | `-c`/`-S` with several sources (kept, rules documented and tested); mixed link compiles first and then links; `.inp`; unconditional linker response file; remove `@file`; length errors. | P1 |
 | **P3 Defaults and target-neutral compile** (**done**) | No OS macro without `-target`; `__DOS__` renamed `__MSDOS__`; link target from the `-o` suffix with explicit-target agreement (D2); native ANSI mode, `-ansi` opt-in strict, `-traditional` removed (D6); model/target checks moved; defaults documented and covered by golden cases. | P1 |
-| **P4 Native option completion** | `-Wc,`/`-Wa,`/`-Wl,` allow-lists, verified tier first, probe tier as each probe passes; `-g` with `.dbg` publication; `-D` for `.asm`. | P2 |
+| **P4 Native option completion** (**done**) | `-Wc,`/`-Wa,`/`-Wl,` allow-lists, verified tier first, probe tier as each probe passes; `-g` with `.dbg` publication; `-D` for `.asm`. | P2 |
 | **P5 Overlays on DOS** | Accept `dos1`/`dos2` with a `.exe` root (a `.com` root is rejected: `.com` programs cannot use overlays); DOS example in `examples/Makefile`; execution tests on Unix and DOS builds. | P2 |
 | **P6 Preprocessor** | Driver CPU macros; `azdefs.h` (4.3.0); golden and execution tests. | P3 |
 | **P7 Reconciliation** | `design.md` brought in line (remove the `@file` grammar, multi-source `-c`, outdated claims); `MANUAL.md` complete; coverage gate enforced. | all |

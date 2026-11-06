@@ -28,6 +28,20 @@ static int set_text(char **slot, const char *value)
     return 1;
 }
 
+/* Non-zero if the LENGTH characters at TEXT are 1 to 4 hex digits. */
+static int hex_size(const char *text, size_t length)
+{
+    size_t i;
+
+    if (length == 0 || length > 4)
+        return 0;
+    for (i = 0; i < length; ++i) {
+        if (!isxdigit((unsigned char)text[i]))
+            return 0;
+    }
+    return 1;
+}
+
 /*
  * Validate macro definition TEXT ("NAME" or "NAME=VALUE") and append it to
  * DEFINITIONS as "NAME=VALUE" ("NAME" alone means "NAME=1", as in cc).
@@ -174,9 +188,11 @@ int parse_request(request_t *r, int argc, char **argv)
         } else if (strncmp(arg, "-overlay-root=", 14) == 0) {
             value = arg + 14;
             comma = strchr(value, ',');
-            if (r->overlay_root != 0 || comma == 0 || comma == value ||
-                comma[1] == '\0' || strchr(comma + 1, ',') != 0)
-                return fail("expected one CODE,DATA pair for -overlay-root", arg);
+            /* ln +C/+D sizes: hexadecimal bytes, at most one segment. */
+            if (r->overlay_root != 0 || comma == 0 ||
+                !hex_size(value, (size_t)(comma - value)) ||
+                !hex_size(comma + 1, strlen(comma + 1)))
+                return fail("expected -overlay-root=CODE,DATA in hex bytes (1-4 digits)", arg);
             if (!set_text(&r->overlay_root, value))
                 return 0;
         } else if (strncmp(arg, "-overlay=", 9) == 0) {
@@ -223,10 +239,12 @@ int parse_request(request_t *r, int argc, char **argv)
     if (r->target_given && r->target != TARGET_DOS2 && r->model != MODEL_SMALL)
         return fail("non-small model requires -target=dos2", NULL);
     if ((r->overlay_root != 0 || r->overlay_table != 0) &&
-        ((r->target_given && r->target != TARGET_CPM86) ||
-         r->stage != STAGE_LINK ||
+        (r->stage != STAGE_LINK ||
          (r->overlay_root != 0 && r->overlay_table != 0)))
-        return fail("overlays require one CP/M-86 link mode", NULL);
+        return fail("overlays need one link mode: -overlay-root or -overlay", NULL);
+    /* Overlay programs must use small code and small data (Tech Info 2.1). */
+    if ((r->overlay_root != 0 || r->overlay_table != 0) && r->model != MODEL_SMALL)
+        return fail("overlays require the small model", NULL);
     if ((r->overlay_root != 0 || r->overlay_table != 0) && r->output == 0)
         return fail("overlay links require an explicit -o output", NULL);
     return 1;

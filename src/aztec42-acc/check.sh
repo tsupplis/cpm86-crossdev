@@ -131,10 +131,10 @@ output=$("$@" -### -toolroot="$root" -nostartfiles main.o 2>&1)
 printf '%s\n' "$output" | grep -F 'c86.lib' >/dev/null
 if printf '%s\n' "$output" | grep -F 'begin86.o'; then exit 1; fi
 
-output=$("$@" -### -toolroot="$root" -overlay-root=1020,aOO \
+output=$("$@" -### -toolroot="$root" -overlay-root=1020,a00 \
     main.o -o ovraza.cmd 2>&1)
 output=$(printf '%s\n' "$output" | tr -d '\r')
-printf '%s\n' "$output" | grep -F '"+c" "1020" "+d" "aOO" "-r"' >/dev/null
+printf '%s\n' "$output" | grep -F '"+c" "1020" "+d" "a00" "-r"' >/dev/null
 printf '%s\n' "$output" | grep -F 'ovld.o' >/dev/null
 printf '%s\n' "$output" | grep -F 'c86.lib' >/dev/null
 printf '%s\n' "$output" | grep -E 'E:\\\\u[0-9]{4}\.rsm' >/dev/null

@@ -617,6 +617,7 @@ flowchart LR
     main["acc.c: main, -help"]
     args["args.c: argv to request_t"]
     profile["profile.c: target tables"]
+    raw["raw.c: -Wc -Wa -Wl allow-list"]
     plan["plan.c: request_t to plan_t"]
     path["path.c: host and guest paths"]
     print["print.c: -### rendering"]
@@ -628,6 +629,7 @@ flowchart LR
     main --> exec
     args --> profile
     plan --> profile
+    plan --> raw
     plan --> path
     print --> profile
     profile --> path
@@ -639,13 +641,14 @@ flowchart LR
 | --- | --- | --- |
 | `args.c` | option syntax, value lists, macro normalisation | touches the filesystem |
 | `profile.c` | flags, startup, runtime, math libraries per target/model/CPU/float | decides policy beyond lookup |
+| `raw.c` | backend option allow-list, operand and context checks | forwards an unlisted option |
 | `path.c` | canonical paths, guest mapping, DOS 8.3/63-char validation | approximates an unrepresentable path |
 | `plan.c` | validation, command emission, link order, response file | creates or modifies files |
 | `print.c` | stable `-###` format | evaluates commands |
 | `execunix.c` | emu2 launch, workspace, atomic publication, signals | makes planning decisions |
 | `execdos.c` | child environment, launch, workspace, backup/restore publication | makes planning decisions |
 
-Interfaces: `request.h`, `plan.h`, `profile.h`, `path.h`, `acc.h`.
+Interfaces: `request.h`, `plan.h`, `profile.h`, `raw.h`, `path.h`, `acc.h`.
 
 ### Level 4: data
 

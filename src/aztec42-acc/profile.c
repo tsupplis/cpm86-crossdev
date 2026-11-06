@@ -107,6 +107,22 @@ const char *profile_target_macro(target_t target)
     return target_macros[target];
 }
 
+/* CPU tier macros, indexed by cpu_t; each list ends with 0. */
+static const char *const cpu_macros_8086[] = { 0 };
+static const char *const cpu_macros_80186[] = { "-D__i186__=1", 0 };
+static const char *const cpu_macros_80286[] = {
+    "-D__i186__=1", "-D__i286__=1", 0
+};
+static const char *const *const cpu_macros[] = {
+    cpu_macros_8086, cpu_macros_80186, cpu_macros_80286
+};
+
+/* -D arguments for the -march tier (none for the 8086). */
+const char *const *profile_cpu_macros(cpu_t cpu)
+{
+    return cpu_macros[cpu];
+}
+
 /* a.cmd for CP/M-86, a.exe for DOS. */
 const char *profile_default_executable(target_t target)
 {

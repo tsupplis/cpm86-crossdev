@@ -54,7 +54,7 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
     dos_acc -target=cpm86 -c ovrmain.c
     dos_acc -target=cpm86 -c ovrfunc1.c
     dos_acc -target=cpm86 -c ovrfunc2.c
-    dos_acc -target=cpm86 -overlay-root=1020,aOO ovrmain.o -o ovraza.cmd
+    dos_acc -target=cpm86 -overlay-root=1020,a00 ovrmain.o -o ovraza.cmd
     test -s ovraza.cmd
     test -s ovraza.rsm
     dos_acc -target=cpm86 -overlay=ovraza.rsm ovrfunc1.o -o ovrfunc1.ovr
@@ -62,6 +62,24 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
     test -s ovrfunc1.ovr
     test -s ovrfunc2.ovr
     output=$("$emu" "$work/overlays/ovraza.cmd")
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Hello from c (ansi cc with overlay1): fn1(10,20)=80'
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Hello from c (ansi cc with overlay2): fn2(10,20)=130'
+)
+
+# P5 on the DOS build: a DOS 2 overlay program.
+mkdir ovrdos
+cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" ovrdos/
+(
+    cd ovrdos
+    export EMU2_CWD='C:\ovrdos'
+    dos_acc -c ovrmain.c ovrfunc1.c ovrfunc2.c
+    dos_acc -overlay-root=1020,a00 ovrmain.o -o ovrazd.exe
+    test -s ovrazd.rsm
+    dos_acc -overlay=ovrazd.rsm ovrfunc1.o -o ovrfunc1.ovr
+    dos_acc -overlay=ovrazd.rsm ovrfunc2.o -o ovrfunc2.ovr
+    output=$("$emu" "$work/ovrdos/ovrazd.exe")
     printf '%s\n' "$output" | tr -d '\r' |
         grep -qx 'Hello from c (ansi cc with overlay1): fn1(10,20)=80'
     printf '%s\n' "$output" | tr -d '\r' |

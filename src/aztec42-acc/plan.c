@@ -545,6 +545,15 @@ static int validate(const request_t *r, plan_context_t *ctx)
              (r->target == TARGET_CPM86 || strcmp(macro + 10, "1") != 0)))
             return fail("conflicting target macro", macro);
     }
+    /* acc defines the CPU tier macros: a user definition must agree. */
+    for (i = 0; i < r->definitions.count; ++i) {
+        macro = r->definitions.items[i];
+        if ((strncmp(macro, "__i186__=", 9) == 0 &&
+             (r->cpu == CPU_I8086 || strcmp(macro + 9, "1") != 0)) ||
+            (strncmp(macro, "__i286__=", 9) == 0 &&
+             (r->cpu != CPU_I80286 || strcmp(macro + 9, "1") != 0)))
+            return fail("conflicting CPU macro", macro);
+    }
     /* Verify every required tool before printing any command. */
     for (i = 0; i < ctx->inputs.count; ++i) {
         kind = classify(ctx->inputs.items[i]);
@@ -598,6 +607,7 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
 {
     raw_context_t raw;
     const word_list_t *raw_options;
+    const char *const *macros;
     command_t *cmd;
     word_list_t *args;
     char product[32];
@@ -642,6 +652,10 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
     /* Compilation is OS-neutral unless -target is given. */
     if (r->target_given && !add_word(args, profile_target_macro(r->target)))
         return 0;
+    for (macros = profile_cpu_macros(r->cpu); *macros != 0; ++macros) {
+        if (!add_word(args, *macros))
+            return 0;
+    }
     for (i = 0; i < r->definitions.count; ++i) {
         /* as -Dsym=const: the value must be a decimal constant. */
         if (kind == INPUT_ASM && !decimal_value(strchr(r->definitions.items[i], '=') + 1))
@@ -674,8 +688,8 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
  * Resolve the link target into PLAN.  The -o suffix selects the system:
  * .cmd is CP/M-86; .exe and .com are DOS 2, or DOS 1 with -target=dos1.
  * An explicit -target must agree with the suffix.  Without -o, -target
- * decides, else CP/M-86 (a.cmd).  An overlay (.ovr) uses -target, else
- * CP/M-86.
+ * decides, else CP/M-86 (a.cmd).  An overlay (.ovr) links no startup or
+ * runtime, so its target is only known when -target is given.
  */
 static int resolve_target(const request_t *r, plan_t *plan)
 {
@@ -684,7 +698,11 @@ static int resolve_target(const request_t *r, plan_t *plan)
 
     plan->target = r->target_given ? r->target : TARGET_CPM86;
     plan->target_known = 1;
-    if (r->output == 0 || r->overlay_table != 0)
+    if (r->overlay_table != 0) {
+        plan->target_known = r->target_given;
+        return 1;
+    }
+    if (r->output == 0)
         return 1;
     suffix = strrchr(path_basename(r->output), '.');
     if (suffix == 0)
@@ -740,9 +758,11 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
     suffix = strrchr(path_basename(output), '.');
     overlay_root = r->overlay_root != 0;
     overlay = r->overlay_table != 0;
-    if ((overlay_root && !path_equal(suffix, ".cmd")) ||
-        (overlay && !path_equal(suffix, ".ovr")))
-        return fail("output suffix conflicts with target", output);
+    /* A DOS .com program cannot use overlays (Tech Info 2.1). */
+    if (overlay_root && path_equal(suffix, ".com"))
+        return fail("a .com program cannot use overlays", output);
+    if (overlay && !path_equal(suffix, ".ovr"))
+        return fail("an overlay output needs the .ovr suffix", output);
     /* Only DOS 2 .exe programs can use large models (Tech Info 1.1.1). */
     if (r->model != MODEL_SMALL &&
         (plan->target != TARGET_DOS2 || !path_equal(suffix, ".exe")))

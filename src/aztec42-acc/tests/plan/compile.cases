@@ -13,6 +13,12 @@
 
 
 
+
+
+
+
+
+
 @case assemble-186
 -###
 -toolroot=@ROOT@
@@ -23,7 +29,7 @@ entry.asm
 acc: plan stage=object target=none model=small cpu=i80186
 acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\as.exe" "-186" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+tool: "D:\\bin\\as.exe" "-186" "-D__i186__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
 publish: "E:\\u0001.o" -> "C:\\entry.o"
 [exit 0]
 @end
@@ -133,7 +139,7 @@ main.c
 acc: plan stage=object target=none model=small cpu=i80286
 acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+2" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+2" "-b" "-n" "-D__i186__=1" "-D__i286__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
@@ -408,5 +414,51 @@ acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\as.exe" "-DVAL=5" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
 publish: "E:\\u0001.o" -> "C:\\entry.o"
+[exit 0]
+@end
+
+@case compile-cpu-186
+-###
+-toolroot=@ROOT@
+-c
+-march=i80186
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i80186
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+1" "-b" "-n" "-D__i186__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-cpu-286
+-###
+-toolroot=@ROOT@
+-c
+-march=i80286
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i80286
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+2" "-b" "-n" "-D__i186__=1" "-D__i286__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-cpu-macro-agrees
+-###
+-toolroot=@ROOT@
+-c
+-march=i80286
+-D__i286__
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i80286
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+2" "-b" "-n" "-D__i186__=1" "-D__i286__=1" "-D__i286__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end

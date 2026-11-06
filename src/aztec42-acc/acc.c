@@ -34,7 +34,7 @@ static void usage(FILE *stream)
     fputs("  -g                         sdb information, .dbg beside output\n"
           "  -Wc,opt -Wa,opt -Wl,opt    allow-listed cc/as/ln option\n"
           "  -nostartfiles | -nostdlib  omit startup | startup and libc\n"
-          "  -overlay-root=CODE,DATA    overlay root (.cmd) and .rsm table\n"
+          "  -overlay-root=CODE,DATA    overlay root (.cmd/.exe), .rsm table\n"
           "  -overlay=ROOT.rsm          overlay (.ovr) for that root\n"
           "  -toolroot=dir              Aztec tool root (else ACCROOT)\n"
           "  -emu=path                  emulator, Unix only (else emu2)\n"

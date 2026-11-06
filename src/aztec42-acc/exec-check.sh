@@ -4,6 +4,7 @@ root=$1
 acc=$2
 emu=$3
 examples=$4
+azdefs=$5
 work=$(mktemp -d "${TMPDIR:-/tmp}/acc-exec.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 unset INCLUDE CLIB ACCROOT CCTEMP TEMP AZTEC_STARTUP AZTEC_NOSTARTUP
@@ -279,7 +280,7 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
     run_acc -target=cpm86 -c ovrmain.c
     run_acc -target=cpm86 -c ovrfunc1.c
     run_acc -target=cpm86 -c ovrfunc2.c
-    run_acc -target=cpm86 -overlay-root=1020,aOO ovrmain.o -o ovraza.cmd
+    run_acc -target=cpm86 -overlay-root=1020,a00 ovrmain.o -o ovraza.cmd
     test -s ovraza.cmd
     test -s ovraza.rsm
     run_acc -target=cpm86 -overlay=ovraza.rsm ovrfunc1.o -o ovrfunc1.ovr
@@ -291,6 +292,63 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
         grep -qx 'Hello from c (ansi cc with overlay1): fn1(10,20)=80'
     printf '%s\n' "$output" | tr -d '\r' |
         grep -qx 'Hello from c (ansi cc with overlay2): fn2(10,20)=130'
+)
+assert_clean
+
+# P5: the same overlay program as a DOS 2 .exe root; target from the suffix.
+mkdir ovrdos
+cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" ovrdos/
+(
+    cd ovrdos
+    run_acc -c ovrmain.c ovrfunc1.c ovrfunc2.c
+    run_acc -overlay-root=1020,a00 ovrmain.o -o ovrazd.exe
+    test -s ovrazd.exe
+    test -s ovrazd.rsm
+    run_acc -overlay=ovrazd.rsm ovrfunc1.o -o ovrfunc1.ovr
+    run_acc -overlay=ovrazd.rsm ovrfunc2.o -o ovrfunc2.ovr
+    output=$("$emu" ovrazd.exe)
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Hello from c (ansi cc with overlay1): fn1(10,20)=80'
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Hello from c (ansi cc with overlay2): fn2(10,20)=130'
+)
+assert_clean
+
+# P6: azdefs.h values, and the CPU tier macros defined by acc.
+mkdir defs
+cp "$azdefs" defs/azdefs.h
+(
+    cd defs
+    cat > ident.c <<'C'
+#include <stdio.h>
+#include "azdefs.h"
+int version_ok[(__AZTEC_C_VERSION__ == 40300) ? 1 : -1];
+int order_ok[(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) ? 1 : -1];
+int bits_ok[(__CHAR_BIT__ == 8) ? 1 : -1];
+#ifndef __i86__
+int family_missing[-1];
+#endif
+int main(void) { puts(__VERSION__); return 0; }
+C
+    run_acc ident.c -o ident.cmd
+    output=$("$emu" ident.cmd)
+    printf '%s\n' "$output" | tr -d '\r' |
+        grep -qx 'Aztec C 4.3.0 (https://github.com/tsupplis/cpm86-crossdev)'
+    cat > cpu.c <<'C'
+#ifdef EXPECT286
+#if !defined(__i186__) || !defined(__i286__)
+int tier_missing[-1];
+#endif
+#else
+#if defined(__i186__) || defined(__i286__)
+int tier_unexpected[-1];
+#endif
+#endif
+int cpu_checked;
+C
+    run_acc -c cpu.c
+    run_acc -c -march=i80286 -DEXPECT286 cpu.c -o cpu286.o
+    test -s cpu286.o
 )
 assert_clean
 
@@ -331,8 +389,8 @@ cp main.c raw/
     run_acc -c far.c
     fails -c -Wc,-k far.c
     # cc -T: C source statements appear as comments in the assembly.
-    run_acc -S -Wc,-T main.c -o commented.asm
-    grep -q '^;.*puts' commented.asm
+    run_acc -S -Wc,-T main.c -o comment.asm
+    grep -q '^;.*puts' comment.asm
     # as -S, -C, and -D with a constant.
     run_acc -S main.c
     run_acc -c -Wa,-S3 -Wa,-C main.asm -o squeezed.o > listing.log

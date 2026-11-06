@@ -13,6 +13,12 @@
 
 
 
+
+
+
+
+
+
 @case link-default-name
 -###
 -toolroot=@ROOT@
@@ -360,7 +366,7 @@ publish: "E:\\u0002.cmd" -> "C:\\a.cmd"
 @case link-overlay-root
 -###
 -toolroot=@ROOT@
--overlay-root=1020,aOO
+-overlay-root=1020,a00
 main.o
 -o
 ovraza.cmd
@@ -369,7 +375,7 @@ acc: plan stage=link target=cpm86 model=small cpu=i8086
 acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
-response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "+c" "1020" "+d" "aOO" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\c86.lib"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\c86.lib"
 publish: "E:\\u0001.cmd" -> "C:\\ovraza.cmd"
 publish: "E:\\u0001.rsm" -> "C:\\ovraza.rsm"
 [exit 0]
@@ -383,7 +389,7 @@ main.o
 -o
 function.ovr
 @out
-acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan stage=link target=none model=small cpu=i8086
 acc: plan float=soft optimize=default ansi=native debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
@@ -623,5 +629,60 @@ acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "-S" "400" "-X" "1000" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\c.lib"
 publish: "E:\\u0001.exe" -> "C:\\hello.exe"
+[exit 0]
+@end
+
+@case link-overlay-root-dos2
+-###
+-toolroot=@ROOT@
+-overlay-root=1020,a00
+main.o
+-o
+root.exe
+@out
+acc: plan stage=link target=dos2 model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\c.lib"
+publish: "E:\\u0001.exe" -> "C:\\root.exe"
+publish: "E:\\u0001.rsm" -> "C:\\root.rsm"
+[exit 0]
+@end
+
+@case link-overlay-root-dos1
+-###
+-toolroot=@ROOT@
+-target=dos1
+-overlay-root=1020,a00
+main.o
+-o
+root.exe
+@out
+acc: plan stage=link target=dos1 model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\d11.lib"
+publish: "E:\\u0001.exe" -> "C:\\root.exe"
+publish: "E:\\u0001.rsm" -> "C:\\root.rsm"
+[exit 0]
+@end
+
+@case link-overlay-dos-target
+-###
+-toolroot=@ROOT@
+-target=dos2
+-overlay=ovraza.rsm
+main.o
+-o
+function.ovr
+@out
+acc: plan stage=link target=dos2 model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.ovr" "C:\\main.o" "C:\\ovraza.rsm" "D:\\lib\\ovbgn.o"
+publish: "E:\\u0001.ovr" -> "C:\\function.ovr"
 [exit 0]
 @end

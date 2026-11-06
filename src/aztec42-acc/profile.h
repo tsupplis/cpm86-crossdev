@@ -59,6 +59,13 @@ const char *profile_assembler_cpu_flag(cpu_t cpu);
  */
 const char *profile_target_macro(target_t target);
 
+/*
+ * Preprocessor definitions for CPU's tier, as cc/as arguments, ending with
+ * 0: -D__i186__=1 for the 80186 and up, plus -D__i286__=1 for the 80286.
+ * Defined by acc because cc has no signal for +1/+2 (verified).
+ */
+const char *const *profile_cpu_macros(cpu_t cpu);
+
 /* Executable name used when -o is absent. */
 const char *profile_default_executable(target_t target);
 

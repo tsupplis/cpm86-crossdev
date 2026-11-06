@@ -13,6 +13,12 @@
 
 
 
+
+
+
+
+
+
 @case err-8087-fast
 -###
 -toolroot=@ROOT@
@@ -752,5 +758,98 @@ acc: assembler -D values must be decimal constants: VAL=abc
 entry.asm
 @out
 acc: assembler -D values must be decimal constants: VAL=
+[exit 1]
+@end
+
+@case err-overlay-com
+-###
+-toolroot=@ROOT@
+-overlay-root=1020,a00
+main.o
+-o
+root.com
+@out
+acc: a .com program cannot use overlays: root.com
+[exit 1]
+@end
+
+@case err-overlay-large
+-###
+-toolroot=@ROOT@
+-mcmodel=large
+-overlay-root=1020,a00
+main.o
+-o
+root.exe
+@out
+acc: overlays require the small model
+[exit 1]
+@end
+
+@case err-overlay-sizes-letter
+-###
+-toolroot=@ROOT@
+-overlay-root=1020,aOO
+main.o
+-o
+root.cmd
+@out
+acc: expected -overlay-root=CODE,DATA in hex bytes (1-4 digits): -overlay-root=1020,aOO
+[exit 1]
+@end
+
+@case err-overlay-sizes-long
+-###
+-toolroot=@ROOT@
+-overlay-root=12345,10
+main.o
+-o
+root.cmd
+@out
+acc: expected -overlay-root=CODE,DATA in hex bytes (1-4 digits): -overlay-root=12345,10
+[exit 1]
+@end
+
+@case err-overlay-suffix
+-###
+-toolroot=@ROOT@
+-overlay=ovraza.rsm
+main.o
+-o
+function.o
+@out
+acc: an overlay output needs the .ovr suffix: function.o
+[exit 1]
+@end
+
+@case err-cpu-macro-8086
+-###
+-toolroot=@ROOT@
+-D__i186__
+main.c
+@out
+acc: conflicting CPU macro: __i186__=1
+[exit 1]
+@end
+
+@case err-cpu-macro-value
+-###
+-toolroot=@ROOT@
+-march=i80186
+-D__i186__=2
+main.c
+@out
+acc: conflicting CPU macro: __i186__=2
+[exit 1]
+@end
+
+@case err-cpu-macro-286
+-###
+-toolroot=@ROOT@
+-march=i80186
+-D__i286__
+main.c
+@out
+acc: conflicting CPU macro: __i286__=1
 [exit 1]
 @end
