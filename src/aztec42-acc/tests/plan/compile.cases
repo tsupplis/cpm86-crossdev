@@ -19,6 +19,8 @@
 
 
 
+
+
 @case assemble-186
 -###
 -toolroot=@ROOT@
@@ -461,4 +463,38 @@ acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\cc.exe" "+2" "-b" "-n" "-D__i186__=1" "-D__i286__=1" "-D__i286__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
+@end
+
+@case assemble-raw-listings
+-###
+-toolroot=@ROOT@
+-c
+-Wa,-CA
+-Wa,-CS
+entry.asm
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\as.exe" "-CA" "-CS" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
+publish: "E:\\u0001.o" -> "C:\\entry.o"
+[exit 0]
+@end
+
+@case compile-emu-option
+-###
+-toolroot=@ROOT@
+-emu=emu2
+-c
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default ansi=native debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@dos
+acc: -emu is only available on Unix: -emu=emu2
+[exit 1]
 @end

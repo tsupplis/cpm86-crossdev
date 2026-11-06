@@ -295,6 +295,18 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
 )
 assert_clean
 
+# Executor failures: a tool that "succeeds" without its product, and a
+# workspace parent that does not exist.  Previous outputs must survive.
+printf '#!/bin/sh\nexit 0\n' > noop
+chmod +x noop
+cp main.c lost.c
+output=$(run_acc -emu=./noop -c lost.c 2>&1) && exit 1
+printf '%s\n' "$output" | grep -F 'backend did not create its output' >/dev/null
+test ! -e lost.o
+output=$(CCTEMP="$work/missing" run_acc -c main.c 2>&1) && exit 1
+printf '%s\n' "$output" | grep -F 'cannot resolve workspace parent' >/dev/null
+assert_clean
+
 # P5: the same overlay program as a DOS 2 .exe root (target from the
 # suffix), beside the CP/M-86 one: -target=dos2 selects ovrfnd1/ovrfnd2.
 (

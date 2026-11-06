@@ -188,6 +188,9 @@ if printf '%s\n' "$output" | grep -Fi 'libs2\\pick.lib'; then exit 1; fi
 ln -s "$hostroot" sdk
 output=$("$@" -### -toolroot=sdk -c main.c 2>&1)
 if [ "$#" -gt 1 ]; then
+    # The workspace parent must leave room for 8.3 names within 63 characters.
+    expect_error 'DOS workspace parent exceeds' "$@" -toolroot="$root" -c main.c -- \
+        CCTEMP='C:\aaaaaaaa\bbbbbbbb\cccccccc\dddddddd\eeeeeeee\ffffffff\gggggggg'
     printf '%s\n' "$output" | grep -Fi '"C:\\sdk\\bin\\cc.exe"' >/dev/null
     output=$("$@" -### -c main.c -- ACCROOT='C:\sdk' 2>&1)
     printf '%s\n' "$output" | grep -Fi '"C:\\sdk\\bin\\cc.exe"' >/dev/null
@@ -200,6 +203,15 @@ else
     expect_error 'path lies outside' "$@" -### -toolroot="$root" -c away.c
     cp main.c 'bad\name.c'
     expect_error 'cannot be represented safely in DOS' "$@" -### -toolroot="$root" -c 'bad\name.c'
+
+    expect_error 'empty argument' "$@" -### -toolroot="$root" '' main.c
+    long=$(awk 'BEGIN { s = ""; for (i = 0; i < 1100; ++i) s = s "x"; print s }')
+    output=$(INCLUDE="$long" "$@" -### -toolroot="$root" -c main.c 2>&1) || true
+    printf '%s\n' "$output" | grep -F 'environment path is too long' >/dev/null
+    output=$(AZTEC_STARTUP=x "$@" -### -toolroot="$root" -c main.c 2>&1) || true
+    printf '%s\n' "$output" | grep -F 'legacy AZTEC_STARTUP/AZTEC_NOSTARTUP' >/dev/null
+    ln -s nowhere dangling.o
+    expect_error 'cannot resolve existing output' "$@" -### -toolroot="$root" -c main.c -o dangling.o
 
     # Tool root discovery: acc finds <root> when it runs as <root>/bin/acc
     # and <root>/bin/cc.exe exists; -toolroot and ACCROOT are not needed.

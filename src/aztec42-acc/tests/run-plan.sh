@@ -59,6 +59,8 @@ printf '; assembly input\n' > entry.asm
 printf 'object placeholder\n' > main.o
 printf 'library placeholder\n' > custom.lib
 : > ovraza.rsm
+mkdir -p a2345678/b2345678/c2345678/d2345678/e2345678/f2345678/g2345678
+awk 'BEGIN { s = ""; for (i = 0; i < 1100; ++i) s = s "x"; print s ".o" }' > longline.inp
 printf 'main.o\ncustom.lib\n' > list.inp
 printf 'main.o\r\n\r\ncustom.lib\r\n' > crlf.inp
 printf 'main.c\n' > source.inp

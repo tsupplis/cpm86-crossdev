@@ -743,8 +743,8 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
     const char *comma;
     char overlay_output[ACC_PATH];
     char overlay_guest[ACC_PATH];
-    char overlay_code[ACC_PATH];
-    char overlay_data[ACC_PATH];
+    char overlay_code[5];       /* validated: at most 4 hex digits */
+    char overlay_data[5];
     int overlay_root;
     int overlay;
     int i;
