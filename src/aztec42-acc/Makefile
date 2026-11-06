@@ -5,6 +5,7 @@
 #   make dos             DOS acc.exe (objects in obj/dos), compiled and
 #                        linked by the Unix acc itself (self-hosting)
 #   make check           every suite on both builds
+#   make check-coverage  options, values, raw options, diagnostics all tested
 #   make check-plan      golden -### plans, Unix build (tests/plan/*.cases)
 #   make check-plan-dos  the same cases, DOS build under emu2
 #   make bless           rewrite golden expectations from both builds
@@ -38,7 +39,7 @@ UNIX_OBJECTS = $(COMMON:%.c=obj/unix/%.o) obj/unix/execunix.o
 DOS_OBJECTS = $(COMMON:%.c=obj/dos/%.o) obj/dos/execdos.o
 
 .DELETE_ON_ERROR:
-.PHONY: all unix dos install check check-plan check-plan-dos check-unix \
+.PHONY: all unix dos install check check-coverage check-plan check-plan-dos check-unix \
 	check-dos check-exec check-exec-dos bless clean
 
 all: unix dos
@@ -94,7 +95,11 @@ $(INSTALL_BIN)/acc.exe: acc.exe
 
 # --- Tests --------------------------------------------------------------
 
-check: check-plan check-plan-dos check-unix check-dos check-exec check-exec-dos
+check: check-coverage check-plan check-plan-dos check-unix check-dos check-exec check-exec-dos
+
+# Every option, option value, raw option and diagnostic must be tested.
+check-coverage:
+	sh $(SHFLAGS) tests/coverage.sh "$(CURDIR)"
 
 check-plan: acc
 	sh $(SHFLAGS) tests/run-plan.sh "$(ROOT)" "$(CURDIR)/acc"
