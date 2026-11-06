@@ -13,8 +13,8 @@
 
 /*
  * Option summary printed by -help.  Kept to what the driver implements;
- * MANUAL.md is the full reference.  Split into several fputs calls to
- * stay under the C89 minimum string literal length.
+ * acc.md is the full reference.  Split into several fputs
+ * calls to stay under the C89 minimum string literal length.
  */
 static void usage(FILE *stream)
 {

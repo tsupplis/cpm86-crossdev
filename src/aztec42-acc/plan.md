@@ -4,7 +4,7 @@ Comprehensive plan for the next round of `acc` work. Companion documents:
 
 - [design.md](design.md): engineering rationale and backend reference.
   It is reconciled with this plan as phases land (see Phase 7).
-- `MANUAL.md` (to be created in Phase 1): the end-user reference. It grows
+- `docs/aztec42/acc.md` (to be created in Phase 1): the end-user reference. It grows
   progressively, one section per phase, and is the only document that
   `-help` points users to.
 
@@ -364,7 +364,7 @@ Quality rules:
     `acc.exe` built this way rebuilds
     itself under emu2 with an identical plan.
 
-Documentation style (design.md, MANUAL.md): seasoned engineers as the
+Documentation style (design.md, docs/aztec42/acc.md): seasoned engineers as the
 audience, minimal prose, tables first; design.md keeps C4 views (context,
 containers, components, data) as Mermaid diagrams in sync with the code.
 
@@ -374,7 +374,7 @@ containers, components, data) as Mermaid diagrams in sync with the code.
 
 - **Planning is the unit under test.** `-###` validates everything and
   prints the full plan without executing anything. Its output format is
-  stabilised and documented in `MANUAL.md`:
+  stabilised and documented in `docs/aztec42/acc.md`:
   - a header with **all** resolved settings, including defaults (today
     it only shows target, model and CPU);
   - then the `tool`, `response` and `publish` lines;
@@ -415,20 +415,20 @@ containers, components, data) as Mermaid diagrams in sync with the code.
 
 ## 11. Phases
 
-Each phase lands with its golden cases, `MANUAL.md` section and
+Each phase lands with its golden cases, `docs/aztec42/acc.md` section and
 `design.md` reconciliation. Every phase must pass the Unix build, the DOS
 build (Aztec C 4.2) and all checks.
 
 | Phase | Content | Depends on |
 | --- | --- | --- |
 | **P0 Decisions** | D1–D6 settled (section 10). | done |
-| **P1 Foundation** (**done**) | Module split and enums (section 8); stable `-###` format with full settings header; golden harness capturing **current** behaviour on Unix and DOS; self-hosted `acc.exe` build plus fixed-point check; executable-relative tool root; `-help` cleanup (drop the `design.md` pointer and the wrong overlay wording); `MANUAL.md` skeleton. | – |
+| **P1 Foundation** (**done**) | Module split and enums (section 8); stable `-###` format with full settings header; golden harness capturing **current** behaviour on Unix and DOS; self-hosted `acc.exe` build plus fixed-point check; executable-relative tool root; `-help` cleanup (drop the `design.md` pointer and the wrong overlay wording); `docs/aztec42/acc.md` skeleton. | – |
 | **P2 Invocation model** (**done**) | `-c`/`-S` with several sources (kept, rules documented and tested); mixed link compiles first and then links; `.inp`; unconditional linker response file; remove `@file`; length errors. | P1 |
 | **P3 Defaults and target-neutral compile** (**done**) | No OS macro without `-target`; `__DOS__` renamed `__MSDOS__`; link target from the `-o` suffix with explicit-target agreement (D2); native ANSI mode, `-ansi` opt-in strict, `-traditional` removed (D6); model/target checks moved; defaults documented and covered by golden cases. | P1 |
 | **P4 Native option completion** (**done**) | `-Wc,`/`-Wa,`/`-Wl,` allow-lists, verified tier first, probe tier as each probe passes; `-g` with `.dbg` publication; `-D` for `.asm`. | P2 |
 | **P5 Overlays on DOS** (**done**) | Accept `dos1`/`dos2` with a `.exe` root (a `.com` root is rejected: `.com` programs cannot use overlays); DOS example in `examples/Makefile`; execution tests on Unix and DOS builds. | P2 |
 | **P6 Preprocessor** (**done**) | Driver CPU macros; `azdefs.h` (4.3.0); golden and execution tests. | P3 |
-| **P7 Reconciliation** (**done**) | `design.md` brought in line (remove the `@file` grammar, multi-source `-c`, outdated claims); `MANUAL.md` complete; coverage gate enforced. | all |
+| **P7 Reconciliation** (**done**) | `design.md` brought in line (remove the `@file` grammar, multi-source `-c`, outdated claims); `docs/aztec42/acc.md` complete; coverage gate enforced. | all |
 
 P3 can run in parallel with P2. P4 and P5 can run in parallel once P2 has
 landed.

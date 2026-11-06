@@ -6,7 +6,7 @@ wrappers; keeps the Aztec compiler, assembler, linker and runtime.
 
 | Document | Content |
 | --- | --- |
-| [MANUAL.md](MANUAL.md) | user reference: options, modes, defaults, macros, limits |
+| [acc.md](../../docs/aztec42/acc.md) | user reference: options, modes, defaults, macros, limits |
 | this file | architecture, contracts, decisions, evidence |
 | [plan.md](plan.md) | execution history (phases P0-P7, decisions D1-D6) |
 
@@ -218,8 +218,8 @@ limits, logging) are kept. On DOS, host paths are guest paths.
 
 | Concern | Owner | Detail |
 | --- | --- | --- |
-| Target, model, CPU, float flags; startup, runtime, math libraries | `profile.c` | MANUAL.md "Link target", "Defaults" |
-| Raw `-Wc`/`-Wa`/`-Wl` options | `raw.c` | MANUAL.md "Backend options" |
+| Target, model, CPU, float flags; startup, runtime, math libraries | `profile.c` | docs/aztec42/acc.md "Link target", "Defaults" |
+| Raw `-Wc`/`-Wa`/`-Wl` options | `raw.c` | docs/aztec42/acc.md "Backend options" |
 | Always emitted | `plan.c` | `cc -b` (no pause), `cc -n` unless `-g` |
 | Never emitted | | `cc -3` (K&R), `cc +ej` (unsupported by v4.10d), `ln -N`, `as -ZAP`, foreign ABI modes |
 
