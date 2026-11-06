@@ -25,6 +25,7 @@ typedef struct {
     optimize_t optimize;
     int debug;                  /* -g: sdb information and .dbg file */
     int quiet;                  /* -w: suppress compiler warnings */
+    int squeeze;                /* -squeeze: run sqz on each compiled object */
     int nostart;                /* -nostartfiles */
     int nostdlib;               /* -nostdlib */
     int dryrun;                 /* -###: print the plan, run nothing */

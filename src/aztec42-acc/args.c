@@ -122,6 +122,8 @@ int parse_request(request_t *r, int argc, char **argv)
             r->save_temps = 1;
         } else if (strcmp(arg, "-w") == 0) {
             r->quiet = 1;
+        } else if (strcmp(arg, "-squeeze") == 0) {
+            r->squeeze = 1;
         } else if (strcmp(arg, "-nostartfiles") == 0) {
             r->nostart = 1;
         } else if (strcmp(arg, "-nostdlib") == 0) {
@@ -234,6 +236,8 @@ int parse_request(request_t *r, int argc, char **argv)
     }
     if (r->inputs.count == 0)
         return fail("no input", NULL);
+    if (r->squeeze && r->stage == STAGE_ASSEMBLY)
+        return fail("-squeeze needs object files: it cannot be combined with -S", NULL);
     /* Without -target the model is checked at link time, from -o. */
     if (r->target_given && r->target != TARGET_DOS2 && r->model != MODEL_SMALL)
         return fail("non-small model requires -target=dos2", NULL);

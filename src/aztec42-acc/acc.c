@@ -31,8 +31,9 @@ static void usage(FILE *stream)
           "  -mfloat=soft|auto|8087\n"
           "  -Osize | -Ospeed  -w       code preference, no warnings\n", stream);
     fputs("  -g                         sdb information, .dbg beside output\n"
-          "  -Wc,opt -Wa,opt -Wl,opt    allow-listed cc/as/ln option\n"
-          "  -nostartfiles | -nostdlib  omit startup | startup and libc\n"
+          "  -squeeze                   run sqz on each compiled object\n"
+          "  -Wc,opt -Wa,opt -Wl,opt    allow-listed cc/as/ln option\n", stream);
+    fputs("  -nostartfiles | -nostdlib  omit startup | startup and libc\n"
           "  -overlay-root=CODE,DATA    overlay root (.cmd/.exe), .rsm table\n"
           "  -overlay=ROOT.rsm          overlay (.ovr) for that root\n"
           "  -toolroot=dir              Aztec tool root (else ACCROOT)\n"

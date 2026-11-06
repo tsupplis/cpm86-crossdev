@@ -49,6 +49,12 @@ printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
 run_acc main.o -o main.cmd
 output=$("$emu" main.cmd)
 printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
+run_acc -c -squeeze main.c -o squeezed.o
+test -s squeezed.o
+test "$(wc -c < squeezed.o)" -lt "$(wc -c < main.o)"
+run_acc -squeeze main.c -o squeezed.cmd
+output=$("$emu" squeezed.cmd)
+printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
 
 for target in dos1 dos2; do
     run_acc -target="$target" main.c -o main.exe

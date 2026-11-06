@@ -51,6 +51,7 @@ Aztec C 4.2 compiler driver.
   -mfloat=soft|auto|8087
   -Osize | -Ospeed  -w       code preference, no warnings
   -g                         sdb information, .dbg beside output
+  -squeeze                   run sqz on each compiled object
   -Wc,opt -Wa,opt -Wl,opt    allow-listed cc/as/ln option
   -nostartfiles | -nostdlib  omit startup | startup and libc
   -overlay-root=CODE,DATA    overlay root (.cmd/.exe), .rsm table

@@ -364,6 +364,42 @@ publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
 
+@case compile-squeeze
+-###
+-toolroot=@ROOT@
+-c
+-squeeze
+main.c
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\sqz.exe" "E:\\u0001.o"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-squeeze-mixed-sources
+-###
+-toolroot=@ROOT@
+-c
+-squeeze
+main.c
+entry.asm
+@out
+acc: plan stage=object target=none model=small cpu=i8086
+acc: plan float=soft optimize=default debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\sqz.exe" "E:\\u0001.o"
+tool: "D:\\bin\\as.exe" "-ID:\\include" "-o" "E:\\u0002.o" "C:\\entry.asm"
+tool: "D:\\bin\\sqz.exe" "E:\\u0002.o"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+publish: "E:\\u0002.o" -> "C:\\entry.o"
+[exit 0]
+@end
+
 @case compile-debug
 -###
 -toolroot=@ROOT@

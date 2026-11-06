@@ -156,6 +156,7 @@ changes in this plan; **new** = added; **remove** = dropped.
 | `-Wl,arg` | – | – | allow-listed arg (section 5) | new (P4) |
 | `-overlay-root=CODE,DATA` | – | – | `+c CODE +d DATA -r`, adds `ovld.o`, emits `.rsm` | change: cpm86 **and** dos (P5) |
 | `-overlay=ROOT.rsm` | – | – | adds `ROOT.rsm` and `ovbgn.o`, emits `.ovr` | change: cpm86 **and** dos (P5) |
+| `-squeeze` | – | – | – | new: `sqz.exe` in place after each `cc`/`as` command |
 | `-save-temps`, `-v`, `-###` | – | – | – | keep; `-###` format stabilised (P1) |
 | `-toolroot=dir` | – | – | – | keep (+ executable-relative discovery, P1) |
 | `-emu=path` | – | – | – | keep (Unix only) |

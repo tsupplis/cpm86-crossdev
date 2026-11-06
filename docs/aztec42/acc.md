@@ -26,6 +26,7 @@ Programs run directly under `emu2` on Unix: `emu2 hello.cmd`.
 | Larger compiler symbol tables (`-L` locals, `-E` expressions, `-y` switch cases, `-z` strings; 1 to 32767) | `acc -Wc,-L300 -c big.c` |
 | C with an assembler function | `acc -o mix.cmd mix.c addw.asm` |
 | Debug information (`dbg.dbg` beside the program) | `acc -g -o dbg.exe hello.c` |
+| Squeeze compiled objects with `sqz` | `acc -squeeze -o hello.cmd hello.c` |
 | Overlays | see `examples/Makefile` (`ovraza.cmd`, `ovrazd.exe`) |
 | Print the plan, run nothing | `acc -### -o hello.cmd hello.c` |
 | Keep the temporary files | `acc -save-temps -o hello.cmd hello.c` |
@@ -94,6 +95,7 @@ Response files (`@file`) do not exist; options always stay on the command line.
 | `-Osize` `-Ospeed` | code preference | |
 | `-w` | no compiler warnings | |
 | `-g` | sdb information; writes `<output>.dbg` beside the program | link: `.cmd` and `.exe` |
+| `-squeeze` | run `sqz` in place on every object compiled or assembled, before linking or publishing | not with `-S`; needs a compiled source |
 | `-Wc,opt` `-Wa,opt` `-Wl,opt` | one allow-listed `cc` / `as` / `ln` option, see below | |
 | `-nostartfiles` | omit startup object | |
 | `-nostdlib` | omit startup and C runtime | |

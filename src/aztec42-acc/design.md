@@ -221,6 +221,7 @@ limits, logging) are kept. On DOS, host paths are guest paths.
 | Target, model, CPU, float flags; startup, runtime, math libraries | `profile.c` | docs/aztec42/acc.md "Link target", "Defaults" |
 | Raw `-Wc`/`-Wa`/`-Wl` options | `raw.c` | docs/aztec42/acc.md "Backend options" |
 | Always emitted | `plan.c` | `cc -b` (no pause), `cc -n` unless `-g` |
+| On request | `plan.c` | `-squeeze`: `sqz.exe OBJ` (in place) after each `cc`/`as` command |
 | Never emitted | | `cc -3` (K&R), `cc +ej` (unsupported by v4.10d), `ln -N`, `as -ZAP`, foreign ABI modes |
 
 Link argument order (single-pass `ln`): `-o`, overlay `+c +d -r`, raw

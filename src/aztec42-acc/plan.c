@@ -528,6 +528,8 @@ static int validate(const request_t *r, plan_context_t *ctx)
         return fail("-Wa given, but no .asm source is assembled", NULL);
     if (r->ln_options.count != 0 && r->stage != STAGE_LINK)
         return fail("-Wl given, but nothing is linked", NULL);
+    if (r->squeeze && j == 0)
+        return fail("-squeeze given, but no source is compiled", NULL);
     if (r->stage != STAGE_LINK && r->output != 0 && count != 1)
         return fail("one -o cannot name multiple compilation outputs", NULL);
     /*
@@ -566,6 +568,8 @@ static int validate(const request_t *r, plan_context_t *ctx)
                 return 0;
         }
     }
+    if (r->squeeze && !required_tool(ctx, "bin/sqz.exe"))
+        return 0;
     if (r->stage == STAGE_LINK && !required_tool(ctx, "bin/ln.exe"))
         return 0;
     if (r->overlay_root != 0 && !required_tool(ctx, "lib/ovld.o"))
@@ -591,6 +595,25 @@ static int decimal_value(const char *text)
 static int add_flag(word_list_t *args, const char *flag)
 {
     return flag == 0 || add_word(args, flag);
+}
+
+/*
+ * Plan "sqz PRODUCT" right after the command that created PRODUCT from
+ * INPUT.  sqz rewrites the object in place, so the product keeps its name
+ * and the publish and link steps need no change.
+ */
+static int squeeze_product(plan_t *plan, const plan_context_t *ctx,
+                           const char *product, const char *input)
+{
+    command_t *cmd;
+
+    cmd = tool_command(plan, ctx, "sqz.exe");
+    if (cmd == 0)
+        return 0;
+    cmd->product = copy_text(product);
+    cmd->source = copy_text(input);
+    return cmd->product != 0 && cmd->source != 0 &&
+        add_word(&cmd->arguments, product);
 }
 
 /*
@@ -667,6 +690,8 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
     }
     if (!add_word(args, "-o") || !add_word(args, product) ||
         !mapped(args, ctx, "", input))
+        return 0;
+    if (r->squeeze && !squeeze_product(plan, ctx, product, input))
         return 0;
     if (r->stage == STAGE_LINK)
         return add_word(&ctx->objects, product);

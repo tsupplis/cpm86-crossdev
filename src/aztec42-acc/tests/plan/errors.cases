@@ -687,6 +687,27 @@ acc: -Wa given, but no .asm source is assembled
 [exit 1]
 @end
 
+@case err-squeeze-assembly
+-###
+-toolroot=@ROOT@
+-S
+-squeeze
+main.c
+@out
+acc: -squeeze needs object files: it cannot be combined with -S
+[exit 1]
+@end
+
+@case err-squeeze-without-source
+-###
+-toolroot=@ROOT@
+-squeeze
+main.o
+@out
+acc: -squeeze given, but no source is compiled
+[exit 1]
+@end
+
 @case err-raw-ln-without-link
 -###
 -toolroot=@ROOT@
