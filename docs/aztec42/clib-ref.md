@@ -116,7 +116,7 @@ External names are significant to 8 characters (`vsnprintf` links as `vsnprint`)
 | 22h: CP/M-86 1.1 | System data area, BDOS 31h, offset 20h | The string `MM/DD/YY<sep>HH:MM:SS`; `YY` is 2000 to 2099 |
 | Below 22h | none | `time` and `clock` return -1 |
 
-`time` returns -1 for dates before 1980 or after 2107, or a bad clock value. `clock` is the time of day in hundredths of a second from a one-second clock, with the DOS runtime's rollover. The BDOS call helpers save `BP`, `SI`, `DI`, `DS` and `ES`, because the BDOS can change them; the system data area read keeps `ES` only until the string is copied.
+`time` returns -1 for dates before 1980 or after 2107, or a bad clock value. `clock` is the time of day in hundredths of a second from a one-second clock, with the DOS runtime's rollover. 
 
 ## 4. Floating point limits
 

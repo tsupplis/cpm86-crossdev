@@ -8,6 +8,36 @@ acc [options] inputs
 acc -help | -version
 ```
 
+## Scenarios
+
+Programs run directly under `emu2` on Unix: `emu2 hello.cmd`.
+
+| Goal | Command |
+| --- | --- |
+| CP/M-86 program (`a.cmd`) | `acc hello.c` |
+| DOS 2 program | `acc -o hello.exe hello.c` |
+| DOS 1.1 program | `acc -target=dos1 -o hello.exe hello.c` |
+| Several sources, one step | `acc -o app.cmd -Iinc -DVERSION=3 main.c util.c` |
+| Compile, then link | `acc -c main.c util.c` then `acc -o app.cmd main.o util.o` |
+| Your own library (`aztec42_lib util.lib util.o`) | `acc -o app.cmd main.c -Llib -lutil` |
+| Math (`-lm`) | `acc -o calc.cmd calc.c -lm` |
+| Large model, DOS only | `acc -mcmodel=large -o big.exe hello.c` |
+| Architecture: `i8086` (default), `i80186`, `i80286`; defines `__i186__`, `__i286__` | `acc -march=i80286 -o hello.cmd hello.c` |
+| Larger compiler symbol tables (`-L` locals, `-E` expressions, `-y` switch cases, `-z` strings; 1 to 32767) | `acc -Wc,-L300 -c big.c` |
+| C with an assembler function | `acc -o mix.cmd mix.c addw.asm` |
+| Debug information (`dbg.dbg` beside the program) | `acc -g -o dbg.exe hello.c` |
+| Overlays | see `examples/Makefile` (`ovraza.cmd`, `ovrazd.exe`) |
+| Print the plan, run nothing | `acc -### -o hello.cmd hello.c` |
+| Keep the temporary files | `acc -save-temps -o hello.cmd hello.c` |
+
+```make
+app.cmd: main.o util.o
+	acc -o $@ main.o util.o
+
+%.o: %.c
+	acc -Iinc -c $<
+```
+
 ## Modes
 
 | Mode | Selected by | Inputs | Output |
@@ -204,6 +234,21 @@ All intermediates are named `E:\uNNNN.ext` from one counter, so names are
 unique within and across invocations. The workspace is removed on success,
 failure and interruption unless `-save-temps` is given.
 
+### Temporary files
+
+| Item | Behaviour |
+| --- | --- |
+| Parent directory | the first of `CCTEMP`, `TEMP`, `TMPDIR` (Unix only) that is set, then `/tmp` on Unix or the working directory on DOS |
+| Workspace | a new directory below the parent: `acc.XXXXXX` on Unix, `A?XXXXXX` on DOS (`A` plus a letter and six characters) |
+| What the tools see | `E:` is the workspace; the tools get `CCTEMP=E:\` (Unix) or `CCTEMP=<workspace>\` (DOS), so `cc`, `cgen` and `as` write their own temporaries there too |
+| Cleanup | the whole workspace is deleted after every run, including files the tools leave behind; products are copied out first |
+| `-save-temps` | keeps it and prints `acc: workspace retained: DIR`; for a link it holds `u0001.o`, `u0002.cmd`, `u0003.rsp` |
+| `-v` | prints `acc: workspace: DIR` |
+| Limit (DOS) | the parent path must leave room within 63 characters |
+
+`CCTEMP=/tmp/sc/mytmp acc -save-temps -o st.cmd hello.c` retains the
+workspace as `/tmp/sc/mytmp/acc.4OJZfB`.
+
 ## Plan output (`-###`, `-v`)
 
 On stderr, one record per line, words double-quoted:
@@ -211,7 +256,7 @@ On stderr, one record per line, words double-quoted:
 | Line | Content |
 | --- | --- |
 | `acc: plan stage=.. target=.. model=.. cpu=..` | resolved settings |
-| `acc: plan float=.. language=.. optimize=..` | resolved settings |
+| `acc: plan float=.. optimize=.. debug=..` | resolved settings |
 | `tool: "PROGRAM" "ARG" ...` | one per backend command |
 | `response: "FILE" "LINE" ...` | linker response file |
 | `publish: "PRODUCT" -> "OUTPUT"` | one per published output |
