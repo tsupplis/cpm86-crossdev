@@ -384,7 +384,8 @@ containers, components, data) as Mermaid diagrams in sync with the code.
   - The runner is used by `check-unix` (native `acc`) **and** `check-dos`
     (`acc.exe` under emu2). Identical expectations prove that both builds
     plan identically.
-- **Coverage gate:** a script fails the check unless:
+- **Coverage gate** (`make check-coverage`, part of `make check`; done):
+  a script fails the check unless:
   - every public option has at least one case;
   - every row of sections 4–5 marked managed, verified or rejected has at
     least one case;
@@ -426,7 +427,7 @@ build (Aztec C 4.2) and all checks.
 | **P4 Native option completion** (**done**) | `-Wc,`/`-Wa,`/`-Wl,` allow-lists, verified tier first, probe tier as each probe passes; `-g` with `.dbg` publication; `-D` for `.asm`. | P2 |
 | **P5 Overlays on DOS** (**done**) | Accept `dos1`/`dos2` with a `.exe` root (a `.com` root is rejected: `.com` programs cannot use overlays); DOS example in `examples/Makefile`; execution tests on Unix and DOS builds. | P2 |
 | **P6 Preprocessor** (**done**) | Driver CPU macros; `azdefs.h` (4.3.0); golden and execution tests. | P3 |
-| **P7 Reconciliation** | `design.md` brought in line (remove the `@file` grammar, multi-source `-c`, outdated claims); `MANUAL.md` complete; coverage gate enforced. | all |
+| **P7 Reconciliation** (**done**) | `design.md` brought in line (remove the `@file` grammar, multi-source `-c`, outdated claims); `MANUAL.md` complete; coverage gate enforced. | all |
 
 P3 can run in parallel with P2. P4 and P5 can run in parallel once P2 has
 landed.

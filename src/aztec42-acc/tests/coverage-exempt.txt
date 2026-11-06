@@ -1,1 +1,67 @@
-# Diagnostics no deterministic test can trigger: MESSAGE<TAB>REASON
+# Diagnostics no deterministic test can trigger.
+# Format: MESSAGE<TAB>REASON.  coverage.sh rejects stale or reasonless lines.
+
+# host I/O or resource failure; not reproducible deterministically
+cannot allocate child environment block	host I/O or resource failure; not reproducible deterministically
+cannot close completed output	host I/O or resource failure; not reproducible deterministically
+cannot close linker response file	host I/O or resource failure; not reproducible deterministically
+cannot close staged output	host I/O or resource failure; not reproducible deterministically
+cannot close workspace directory	host I/O or resource failure; not reproducible deterministically
+cannot copy completed output	host I/O or resource failure; not reproducible deterministically
+cannot create a unique DOS workspace	host I/O or resource failure; not reproducible deterministically
+cannot create linker response file	host I/O or resource failure; not reproducible deterministically
+cannot create private workspace	host I/O or resource failure; not reproducible deterministically
+cannot create staged output	host I/O or resource failure; not reproducible deterministically
+cannot determine DOS working directory	host I/O or resource failure; not reproducible deterministically
+cannot determine working directory	host I/O or resource failure; not reproducible deterministically
+cannot execute emulator	host I/O or resource failure; not reproducible deterministically
+cannot finish staged output	host I/O or resource failure; not reproducible deterministically
+cannot fork emulator	host I/O or resource failure; not reproducible deterministically
+cannot generate a unique DOS workspace name	host I/O or resource failure; not reproducible deterministically
+cannot inspect workspace entry	host I/O or resource failure; not reproducible deterministically
+cannot install interrupt handler	host I/O or resource failure; not reproducible deterministically
+cannot interrupt emulator	host I/O or resource failure; not reproducible deterministically
+cannot open completed output	host I/O or resource failure; not reproducible deterministically
+cannot open workspace for cleanup	host I/O or resource failure; not reproducible deterministically
+cannot preserve previous output	host I/O or resource failure; not reproducible deterministically
+cannot publish output	host I/O or resource failure; not reproducible deterministically
+cannot read completed output	host I/O or resource failure; not reproducible deterministically
+cannot read workspace directory	host I/O or resource failure; not reproducible deterministically
+cannot remove previous output backup	host I/O or resource failure; not reproducible deterministically
+cannot remove private workspace	host I/O or resource failure; not reproducible deterministically
+cannot remove staged output	host I/O or resource failure; not reproducible deterministically
+cannot remove workspace directory	host I/O or resource failure; not reproducible deterministically
+cannot remove workspace entry	host I/O or resource failure; not reproducible deterministically
+cannot remove workspace file	host I/O or resource failure; not reproducible deterministically
+cannot reserve DOS publication name	host I/O or resource failure; not reproducible deterministically
+cannot restore interrupt handler	host I/O or resource failure; not reproducible deterministically
+cannot stage output publication	host I/O or resource failure; not reproducible deterministically
+cannot wait for emulator	host I/O or resource failure; not reproducible deterministically
+cannot write linker response file	host I/O or resource failure; not reproducible deterministically
+cannot write staged output	host I/O or resource failure; not reproducible deterministically
+completed output is not a nonempty regular file	host I/O or resource failure; not reproducible deterministically
+out of memory	host I/O or resource failure; not reproducible deterministically
+out of memory translating DOS arguments	host I/O or resource failure; not reproducible deterministically
+inherited DOS environment is too large	host I/O or resource failure; not reproducible deterministically
+
+# planner/executor contract invariant; unreachable through the command line
+invalid planned DOS tool path	planner/executor contract invariant; unreachable through the command line
+invalid planned backend path	planner/executor contract invariant; unreachable through the command line
+invalid planned workspace artifact	planner/executor contract invariant; unreachable through the command line
+planned output has no DOS directory	planner/executor contract invariant; unreachable through the command line
+planned output is not absolute	planner/executor contract invariant; unreachable through the command line
+output requires a filename suffix	planner/executor contract invariant; unreachable through the command line
+output path is too long	planner/executor contract invariant; unreachable through the command line
+too many workspace temporaries	planner/executor contract invariant; unreachable through the command line
+cannot resolve path	planner/executor contract invariant; unreachable through the command line
+
+# host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+DOS library path is too long for environment	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+DOS path is too long	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+DOS temporary path is too long for environment	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+DOS tool path is too long	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+DOS tool path is too long for environment	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+host path is too long	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+path is too long	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+resolved path is too long	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth
+translated library environment is too long	host path length bound (ACC_PATH or the DOS environment); depends on host directory depth

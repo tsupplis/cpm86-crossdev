@@ -4,6 +4,7 @@
 #   - every value of -target, -mcmodel, -march and -mfloat,
 #   - every allow-listed raw backend option of raw.c,
 #   - every diagnostic passed to fail(), dos_error() or io_error(),
+#   - and that build.bat compiles exactly the DOS build's modules,
 # except diagnostics listed in tests/coverage-exempt.txt, which must state
 # why no deterministic test can trigger them.
 #
@@ -61,10 +62,11 @@ done > "$corpus.raw"
 missing=$((missing + $(wc -l < "$corpus.raw")))
 rm -f "$corpus.raw"
 
-# Substrings the shell suites assert (quoted, at least 12 characters): a
-# diagnostic containing one of them is covered.
-grep -ho "'[^']\{12,\}'" "$src"/check.sh "$src"/exec-check.sh \
-    "$src"/exec-dos-check.sh | tr -d "'" | sort -u > "$corpus.asserted"
+# Substrings the shell suites assert (the quoted operand of expect_error or
+# grep, at least 12 characters): a diagnostic containing one is covered.
+grep -hoE "(expect_error|grep -[A-Za-z]+) '[^']{12,}'" "$src"/check.sh \
+    "$src"/exec-check.sh "$src"/exec-dos-check.sh |
+    sed "s/^[^']*'//; s/'\$//" | sort -u > "$corpus.asserted"
 
 # Diagnostics: every literal message, unless exempt.
 grep -ho '\(fail\|dos_error\|io_error\)("[^"]*"' "$src"/*.c |
@@ -93,6 +95,15 @@ while IFS='	' read -r message reason; do
     fi
     [ -n "$reason" ] || { printf 'EXEMPTION without reason: %s\n' "$message" >&2; missing=$((missing + 1)); }
 done < "$exempt"
+
+# build.bat (native DOS bootstrap, not run by make) must compile exactly
+# the DOS build's modules: every .c file except the Unix executor.
+expected=$(cd "$src" && ls *.c | grep -v '^execunix\.c$' | sort | tr '\n' ' ')
+actual=$(sed -n 's/^cc .* \([a-z]*\.c\)$/\1/p' "$src/build.bat" | sort | tr '\n' ' ')
+if [ "$expected" != "$actual" ]; then
+    printf 'STALE build.bat modules: %s (expected %s)\n' "$actual" "$expected" >&2
+    missing=$((missing + 1))
+fi
 
 if [ "$missing" -ne 0 ]; then
     printf 'ACC COVERAGE CHECK FAILED: %s gaps\n' "$missing" >&2
