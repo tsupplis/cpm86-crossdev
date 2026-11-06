@@ -25,13 +25,15 @@
 
 
 
+
+
 @case link-default-name
 -###
 -toolroot=@ROOT@
 main.o
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\c86.lib"
@@ -47,7 +49,7 @@ main.c
 hello.cmd
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
@@ -63,7 +65,7 @@ publish: "E:\\u0002.cmd" -> "C:\\hello.cmd"
 main.o
 @out
 acc: plan stage=link target=dos1 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\begin11.o" "C:\\main.o" "D:\\lib\\d11.lib"
@@ -80,7 +82,7 @@ main.o
 hello.com
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.com" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\c.lib"
@@ -98,7 +100,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=compact cpu=i8086
-acc: plan float=8087 optimize=default ansi=native debug=off
+acc: plan float=8087 optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginld.o" "C:\\main.o" "D:\\lib\\m87ld.lib" "D:\\lib\\cld.lib"
@@ -116,7 +118,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=compact cpu=i8086
-acc: plan float=auto optimize=default ansi=native debug=off
+acc: plan float=auto optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginld.o" "C:\\main.o" "D:\\lib\\m87sld.lib" "D:\\lib\\cld.lib"
@@ -134,7 +136,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=compact cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginld.o" "C:\\main.o" "D:\\lib\\mld.lib" "D:\\lib\\cld.lib"
@@ -152,7 +154,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=large cpu=i8086
-acc: plan float=8087 optimize=default ansi=native debug=off
+acc: plan float=8087 optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\lbegin.o" "C:\\main.o" "D:\\lib\\m87l.lib" "D:\\lib\\cl.lib"
@@ -170,7 +172,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=large cpu=i8086
-acc: plan float=auto optimize=default ansi=native debug=off
+acc: plan float=auto optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\lbegin.o" "C:\\main.o" "D:\\lib\\m87sl.lib" "D:\\lib\\cl.lib"
@@ -188,7 +190,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=large cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\lbegin.o" "C:\\main.o" "D:\\lib\\ml.lib" "D:\\lib\\cl.lib"
@@ -206,7 +208,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=medium cpu=i8086
-acc: plan float=8087 optimize=default ansi=native debug=off
+acc: plan float=8087 optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginlc.o" "C:\\main.o" "D:\\lib\\m87lc.lib" "D:\\lib\\clc.lib"
@@ -224,7 +226,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=medium cpu=i8086
-acc: plan float=auto optimize=default ansi=native debug=off
+acc: plan float=auto optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginlc.o" "C:\\main.o" "D:\\lib\\m87slc.lib" "D:\\lib\\clc.lib"
@@ -242,7 +244,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=medium cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\beginlc.o" "C:\\main.o" "D:\\lib\\mlc.lib" "D:\\lib\\clc.lib"
@@ -260,7 +262,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=8087 optimize=default ansi=native debug=off
+acc: plan float=8087 optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\m87.lib" "D:\\lib\\c.lib"
@@ -278,7 +280,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=auto optimize=default ansi=native debug=off
+acc: plan float=auto optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\m87s.lib" "D:\\lib\\c.lib"
@@ -296,7 +298,7 @@ main.o
 -lm
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\m.lib" "D:\\lib\\c.lib"
@@ -312,7 +314,7 @@ custom.lib
 custom.lib
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "C:\\custom.lib" "D:\\lib\\c86.lib"
@@ -330,7 +332,7 @@ main.o
 -lcustom
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "D:\\lib\\m.lib" "C:\\custom.lib" "D:\\lib\\c86.lib"
@@ -345,7 +347,7 @@ publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
 main.o
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "C:\\main.o" "D:\\lib\\c86.lib"
@@ -360,7 +362,7 @@ publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
 entry.asm
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\as.exe" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
@@ -378,7 +380,7 @@ main.o
 ovraza.cmd
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\c86.lib"
@@ -396,7 +398,7 @@ main.o
 function.ovr
 @out
 acc: plan stage=link target=none model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.ovr" "C:\\main.o" "C:\\ovraza.rsm" "D:\\lib\\ovbgn.o"
@@ -418,7 +420,7 @@ custom.lib
 custom.lib
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "C:\\custom.lib" "D:\\lib\\c86.lib"
@@ -434,7 +436,7 @@ list.inp
 hello.cmd
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "D:\\lib\\c86.lib"
@@ -448,7 +450,7 @@ publish: "E:\\u0001.cmd" -> "C:\\hello.cmd"
 crlf.inp
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "D:\\lib\\c86.lib"
@@ -463,7 +465,7 @@ list.inp
 -lm
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "C:\\custom.lib" "D:\\lib\\m.lib" "D:\\lib\\c86.lib"
@@ -479,7 +481,7 @@ custom.lib
 main.o
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
@@ -496,7 +498,7 @@ main.o
 hello.exe
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\c.lib"
@@ -512,7 +514,7 @@ main.o
 hello.com
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.com" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\c.lib"
@@ -529,7 +531,7 @@ main.o
 hello.com
 @out
 acc: plan stage=link target=dos1 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.com" "D:\\lib\\begin11.o" "C:\\main.o" "D:\\lib\\d11.lib"
@@ -546,7 +548,7 @@ main.o
 big.exe
 @out
 acc: plan stage=link target=dos2 model=large cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\lbegin.o" "C:\\main.o" "D:\\lib\\cl.lib"
@@ -561,7 +563,7 @@ publish: "E:\\u0001.exe" -> "C:\\big.exe"
 main.o
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\c.lib"
@@ -576,7 +578,7 @@ publish: "E:\\u0001.exe" -> "C:\\a.exe"
 main.c
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=on
+acc: plan float=soft optimize=default debug=on
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\cc.exe" "+0" "-b" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0003.rsp"
@@ -595,7 +597,7 @@ main.o
 hello.exe
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=on
+acc: plan float=soft optimize=default debug=on
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "-g" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\c.lib"
@@ -612,7 +614,7 @@ publish: "E:\\u0001.dbg" -> "C:\\hello.dbg"
 main.o
 @out
 acc: plan stage=link target=cpm86 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "-M" "-V" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\c86.lib"
@@ -630,7 +632,7 @@ main.o
 hello.exe
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "-S" "400" "-X" "1000" "D:\\lib\\sbegin.o" "C:\\main.o" "D:\\lib\\c.lib"
@@ -647,7 +649,7 @@ main.o
 root.exe
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\c.lib"
@@ -666,7 +668,7 @@ main.o
 root.exe
 @out
 acc: plan stage=link target=dos1 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\d11.lib"
@@ -685,7 +687,7 @@ main.o
 function.ovr
 @out
 acc: plan stage=link target=dos2 model=small cpu=i8086
-acc: plan float=soft optimize=default ansi=native debug=off
+acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.ovr" "C:\\main.o" "C:\\ovraza.rsm" "D:\\lib\\ovbgn.o"

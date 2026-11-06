@@ -92,10 +92,9 @@ output=$("$@" -### -toolroot="$root" -c -DLONG="$limit" main.c 2>&1)
 limit=$(printf '%073d' 0)
 expect_error 'command line too long' "$@" -### -toolroot="$root" -c -DLONG="$limit" main.c
 
-output=$("$@" -### -toolroot="$root" -S -ansi -DTEST= -I. main.c 2>&1)
+output=$("$@" -### -toolroot="$root" -S -DTEST= -I. main.c 2>&1)
 output=$(printf '%s\n' "$output" | tr -d '\r')
 printf '%s\n' "$output" | grep -F '"-A"' >/dev/null
-printf '%s\n' "$output" | grep -F '"-ansi"' >/dev/null
 printf '%s\n' "$output" | grep -F '"-DTEST="' >/dev/null
 if printf '%s\n' "$output" | grep -Fi 'ln.exe'; then exit 1; fi
 test ! -e main.asm

@@ -93,7 +93,7 @@ Rules:
 | CPU (`-march`) | `i8086` | n/a | `+0`; no CPU macro |
 | Model (`-mcmodel`) | `small` | `small`; non-small requires `dos2` | no `+l*` flag; `sbegin.o`/`c.lib` family |
 | Float (`-mfloat`) | `soft` | `soft` | no `+e`; `-lm` → `m.lib` family |
-| Language | ANSI: cc native mode (D6) | n/a | no flag; `-ansi` opt-in strict; never `-3` |
+| Language | ANSI: cc native mode (D6) | n/a | no flag; `-ansi` and `-3` never emitted |
 | Optimisation | native default (neither `+c` nor `+f`) | n/a | none |
 | Debug | off | off | cc `-n`; ln without `-g` |
 | Warnings | on | on | cc without `-s` |
@@ -144,7 +144,7 @@ changes in this plan; **new** = added; **remove** = dropped.
 | `-mcmodel=small\|medium\|compact\|large` | –/`+lc`/`+ld`/`+l` | user owns ABI | startup/runtime/math family | change (check timing, P3) |
 | `-mfloat=soft\|auto\|8087` | –/–/`+e` | not rewritten | `-lm` → `m`/`m87s`/`m87` family | keep |
 | `-mfloat=8087-fast` | `+ej` | – | hardware family | keep rejected until runtime-qualified |
-| `-ansi` | `-ansi` (strict: disables `near`/`far`/`huge`, breaks `dos.h`) | – | – | keep, opt-in (D6) |
+| `-ansi` | – | – | – | **remove**: strict mode disables `near`/`far`/`huge` and breaks `dos.h` (D6) |
 | `-traditional` | – | – | – | **remove**: K&R `-3` not supported (D6) |
 | `-Osize` / `-Ospeed` | `+c` / `+f` | – | – | keep |
 | `-g` | omit `-n` | – | `-g` before inputs; publish `.dbg` beside output | new (P4, after probe) |
@@ -188,7 +188,7 @@ operand). Every argument is checked against the tables below. Two tiers:
 | `-y<n>` | outstanding switch cases | `-Wc,-y<n>` (**verified** spelling; lowercase) |
 | `-z<n>` | literal string table | `-Wc,-z<n>` (**verified** spelling; lowercase) |
 | `-n` | no debug information | managed by `-g` |
-| `-ansi` / `-3` | language mode | `-ansi` opt-in strict (D6); `-3` never emitted |
+| `-ansi` / `-3` | language mode | never emitted (D6) |
 | `-c` | prototype-conversion warning toggle | rejected (toggle semantics) |
 | `-k` | disable extended keywords | `-Wc,-k` (probe) |
 | `-ze` | Microsoft near/far/huge | rejected (foreign ABI) |
@@ -409,7 +409,7 @@ containers, components, data) as Mermaid diagrams in sync with the code.
 | D3 | OS macro spelling | **closed**: `__CPM86__` and `__MSDOS__`. `__DOS__` was only defined by acc itself (no source or Aztec header tests it) |
 | D4 | K&R `aztec34` toolchain | **closed**: out of scope; acc supports only the ANSI compiler |
 | D5 | `CHAR_UNSIGNED` | **closed**: `char` is signed (verified), never defined |
-| D6 | Language mode | **closed**: ANSI only = cc native mode (ANSI plus the `near`/`far` extensions Aztec's own `dos.h` needs; forcing `-ansi` breaks it, verified). `-ansi` stays as opt-in strict mode; `-traditional` (`-3`, K&R) is removed |
+| D6 | Language mode | **closed**: ANSI only = cc native mode (ANSI plus the `near`/`far` extensions Aztec's own `dos.h` needs; forcing `-ansi` breaks it, verified). Both `-ansi` and `-traditional` (`-3`, K&R) are rejected |
 
 ---
 

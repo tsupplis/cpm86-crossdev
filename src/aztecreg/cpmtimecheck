@@ -1,0 +1,16 @@
+#!/bin/sh
+# The CP/M-86 time module on DOS: its conversion routines take no OS input.
+# The module is extracted from the installed c86 library.
+set -eu
+bin=$1
+source=$(pwd)/cpmtime.c
+work=$(mktemp -d "${TMPDIR:-/tmp}/azcpmtime.XXXXXX")
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+cp "$source" "$work/test.c"
+cd "$work"
+"$bin/aztec42_lib" 'D:\LIB\c86.lib' -x time
+"$bin/aztec42_cc" +0 -o test.o test.c
+"$bin/aztec42_link" -o test.exe test.o time.o -lm -lc
+output=$("$bin/emu2" test.exe)
+printf '%s\n' "$output"
+printf '%s\n' "$output" | tr -d '\r' | grep -qx 'CPM TIME PASS'

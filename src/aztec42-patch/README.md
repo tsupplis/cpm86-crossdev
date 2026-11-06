@@ -28,9 +28,10 @@ reconciliation. Products are copied into share after the build succeeds;
 the preserved archive sources are not installed.
 
 The final tool set excludes `arcv.com`, `c.exe`, `cc.exe.bak`, `crc.exe`,
-`diff.exe`, `grep.exe`, `ls.com`/`ls.exe`, `rm.c`, `rm.exe`, `z.exe`, and
-`term.exe`. Other tools, including the debug/OMF converters, standalone
-preprocessor, make, debuggers, profiler, and source utilities, are retained.
+`diff.exe`, `grep.exe`, `hd.com`, `ctags.com`, `ctoeng.com`, `engtoc.com`,
+`ls.com`/`ls.exe`, `rm.c`, `rm.exe`, `z.exe`, and `term.exe`. The compiler
+chain, linker, librarian, object utilities, debug/OMF converters, standalone
+preprocessor, make, debuggers, and profiler are retained.
 The patched compiler itself remains installed. After the runtime is
 installed, the fetcher builds and installs the acc driver (native `acc` and
 DOS `acc.exe`) into `share/aztec42/bin` with `make -C src/aztec42-acc install`.
@@ -142,8 +143,12 @@ declarations, their prototypes are in `time.h`; callers must select a DOS runtim
 and interrupt-based 8087 math, and link-checks inline 8087 math (emu2 has no
 hardware 8087). It is also part of `dos-check`.
 
-setlocale, strcoll, strxfrm and strftime remain unimplemented
-and have no public declarations. 
+`strftime` is implemented in every library (C locale; `%Z` is empty).
+setlocale, strcoll and strxfrm remain unimplemented and have no public
+declarations. `abs` is now a library function. `regs.h` and `x86.h` declare
+the machine-level verbs (`sysint`, `farcall`, `segread`, `peek`/`poke`,
+ports, `movblock`, far-pointer helpers); `memory.h` declares `movmem`,
+`setmem` and `swapmem`. See [the C library reference](../../docs/aztec42/clib-ref.md).
 
 The runtime supplies isinf and isnan as double-based C99-name extensions.
 They share a binary64 classifier independent of the math engine. Floating

@@ -25,6 +25,8 @@
 
 
 
+
+
 @case info-help-extra
 -help
 extra
@@ -47,7 +49,6 @@ Aztec C 4.2 compiler driver.
   -mcmodel=small|medium|compact|large   (large: dos2 .exe)
   -march=i8086|i80186|i80286
   -mfloat=soft|auto|8087
-  -ansi                      strict ANSI (no near/far/huge)
   -Osize | -Ospeed  -w       code preference, no warnings
   -g                         sdb information, .dbg beside output
   -Wc,opt -Wa,opt -Wl,opt    allow-listed cc/as/ln option

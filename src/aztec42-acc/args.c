@@ -139,7 +139,9 @@ int parse_request(request_t *r, int argc, char **argv)
                           arg + 4))
                 return 0;
         } else if (strcmp(arg, "-ansi") == 0) {
-            r->strict_ansi = 1;
+            /* cc -ansi disables near/far, which Aztec's own headers use. */
+            return fail("strict ANSI mode is not supported: it disables "
+                        "near and far", arg);
         } else if (strcmp(arg, "-traditional") == 0) {
             /* cc -3 (v3.40b K&R rules) is deliberately not exposed. */
             return fail("K&R mode is not supported: acc compiles ANSI C", arg);

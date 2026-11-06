@@ -95,6 +95,14 @@ int main(void)
     difftime(0x00210000L, 0x00210000L);
 #elif CASE == 39
     { struct tm t; memset(&t, 0, sizeof t); t.tm_year=80; t.tm_mday=1; mktime(&t); }
+#elif CASE == 40
+    abs(-7);
+#elif CASE == 42
+    ctime((time_t *)buffer);
+#elif CASE == 43
+    gmtime((time_t *)buffer);
+#elif CASE == 41
+    { struct tm t; memset(&t, 0, sizeof t); strftime(buffer, sizeof buffer, "%Y", &t); }
 #endif
     return 0;
 }

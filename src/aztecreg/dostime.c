@@ -142,6 +142,7 @@ int main(void)
     struct tm t, copy, *back;
     time_t a, b, stamp;
     int i, j;
+    char text[80];
     unsigned expected_date, expected_time;
     union { time_t value; unsigned word[2]; } packed;
     for (i=0; i<sizeof(cases)/sizeof(cases[0]); ++i) {
@@ -183,6 +184,18 @@ int main(void)
     CHECK(difftime(b,a)==172800.0);
     t.tm_year=200;t.tm_mon=1;t.tm_mday=28;a=mktime(&t);
     t.tm_mon=2;t.tm_mday=1;b=mktime(&t);CHECK(difftime(b,a)==86400.0);
+    memset(&t,0,sizeof t);
+    t.tm_year=96;t.tm_mon=11;t.tm_mday=5;t.tm_hour=15;t.tm_min=7;t.tm_sec=9;
+    t.tm_wday=4;t.tm_yday=339;
+    CHECK(strftime(text,sizeof text,"%a %A %b %B %d %e %H %I %j %m %M %p %S %U %w %W %y %Y %%",&t)==71);
+    CHECK(strcmp(text,"Thu Thursday Dec December 05  5 15 03 340 12 07 PM 09 48 4 49 96 1996 %")==0);
+    CHECK(strftime(text,sizeof text,"%c|%x|%X|%Z|%q",&t)==46);
+    CHECK(strcmp(text,"Thu Dec  5 15:07:09 1996|12/05/96|15:07:09||%q")==0);
+    CHECK(strftime(text,9,"%Y-%m-%d",&t)==0 && text[0]==0);
+    CHECK(strftime(text,11,"%Y-%m-%d",&t)==10 && strcmp(text,"1996-12-05")==0);
+    CHECK(strftime(text,10,"%Y-%m-%d",&t)==0);
+    CHECK(strftime(text,0,"%Y",&t)==0);
+    t.tm_hour=0;CHECK(strftime(text,sizeof text,"%I %p",&t)==5 && strcmp(text,"12 AM")==0);
     puts(fail ? "DOS TIME FAIL" : "DOS TIME PASS");
     return fail!=0;
 }

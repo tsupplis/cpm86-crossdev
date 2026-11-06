@@ -236,7 +236,7 @@ options, `-g`, startup, inputs in command-line order, overlay loader or
 | D3 | `__CPM86__`, `__MSDOS__` | `__DOS__` was acc-only |
 | D4 | no K&R toolchain support | ANSI only |
 | D5 | `char` is signed; `CHAR_UNSIGNED` never defined | probe |
-| D6 | native ANSI mode; `-ansi` opt-in strict | strict mode disables `far`, breaking `dos.h` |
+| D6 | native ANSI mode only; `-ansi` is rejected | strict mode disables `far`, breaking `dos.h` |
 | - | one `.inp` file, no `@file` | single indirection mechanism, link inputs only |
 | - | no tiny model | a `.com` is a small-model program |
 | - | overlays: small model, `.cmd` or `.exe` root, hex sizes | Tech Info 2.1; `aOO` in the manual is an OCR error for `a00` |

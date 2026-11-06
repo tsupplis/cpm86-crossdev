@@ -3,7 +3,7 @@
  * flags that depends on the selected target, memory model, CPU, floating
  * point backend or optimisation preference.  acc compiles ANSI C only:
  * cc's native mode (ANSI plus the near/far/huge extensions used by the
- * Aztec headers), or strict -ansi; never -3 (v3.40b K&R rules).
+ * Aztec headers); never -ansi (disables near/far) or -3 (v3.40b K&R rules).
  *
  * The planner asks these functions instead of spelling backend flags or
  * library names itself, so each mapping lives in exactly one place.

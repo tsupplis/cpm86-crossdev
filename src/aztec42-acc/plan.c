@@ -628,7 +628,6 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
             !add_word(args, "-b") || (!r->debug && !add_word(args, "-n")) ||
             !add_flag(args, profile_model_flag(r->model)) ||
             !add_flag(args, profile_float_flag(r->floating)) ||
-            (r->strict_ansi && !add_word(args, "-ansi")) ||
             !add_flag(args, profile_optimize_flag(r->optimize)) ||
             (r->quiet && !add_word(args, "-s")) ||
             (r->stage == STAGE_ASSEMBLY && !add_word(args, "-A")))

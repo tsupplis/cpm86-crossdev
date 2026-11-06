@@ -23,7 +23,6 @@ typedef struct {
     cpu_t cpu;
     float_backend_t floating;
     optimize_t optimize;
-    int strict_ansi;            /* -ansi: strict ANSI, no near/far/huge */
     int debug;                  /* -g: sdb information and .dbg file */
     int quiet;                  /* -w: suppress compiler warnings */
     int nostart;                /* -nostartfiles */

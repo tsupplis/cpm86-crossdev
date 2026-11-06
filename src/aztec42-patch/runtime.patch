@@ -393,10 +393,10 @@ index 3bebc80..18f0308 100644
  #endif
 +#endif
 diff --git a/before/include/memory.h b/after/include/memory.h
-index 3d8d0c1..e1a2c5b 100644
+index 3d8d0c1..0959672 100644
 --- a/before/include/memory.h
 +++ b/after/include/memory.h
-@@ -1,2 +1,10 @@
+@@ -1,2 +1,15 @@
 -extern char *memcpy(), *memchr(), *memccpy(), memset();
 -extern int memcmp();
 +#ifndef AZ_MEMORY_H
@@ -404,8 +404,13 @@ index 3d8d0c1..e1a2c5b 100644
 +#include <string.h>
 +#ifndef __NOPROTO__
 +void *memccpy(void *, const void *, int, unsigned);
++/* Aztec block verbs; movmem is overlap-safe. */
++void movmem(const void *, void *, unsigned);
++void setmem(void *, unsigned, int);
++void swapmem(void *, void *, unsigned);
 +#else
 +void *memccpy();
++void movmem(), setmem(), swapmem();
 +#endif
 +
 +#endif
@@ -423,6 +428,55 @@ index 8889f3e..6e31397 100644
  #if (sizeof(char *) == 4)
  #define _LARGEDATA
  #endif
++#endif
+diff --git a/after/include/regs.h b/after/include/regs.h
+new file mode 100644
+index 0000000..2df3d80
+--- /dev/null
++++ b/after/include/regs.h
+@@ -0,0 +1,43 @@
++#ifndef REGS_DEFINED
++#define REGS_DEFINED 1
++/*
++ * Register blocks and machine-level interface: sysint, farcall, segread.
++ * Same type names as the Aztec 3.4 regs.h, so code ports between the two.
++ *
++ * sysint(num, in, out) loads the registers from *in, issues software
++ * interrupt num, and stores the registers in *out (in and out may be the
++ * same block).  It returns the flags; bit 0 is the carry flag.
++ * A DS:DX or ES:DI argument needs the caller's segment in the block:
++ * obtain it with segread.
++ */
++
++struct WORDREGS {
++	unsigned ax, bx, cx, dx, si, di, ds, es;
++};
++
++struct BYTEREGS {
++	unsigned char al, ah, bl, bh, cl, ch, dl, dh;
++};
++
++union REGS {
++	struct WORDREGS x;
++	struct BYTEREGS h;
++};
++
++/* segread stores the segment registers in this order. */
++struct SREGS {
++	unsigned cs, ss, ds, es;
++};
++
++#ifndef __NOPROTO__
++int sysint(int, union REGS *, union REGS *);
++int farcall(unsigned, unsigned, union REGS *, union REGS *);
++void segread(struct SREGS *);
++#else
++int sysint(), farcall();
++void segread();
++#endif
++
++#define int86(n, in, out) sysint(n, in, out)
++
 +#endif
 diff --git a/after/include/screen.h b/after/include/screen.h
 new file mode 100644
@@ -805,12 +859,13 @@ index 0000000..22c93b7
 +#include <string.h>
 +#endif
 diff --git a/before/include/time.h b/after/include/time.h
-index 9ea9a8c..68a9fff 100644
+index 9ea9a8c..ce4d4d4 100644
 --- a/before/include/time.h
 +++ b/after/include/time.h
-@@ -1,8 +1,11 @@
+@@ -1,8 +1,12 @@
 +#ifndef AZ_TIME_H
 +#define AZ_TIME_H
++#include <stddef.h>
  /* Copyright Manx Software Systems, Inc. 1984-1987.  All rights reserved */
  
  #ifndef CLK_TCK
@@ -820,7 +875,7 @@ index 9ea9a8c..68a9fff 100644
  typedef long time_t;
  typedef long clock_t;
  
-@@ -20,11 +23,15 @@ struct tm {
+@@ -20,15 +24,24 @@ struct tm {
  };
  
  #ifndef __NOPROTO__
@@ -830,18 +885,21 @@ index 9ea9a8c..68a9fff 100644
  time_t time(time_t *timer);
  struct tm *gmtime(time_t *timer), *localtime(time_t *timer);
  char *asctime(struct tm *timeptr), *ctime(time_t *timer);
++/* C locale, no time zone (%Z is empty). */
++size_t strftime(char *, size_t, const char *, const struct tm *);
  #else
 +double difftime();
 +time_t mktime();
  clock_t clock();
  time_t time();
  struct tm *gmtime(), *localtime();
-@@ -32,3 +39,5 @@ char *asctime(), *ctime();
+ char *asctime(), *ctime();
++size_t strftime();
++#endif
++
  #endif
  
  #endif
-+
-+#endif
 diff --git a/after/include/unistd.h b/after/include/unistd.h
 new file mode 100644
 index 0000000..fa02f85
@@ -865,6 +923,58 @@ index 0000000..fa02f85
 +#define STDIN_FILENO 0
 +#define STDOUT_FILENO 1
 +#define STDERR_FILENO 2
++#endif
+diff --git a/after/include/x86.h b/after/include/x86.h
+new file mode 100644
+index 0000000..3d6b2eb
+--- /dev/null
++++ b/after/include/x86.h
+@@ -0,0 +1,46 @@
++#ifndef AZ_X86_H
++#define AZ_X86_H
++/*
++ * Absolute memory, I/O ports and far pointers (DOS and CP/M-86).
++ *
++ * An absolute address is passed as an offset and a segment.  This is the
++ * stack layout of a far pointer, so a program using long pointers can pass
++ * the two halves of one.  Use segread (regs.h) to obtain a segment.
++ */
++
++#ifndef __NOPROTO__
++int peekb(unsigned off, unsigned seg);
++unsigned peekw(unsigned off, unsigned seg);
++void pokeb(unsigned off, unsigned seg, int val);
++void pokew(unsigned off, unsigned seg, unsigned val);
++int peek(unsigned off, unsigned seg);	/* same as peekb */
++void poke(unsigned off, unsigned seg, int val);	/* same as pokeb */
++
++int inportb(unsigned port);
++unsigned inportw(unsigned port);
++void outportb(unsigned port, int val);
++void outportw(unsigned port, unsigned val);
++int inport(unsigned port);	/* same as inportb */
++void outport(unsigned port, int val);	/* same as outportb */
++
++/*
++ * Copy len bytes forward between absolute addresses; not overlap-safe.
++ * len 0 copies 64K.  len 4 runs with interrupts disabled, so that an
++ * interrupt vector is copied atomically.
++ */
++void movblock(unsigned from_off, unsigned from_seg,
++	unsigned to_off, unsigned to_seg, unsigned len);
++
++/* Long pointer (segment:offset) conversion and arithmetic. */
++long ptrtoabs(far void *);
++far void *abstoptr(long);
++far void *_ptradd(far void *, long);
++long _ptrdiff(far void *, far void *);
++#else
++int peekb(), peek(), inportb(), inport();
++unsigned peekw(), inportw();
++void pokeb(), pokew(), poke(), outportb(), outportw(), outport(), movblock();
++long ptrtoabs(), _ptrdiff();
++#endif
++
 +#endif
 diff --git a/after/src/build b/after/src/build
 new file mode 100644
@@ -908,7 +1018,7 @@ index 680d361..23d0820 100644
  make clean
  :COMPACT
 diff --git a/before/src/c.bld b/after/src/c.bld
-index 29ecc16..93190f6 100644
+index 29ecc16..00189f4 100644
 --- a/before/src/c.bld
 +++ b/after/src/c.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -929,12 +1039,14 @@ index 29ecc16..93190f6 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -138,3 +149,16 @@ mch86/movmem.o
+@@ -138,3 +149,18 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/ssbrk.o
  dos20/filelock.o
 +dos20/os.o
 +misc/labs.o
++misc/abs.o
++misc/strftim.o
 +misc/div.o
 +misc/ldiv.o
 +stdio/fgetpos.o
@@ -947,7 +1059,7 @@ index 29ecc16..93190f6 100644
 +dos20/calday.o
 +dos20/mktime.o
 diff --git a/before/src/c86.bld b/after/src/c86.bld
-index 7c6c0af..680e5a7 100644
+index 7c6c0af..ecbfb6f 100644
 --- a/before/src/c86.bld
 +++ b/after/src/c86.bld
 @@ -28,6 +28,18 @@ stdio/setbuf.o
@@ -1013,20 +1125,28 @@ index 7c6c0af..680e5a7 100644
  mch86/strcat.o
  mch86/strcpy.o
  mch86/movmem.o
-@@ -102,3 +120,11 @@ mch86/fltstub.o
+@@ -102,3 +120,19 @@ mch86/fltstub.o
  cpm86/bdos.o
  cpm86/fcbinit.o
  cpm86/user.o
 +cpm86/os.o
 +cpm86/errno.o
++cpm86/time.o
++dos20/localtim.o
++dos20/ctime.o
++dos20/asctime.o
++dos20/calday.o
++dos20/mktime.o
 +misc/labs.o
++misc/abs.o
++misc/strftim.o
 +misc/div.o
 +misc/ldiv.o
 +stdio/fgetpos.o
 +stdio/fsetpos.o
 +stdio/rewind.o
 diff --git a/before/src/cl.bld b/after/src/cl.bld
-index 4c20aad..23508ef 100644
+index 4c20aad..af8bbc9 100644
 --- a/before/src/cl.bld
 +++ b/after/src/cl.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1047,12 +1167,14 @@ index 4c20aad..23508ef 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,16 @@ mch86/movmem.o
+@@ -136,3 +147,18 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/lsbrk.o
  dos20/filelock.o
 +dos20/os.o
 +misc/labs.o
++misc/abs.o
++misc/strftim.o
 +misc/div.o
 +misc/ldiv.o
 +stdio/fgetpos.o
@@ -1065,7 +1187,7 @@ index 4c20aad..23508ef 100644
 +dos20/calday.o
 +dos20/mktime.o
 diff --git a/before/src/clc.bld b/after/src/clc.bld
-index 9b4060b..b8f7771 100644
+index 9b4060b..7d7f29b 100644
 --- a/before/src/clc.bld
 +++ b/after/src/clc.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1086,12 +1208,14 @@ index 9b4060b..b8f7771 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,16 @@ dos20/isatty.o
+@@ -136,3 +147,18 @@ dos20/isatty.o
  dos20/ssbrk.o
  dos20/stksiz.o
  dos20/filelock.o
 +dos20/os.o
 +misc/labs.o
++misc/abs.o
++misc/strftim.o
 +misc/div.o
 +misc/ldiv.o
 +stdio/fgetpos.o
@@ -1104,7 +1228,7 @@ index 9b4060b..b8f7771 100644
 +dos20/calday.o
 +dos20/mktime.o
 diff --git a/before/src/cld.bld b/after/src/cld.bld
-index c03eba7..78a39b8 100644
+index c03eba7..dd2c775 100644
 --- a/before/src/cld.bld
 +++ b/after/src/cld.bld
 @@ -24,6 +24,17 @@ stdio/setbuf.o
@@ -1125,12 +1249,14 @@ index c03eba7..78a39b8 100644
  misc/atoi.o
  misc/atol.o
  misc/calloc.o
-@@ -136,3 +147,16 @@ mch86/movmem.o
+@@ -136,3 +147,18 @@ mch86/movmem.o
  dos20/isatty.o
  dos20/lsbrk.o
  dos20/filelock.o
 +dos20/os.o
 +misc/labs.o
++misc/abs.o
++misc/strftim.o
 +misc/div.o
 +misc/ldiv.o
 +stdio/fgetpos.o
@@ -1574,14 +1700,14 @@ index d0d0030..bba7af8 100644
 +        return pos;
 +}
 diff --git a/before/src/cpm86/makefile b/after/src/cpm86/makefile
-index fe7d6ca..f1c2393 100644
+index fe7d6ca..0340dd9 100644
 --- a/before/src/cpm86/makefile
 +++ b/after/src/cpm86/makefile
 @@ -1,19 +1,20 @@
  OBJ=access.o bdos.o begin.o blkio.o ceof.o close.o croot.o csread.o exec.o\
  	execl.o fcbinit.o find.o ioctl.o isatty.o lseek.o open.o read.o rename.o\
 -	sbrk.o stkover.o unlink.o user.o write.o
-+	sbrk.o stkover.o unlink.o user.o write.o os.o fdops.o errno.o
++	sbrk.o stkover.o unlink.o user.o write.o os.o fdops.o errno.o time.o
  
 -CC=cc
 -AS=as
@@ -1695,6 +1821,448 @@ index a3fe138..b56977a 100644
  };
  extern int errno;
  
+diff --git a/after/src/cpm86/time.asm b/after/src/cpm86/time.asm
+new file mode 100644
+index 0000000..48a49b3
+--- /dev/null
++++ b/after/src/cpm86/time.asm
+@@ -0,0 +1,436 @@
++; time and clock for CP/M-86, Concurrent CP/M-86 and Concurrent DOS.
++;
++; time_t is the packed DOS date and time of the DOS runtime (date in the
++; high word, time in the low word, two-second resolution), so localtime,
++; gmtime, ctime, asctime, mktime and difftime are shared with it.
++;
++; The clock is read as the CP/M-86 utility library does:
++;   BDOS version above 22h (MP/M II and later, CP/M-86 v4, Concurrent CP/M,
++;     Concurrent DOS): BDOS 105 (T_GET), a day count (1 is 1978-01-01), BCD
++;     hour and minute, with the BCD seconds returned in AL;
++;   BDOS version 22h (CP/M-86 1.1): the system data area holds the string
++;     MM/DD/YY<separator>HH:MM:SS at offset 20h, reached through BDOS 31h.
++; Dates are 1980 to 2107; YY is 2000 to 2099.  Any other version has no clock.
++;
++; The conversion routines take no OS input, so they can be tested on a host.
++	include lmacros.h
++	ifdef	LONGPTR
++	error CP/M-86 is a small model target
++	endif
++
++dataseg	segment	word public 'data'
++mdays	db	31,28,31,30,31,30,31,31,30,31,30,31
++stamp	db	0,0,0,0,0		; BDOS 105 stamp: days, hour, minute, second
++sbuf	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	; system date string
++clkdt	dw	0,0,0,0,0,0		; year, month, day, hour, minute, second
++last	dw	0,0
++dataseg	ends
++	assume	ds:dataseg
++
++; Run BDOS function CX with parameter DX; returns AX and BX.  The BDOS may
++; change any register but SP, and functions that return ES:BX change ES, so
++; BP, SI, DI, DS and ES are saved here.
++bdoscall proc	near
++	push	bp
++	push	si
++	push	di
++	push	ds
++	push	es
++	int	224
++	pop	es
++	pop	ds
++	pop	di
++	pop	si
++	pop	bp
++	ret
++bdoscall endp
++
++; CP/M-86 1.1: copy the 17-character date and time string from the system
++; data area (BDOS 31h returns its address in ES:BX) to sbuf.  ES is saved
++; because it holds the result.
++sysdata	proc	near
++	push	bp
++	push	si
++	push	di
++	push	ds
++	push	es
++	mov	cx,31h
++	int	224
++	add	bx,20h
++	mov	si,bx
++	mov	di,offset sbuf
++	mov	cx,17
++sd_copy:
++	mov	al,es:[si]
++	mov	[di],al
++	inc	si
++	inc	di
++	dec	cx
++	jnz	sd_copy
++	pop	es
++	pop	ds
++	pop	di
++	pop	si
++	pop	bp
++	ret
++sysdata	endp
++
++; CX = year: DL = 1 when it is a leap year (1980 to 2107), else 0.
++isleap	proc	near
++	xor	dl,dl
++	test	cx,3
++	jnz	il_ret
++	cmp	cx,2100
++	je	il_ret
++	inc	dl
++il_ret:
++	ret
++isleap	endp
++
++; CX = year, BX = month (1 to 12): AL = days in the month.
++mlen	proc	near
++	push	bx
++	push	dx
++	call	isleap
++	dec	bx
++	mov	al,mdays[bx]
++	cmp	bx,1
++	jne	ml_ret
++	add	al,dl
++ml_ret:
++	pop	dx
++	pop	bx
++	ret
++mlen	endp
++
++; AL = packed BCD: AX = 0 to 99, carry set when a nibble is not a digit.
++bcd	proc	near
++	push	cx
++	mov	ah,al
++	and	al,15
++	cmp	al,9
++	ja	bcd_bad
++	mov	cl,4
++	shr	ah,cl
++	cmp	ah,9
++	ja	bcd_bad
++	mov	cl,al
++	mov	al,10
++	mul	ah
++	add	al,cl
++	clc
++	jmp	short bcd_ret
++bcd_bad:
++	stc
++bcd_ret:
++	pop	cx
++	ret
++bcd	endp
++
++; SI -> two ASCII digits: AX = value, carry set when they are not digits.
++pair	proc	near
++	push	dx
++	mov	al,[si]
++	sub	al,'0'
++	cmp	al,9
++	ja	pr_bad
++	mov	dl,1[si]
++	sub	dl,'0'
++	cmp	dl,9
++	ja	pr_bad
++	mov	ah,10
++	mul	ah
++	add	al,dl
++	clc
++	jmp	short pr_ret
++pr_bad:
++	stc
++pr_ret:
++	pop	dx
++	ret
++pair	endp
++
++; long _cpmpack(int dt[6]): the packed DOS time_t for year, month, day,
++; hour, minute and second, or -1 when the date is not 1980 to 2107 or a
++; field is out of range.
++	procdef	_cpmpack,<<pdt,ptr>>
++	mov	bx,pdt
++	mov	cx,[bx]
++	cmp	cx,1980
++	jb	pk_bad
++	cmp	cx,2107
++	ja	pk_bad
++	mov	ax,2[bx]
++	cmp	ax,1
++	jb	pk_bad
++	cmp	ax,12
++	ja	pk_bad
++	push	bx
++	mov	bx,ax
++	call	mlen
++	pop	bx
++	xor	ah,ah
++	mov	dx,4[bx]
++	cmp	dx,1
++	jb	pk_bad
++	cmp	dx,ax
++	ja	pk_bad
++	cmp	word ptr 6[bx],23
++	ja	pk_bad
++	cmp	word ptr 8[bx],59
++	ja	pk_bad
++	cmp	word ptr 10[bx],59
++	ja	pk_bad
++	sub	cx,1980			; date: (year-1980)<<9 | month<<5 | day
++	mov	ax,cx
++	mov	cl,9
++	shl	ax,cl
++	mov	dx,2[bx]
++	mov	cl,5
++	shl	dx,cl
++	or	ax,dx
++	or	ax,4[bx]
++	push	ax
++	mov	ax,6[bx]		; time: hour<<11 | minute<<5 | second/2
++	mov	cl,11
++	shl	ax,cl
++	mov	dx,8[bx]
++	mov	cl,5
++	shl	dx,cl
++	or	ax,dx
++	mov	dx,10[bx]
++	shr	dx,1
++	or	ax,dx
++	pop	dx
++	jmp	short pk_done
++pk_bad:
++	mov	ax,-1
++	mov	dx,-1
++pk_done:
++	pret
++	pend	_cpmpack
++
++; int _cpmstmp(char stamp[5], int dt[6]): decode a BDOS 105 stamp, with the
++; BCD seconds in the fifth byte, into year, month, day, hour, minute and
++; second.  Returns 0, or -1 for day 0 or a bad BCD digit.
++	procdef	_cpmstmp,<<sp5,ptr>,<sdp,ptr>>
++	push	si
++	push	di
++	mov	si,sp5
++	mov	di,sdp
++	mov	ax,[si]
++	test	ax,ax
++	jz	st_bad
++	dec	ax			; days since 1978-01-01
++	mov	cx,1978
++st_year:
++	call	isleap
++	xor	dh,dh
++	mov	bx,365
++	add	bx,dx
++	cmp	ax,bx
++	jb	st_month
++	sub	ax,bx
++	inc	cx
++	jmp	st_year
++st_month:
++	mov	bx,1
++st_mloop:
++	push	ax
++	call	mlen
++	mov	dl,al
++	xor	dh,dh
++	pop	ax
++	cmp	ax,dx
++	jb	st_fields
++	sub	ax,dx
++	inc	bx
++	jmp	st_mloop
++st_fields:
++	inc	ax
++	mov	[di],cx
++	mov	2[di],bx
++	mov	4[di],ax
++	mov	al,2[si]
++	call	bcd
++	jc	st_bad
++	mov	6[di],ax
++	mov	al,3[si]
++	call	bcd
++	jc	st_bad
++	mov	8[di],ax
++	mov	al,4[si]
++	call	bcd
++	jc	st_bad
++	mov	10[di],ax
++	xor	ax,ax
++	jmp	short st_done
++st_bad:
++	mov	ax,-1
++st_done:
++	pop	di
++	pop	si
++	pret
++	pend	_cpmstmp
++
++; int _cpmpars(char *text, int dt[6]): decode MM/DD/YY<sep>HH:MM:SS (17
++; characters; YY is 2000 to 2099).  Returns 0, or -1 for a bad separator
++; or digit.
++	procdef	_cpmpars,<<txt,ptr>,<pdp,ptr>>
++	push	si
++	push	di
++	mov	si,txt
++	mov	di,pdp
++	cmp	byte ptr 2[si],'/'
++	jne	pa_bad
++	cmp	byte ptr 5[si],'/'
++	jne	pa_bad
++	cmp	byte ptr 11[si],':'
++	jne	pa_bad
++	cmp	byte ptr 14[si],':'
++	jne	pa_bad
++	call	pair			; month
++	jc	pa_bad
++	mov	2[di],ax
++	add	si,3
++	call	pair			; day
++	jc	pa_bad
++	mov	4[di],ax
++	add	si,3
++	call	pair			; year
++	jc	pa_bad
++	add	ax,2000
++	mov	[di],ax
++	add	si,3
++	call	pair			; hour
++	jc	pa_bad
++	mov	6[di],ax
++	add	si,3
++	call	pair			; minute
++	jc	pa_bad
++	mov	8[di],ax
++	add	si,3
++	call	pair			; second
++	jc	pa_bad
++	mov	10[di],ax
++	xor	ax,ax
++	jmp	short pa_done
++pa_bad:
++	mov	ax,-1
++pa_done:
++	pop	di
++	pop	si
++	pret
++	pend	_cpmpars
++
++; int _cpmgdt(int dt[6]): read the system clock into year, month, day, hour,
++; minute and second.  Returns 0, or -1 when the OS has no clock.
++	procdef	_cpmgdt,<<gdp,ptr>>
++	mov	cx,12			; BDOS 12: AH system type, AL version
++	call	bdoscall
++	cmp	al,22h
++	je	gd_old
++	jb	gd_bad
++	mov	dx,offset stamp
++	mov	cx,105			; BDOS 105: T_GET, AL = BCD seconds
++	call	bdoscall
++	mov	stamp+4,al
++	push	gdp
++	mov	ax,offset stamp
++	push	ax
++	call	_cpmstmp_
++	add	sp,4
++	jmp	short gd_done
++gd_old:
++	call	sysdata
++	push	gdp
++	mov	ax,offset sbuf
++	push	ax
++	call	_cpmpars_
++	add	sp,4
++	jmp	short gd_done
++gd_bad:
++	mov	ax,-1
++gd_done:
++	pret
++	pend	_cpmgdt
++
++; time_t time(time_t *tloc): the packed DOS time, or -1 without a clock.
++	procdef	time,<<tloc,ptr>>
++	mov	ax,offset clkdt
++	push	ax
++	call	_cpmgdt_
++	add	sp,2
++	test	ax,ax
++	jnz	tm_bad
++	mov	ax,offset clkdt
++	push	ax
++	call	_cpmpack_
++	add	sp,2
++	jmp	short tm_store
++tm_bad:
++	mov	ax,-1
++	mov	dx,-1
++tm_store:
++	mov	bx,tloc
++	test	bx,bx
++	jz	tm_done
++	mov	[bx],ax
++	mov	2[bx],dx
++tm_done:
++	pret
++	pend	time
++
++; clock_t clock(void): hundredths of a second since midnight, from the
++; one-second clock, with the DOS runtime's midnight rollover; -1 without a
++; clock.
++	procdef	clock
++	mov	ax,offset clkdt
++	push	ax
++	call	_cpmgdt_
++	add	sp,2
++	test	ax,ax
++	jnz	ck_bad
++	mov	ax,clkdt+6
++	cmp	ax,23
++	ja	ck_bad
++	cmp	word ptr clkdt+8,59
++	ja	ck_bad
++	cmp	word ptr clkdt+10,59
++	ja	ck_bad
++	mov	cx,60
++	mul	cx			; hour*60, at most 1380
++	add	ax,clkdt+8
++	mul	cx			; DX:AX = seconds to the minute
++	add	ax,clkdt+10
++	adc	dx,0
++	mov	cx,100
++	mov	bx,dx
++	mul	cx
++	push	ax
++	mov	ax,bx
++	mov	bx,dx
++	mul	cx
++	add	ax,bx
++	mov	dx,ax			; DX:AX = hundredths of a second
++	pop	ax
++	cmp	dx,word ptr last+2
++	ja	ck_ok
++	jne	ck_turn
++	cmp	ax,word ptr last
++	jae	ck_ok
++ck_turn:				; the clock turned over since the last call
++	add	ax,0d600h
++	adc	dx,083h
++ck_ok:
++	mov	word ptr last+2,dx
++	mov	word ptr last,ax
++	jmp	short ck_done
++ck_bad:
++	mov	ax,-1
++	mov	dx,-1
++ck_done:
++	pret
++	pend	clock
++	finish
++	end
 diff --git a/before/src/cpm86/write.c b/after/src/cpm86/write.c
 index 9233144..5a6a42c 100644
 --- a/before/src/cpm86/write.c
@@ -1714,10 +2282,10 @@ index 9233144..5a6a42c 100644
  write(fd, buff, len)
 diff --git a/after/src/d11.bld b/after/src/d11.bld
 new file mode 100644
-index 0000000..8678448
+index 0000000..5e35e59
 --- /dev/null
 +++ b/after/src/d11.bld
-@@ -0,0 +1,134 @@
+@@ -0,0 +1,136 @@
 +stdio/tmpfile.o
 +stdio/perror.o
 +stdio/fdopen.o
@@ -1842,6 +2410,8 @@ index 0000000..8678448
 +dos11/bdos.o
 +dos11/errno.o
 +misc/labs.o
++misc/abs.o
++misc/strftim.o
 +misc/div.o
 +misc/ldiv.o
 +stdio/fgetpos.o
@@ -2651,7 +3221,7 @@ index 37b9863..4e1a60e 100644
  math/fsubs87s.o
 +math/fmod.o
 diff --git a/before/src/makefile b/after/src/makefile
-index a6fbade..1ec8b98 100644
+index a6fbade..77feace 100644
 --- a/before/src/makefile
 +++ b/after/src/makefile
 @@ -1,3 +1,6 @@
@@ -2661,7 +3231,7 @@ index a6fbade..1ec8b98 100644
  MODEL=
  AMODEL=0
  
-@@ -8,99 +11,109 @@ math: math86 math87 maths
+@@ -8,99 +11,112 @@ math: math86 math87 maths
  	@echo math all done
  
  clean:
@@ -2706,7 +3276,7 @@ index a6fbade..1ec8b98 100644
 +	sed '/\/croot[.]o/d' d11$(MODEL).ord >> d11$(MODEL).root
 +	$(LIB) libs/d11$(MODEL).lib -f d11$(MODEL).root
 +
-+cpm: mkcpm syserr mkmch86 mkmisc mkstdio
++cpm: mkcpm syserr cpmtime mkmch86 mkmisc mkstdio
 +	rm -f libs/c86$(MODEL).lib
 +	mkdir -p libs
 +	$(ORD) c86$(MODEL).bld c86$(MODEL).ord
@@ -2827,6 +3397,9 @@ index a6fbade..1ec8b98 100644
 +
 +syserr:
 +	$(MAKE) -C dos20 syserr.o
++
++cpmtime:
++	$(MAKE) -C dos20 MODEL= AMODEL=0 localtim.o ctime.o asctime.o calday.o mktime.o
  
 -arc:
 -	mkarcv build.arc <build.bld
@@ -3596,6 +4169,14 @@ index ef768ae..1eb0230 100644
  	popds
  	pop	di
  	pop	si
+diff --git a/after/src/misc/abs.c b/after/src/misc/abs.c
+new file mode 100644
+index 0000000..4e5591b
+--- /dev/null
++++ b/after/src/misc/abs.c
+@@ -0,0 +1,2 @@
++#include <stdlib.h>
++int abs(int n) { return n < 0 ? -n : n; }
 diff --git a/after/src/misc/atexit.c b/after/src/misc/atexit.c
 new file mode 100644
 index 0000000..b6acce5
@@ -4013,12 +4594,12 @@ index f3b6cc8..7581d41 100644
  	if (!inuse(ptr))
  		return -1;
 diff --git a/before/src/misc/makefile b/after/src/misc/makefile
-index 9d5d357..35ec149 100644
+index 9d5d357..61da3e8 100644
 --- a/before/src/misc/makefile
 +++ b/after/src/misc/makefile
 @@ -1,19 +1,20 @@
 -OBJ=atoi.o atol.o calloc.o lcalloc.o ctype.o qsort.o format.o scan.o\
-+OBJ=ftrunc.o truncate.o labs.o div.o ldiv.o strto.o bsearch.o strspn.o strcspn.o strpbrk.o strtok.o atexit.o infty.o compat.o snprint.o strdup.o atoi.o atol.o calloc.o lcalloc.o ctype.o qsort.o format.o scan.o\
++OBJ=ftrunc.o truncate.o labs.o abs.o strftim.o div.o ldiv.o strto.o bsearch.o strspn.o strcspn.o strpbrk.o strtok.o atexit.o infty.o compat.o snprint.o strdup.o atoi.o atol.o calloc.o lcalloc.o ctype.o qsort.o format.o scan.o\
  	sprintf.o sscanf.o rand.o abort.o raise.o signal.o sigtable.o
 -MOBJ=fscan.o fscan87.o fformat.o sprintf.o sscanf.o
 +MOBJ=strto.o bsearch.o strspn.o strcspn.o strpbrk.o strtok.o atexit.o fscan.o fscan87.o fformat.o sprintf.o sscanf.o
@@ -4252,6 +4833,159 @@ index 0000000..1f84fc3
 +    else
 +        errno = ENOMEM;
 +    return copy;
++}
+diff --git a/after/src/misc/strftim.c b/after/src/misc/strftim.c
+new file mode 100644
+index 0000000..0a0a08b
+--- /dev/null
++++ b/after/src/misc/strftim.c
+@@ -0,0 +1,147 @@
++/* strftime for the C locale; the DOS runtime has no time zone or locale. */
++#include <stddef.h>
++#include <time.h>
++
++static char *weekdays[] = {
++    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
++    "Saturday"
++};
++static char *months[] = {
++    "January", "February", "March", "April", "May", "June", "July",
++    "August", "September", "October", "November", "December"
++};
++
++/* Output cursor; left counts the characters that still fit before the NUL. */
++typedef struct {
++    char *out;
++    size_t left;
++} sink_t;
++
++/* Append one character; 0 when the buffer is full. */
++static int put_char(sink_t *s, int c)
++{
++    if (s->left == 0)
++        return 0;
++    *s->out++ = (char)c;
++    --s->left;
++    return 1;
++}
++
++/* Append a string; 0 when it does not fit. */
++static int put_text(sink_t *s, const char *text)
++{
++    while (*text)
++        if (!put_char(s, *text++))
++            return 0;
++    return 1;
++}
++
++/* Append the first LIMIT characters of TEXT (all of it when LIMIT is 0). */
++static int put_name(sink_t *s, const char *text, int limit)
++{
++    if (limit == 0)
++        limit = 32767;
++    while (*text && limit-- > 0)
++        if (!put_char(s, *text++))
++            return 0;
++    return 1;
++}
++
++/* Append VALUE (negative values print as 0) padded to WIDTH with PAD. */
++static int put_number(sink_t *s, long value, int width, int pad)
++{
++    char digits[12];
++    int n = 0;
++
++    if (value < 0)
++        value = 0;
++    do {
++        digits[n++] = (char)('0' + (int)(value % 10));
++        value /= 10;
++    } while (value);
++    while (width > n) {
++        if (!put_char(s, pad))
++            return 0;
++        --width;
++    }
++    while (n)
++        if (!put_char(s, digits[--n]))
++            return 0;
++    return 1;
++}
++
++/* Name from TABLE of COUNT entries, or "?" for an out-of-range index. */
++static const char *name_of(char **table, int count, int index)
++{
++    return index >= 0 && index < count ? table[index] : "?";
++}
++
++static int expand(sink_t *s, const char *format, const struct tm *t);
++
++/* Convert the specifier SPEC for time T into S; 0 when it overflows. */
++static int convert(sink_t *s, int spec, const struct tm *t)
++{
++    int hour12 = t->tm_hour % 12 == 0 ? 12 : t->tm_hour % 12;
++    long year = 1900L + t->tm_year;
++
++    switch (spec) {
++    case 'a': return put_name(s, name_of(weekdays, 7, t->tm_wday), 3);
++    case 'A': return put_name(s, name_of(weekdays, 7, t->tm_wday), 0);
++    case 'b': return put_name(s, name_of(months, 12, t->tm_mon), 3);
++    case 'B': return put_name(s, name_of(months, 12, t->tm_mon), 0);
++    case 'c': return expand(s, "%a %b %e %H:%M:%S %Y", t);
++    case 'd': return put_number(s, t->tm_mday, 2, '0');
++    case 'e': return put_number(s, t->tm_mday, 2, ' ');
++    case 'H': return put_number(s, t->tm_hour, 2, '0');
++    case 'I': return put_number(s, hour12, 2, '0');
++    case 'j': return put_number(s, t->tm_yday + 1L, 3, '0');
++    case 'm': return put_number(s, t->tm_mon + 1L, 2, '0');
++    case 'M': return put_number(s, t->tm_min, 2, '0');
++    case 'p': return put_text(s, t->tm_hour >= 12 ? "PM" : "AM");
++    case 'S': return put_number(s, t->tm_sec, 2, '0');
++    case 'U': return put_number(s, (t->tm_yday + 7 - t->tm_wday) / 7, 2, '0');
++    case 'w': return put_number(s, t->tm_wday, 1, '0');
++    case 'W': return put_number(s,
++                  (t->tm_yday + 7 - (t->tm_wday + 6) % 7) / 7, 2, '0');
++    case 'x': return expand(s, "%m/%d/%y", t);
++    case 'X': return expand(s, "%H:%M:%S", t);
++    case 'y': return put_number(s, ((year % 100) + 100) % 100, 2, '0');
++    case 'Y': return put_number(s, year, 1, '0');
++    case 'Z': return 1;
++    case '%': return put_char(s, '%');
++    default:  return put_char(s, '%') && put_char(s, spec);
++    }
++}
++
++/* Expand FORMAT into S for time T; 0 when the buffer overflows. */
++static int expand(sink_t *s, const char *format, const struct tm *t)
++{
++    for (; *format; ++format) {
++        if (*format != '%') {
++            if (!put_char(s, *format))
++                return 0;
++        } else if (format[1] == '\0') {
++            return put_char(s, '%');
++        } else if (!convert(s, *++format, t)) {
++            return 0;
++        }
++    }
++    return 1;
++}
++
++size_t strftime(char *buffer, size_t size, const char *format,
++                const struct tm *t)
++{
++    sink_t sink;
++
++    if (size == 0)
++        return 0;
++    sink.out = buffer;
++    sink.left = size - 1;
++    if (!expand(&sink, format, t)) {
++        *buffer = '\0';
++        return 0;
++    }
++    *sink.out = '\0';
++    return (size_t)(sink.out - buffer);
 +}
 diff --git a/after/src/misc/strpbrk.c b/after/src/misc/strpbrk.c
 new file mode 100644
@@ -4601,7 +5335,7 @@ index 89e2176..8780e11 100644
 +	scr_home();
  }
 diff --git a/before/src/screen/scr_curs.c b/after/src/screen/scr_curs.c
-index b730294..ce40c26 100644
+index b730294..25870f8 100644
 --- a/before/src/screen/scr_curs.c
 +++ b/after/src/screen/scr_curs.c
 @@ -2,16 +2,31 @@
@@ -4637,7 +5371,7 @@ index b730294..ce40c26 100644
 +	int col;
 +
 +	scr_loc(&line,&col);
-+	return line;
++	return col;
  }
 diff --git a/before/src/screen/scr_echo.c b/after/src/screen/scr_echo.c
 index c204196..6501dea 100644

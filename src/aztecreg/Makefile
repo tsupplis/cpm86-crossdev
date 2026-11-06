@@ -9,7 +9,7 @@ LIB := $(LIBDIR)/c86.lib
 .DELETE_ON_ERROR:
 
 .PHONY: check clean
-check: regress.cmd legacy.o status-check header-check link-check response-check inf-check close-check
+check: regress.cmd legacy.o status-check header-check link-check response-check inf-check close-check cpmtime-check
 	@output=$$("$(BIN)/emu2" regress.cmd) && printf '%s\n' "$$output" && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
 
 regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib
@@ -97,3 +97,7 @@ close-check:
 .PHONY: time-check
 time-check:
 	sh timecheck "$(BIN)"
+
+.PHONY: cpmtime-check
+cpmtime-check:
+	sh cpmtimecheck "$(BIN)"

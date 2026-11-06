@@ -61,7 +61,6 @@ Response files (`@file`) do not exist; options always stay on the command line.
 | `-mcmodel=` | memory model | `small` `medium` `compact` `large` |
 | `-march=` | CPU | `i8086` `i80186` `i80286` |
 | `-mfloat=` | floating point | `soft` `auto` `8087` |
-| `-ansi` | strict ANSI: also disables `near` `far` `huge` `pascal` `fortran` `cdecl` (breaks `dos.h`) | |
 | `-Osize` `-Ospeed` | code preference | |
 | `-w` | no compiler warnings | |
 | `-g` | sdb information; writes `<output>.dbg` beside the program | link: `.cmd` and `.exe` |
@@ -88,7 +87,7 @@ use `=`. Repeated scalar options: last wins.
 | Target, linking | from the `-o` suffix, see below |
 | Output | `a.cmd`; `a.exe` with `-target=dos1`/`dos2` |
 | Model, CPU, float | `small`, `i8086`, `soft` |
-| Language | ANSI C (cc native mode); K&R (`cc -3`) is not available |
+| Language | ANSI C (cc native mode); `-ansi` (disables `far`) and K&R (`cc -3`) are not available |
 | Optimisation | compiler native |
 | Debug data | off |
 | Error pause | never |

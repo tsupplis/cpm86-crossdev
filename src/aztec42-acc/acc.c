@@ -29,7 +29,6 @@ static void usage(FILE *stream)
           "  -mcmodel=small|medium|compact|large   (large: dos2 .exe)\n"
           "  -march=i8086|i80186|i80286\n"
           "  -mfloat=soft|auto|8087\n"
-          "  -ansi                      strict ANSI (no near/far/huge)\n"
           "  -Osize | -Ospeed  -w       code preference, no warnings\n", stream);
     fputs("  -g                         sdb information, .dbg beside output\n"
           "  -Wc,opt -Wa,opt -Wl,opt    allow-listed cc/as/ln option\n"

@@ -19,8 +19,9 @@ Math libraries `m`, `m87`, `m87s` link **before** the C library (`-lm -lc`).
 | Conformance | `exit` returns `void`; `strtol`/`strtoul`/`strtod`/`stricmp` prototypes corrected; `const` added to `stdio` prototypes | all |
 | Conformance | Header guards on every header; `assert.h` re-evaluates `NDEBUG` on each inclusion | all |
 | New functions | `atexit`, `bsearch`, `div`, `ldiv`, `labs`, `memmove`, `strcspn`, `strspn`, `strpbrk`, `strtok`, `strerror`, `strtoul`, `remove`, `fgetpos`, `fsetpos`, `rewind` | all |
-| New functions | `vprintf`, `vfprintf`, `vsprintf` | all |
+| New functions | `vprintf`, `vfprintf`, `vsprintf`, `abs` | all |
 | New functions | `mktime`, `difftime` | DOS |
+| New functions | `strftime` (C locale, no OS dependency) | all |
 | New functions | `fmod`, `strtod` (C89 decimal syntax) in the math libraries | all |
 | Robustness | One range-checked parser behind `strtol`, `strtoul`, `atoi`, `atol`; `ERANGE` on overflow | all |
 | Robustness | `realloc(NULL, n)`, `realloc(p, 0)`, `free(NULL)`, size-overflow checks in `malloc`/`calloc`, `realloc` shrinks in place and keeps the original block on failure | all |
@@ -35,8 +36,8 @@ Math libraries `m`, `m87`, `m87s` link **before** the C library (`-lm -lc`).
 | Floating point | `INFINITY`, `INFINITE`, `isinf`, `isnan` | all |
 | Process | CP/M 3.1+ exit passes the status to BDOS 108 (`-1` maps to `0xff00`) | CP/M |
 | Extensions | `snprintf`, `vsnprintf`, `strdup`, `strnicmp`, `strcmpi`, `strcasecmp`/`strncasecmp` macros; `stricmp`, `strlwr`, `strrev` on CP/M | all |
-| Headers | New `stdint.h` (fixed-width subset), `strings.h`, `unistd.h`; prototypes for `cpm.h`, `dos.h`, `screen.h`, `stat.h`; `os()` in `fcntl.h` | all |
-| Screen | `scr_getch`, `scr_getche`, `scr_ungetch`, `scr_line`, `scr_col` | all |
+| Headers | New `stdint.h` (fixed-width subset), `strings.h`, `unistd.h`, `regs.h` (`sysint`, `farcall`, `segread`, `int86`), `x86.h` (`peek`/`poke`, ports, `movblock`, far pointers); `movmem`, `setmem`, `swapmem` in `memory.h`; prototypes for `cpm.h`, `dos.h`, `screen.h`, `stat.h`; `os()` in `fcntl.h` | all |
+| Screen | `scr_getch`, `scr_getche`, `scr_ungetch`, `scr_line`, `scr_col`; `scr_col` returns the column | all |
 | Build | Archives ordered with `ord` for single-pass linking; startup objects extracted by the fetcher | all |
 
 ## 2. ANSI C89 library conformance
@@ -57,10 +58,10 @@ Legend: **Y** conforms; **P** partial (see notes); **N** missing; **E** Aztec ex
 | `<signal.h>` | Y | |
 | `<stdarg.h>` | Y | |
 | `<stddef.h>` | Y | `NULL` is `((void *)0)` |
-| `<stdio.h>` | P | `setvbuf` missing; `snprintf`, `vsnprintf` (E) |
-| `<stdlib.h>` | P | `abs` and the multibyte functions missing; `getenv`, `system` DOS only |
+| `<stdio.h>` | P | `setvbuf` missing. Also provides `snprintf`, `vsnprintf` (E: C99, not in C89) |
+| `<stdlib.h>` | P | Multibyte functions missing; `getenv`, `system` DOS only |
 | `<string.h>` | P | `strcoll`, `strxfrm` missing (declarations removed) |
-| `<time.h>` | P | DOS only; `strftime` missing; packed DOS `time_t` (section 3) |
+| `<time.h>` | P | `time`, `clock`, `localtime`, `mktime` DOS only; packed DOS `time_t` (section 3) |
 
 ### Functions by header
 
@@ -68,17 +69,17 @@ Legend: **Y** conforms; **P** partial (see notes); **N** missing; **E** Aztec ex
 | --- | --- | --- | --- |
 | `stdio.h` | `fopen`, `freopen`, `fclose`, `fflush`, `setbuf`, `tmpfile`, `tmpnam`, `remove`+, `rename` | Y | `fflush` is a macro over `flsh_`; `remove` calls `unlink` |
 | | `printf`, `fprintf`, `sprintf`, `vprintf`+, `vfprintf`+, `vsprintf`+ | Y | One shared formatter; infinity prints as stars, NaN as question marks |
+| | `snprintf`+, `vsnprintf`+ | E | C99, not part of C89; bounded output, `int` count (16-bit) |
 | | `scanf`, `fscanf`, `sscanf` | Y | |
 | | `fgetc`, `fputc`, `getc`, `putc`, `getchar`, `putchar`, `fgets`, `fputs`, `gets`, `puts`, `ungetc` | Y | `fgetc` and `fputc` are macros for `getc` and `putc`; `ungetc` fixed (+) |
 | | `fread`, `fwrite`, `fseek`, `ftell`, `rewind`+, `fgetpos`+, `fsetpos`+ | Y | `fpos_t` is `long` |
 | | `feof`, `ferror`, `clearerr`, `perror` | Y | Macros except `perror` |
 | | `setvbuf` | N | Deferred: legacy output paths lack line-buffer semantics |
 | `stdlib.h` | `atoi`, `atol`, `atof`, `strtol`+, `strtoul`+, `strtod`+ | Y | `strtod` uses the Aztec `atof` engine: 18 significant digits; subnormal results return 0 with `ERANGE` |
-| | `rand`, `srand`, `qsort`, `bsearch`+, `div`+, `ldiv`+, `labs`+ | Y | `RAND_MAX` is 32767 |
+| | `rand`, `srand`, `qsort`, `bsearch`+, `abs`+, `div`+, `ldiv`+, `labs`+ | Y | `RAND_MAX` is 32767 |
 | | `malloc`, `calloc`, `realloc`, `free` | Y | Edge cases fixed (+) |
 | | `abort`, `exit`, `atexit`+ | Y | 32 `atexit` slots, run in reverse order |
 | | `getenv`, `system` | P | DOS only |
-| | `abs` | N | Declared, but no implementation is linked |
 | | `mblen`, `mbtowc`, `wctomb`, `mbstowcs`, `wcstombs` | N | |
 | `string.h` | `memcpy`, `memmove`+, `memchr`, `memcmp`, `memset` | Y | `memmove` handles overlapping far pointers |
 | | `strcpy`, `strncpy`, `strcat`, `strncat`, `strcmp`, `strncmp`, `strlen`, `strchr`, `strrchr`, `strstr` | Y | |
@@ -88,7 +89,7 @@ Legend: **Y** conforms; **P** partial (see notes); **N** missing; **E** Aztec ex
 | | `fmod`+ | Y | Zero divisor or infinite numerator: quiet NaN, `EDOM` |
 | `time.h` | `time`, `clock`, `localtime`, `gmtime`, `ctime`, `asctime` | P | DOS only |
 | | `mktime`+, `difftime`+ | P | DOS only; 1980-2107, no time zones (section 3) |
-| | `strftime` | N | |
+| | `strftime`+ | Y | All targets; C locale (section 3) |
 | `setjmp.h`, `signal.h` | `setjmp`, `longjmp`, `signal`, `raise` | Y | |
 | `locale.h` | `setlocale`, `localeconv` | N | |
 
@@ -99,12 +100,13 @@ External names are significant to 8 characters (`vsnprintf` links as `vsnprint`)
 | Item | Behaviour |
 | --- | --- |
 | `time_t` | Packed DOS date and time (not a Unix timestamp), 2-second resolution |
-| `clock()` | Hundredths of a second, wall clock, with midnight rollover; `CLOCKS_PER_SEC` is `CLK_TCK` |
+| `clock` | Hundredths of a second, wall clock, with midnight rollover; `CLOCKS_PER_SEC` is `CLK_TCK` |
 | `mktime` | Normalises all fields; ignores input `tm_wday` and `tm_yday`; returns `(time_t)-1` outside 1980-01-01 to 2107-12-31; odd seconds round down |
 | `difftime` | Signed seconds between valid packed times; lives in the math libraries (`-lm -lc`) |
 | `localtime` | Gregorian weekday and day of year, correct after February 2100; `tm_isdst` is 0 |
+| `strftime` | All targets, including CP/M-86. C locale: `%a %A %b %B %c %d %H %I %j %m %M %p %S %U %w %W %x %X %y %Y %Z %%`, plus `%e` (space-padded day). `%Z` is empty (no time zone). `%c` is `%a %b %e %H:%M:%S %Y`. Returns 0 if the result does not fit, with an empty string. An unknown specifier is copied as written |
 | DOS 1.1 | Shares the DOS 2 time objects |
-| CP/M-86 | No time functions |
+| CP/M-86 | No clock or calendar functions; `strftime` only formats a `struct tm` you fill in |
 
 ## 4. Floating point limits
 
@@ -118,17 +120,59 @@ External names are significant to 8 characters (`vsnprintf` links as `vsnprint`)
 | Standard text for infinity and NaN in `printf` | N |
 | 8087 hardware backend | Unchanged; assembles in all models, not executed under emu2 |
 
-## 5. Known gaps
+## 5. System interface (Aztec extensions)
+
+Targets: DOS 2, DOS 1.1 and CP/M-86 unless noted. `+` marks headers added by the 4.2 patch.
+
+| Verbs | Header | Notes |
+| --- | --- | --- |
+| `sysint(n, &in, &out)`, `int86` | `<regs.h>`+ | Software interrupt `n`; registers loaded from `in`, stored in `out` (same block allowed); returns the flags (bit 0 is carry). Put the segment for `DS:DX` or `ES:DI` arguments in the block (`segread`) |
+| `farcall(ip, cs, &in, &out)` | `<regs.h>`+ | Far call with the same register blocks; returns the flags |
+| `segread(&sregs)` | `<regs.h>`+ | Stores `CS`, `SS`, `DS`, `ES` in that order |
+| `union REGS`, `struct WORDREGS`, `BYTEREGS`, `SREGS` | `<regs.h>`+ | Same names as the Aztec 3.4 `regs.h`; word registers `ax bx cx dx si di ds es`, byte registers `al ah bl bh cl ch dl dh` |
+| `peekb`, `peekw`, `pokeb`, `pokew` (`peek`, `poke` are the byte forms) | `<x86.h>`+ | Absolute address as `(offset, segment)`; the same layout as a far pointer, so large-model code can pass its two halves |
+| `inportb`, `inportw`, `outportb`, `outportw` (`inport`, `outport` are the byte forms) | `<x86.h>`+ | Plain `in` and `out` |
+| `movblock(from_off, from_seg, to_off, to_seg, len)` | `<x86.h>`+ | Far copy, forward only (not overlap-safe). `len` 0 copies 64 KB. `len` 4 copies with interrupts disabled, so an interrupt vector is replaced atomically |
+| `ptrtoabs`, `abstoptr`, `_ptradd`, `_ptrdiff` | `<x86.h>`+ | `seg:off` to and from a 20-bit absolute address (`abstoptr` returns an offset of 0 to 15); far-pointer arithmetic beyond 64 KB. Use `far void *` |
+| `movmem(src, dst, len)` | `<memory.h>`+ | Near copy, overlap-safe |
+| `setmem(buf, len, byte)`, `swapmem(a, b, len)`, `memccpy` | `<memory.h>`+ | Model-sized pointers |
+| `bdos(func, dx, cx)` | `<dos.h>`; `<cpm.h>` as `bdos(func, dx)` | DOS 2 and DOS 1.1; returns AL |
+| `dos(func, bx, cx, dx, di, si)`, `dosx`, `bdosx` | `<dos.h>` | DOS 2 only; `dos` returns AX, or -1 with `errno` set when carry is set; `dosx` and `bdosx` take a far `DS:DX` |
+| `signal`, `raise`, `abort` | `<signal.h>`, `<stdlib.h>` | See below |
+
+No `intr`, `intdos` or `int86x`: use `sysint` and `dos`.
+
+```c
+#include <regs.h>
+
+union REGS r;
+r.h.ah = 0x30;                 /* DOS: get version */
+int86(0x21, &r, &r);           /* r.h.al = major, r.h.ah = minor */
+```
+
+Signals:
+
+| Rule | Detail |
+| --- | --- |
+| Signals | `SIGINT SIGTERM SIGABRT SIGFPE SIGILL SIGSEGV`; `SIG_DFL`, `SIG_IGN`, `SIG_ERR`; an invalid number returns `SIG_ERR` with `EINVAL` |
+| Ctrl-C and Ctrl-Break | Delivered as `SIGINT` on DOS 2 only. On DOS 1.1 and CP/M-86 `signal` and `raise` work, but only an explicit `raise` delivers a signal |
+| Other signals | Raised only by `raise`. The manual: "the only one that currently has any effect is SIGINT" |
+| Handler | May return, call `exit` or `longjmp`. The Ctrl-C hook resets it to `SIG_DFL` before the call; `raise` does not |
+| `SIG_DFL` | `raise` calls `_exit(255)`: the normal exit code does not run, so `stdio` buffers are lost |
+| `abort` | `raise(SIGABRT)`, then `_exit(255)`: a handler runs, but `stdio` is never flushed |
+| `exec`, `system` | The child starts with `SIG_DFL`; the parent handlers return afterwards |
+
+Ctrl-C delivery needs a real console and was not tested. `raise`, `sysint`, `bdos`, `dos`, the peek, poke and block verbs, and far-pointer arithmetic were run under emu2 (DOS 2, all four memory models).
+
+## 6. Known gaps
 
 | Gap | Effect | Workaround |
 | --- | --- | --- |
-| `abs` declared, not linked | `Undefined symbol: abs_` | `labs`, or `#define abs(x) ((x) < 0 ? -(x) : (x))` |
-| `scr_col()` returns the line, not the column | Wrong value | `scr_loc(&line, &col)` |
-| `setvbuf`, `strftime`, `strcoll`, `strxfrm`, locale, multibyte | Not available | none |
-| 16-bit `int` | `4*10000` overflows | use `long` |
-| `ftruncate`, `truncate` | DOS only; declared in `<dos.h>` | none on CP/M |
+| `setvbuf`, `strcoll`, `strxfrm`, locale, multibyte | Not available | none |
+| `mktime`, `difftime`, `clock`, `time`, `localtime`, `gmtime`, `ctime`, `asctime` | DOS only | none on CP/M-86; `strftime` works on any `struct tm` |
+| `ftruncate`, `truncate` | DOS only; declared in `<dos.h>` | none on CP/M-86 |
 
-## 6. Regression coverage
+## 7. Regression coverage
 
 | Target (`make -C src/aztecreg ...`) | Covers |
 | --- | --- |

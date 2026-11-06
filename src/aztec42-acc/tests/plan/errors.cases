@@ -25,6 +25,8 @@
 
 
 
+
+
 @case err-8087-fast-unsupported
 -###
 -toolroot=@ROOT@
@@ -57,7 +59,7 @@ acc: path requires unsupported DOS filename aliasing: .o
 entry.asm
 @out
 acc: plan stage=object target=none model=small cpu=i80286
-acc: plan float=8087 optimize=default ansi=native debug=off
+acc: plan float=8087 optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\as.exe" "-186" "-2" "-D__i186__=1" "-D__i286__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\entry.asm"
 publish: "E:\\u0001.o" -> "C:\\entry.o"
@@ -494,6 +496,16 @@ acc: output collision: main.o
 main.c
 @out
 acc: K&R mode is not supported: acc compiles ANSI C: -traditional
+[exit 1]
+@end
+
+@case err-ansi-option
+-###
+-toolroot=@ROOT@
+-ansi
+main.c
+@out
+acc: strict ANSI mode is not supported: it disables near and far: -ansi
 [exit 1]
 @end
 

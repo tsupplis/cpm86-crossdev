@@ -60,9 +60,9 @@ void print_plan(const request_t *r, const plan_t *plan)
             stage_names[r->stage],
             plan->target_known ? target_names[plan->target] : "none",
             model_names[r->model], cpu_names[r->cpu]);
-    fprintf(stderr, "acc: plan float=%s optimize=%s ansi=%s debug=%s\n",
+    fprintf(stderr, "acc: plan float=%s optimize=%s debug=%s\n",
             float_names[r->floating], optimize_names[r->optimize],
-            r->strict_ansi ? "strict" : "native", r->debug ? "on" : "off");
+            r->debug ? "on" : "off");
     fputs(r->dryrun ?
           "acc: E: is a symbolic private workspace; no files are created\n" :
           "acc: E: maps the invocation's private workspace\n", stderr);
