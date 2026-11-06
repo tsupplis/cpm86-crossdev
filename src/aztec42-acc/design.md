@@ -202,7 +202,7 @@ limits, logging) are kept. On DOS, host paths are guest paths.
 | `cc`, `as` | 126-byte DOS tail | one command per source; overflow is an error before anything runs |
 | `ln` | none | always `ln -f <response file>`, CRLF lines |
 | any | DOS has no quoting | arguments with blanks or control characters are rejected |
-| `acc.exe` itself | 126-byte DOS tail | DOS truncates silently; `.inp` carries long link lists |
+| `acc.exe` itself | 126-byte DOS tail | DOS and emu2 truncate silently, so a full tail (PSP `80h` = 126) is refused; `.inp` carries long link lists |
 
 ### Publication and failure
 

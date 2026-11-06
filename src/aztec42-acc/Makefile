@@ -24,7 +24,10 @@ BIN = ../../bin
 EMU = $(abspath $(BIN)/emu2)
 ROOT = $(abspath ../../share/aztec42)
 ACC_DOS_BUILD = ./acc -toolroot=$(ROOT) -emu=$(EMU) -target=dos2
-DOS_CFLAGS = -DACC_DOS
+# -Osize (cc +c): acc.exe stays resident while cc, cgen, as and ln run as
+# children, so every byte saved is memory for them (-Osize 34750 bytes,
+# default 35272, -Ospeed 36104).
+DOS_CFLAGS = -DACC_DOS -Osize
 
 EXAMPLES = $(abspath ../../examples)
 # The fetcher installs with INSTALL_ROOT=<tool root>.

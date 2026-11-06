@@ -196,6 +196,7 @@ discover it: set `-toolroot` or `ACCROOT`.
 | DOS path | 63 characters, 8.3 names, no aliasing |
 | `cc`, `as` command | 126 bytes of arguments; longer is an error |
 | `ln` command | unlimited: always passed through a response file |
+| `acc.exe` command line (DOS) | 125 characters; a full 126-character DOS tail is refused as possibly truncated: use `.inp` |
 
 ## Workspace
 
