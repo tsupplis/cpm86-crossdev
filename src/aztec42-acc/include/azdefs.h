@@ -13,8 +13,9 @@
 #define __AZTEC_C__ 4
 #define __AZTEC_C_MINOR__ 3
 #define __AZTEC_C_PATCHLEVEL__ 0
+/* A long: 40300 does not fit the 16-bit int of this target. */
 #define __AZTEC_C_VERSION__ \
-    ((__AZTEC_C__ * 10000) + (__AZTEC_C_MINOR__ * 100) + __AZTEC_C_PATCHLEVEL__)
+    ((__AZTEC_C__ * 10000L) + (__AZTEC_C_MINOR__ * 100L) + __AZTEC_C_PATCHLEVEL__)
 #define __VERSION__ "Aztec C 4.3.0 (https://github.com/tsupplis/cpm86-crossdev)"
 
 /* MPU8086 is the compiler's own processor-family symbol. */

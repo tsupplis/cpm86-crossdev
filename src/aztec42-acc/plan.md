@@ -402,7 +402,7 @@ containers, components, data) as Mermaid diagrams in sync with the code.
 
 | Id | Question | Status |
 | --- | --- | --- |
-| D1 | Aztec version reported by `azdefs.h` | **closed**: 4.3.0 (`__AZTEC_C_VERSION__` 40300); separate from `acc`'s own version |
+| D1 | Aztec version reported by `azdefs.h` | **closed**: 4.3.0; `__AZTEC_C_VERSION__` is `40300L`, a `long`, because the issue's `int` formula overflows the 16-bit `int` (caught by the P6 probe); separate from `acc`'s own version |
 | D2 | Link target when `-target` is absent | **closed**: follows the `-o` suffix (`.cmd` → `cpm86`; `.exe`/`.com` → `dos2`, `dos1` only when explicit); an explicit `-target` must agree with the suffix; no `-o` and no `-target` → `cpm86`, `a.cmd` (current behaviour, kept by default) |
 | D3 | OS macro spelling | **closed**: `__CPM86__` and `__MSDOS__`. `__DOS__` was only defined by acc itself (no source or Aztec header tests it) |
 | D4 | K&R `aztec34` toolchain | **closed**: out of scope; acc supports only the ANSI compiler |
@@ -424,8 +424,8 @@ build (Aztec C 4.2) and all checks.
 | **P2 Invocation model** (**done**) | `-c`/`-S` with several sources (kept, rules documented and tested); mixed link compiles first and then links; `.inp`; unconditional linker response file; remove `@file`; length errors. | P1 |
 | **P3 Defaults and target-neutral compile** (**done**) | No OS macro without `-target`; `__DOS__` renamed `__MSDOS__`; link target from the `-o` suffix with explicit-target agreement (D2); native ANSI mode, `-ansi` opt-in strict, `-traditional` removed (D6); model/target checks moved; defaults documented and covered by golden cases. | P1 |
 | **P4 Native option completion** (**done**) | `-Wc,`/`-Wa,`/`-Wl,` allow-lists, verified tier first, probe tier as each probe passes; `-g` with `.dbg` publication; `-D` for `.asm`. | P2 |
-| **P5 Overlays on DOS** | Accept `dos1`/`dos2` with a `.exe` root (a `.com` root is rejected: `.com` programs cannot use overlays); DOS example in `examples/Makefile`; execution tests on Unix and DOS builds. | P2 |
-| **P6 Preprocessor** | Driver CPU macros; `azdefs.h` (4.3.0); golden and execution tests. | P3 |
+| **P5 Overlays on DOS** (**done**) | Accept `dos1`/`dos2` with a `.exe` root (a `.com` root is rejected: `.com` programs cannot use overlays); DOS example in `examples/Makefile`; execution tests on Unix and DOS builds. | P2 |
+| **P6 Preprocessor** (**done**) | Driver CPU macros; `azdefs.h` (4.3.0); golden and execution tests. | P3 |
 | **P7 Reconciliation** | `design.md` brought in line (remove the `@file` grammar, multi-source `-c`, outdated claims); `MANUAL.md` complete; coverage gate enforced. | all |
 
 P3 can run in parallel with P2. P4 and P5 can run in parallel once P2 has

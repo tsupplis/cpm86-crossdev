@@ -68,7 +68,7 @@ Response files (`@file`) do not exist; options always stay on the command line.
 | `-Wc,opt` `-Wa,opt` `-Wl,opt` | one allow-listed `cc` / `as` / `ln` option, see below | |
 | `-nostartfiles` | omit startup object | |
 | `-nostdlib` | omit startup and C runtime | |
-| `-overlay-root=CODE,DATA` | link an overlay root; writes `.cmd` and `.rsm` | hex sizes; needs `-o` |
+| `-overlay-root=CODE,DATA` | link an overlay root (`.cmd` or `.exe`) and its `.rsm` | hex bytes, 1-4 digits each; needs `-o` |
 | `-overlay=ROOT.rsm` | link an overlay `.ovr` | needs `-o` |
 | `-toolroot=dir` | Aztec tool root | |
 | `-emu=path` | emulator (Unix only) | default `emu2` from `PATH` |
@@ -111,9 +111,25 @@ small-model, single-segment program.
 | --- | --- |
 | `__CPM86__=1` | `-target=cpm86` |
 | `__MSDOS__=1` | `-target=dos1` or `dos2` |
+| `__i186__=1` | `-march=i80186` or `i80286` |
+| `__i286__=1` | `-march=i80286` |
 | `__STDC__` `__FILE__` `__LINE__` `__DATE__` `__TIME__` `__FUNC__` `MPU8086` | always (compiler) |
 
-With `-target`, a user `-D` of either OS macro must agree with it.
+A user `-D` of an OS macro (with `-target`) or a CPU macro must agree.
+
+### `azdefs.h`
+
+Opt-in: `#include <azdefs.h>` (installed in the tool root's `include/`).
+
+| Macro | Value |
+| --- | --- |
+| `__AZTEC_C__` `__AZTEC_C_MINOR__` `__AZTEC_C_PATCHLEVEL__` | `4` `3` `0` |
+| `__AZTEC_C_VERSION__` | `40300L` (a `long`: 40300 exceeds the 16-bit `int`) |
+| `__VERSION__` | `"Aztec C 4.3.0 (https://github.com/tsupplis/cpm86-crossdev)"` |
+| `__i86__` | `1` (from the compiler's `MPU8086`) |
+| `__CHAR_BIT__` | `8` (`char` is signed) |
+| `__STDC_NO_ATOMICS__` `__STDC_NO_THREADS__` | `1` |
+| `__BYTE_ORDER__` | `__ORDER_LITTLE_ENDIAN__` (`1234`; also `__ORDER_BIG_ENDIAN__` `4321`, `__ORDER_PDP_ENDIAN__` `3412`) |
 
 ## Constraints
 
@@ -121,7 +137,7 @@ With `-target`, a user `-D` of either OS macro must agree with it.
 | --- | --- |
 | Non-small model: `dos2` `.exe` only | only DOS 2 `.exe` programs can use large models |
 | Explicit non-`dos2` `-target` with a non-small model | rejected at once, even with `-c` |
-| Overlays are CP/M-86 only | not yet supported for DOS |
+| Overlays: small model; root `.cmd` (cpm86) or `.exe` (dos); not `.com` | Tech Info 2.1 |
 | `-mfloat=8087-fast` rejected | not runtime-qualified |
 | Explicit `.asm` with `-march=i80286` or `-mfloat=8087` rejected | not qualified |
 | `-D` for `.asm`: decimal constant values only | `as -Dsym=const` |

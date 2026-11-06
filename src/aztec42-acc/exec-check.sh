@@ -322,7 +322,10 @@ cp "$azdefs" defs/azdefs.h
     cat > ident.c <<'C'
 #include <stdio.h>
 #include "azdefs.h"
-int version_ok[(__AZTEC_C_VERSION__ == 40300) ? 1 : -1];
+int version_ok[(__AZTEC_C_VERSION__ == 40300L) ? 1 : -1];
+#if __AZTEC_C_VERSION__ != 40300
+int version_preprocessor_wrong[-1];
+#endif
 int order_ok[(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) ? 1 : -1];
 int bits_ok[(__CHAR_BIT__ == 8) ? 1 : -1];
 #ifndef __i86__
