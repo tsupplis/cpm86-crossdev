@@ -16,6 +16,7 @@ Math libraries `m`, `m87`, `m87s` link **before** the C library (`-lm -lc`).
 | --- | --- | --- |
 | Conformance | `exit(main(...))`: the return value of `main` is the exit status | all |
 | Conformance | `INT_MIN`, `SHRT_MIN`, `LONG_MIN` were unsigned hex constants; now signed expressions | all |
+| Conformance | `localtime`, `gmtime`, `ctime`, `asctime` take `const` pointers | all |
 | Conformance | `exit` returns `void`; `strtol`/`strtoul`/`strtod`/`stricmp` prototypes corrected; `const` added to `stdio` prototypes | all |
 | Conformance | Header guards on every header; `assert.h` re-evaluates `NDEBUG` on each inclusion | all |
 | New functions | `atexit`, `bsearch`, `div`, `ldiv`, `labs`, `memmove`, `strcspn`, `strspn`, `strpbrk`, `strtok`, `strerror`, `strtoul`, `remove`, `fgetpos`, `fsetpos`, `rewind` | all |
@@ -62,7 +63,7 @@ Legend: **Y** conforms; **P** partial (see notes); **N** missing; **E** Aztec ex
 | `<stdio.h>` | P | `setvbuf` missing. Also provides `snprintf`, `vsnprintf` (E: C99, not in C89) |
 | `<stdlib.h>` | P | Multibyte functions missing; `getenv`, `system` DOS only |
 | `<string.h>` | P | `strcoll`, `strxfrm` missing (declarations removed) |
-| `<time.h>` | P | Packed DOS `time_t` on every target (section 3) |
+| `<time.h>` | Y | All C89 functions on every target. Packed DOS `time_t`, 1980 to 2107, no time zones: `gmtime` is `localtime` (section 3) |
 
 ### Functions by header
 
@@ -88,8 +89,8 @@ Legend: **Y** conforms; **P** partial (see notes); **N** missing; **E** Aztec ex
 | | `strcoll`, `strxfrm` | N | |
 | `math.h` | `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `exp`, `log`, `log10`, `pow`, `sqrt`, `ceil`, `floor`, `fabs`, `frexp`, `ldexp`, `modf` | Y | `log(0)` is `-INFINITY` with `ERANGE`; negative is NaN with `EDOM` (+) |
 | | `fmod`+ | Y | Zero divisor or infinite numerator: quiet NaN, `EDOM` |
-| `time.h` | `time`, `clock`, `localtime`, `gmtime`, `ctime`, `asctime` | P | All targets; packed DOS `time_t`, no time zones; `clock` has 1-second resolution on CP/M (section 3) |
-| | `mktime`+, `difftime`+ | P | All targets; 1980-2107, no time zones (section 3) |
+| `time.h` | `time`, `clock`, `localtime`, `gmtime`, `ctime`, `asctime` | Y | All targets; `const` prototypes (+); `clock` has 1-second resolution on CP/M (section 3) |
+| | `mktime`+, `difftime`+ | Y | All targets; `(time_t)-1` outside 1980 to 2107 (section 3) |
 | | `strftime`+ | Y | All targets; C locale (section 3) |
 | `setjmp.h`, `signal.h` | `setjmp`, `longjmp`, `signal`, `raise` | Y | |
 | `locale.h` | `setlocale`, `localeconv` | N | |

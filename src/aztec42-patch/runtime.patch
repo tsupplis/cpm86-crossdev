@@ -859,7 +859,7 @@ index 0000000..22c93b7
 +#include <string.h>
 +#endif
 diff --git a/before/include/time.h b/after/include/time.h
-index 9ea9a8c..ce4d4d4 100644
+index 9ea9a8c..15b082f 100644
 --- a/before/include/time.h
 +++ b/after/include/time.h
 @@ -1,8 +1,12 @@
@@ -883,8 +883,10 @@ index 9ea9a8c..ce4d4d4 100644
 +time_t mktime(struct tm *timeptr);
  clock_t clock(void);
  time_t time(time_t *timer);
- struct tm *gmtime(time_t *timer), *localtime(time_t *timer);
- char *asctime(struct tm *timeptr), *ctime(time_t *timer);
+-struct tm *gmtime(time_t *timer), *localtime(time_t *timer);
+-char *asctime(struct tm *timeptr), *ctime(time_t *timer);
++struct tm *gmtime(const time_t *timer), *localtime(const time_t *timer);
++char *asctime(const struct tm *timeptr), *ctime(const time_t *timer);
 +/* C locale, no time zone (%Z is empty). */
 +size_t strftime(char *, size_t, const char *, const struct tm *);
  #else
@@ -2785,6 +2787,20 @@ index c4557f6..9ad5d00 100644
 +	return 0;
  }
  
+diff --git a/before/src/dos20/asctime.c b/after/src/dos20/asctime.c
+index 35fa865..1cd7a38 100644
+--- a/before/src/dos20/asctime.c
++++ b/after/src/dos20/asctime.c
+@@ -2,8 +2,7 @@
+ #include <time.h>
+ 
+ char *
+-asctime(tm)
+-struct tm *tm;
++asctime(const struct tm *tm)
+ {
+ 	static char days[7][4] = {
+ 		"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 diff --git a/after/src/dos20/calday.c b/after/src/dos20/calday.c
 new file mode 100644
 index 0000000..7586ebe
@@ -2835,11 +2851,44 @@ index 74177c0..11dad2c 100644
  	(*cls_)();
  	_exit(code);
  }
+diff --git a/before/src/dos20/ctime.c b/after/src/dos20/ctime.c
+index 54e8485..f21ad6c 100644
+--- a/before/src/dos20/ctime.c
++++ b/after/src/dos20/ctime.c
+@@ -2,8 +2,7 @@
+ #include <time.h>
+ 
+ char *
+-ctime(clock)
+-long *clock;
++ctime(const time_t *clock)
+ {
+ 	struct tm *tm;
+ 
 diff --git a/before/src/dos20/localtim.c b/after/src/dos20/localtim.c
-index 33f5810..414b6cd 100644
+index 33f5810..f1a17ef 100644
 --- a/before/src/dos20/localtim.c
 +++ b/after/src/dos20/localtim.c
-@@ -19,9 +19,8 @@ long *clock;
+@@ -2,26 +2,21 @@
+ #include <time.h>
+ 
+ struct tm *
+-gmtime(clock)
+-long *clock;
++gmtime(const time_t *clock)
+ {
+-	struct tm *localtime();
+-
+ 	return localtime(clock);
+ }
+ 
+ struct tm *
+-localtime(clock)
+-long *clock;
++localtime(const time_t *clock)
+ {
+ 	union {
+ 		long l;
  		unsigned u[2];
  	} un;
  	static struct tm tm;
@@ -2851,7 +2900,7 @@ index 33f5810..414b6cd 100644
  
  	un.l = *clock;
  	tm.tm_sec = (un.u[0]&31) * 2;
-@@ -30,8 +29,10 @@ long *clock;
+@@ -30,8 +25,10 @@ long *clock;
  	tm.tm_mday = un.u[1] & 31;
  	tm.tm_mon = ((un.u[1]>>5) & 15) - 1;
  	tm.tm_year = ((un.u[1]>>9) & 127) + 80;
