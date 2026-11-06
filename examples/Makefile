@@ -84,11 +84,7 @@ all: binaries
 
 binaries: $(8086_CMDS) $(8080_CMDS) 
 
-.PHONY: acc-driver
-acc-driver:
-	$(MAKE) -C ../src/aztec42-acc acc
-
-ovraza.cmd: ovrmain.o acc-driver
+ovraza.cmd: ovrmain.o
 	rm -f ovraza.cmd ovraza.rsm
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
 	    -overlay-root=1020,aOO ovrmain.o -o ovraza.cmd
@@ -97,21 +93,21 @@ ovraza.cmd: ovrmain.o acc-driver
 ovraza.rsm: ovraza.cmd
 	@test -s $@
 
-ovrmain.o: ovrmain.c acc-driver
+ovrmain.o: ovrmain.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
-ovrfunc1.ovr: ovrfunc1.o ovraza.rsm acc-driver
+ovrfunc1.ovr: ovrfunc1.o ovraza.rsm
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
 	    -overlay=ovraza.rsm $< -o $@
 
-ovrfunc1.o: ovrfunc1.c acc-driver
+ovrfunc1.o: ovrfunc1.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
-ovrfunc2.ovr: ovrfunc2.o ovraza.rsm acc-driver
+ovrfunc2.ovr: ovrfunc2.o ovraza.rsm
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 \
 	    -overlay=ovraza.rsm $< -o $@
 
-ovrfunc2.o: ovrfunc2.c acc-driver
+ovrfunc2.o: ovrfunc2.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 -c $<
 
 hellocba.int: hellocba.bas
@@ -224,25 +220,25 @@ hellob.cmd: hellob.h86
 	$(GENCMD) $< 8080
 	$(CMDINFO) $@
   
-helloazd.exe: helloaza.c acc-driver
+helloazd.exe: helloaza.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=dos1 $< -o $@
 
-helloaza.cmd: helloaza.c acc-driver
+helloaza.cmd: helloaza.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -o $@
 	$(CMDINFO) $@
 
-mathazd.exe: mathazc.c acc-driver
+mathazd.exe: mathazc.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=dos1 $< -lm -o $@
 
-mathazc.cmd: mathazc.c acc-driver
+mathazc.cmd: mathazc.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -lm -o $@
 	$(CMDINFO) $@
 
-helloaz7.cmd: helloaz7.c acc-driver
+helloaz7.cmd: helloaz7.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -lm -o $@
 	$(CMDINFO) $@
 
-helloazc.cmd: helloazc.c acc-driver
+helloazc.cmd: helloazc.c
 	$(ACC_DRIVER) -toolroot=$(ACC_ROOT) -target=cpm86 $< -o $@
 	$(CMDINFO) $@
 

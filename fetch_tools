@@ -224,12 +224,12 @@ run_fetcher() {
 
 protect() {
     #find "$root/share" -type d -exec chmod 555 {} \;
-    find "$root/share" -type f -exec chmod 444 {} \;
+    find "$root/share" -type f -exec chmod a=rX {} +
 }
 
 unprotect() {
     #find "$root/share" -type d -exec chmod 755 {} \;
-    find "$root/share" -type f -exec chmod 644 {} \;
+    find "$root/share" -type f -exec chmod u=rwX,go=rX {} +
 }
 
 mkdir -p "$root/share/pcdev"

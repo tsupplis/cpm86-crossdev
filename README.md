@@ -618,8 +618,11 @@ emu2 hellomsc.exe
 </pre></td></tr>
 </table>
 
-`aztec42_acc` is the unified compiler/linker driver. Build it with
-`make -C src/aztec42-acc`; it accepts `-toolroot=path` or uses
+`aztec42_acc` is the unified compiler/linker driver. The Aztec 4.2 fetcher
+builds and installs the native `acc` and DOS `acc.exe` into
+`share/aztec42/bin`; rebuild and reinstall them with
+`make -C src/aztec42-acc install`. The launcher runs the `acc` installed in
+the selected Aztec root and accepts `-toolroot=path` or uses
 `AZTEC42_ROOT` (defaulting to `share/aztec42` relative to the repository).
 The `aztec42_cc` and `aztec42_link` commands remain available for workflows
 not yet migrated.

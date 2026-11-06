@@ -12,26 +12,22 @@ LIB := $(LIBDIR)/c86.lib
 check: regress.cmd legacy.o status-check header-check link-check response-check inf-check close-check
 	@output=$$("$(BIN)/emu2" regress.cmd) && printf '%s\n' "$$output" && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'AZTEC PASS' && printf '%s\n' "$$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
 
-.PHONY: acc-driver
-acc-driver:
-	$(MAKE) -C ../aztec42-acc acc
-
-regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib acc-driver
+regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 regress.o -lm -o $@
 
-regress.o: regress.c $(wildcard ../../share/aztec42/include/*.h) acc-driver
+regress.o: regress.c $(wildcard ../../share/aztec42/include/*.h)
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 clean:
 	rm -f dosreg.o dosreg.com dosreg.exe legacy.o regress.o regress.cmd status.o probe31.o probe32.o exit31.cmd exit32.cmd
 
-status.o: status.c acc-driver
+status.o: status.c
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 probe31.o probe32.o: probe%.o: probe.asm
 	$(BIN)/aztec42_as -dVERSION=0$*h -o $@ $<
 
-exit31.cmd exit32.cmd: exit%.cmd: status.o probe%.o $(LIB) acc-driver
+exit31.cmd exit32.cmd: exit%.cmd: status.o probe%.o $(LIB)
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 status.o probe$*.o -o $@
 
 .PHONY: status-check
@@ -43,7 +39,7 @@ status-check: exit31.cmd exit32.cmd
 	done
 	@output=$$("$(BIN)/emu2" exit32.cmd negative) && printf '%s\n' "$$output" | tr -d '\r' | grep -qx VF
 
-legacy.o: legacy.c $(wildcard ../../share/aztec42/include/*.h) acc-driver
+legacy.o: legacy.c $(wildcard ../../share/aztec42/include/*.h)
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 .PHONY: dos-check

@@ -31,8 +31,9 @@ The final tool set excludes `arcv.com`, `c.exe`, `cc.exe.bak`, `crc.exe`,
 `diff.exe`, `grep.exe`, `ls.com`/`ls.exe`, `rm.c`, `rm.exe`, `z.exe`, and
 `term.exe`. Other tools, including the debug/OMF converters, standalone
 preprocessor, make, debuggers, profiler, and source utilities, are retained.
-The patched compiler itself remains installed. Separately installed binaries
-such as future acc executables are retained when absent from the build tree.
+The patched compiler itself remains installed. After the runtime is
+installed, the fetcher builds and installs the acc driver (native `acc` and
+DOS `acc.exe`) into `share/aztec42/bin` with `make -C src/aztec42-acc install`.
 The Aztec 5.2 overlay fetcher is unchanged.
 
 `apply_patches` checks the whole patch before writing. Its single marker,

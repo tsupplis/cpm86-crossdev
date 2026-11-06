@@ -136,8 +136,10 @@ alongside the backend executables:
   without that launcher.
 
 The source-tree build outputs described above are development artifacts,
-not the final installed layout. Installation/build integration remains a
-later implementation step. A launcher locates and executes acc; it must
+not the installed layout. `make install` builds both executables and copies
+them to `$(INSTALL_ROOT)/bin` (default `share/aztec42/bin`); the
+[Aztec 4.2 fetcher](../fetch/cross_aztec42) runs it after installing the
+runtime. A launcher locates and executes acc; it must
 not duplicate argument translation or emulator/environment policy.
 
 The prerequisite installation cleanup uses a single

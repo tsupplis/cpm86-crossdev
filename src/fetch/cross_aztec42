@@ -100,3 +100,6 @@ rm -f "$installed/bin/arcv.com" "$installed/bin/c.exe" \
 if [ -d "$installed/src" ]; then rm -rf "$installed/src"; fi
 rm -f "$installed/built" "$installed/unpacked" "$installed/tools_built" \
       "$installed/patched-runtime"
+
+echo INF: Building and installing acc driver ...
+"${MAKE:-make}" -C "$root/src/aztec42-acc" install INSTALL_ROOT="$installed"
