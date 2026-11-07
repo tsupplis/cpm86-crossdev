@@ -29,30 +29,14 @@ transparent substitute for this byte-length contract.
 
 ## Regression
 
-From the repository root, run:
-
-```
-make -C src/aztecreg truncate-check
-```
-
-This links the installed runtime libraries and tests all five DOS targets. It also builds a temporary emulator with `emu2-truncate.patch`:
-the current emulator treats INT 21h/28h with CX=0 as a successful no-op.
-The companion patch implements that missing operation. Neither installed
-emulator nor cached emulator sources are modified. Run from a terminal;
-the emulator may require a controlling TTY for DOS 1.1 console setup.
-
-To use an emulator that already implements this operation:
-
-```
-TRUNCATE_EMULATOR=/absolute/path/to/emu2 make -C src/aztecreg truncate-check
-```
+emu2 treats INT 21h/28h with CX=0 as a successful no-op, so it cannot test
+DOS 1.1 resizing. The only test is `truncate-pce-check`, below.
 
 Tests cover shrink, growth beyond 64 KB, zero-filled new bytes, prefix and
 position preservation, unchanged size, zero length, reopening, invalid and
 closed descriptors, negative sizes, read-only descriptors, devices, and
-missing paths. All five targets passed under the corrected emulator; all
-four DOS 2.x targets also passed under the installed emulator. The DOS 1.1 kernel from `pcdos11-hacking/pcdos_base.img` also passed
-under PCE (8088, 128 KB RAM): `TRUNCATE PASS: 0 failures`. DOS 2.x
+missing paths. The DOS 1.1 kernel from `pcdos11-hacking/pcdos_base.img`
+passed under PCE (8088, 128 KB RAM): `TRUNCATE PASS: 0 failures`. DOS 2.x
 kernels and injected disk-full errors have not been tested.
 
 ## DOS 1.1 kernel regression under PCE
@@ -74,5 +58,4 @@ success. Original images, configuration and installed libraries are untouched.
 
 Use the normal rebuild procedure in [README.md](README.md). The DOS member
 lists include both APIs in `c`, `clc`, `cld`, `cl`, and `d11`; the CP/M archive
-excludes them. The emulator correction is a regression fixture only, stored
-in `src/aztecreg/emu2-truncate.patch`, and is not an Aztec runtime patch.
+excludes them.

@@ -202,7 +202,7 @@ floating-point backend is covered by building the runtime libraries.
 [Infinity support](INF.md) and [DOS file resizing](TRUNCATE.md) are included
 in the single runtime patch. Tests link installed libraries directly:
 
-    make -C src/aztecreg clean check dos-check truncate-check expr-inf-check
+    make -C src/aztecreg clean check dos-check expr-inf-check
     make -C src/aztecreg truncate-pce-check
 
 The normal regression suite uses its own test sources and the installed
@@ -210,11 +210,6 @@ tools, headers, and libraries. It does not require the toolchain sources or
 the archive directory.
 
 The optional PCE test requires the separate DOS 1.1 image checkout.
-`truncate-check` uses the installed emulator, or `TRUNCATE_EMULATOR` when
-explicitly supplied; it never builds an emulator. Its DOS 1.1 case requires
-the emulator's zero-count FCB write correction. An uncorrected emulator will
-fail that case rather than silently selecting or building another runner.
-
 CP/M close now propagates a failed BDOS 16 result as `-1` with `EIO`, so
 `fclose` and editor saves can detect a failed directory update. `close-check`
 injects that failure and checks both descriptor and stream close paths.
