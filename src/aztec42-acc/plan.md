@@ -139,7 +139,7 @@ changes in this plan; **new** = added; **remove** = dropped.
 | `-L dir` | – | – | driver library search; `CLIB` | keep (never forwarded) |
 | `-l name` | – | – | resolved `name.lib` path; `m` is model/float aware | keep |
 | `file.inp` | – | – | expanded into ordered link inputs | new (P2) |
-| `-target=cpm86\|dos1\|dos2` | `-D__CPM86__=1` / `-D__MSDOS__=1` **only if explicit** | same | startup/runtime; must agree with the `-o` suffix | change (P3) |
+| `-target=cpm86\|dos1\|dos2` | `-D__CPM86__=1` / `-D__MSDOS__=1` (dos1) / `-D__MSDOS__=2` (dos2) **only if explicit** | same | startup/runtime; must agree with the `-o` suffix | change (P3) |
 | `-march=i8086\|i80186\|i80286` | `+0`/`+1`/`+2`; plus `-D__i186__=1` and `-D__i286__=1` as appropriate | `-186` for i80186; i80286 rejected until probed | – | change (macros, P6) |
 | `-mcmodel=small\|medium\|compact\|large` | –/`+lc`/`+ld`/`+l` | user owns ABI | startup/runtime/math family | change (check timing, P3) |
 | `-mfloat=soft\|auto\|8087` | –/–/`+e` | not rewritten | `-lm` → `m`/`m87s`/`m87` family | keep |
@@ -271,7 +271,7 @@ negative-size array):
 
 | Fact | Macro | Emitted when |
 | --- | --- | --- |
-| OS | `__CPM86__=1` or `__MSDOS__=1` (D3) | `-target=` given explicitly |
+| OS | `__CPM86__=1`, `__MSDOS__=1` (dos1) or `__MSDOS__=2` (dos2) (D3) | `-target=` given explicitly |
 | CPU tier | `__i186__=1` | `-march=i80186` or `i80286` |
 | CPU tier | `__i286__=1` | `-march=i80286` |
 

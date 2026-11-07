@@ -1,4 +1,5 @@
 #!/bin/sh
+echo '==== WARNING: Aztec 34 is obsolete, please use Aztec 43 ====' >&2
 prog=lb.exe
 emu2=`dirname $0`/emu2
 EMU2_DRIVE_D="`dirname $0`/../share/aztec34"

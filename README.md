@@ -245,8 +245,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | C                         | aztec34_obj   | obj.exe          | Aztec C object lister (v3.4)                           |
 | C                         | aztec34_ord   | ord.exe          | Aztec C library ordering helper (v3.4)                 |
 | C                         | aztec34_sqz   | sqz.exe          | Aztec C object optimizer (v3.4)                        |
-| C                         | aztec42_as    | as.exe           | Aztec assembler (v4.2)                                 |
 | C                         | aztec43_acc   | (native)         | Unified Aztec C compiler/linker driver (v4.3)          |
+| C                         | aztec43_lib   | lb.exe           | Aztec C lib (v4.3)                                     |
+| C                         | aztec42_as    | as.exe           | Aztec assembler (v4.2)                                 |
 | C                         | aztec42_cc    | cc.exe           | Aztec ANSI C compiler (v4.2)                           |
 | C                         | aztec42_hex86 | hex86.exe        | Aztec C H86 generator (v4.2)                           |
 | C                         | aztec42_lib   | lb.exe           | Aztec C lib (v4.2)                                     |

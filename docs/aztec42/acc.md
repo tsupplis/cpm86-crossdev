@@ -142,7 +142,8 @@ small-model, single-segment program.
 | --- | --- |
 | `__AZTEC__=1` | always, on every `cc` and `as` command (a user `-D__AZTEC__` must be 1) |
 | `__CPM86__=1` | `-target=cpm86` |
-| `__MSDOS__=1` | `-target=dos1` or `dos2` |
+| `__MSDOS__=1` | `-target=dos1` |
+| `__MSDOS__=2` | `-target=dos2` |
 | `__i186__=1` | `-march=i80186` or `i80286` |
 | `__i286__=1` | `-march=i80286` |
 | `__STDC__` `__FILE__` `__LINE__` `__DATE__` `__TIME__` `__FUNC__` `MPU8086` | always (compiler) |

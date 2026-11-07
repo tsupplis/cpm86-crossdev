@@ -533,15 +533,16 @@ static int validate(const request_t *r, plan_context_t *ctx)
     if (r->stage != STAGE_LINK && r->output != 0 && count != 1)
         return fail("one -o cannot name multiple compilation outputs", NULL);
     /*
-     * With -target, acc defines that system's macro as 1: a user definition
-     * of either OS macro must agree.  Without -target, both are user's.
+     * With -target, acc defines that system's macro (__CPM86__=1,
+     * __MSDOS__=1 for dos1, __MSDOS__=2 for dos2): a user definition of
+     * either OS macro must agree exactly.  Without -target, both are
+     * user's.
      */
     for (i = 0; r->target_given && i < r->definitions.count; ++i) {
         macro = r->definitions.items[i];
-        if ((strncmp(macro, "__CPM86__=", 10) == 0 &&
-             (r->target != TARGET_CPM86 || strcmp(macro + 10, "1") != 0)) ||
-            (strncmp(macro, "__MSDOS__=", 10) == 0 &&
-             (r->target == TARGET_CPM86 || strcmp(macro + 10, "1") != 0)))
+        if ((strncmp(macro, "__CPM86__=", 10) == 0 ||
+             strncmp(macro, "__MSDOS__=", 10) == 0) &&
+            strcmp(macro, profile_target_macro(r->target) + 2) != 0)
             return fail("conflicting target macro", macro);
     }
     /* acc defines __AZTEC__ as 1: a user definition must agree. */

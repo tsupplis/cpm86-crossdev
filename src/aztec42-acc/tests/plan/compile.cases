@@ -104,7 +104,7 @@ main.c
 acc: plan stage=object target=dos2 model=large cpu=i8086
 acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
-tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+l" "-D__AZTEC__=1" "-D__MSDOS__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+l" "-D__AZTEC__=1" "-D__MSDOS__=2" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end
@@ -297,6 +297,22 @@ acc: plan stage=object target=none model=large cpu=i8086
 acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "+l" "-D__AZTEC__=1" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
+publish: "E:\\u0001.o" -> "C:\\main.o"
+[exit 0]
+@end
+
+@case compile-msdos-macro-agrees
+-###
+-toolroot=@ROOT@
+-c
+-target=dos2
+-D__MSDOS__=2
+main.c
+@out
+acc: plan stage=object target=dos2 model=small cpu=i8086
+acc: plan float=soft optimize=default debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\cc.exe" "+0" "-b" "-n" "-D__AZTEC__=1" "-D__MSDOS__=2" "-D__MSDOS__=2" "-ID:\\include" "-o" "E:\\u0001.o" "C:\\main.c"
 publish: "E:\\u0001.o" -> "C:\\main.o"
 [exit 0]
 @end

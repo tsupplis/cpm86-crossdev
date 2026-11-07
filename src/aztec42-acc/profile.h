@@ -62,7 +62,8 @@ const char *profile_identity_macro(void);
 
 /*
  * Preprocessor definition identifying TARGET, as one cc argument:
- * -D__CPM86__=1 or -D__MSDOS__=1.  Defined only for an explicit -target.
+ * -D__CPM86__=1, -D__MSDOS__=1 (dos1) or -D__MSDOS__=2 (dos2).  Defined
+ * only for an explicit -target.
  */
 const char *profile_target_macro(target_t target);
 

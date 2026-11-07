@@ -598,6 +598,17 @@ acc: output needs a .cmd, .exe or .com suffix: program.bin
 -###
 -toolroot=@ROOT@
 -target=dos2
+-D__MSDOS__=1
+main.c
+@out
+acc: conflicting target macro: __MSDOS__=1
+[exit 1]
+@end
+
+@case err-msdos-value-dos1
+-###
+-toolroot=@ROOT@
+-target=dos1
 -D__MSDOS__=2
 main.c
 @out

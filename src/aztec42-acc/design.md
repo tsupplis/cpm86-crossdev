@@ -234,7 +234,7 @@ options, `-g`, startup, inputs in command-line order, overlay loader or
 | --- | --- | --- |
 | D1 | `azdefs.h` reports 4.3.0; `__AZTEC_C_VERSION__` is `40300L` | the int formula overflows 16-bit `int` (P6 probe) |
 | D2 | link target from the `-o` suffix; explicit `-target` must agree | compilation is OS-neutral |
-| D3 | `__CPM86__`, `__MSDOS__` | `__DOS__` was acc-only |
+| D3 | `__CPM86__=1`, `__MSDOS__=1` (dos1) or `2` (dos2) | `__DOS__` was acc-only; `__MSDOS__` carries the DOS major version |
 | D4 | no K&R toolchain support | ANSI only |
 | D5 | `char` is signed; `CHAR_UNSIGNED` never defined | probe |
 | D6 | native ANSI mode only; `-ansi` is rejected | strict mode disables `far`, breaking `dos.h` |

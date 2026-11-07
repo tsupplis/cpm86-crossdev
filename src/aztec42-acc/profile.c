@@ -29,9 +29,9 @@ static const char *const model_flags[] = { 0, "+lc", "+ld", "+l" };
 static const char *const float_flags[] = { 0, 0, "+e" };
 static const char *const optimize_flags[] = { 0, "+c", "+f" };
 
-/* Indexed by Target; both DOS targets share one macro. */
+/* Indexed by Target; the value of __MSDOS__ is the DOS major version. */
 static const char *const target_macros[] = {
-    "-D__CPM86__=1", "-D__MSDOS__=1", "-D__MSDOS__=1"
+    "-D__CPM86__=1", "-D__MSDOS__=1", "-D__MSDOS__=2"
 };
 static const char *const executables[] = { "a.cmd", "a.exe", "a.exe" };
 
