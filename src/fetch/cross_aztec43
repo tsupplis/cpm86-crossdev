@@ -1,30 +1,30 @@
 #!/bin/sh
 
 set -e
-build="$root/archive/aztec42"
-installed="$root/share/aztec42"
+build="$root/archive/aztec43"
+installed="$root/share/aztec43"
 mkdir -p "$root/archive" "$root/share"
-work=$(mktemp -d "$root/archive/aztec42-work.XXXXXX")
+work=$(mktemp -d "$root/archive/aztec43-work.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 
 echo INF: Preparing Aztec 4.3 build tree ...
 if [ ! -d "$build" ]; then
     if [ -d "$installed/src" ]; then
         # Import sources, header edits, original binaries, and patch/build state.
-        cp -R "$installed" "$work/aztec42"
+        cp -R "$installed" "$work/aztec43"
     else
         fetch_get "https://www.aztecmuseum.ca/AztecC86.zip"
         (cd "$work" && unzip -L "$ARCHIVED_FILE")
-        mkdir -p "$work/aztec42/src"
+        mkdir -p "$work/aztec43/src"
         cp -R "$work/aztecc86/bin" "$work/aztecc86/lib" \
-              "$work/aztecc86/include" "$work/aztec42/"
-        cp -R "$work/aztecc86/arc/." "$work/aztec42/src/"
+              "$work/aztecc86/include" "$work/aztec43/"
+        cp -R "$work/aztecc86/arc/." "$work/aztec43/src/"
         if [ -d "$work/aztecc86/obj" ]; then
-            cp -R "$work/aztecc86/obj/." "$work/aztec42/lib/"
+            cp -R "$work/aztecc86/obj/." "$work/aztec43/lib/"
         fi
     fi
-    chmod -R u+w "$work/aztec42"
-    mv "$work/aztec42" "$build"
+    chmod -R u+w "$work/aztec43"
+    mv "$work/aztec43" "$build"
 fi
 if [ ! -d "$build/src" ] || [ ! -f "$build/bin/cc.exe" ]; then
     echo "ERR: Incomplete build tree at $build; preserve local edits before restoring it." >&2
@@ -57,7 +57,7 @@ if [ ! -f "$build/unpacked" ]; then
     (cd "$build" && "$root/src/aztec43-patch/unpack")
 fi
 (cd "$build" && "$root/src/aztec43-patch/apply_patches")
-export AZTEC42_ROOT="$build"
+export AZTEC43_ROOT="$build"
 echo INF: Building Aztec 4.3 ...
 refresh_startups=
 if [ ! -f "$build/built" ]; then
@@ -74,7 +74,7 @@ extract_startup() {
     if [ -z "$refresh_startups" ] && [ -f "$lib/$output" ] && [ ! "$lib/$archive" -nt "$lib/$output" ]; then
         return 0
     fi
-    (cd "$work" && "$root/bin/aztec42_lib" "D:\\LIB\\$archive" -x "$member")
+    (cd "$work" && "$root/bin/aztec43_lib" "D:\\LIB\\$archive" -x "$member")
     mv -f "$work/$member.o" "$lib/$output"
 }
 extract_startup c86.lib begin begin86.o

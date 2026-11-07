@@ -1,7 +1,8 @@
 #!/bin/sh
+echo '==== WARNING: Aztec 42 is obsolete, please use Aztec 43 ====' >&2
 prog=`basename $0|sed -e s'/aztec42_//g'`.exe
 emu2=`dirname $0`/emu2
-EMU2_DRIVE_D="${AZTEC42_ROOT:-$(dirname "$0")/../share/aztec42}"
+EMU2_DRIVE_D="${AZTEC43_ROOT:-$(dirname "$0")/../share/aztec43}"
 export EMU2_DRIVE_D
 if [ -z "$TMPDIR" ]; then
     TMPDIR="/tmp/emu2-`id -u`"

@@ -1,10 +1,10 @@
 # Aztec C86 4.3 C library: changes and ANSI C89 conformance
 
 Baseline: Aztec C86 4.10d runtime as shipped in `AztecC86.zip`.
-Delta: [`runtime.patch`](../../src/aztec42-patch/runtime.patch)
-(single patch, applied by `src/fetch/cross_aztec42`). Procedure and regression
-targets: [patch README](../../src/aztec42-patch/README.md),
-[infinity](../../src/aztec42-patch/INF.md), [truncate](../../src/aztec42-patch/TRUNCATE.md).
+Delta: [`runtime.patch`](../../src/aztec43-patch/runtime.patch)
+(single patch, applied by `src/fetch/cross_aztec43`). Procedure and regression
+targets: [patch README](../../src/aztec43-patch/README.md),
+[infinity](../../src/aztec43-patch/INF.md), [truncate](../../src/aztec43-patch/TRUNCATE.md).
 Compiler driver: [`acc` manual](acc.md).
 
 Targets: **DOS 2** (`c`, `cl`, `clc`, `cld`), **DOS 1.1** (`d11`), **CP/M-86** (`c86`).

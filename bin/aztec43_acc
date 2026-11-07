@@ -1,6 +1,6 @@
 #!/bin/sh
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || exit 1
-toolroot=${AZTEC42_ROOT:-$script_dir/../share/aztec42}
+toolroot=${AZTEC43_ROOT:-$script_dir/../share/aztec43}
 driver=$toolroot/bin/acc
 if [ "$#" -eq 1 ] && { [ "$1" = "-help" ] || [ "$1" = "-version" ]; }; then
     exec "$driver" "$@"

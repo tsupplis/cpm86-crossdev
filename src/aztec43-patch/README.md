@@ -1,4 +1,4 @@
-# Aztec 4.2 runtime
+# Aztec 4.3 runtime
 
 There is one runtime patch: **runtime.patch**. It transforms the unpacked
 original sources directly into the current runtime. No tarball overlay,
@@ -8,17 +8,17 @@ The installation sequence is:
 
     Fetch/import -> unpack -> patch -> build -> extract startups -> install
 
-The single `src/fetch/cross_aztec42` fetcher performs this whole sequence.
+The single `src/fetch/cross_aztec43` fetcher performs this whole sequence.
 Like the other fetchers, it is sourced only by `fetch_tools`, uses the
 provided environment/helpers, and has no command-line interface.
 The baseline is AztecC86.zip plus DOS11.ARC from az8634b.zip.
 `unpack` extracts and normalizes source line endings.
 
-The preserved build tree is `archive/aztec42`: sources in `src/`, original
+The preserved build tree is `archive/aztec43`: sources in `src/`, original
 tools (including the archive extractor and compiler backup) in `bin/`, build
 headers in `include/`, rebuilt libraries in `lib/`, and patch/build markers
-at its root. The final `share/aztec42` contains only `bin/`, `include/`,
-and `lib/`. Builds use `AZTEC42_ROOT` to direct all Aztec 4.2 wrappers to
+at its root. The final `share/aztec43` contains only `bin/`, `include/`,
+and `lib/`. Builds use `AZTEC43_ROOT` to direct all Aztec 4.3 wrappers to
 the archive tree, without modifying the active installation.
 
 On the first run against a legacy installation, the entire tree is copied
@@ -34,11 +34,11 @@ chain, linker, librarian, object utilities, debug/OMF converters, standalone
 preprocessor, make, debuggers, and profiler are retained.
 The patched compiler itself remains installed. After the runtime is
 installed, the fetcher builds and installs the acc driver (native `acc` and
-DOS `acc.exe`) into `share/aztec42/bin` with `make -C src/aztec42-acc install`.
+DOS `acc.exe`) into `share/aztec43/bin` with `make -C src/aztec43-acc install`.
 The Aztec 5.2 overlay fetcher is unchanged.
 
 `apply_patches` checks the whole patch before writing. Its single marker,
-`archive/aztec42/patched-runtime`, contains the identity of runtime.patch.
+`archive/aztec43/patched-runtime`, contains the identity of runtime.patch.
 A matching marker makes subsequent calls a no-op. A source tree already
 containing the full patch (including the former v9 installation) is adopted
 without applying anything again. Old numbered markers are removed. A new
@@ -50,25 +50,25 @@ or partially patched tree is rejected without changing its sources.
 For installation, run `./fetch_tools` from the repository root.
 To rebuild an existing compatible installation:
 
-    rm -f archive/aztec42/built
+    rm -f archive/aztec43/built
     ./fetch_tools
     make -C src/aztecreg clean check dos-check
 
 The fetcher skips compilation when the archive build tree is marked `built`;
 removing that marker forces a rebuild. A failed build leaves it absent, so the next run
-retries. Edit sources under `archive/aztec42/src` and headers under
-`archive/aztec42/include`, then use the same rebuild command. Installation
+retries. Edit sources under `archive/aztec43/src` and headers under
+`archive/aztec43/include`, then use the same rebuild command. Installation
 copies the resulting headers/libraries into share. Do not maintain a second
 editable source tree inside share.
 
 For an old partial installation that is rejected, preserve the whole directory
 before a fresh install (choose a backup name that does not already exist):
 
-    mv archive/aztec42 archive/aztec42.backup
+    mv archive/aztec43 archive/aztec43.backup
     ./fetch_tools
 
 If an old source-bearing share tree also exists, preserve it outside
-`share/aztec42` before retrying so it is not imported again.
+`share/aztec43` before retrying so it is not imported again.
 Keep local source edits in the backups for review and reapplication.
 The installer does not overwrite an incompatible source tree automatically.
 
@@ -77,7 +77,7 @@ The installer does not overwrite an incompatible source tree automatically.
 Keep a pristine copy after fetching and unpacking the original distributions,
 before applying any runtime patch. Generate the sole patch directly against it:
 
-    src/aztec42-patch/build_patches "$pristine" "$edited" src/aztec42-patch/runtime.patch
+    src/aztec43-patch/build_patches "$pristine" "$edited" src/aztec43-patch/runtime.patch
 
 Always use the original distribution as the baseline, never the previous
 patched revision. The generator preserves vintage line endings. Verify the
@@ -155,7 +155,7 @@ setlocale, strcoll and strxfrm remain unimplemented and have no public
 declarations. `abs` is now a library function. `regs.h` and `x86.h` declare
 the machine-level verbs (`sysint`, `farcall`, `segread`, `peek`/`poke`,
 ports, `movblock`, far-pointer helpers); `memory.h` declares `movmem`,
-`setmem` and `swapmem`. See [the C library reference](../../docs/aztec42/clib-ref.md).
+`setmem` and `swapmem`. See [the C library reference](../../docs/aztec43/clib-ref.md).
 
 The runtime supplies isinf and isnan as double-based C99-name extensions.
 They share a binary64 classifier independent of the math engine. Floating

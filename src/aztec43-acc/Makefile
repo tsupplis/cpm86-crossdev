@@ -23,7 +23,7 @@ CFLAGS = -O2 -std=c89 -pedantic -Wall -Wextra -Werror
 # file, which the DOS 126-byte command tail requires for this many objects.
 BIN = ../../bin
 EMU = $(abspath $(BIN)/emu2)
-ROOT = $(abspath ../../share/aztec42)
+ROOT = $(abspath ../../share/aztec43)
 ACC_DOS_BUILD = ./acc -toolroot=$(ROOT) -emu=$(EMU) -target=dos2
 # -Osize (cc +c): acc.exe stays resident while cc, cgen, as and ln run as
 # children, so every byte saved is memory for them (-Osize 34750 bytes,

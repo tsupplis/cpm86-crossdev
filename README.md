@@ -41,7 +41,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 
 | Language   | Compilers / Interpreters                                                      |
 |-----------:|:------------------------------------------------------------------------------|
-| C          | Aztec C 3.4 (K&R), Aztec C 4.2 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C (5.1 and 1.04) |
+| C          | Aztec C 4.3 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C (5.1 and 1.04) |
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
 | Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.01A, PolyPascal‑86 3.11                         |
@@ -69,7 +69,6 @@ A cleaned‑up distribution and kernel are available at https://github.com/tsupp
 | Tool              | Version                           | Description |
 |------------------:|:----------------------------------|:------------|
 | Aztec C           | 4.3/4.10d                         | **Primary compiler**; almost‑ANSI C89; `c86.lib` patched & improved, `d11.lib` for DOS 1.1 ([manual](docs/aztec43/acc.md)) |
-| Aztec C           | 3.4/3.40a                         | K&R/Legacy/"C86" C; `c86.lib` patched, patched preprocessor, otherwise as‑is |
 | DR C              | 1.11                              | CP/M‑86 C compiler; passes `drc860`–`drc862`, runtime `clearl/clears.l86`    |
 | MSC               | 5.1                               | Microsoft C compiler for DOS                                                 |
 | DR Fortran‑77     | 4.0                               | CP/M‑86; compiler `f77.cmd`+`codegen.cmd`, runtime `f32s/l.obj`, `8087.sim`  |
@@ -88,7 +87,7 @@ A cleaned‑up distribution and kernel are available at https://github.com/tsupp
 | TDL BASIC         | 3.05                              | Z‑80 CP/M‑80 BASIC; run via `tnylpo`                                         |
 | Intel PL/M‑86     | 3.30                              | Compiler `plm86.exe`, assembler `asm86.exe`, linker, librarian, locator      |
 | DR PL/I‑86        | 1.0                               | CP/M‑86; compiler `pli.cmd`, runtime `plilib.l86`, DIO sources               |
-| XLISP             | 1.1                               | Public‑domain Lisp interpreter; built from source with Aztec C 4.2           |
+| XLISP             | 1.1                               | Public‑domain Lisp interpreter     |
 | Micro Focus COBOL | Level II V2.1                     | CP/M‑86; compiler `cobol.cmd`, runtime `run.cmd`                             |
 
 ### Assemblers
@@ -236,26 +235,12 @@ All the tools are wrapped in the bin directory for direct usage:
 | Basic                     | pcdev_mbasic  | mbasic86.com     | Microsoft Basic 5.50 (DOS, via emu2)                   |
 | Basic                     | pcdev_gwbasic  | gwbasic.exe     | Microsoft GW Basic 3.23 (DOS, via emu2)                   |
 | C                         | ansi2kr       | (native)         | ANSI C to K&R C converter (native)                     |
-| C                         | aztec34_as    | as.exe           | Aztec assembler (v3.4)                                 |
-| C                         | aztec34_cc    | cc.exe           | Aztec K&R C compiler (v3.4)                            |
-| C                         | aztec34_hex86 | hex86.exe        | Aztec C H86 generator (v3.4)                           |
-| C                         | aztec34_lib   | lb.exe           | Aztec C lib (v3.4)                                     |
-| C                         | aztec34_link  | ln.exe           | Aztec C linker (v3.4)                                  |
-| C                         | aztec34_obd   | obd.exe          | Aztec C object dump (v3.4)                             |
-| C                         | aztec34_obj   | obj.exe          | Aztec C object lister (v3.4)                           |
-| C                         | aztec34_ord   | ord.exe          | Aztec C library ordering helper (v3.4)                 |
-| C                         | aztec34_sqz   | sqz.exe          | Aztec C object optimizer (v3.4)                        |
 | C                         | aztec43_acc   | (native)         | Unified Aztec C compiler/linker driver (v4.3)          |
 | C                         | aztec43_lib   | lb.exe           | Aztec C lib (v4.3)                                     |
-| C                         | aztec42_as    | as.exe           | Aztec assembler (v4.2)                                 |
-| C                         | aztec42_cc    | cc.exe           | Aztec ANSI C compiler (v4.2)                           |
-| C                         | aztec42_hex86 | hex86.exe        | Aztec C H86 generator (v4.2)                           |
-| C                         | aztec42_lib   | lb.exe           | Aztec C lib (v4.2)                                     |
-| C                         | aztec42_link  | ln.exe           | Aztec C linker (v4.2)                                  |
-| C                         | aztec42_obd   | obd.exe          | Aztec C object dump (v4.2)                             |
-| C                         | aztec42_obj   | obj.exe          | Aztec C object lister (v4.2)                           |
-| C                         | aztec42_ord   | ord.exe          | Aztec C library ordering helper (v4.2)                 |
-| C                         | aztec42_sqz   | sqz.exe          | Aztec C object optimizer (v4.2)                        |
+| C                         | aztec43_obd   | obd.exe          | Aztec C object dump (v4.3)                             |
+| C                         | aztec43_obj   | obj.exe          | Aztec C object lister (v4.3)                           |
+| C                         | aztec43_ord   | ord.exe          | Aztec C library ordering helper (v4.3)                 |
+| C                         | aztec43_sqz   | sqz.exe          | Aztec C object optimizer (v4.3)                        |
 | C                         | drccpm_cc     | drc860+861.cmd   | DR C 1.11 compiler (two‑pass)                          |
 | C                         | drccpm_link   | linkcmd.exe      | DR C 1.11 linker                                       |
 | C                         | msc5_cl       | cl.exe           | Microsoft C 5.1 compiler (CL 5.10)                     |
@@ -344,8 +329,7 @@ export PATH="$(pwd -P)"/bin
 
 |                                         Component | Source                                                                                                                           |
 |--------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------|
-| Aztec C 4.2                                       | [AztecC86.zip](https://www.aztecmuseum.ca/AztecC86.zip)                                                                          |
-| Aztec C 3.4                                       | [az8634b.zip](https://www.aztecmuseum.ca/az8634b.zip)                                                                            |
+| Aztec C 4.3                                       | [AztecC86.zip](https://www.aztecmuseum.ca/AztecC86.zip)                                                                          |
 | RASM‑86, LINK‑86, LIB‑86                          | [tools86.zip](http://www.cpm.z80.de/download/tools86.zip) (stored in `src/drtools`)                                              |
 | ASM‑86 + GENCMD (CP/M‑80)                         | [mpm862sr.zip](http://www.cpm.z80.de/download/mpm862sr.zip) (stored in `src/drtools`)                                            |
 | XLT86 1.3                                         | [xlt86.zip](http://www.cpm.z80.de/download/xlt86.zip) (stored in `src/drpackages/xlt86`)                                         |
@@ -373,7 +357,7 @@ export PATH="$(pwd -P)"/bin
 | MSC 5.1                                           | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub, stored in `src/mspackages/msc51`)                                         |
 | ARC86                                             | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`)      |
 | LU86 / (U)SQ                                      | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, `lbr` and `xsq`)                                                  |
-| XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (GitHub, built from source with aztec42)                                  |
+| XLISP 1.1                                         | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports)       |
 | Micro Focus Level II COBOL                        | [LII‑COBOL‑CPM86.zip](https://www.roug.org/retrocomputing/languages/cobol/microfocus/LII-COBOL-CPM86.zip)                        |
 | TDL BASIC 3.05 (CP/M‑80)                          | [Nutting_ICE.zip](https://bitsavers.org/bits/Nutting_Assoc/Nutting_ICE.zip)                                                      |
 
@@ -513,7 +497,6 @@ to use the created image, just ensure that the local path where the compilation 
 
 ```sh
 docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 pcdev_rasm86 helloa.a86
-docker run -it --rm -h cpm86 -v "$(pwd -P)":/work -w /work cpm86 aztec34_cc helloc.c
 ```
 The only difference on the command line happens with \;
 ```sh
@@ -561,13 +544,12 @@ cmdinfo hellocvt.cmd
 **Aztec C 4.3 is the primary compiler of this toolkit.** It supports
 almost‑ANSI C89, targets CP/M‑86 and DOS 1.1/2.x (small to large models, 8087,
 overlays), and its runtime and CP/M‑86 library are actively improved. Use
-`aztec34` only when strict K&R compatibility is required or for legacy builds.
 
 | Reference | |
 |:----------|:-|
 | [`acc` manual](docs/aztec43/acc.md) | the unified driver: options, defaults, scenarios, limits |
 | [C library reference](docs/aztec43/clib-ref.md) | what changed in the 4.3 library, ANSI C89 conformance table |
-| [Patch recipe](src/aztec42-patch/README.md) | how the runtime is patched and rebuilt |
+| [Patch recipe](src/aztec43-patch/README.md) | how the runtime is patched and rebuilt |
 | Aztec C86 4.10 manual (`aztecc-4.10.pdf`) | the original compiler, library and tools manual, from the [Aztec Museum](https://www.aztecmuseum.ca/intro.htm#intro) documentation |
 
 `drccpm_cc` is the DR C 1.11 compiler for CP/M‑86. It runs two passes
@@ -594,20 +576,8 @@ This is not necessary with the wrappers.
 
 <table width="100%">
 <tr><th>Variant</th><th>Commands</th></tr>
-<tr><td>Aztec C 4.2 unified driver</td><td><pre style="margin:0">
+<tr><td>Aztec C 4.3 unified driver</td><td><pre style="margin:0">
 aztec43_acc -target=cpm86 helloc.c -o helloc.cmd
-cmdinfo helloc.cmd
-</pre></td></tr>
-<tr><td>Aztec C 4.2 (preferred, almost‑ANSI)</td><td><pre style="margin:0">
-aztec42_cc helloc.c
-aztec42_sqz helloc.o
-aztec42_link -o helloc.cmd helloc.o -lc86
-cmdinfo helloc.cmd
-</pre></td></tr>
-<tr><td>Aztec C 3.4 (K&R legacy)</td><td><pre style="margin:0">
-aztec34_cc helloc.c
-aztec34_sqz helloc.o
-aztec34_link -o helloc.cmd helloc.o -lc86
 cmdinfo helloc.cmd
 </pre></td></tr>
 <tr><td><a href="docs/drc/drc-ref.md">DR C 1.11 (K&R)</a></td><td><pre style="margin:0">
@@ -627,19 +597,9 @@ emu2 hellomsc.exe
 </pre></td></tr>
 </table>
 
-`aztec43_acc` is the unified compiler/linker driver. The Aztec 4.2 fetcher
-builds and installs the native `acc` and DOS `acc.exe` into
-`share/aztec42/bin`; rebuild and reinstall them with
-`make -C src/aztec42-acc install`. The launcher runs the `acc` installed in
-the selected Aztec root and accepts `-toolroot=path` or uses
-`AZTEC42_ROOT` (defaulting to `share/aztec42` relative to the repository).
-Usage and scenarios are in the [`acc` manual](docs/aztec4333cc.md).
-The `aztec42_cc` and `aztec42_link` commands remain available for workflows
-not yet migrated.
-
 #### C runtime startup
 
-`aztec34_link`/`aztec42_link` automatically prepend the matching C runtime
+`aztec43_acc` automatically prepend the matching C runtime
 startup object, so the `$begin ‑> Croot_ ‑> main ‑> exit` entry/exit code is
 always present. The startup is selected from the C library you link against:
 
@@ -653,7 +613,7 @@ always present. The startup is selected from the C library you link against:
 | `-lcl` | DOS large code and data | `lbegin.o` |
 
 These startup objects are produced from the C libraries by `fetch_tools`
-(inside the Aztec 3.4 and 4.2 fetchers). Without this, Aztec's single‑pass `ln` only pulls
+(inside the Aztec 4.3 fetcher). Without this, Aztec's single‑pass `ln` only pulls
 the startup from the library on demand, so a program that references no libc
 symbol — e.g. `int main(void){ return 0; }` — would link with **no** startup and
 crash on exit, and a program that references the startup indirectly (e.g.
@@ -663,20 +623,7 @@ command‑line object fixes all of these cases, so neither `ord` nor a doubled
 library is needed. To restore the old behavior set `AZTEC_NOSTARTUP=1`, or force
 a specific startup with `AZTEC_STARTUP=<obj‑in‑lib>`.
 
-#### Rebuilding the Aztec 4.2 runtime
-
-After installing the toolchain with `./fetch_tools`, run these commands from
-the repository root to rebuild the installed sources, refresh the linker
-startup objects, and run the regressions.
-
-```sh
-rm -f archive/aztec42/built
-./fetch_tools
-make -C src/aztecreg clean check dos-check
-```
-
-The [patch recipe](src/aztec42-patch/README.md) covers fresh installs,
-upgrades, and regenerating the patches after editing the runtime.
+For 4.3, the acc driver manages the proper ordering
 
 ### Assembler Programs
 

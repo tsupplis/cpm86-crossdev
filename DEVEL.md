@@ -18,9 +18,9 @@ cpm86-crossdev/
 │   │   ├── cross_aztec34      # download-only fetcher example
 │   │   ├── native_emu2        # git-clone + build fetcher example
 │   │   └── …
-│   ├── aztec42-patch/   # one original-source runtime.patch and build recipes
+│   ├── aztec43-patch/   # one original-source runtime.patch and build recipes
 │   ├── aztec34-patch/   # binary patches for the 3.4 compiler and bundled emulator
-│   ├── aztec42-acc/     # portable Unix/DOS Aztec driver foundation and design
+│   ├── aztec43-acc/     # portable Unix/DOS Aztec driver foundation and design
 │   ├── drpackages/      # DR C, F77, PL/I, Pascal MT+, CB86 packages (stored in-tree)
 │   ├── drtools/         # DR Personal Basic binary (stored in-tree)
 │   ├── mstools/         # Microsoft tools stored in-tree
@@ -31,13 +31,13 @@ cpm86-crossdev/
 │   ├── emu2/            # emu2-cpm86 source (cloned once, .git stripped)
 │   ├── tnylpo/          # tnylpo source (cloned once, .git stripped)
 │   ├── cmdtools/        # cpm86-cmdtools source (cloned once, .git stripped)
-│   ├── aztec42/         # preserved runtime sources, build tools, libraries and state
+│   ├── aztec43/         # preserved runtime sources, build tools, libraries and state
 │   ├── nasm/            # nasm source (extracted from tarball)
 │   ├── upx/             # upx source (extracted from tarball)
 │   └── *.zip / *.tar.gz / …  # downloaded archives
 ├── share/               # staged tool trees consumed by wrappers (gitignored)
 │   ├── aztec34/         # Aztec C 3.4 — bin/ lib/ include/
-│   ├── aztec42/         # Aztec C 4.2 — bin/ lib/ include/
+│   ├── aztec43/         # Aztec C 4.2 — bin/ lib/ include/
 │   ├── cpm/             # CP/M-80 and CP/M-86 .com/.cmd binaries
 │   ├── pcdev/           # DOS tools (.exe/.com)
 │   ├── emu/             # cpm86.exe emulator image
@@ -62,13 +62,13 @@ cpm86-crossdev/
 │   ├── doscat           # compiled native binary (gitignored)
 │   ├── hexcom           # compiled native binary (gitignored)
 │   ├── ansi2kr          # compiled native binary (gitignored)
-│   └── aztec42_cc       # shell wrapper (tracked in git)
+│   └── aztec43_cc       # shell wrapper (tracked in git)
 │   └── …               # all other shell wrappers (tracked in git)
 ├── local/               # user scratch area (gitignored)
 └── examples/            # sample source files
 ```
 
-The [acc driver design](src/aztec42-acc/design.md) documents the proposed
+The [acc driver design](src/aztec43-acc/design.md) documents the proposed
 portable Unix/DOS driver using C4 views, Mermaid diagrams, and a detailed
 single-dash interface-to-Aztec mapping. The current project is a buildable
 foundation, not yet a replacement for the compiler/linker wrappers.
@@ -103,29 +103,29 @@ objects, and removes the explicitly excluded utilities and compiler backups.
 Patch completion is recorded in `archive/aztec34/patched` because the backup
 files are no longer retained in share.
 
-`cross_aztec42` is the single download/import, unpack, patch, build, and
+`cross_aztec43` is the single download/import, unpack, patch, build, and
 install entry point. It preserves runtime sources, original tools, and
-patch/build markers under `archive/aztec42`, imports legacy source/header
+patch/build markers under `archive/aztec43`, imports legacy source/header
 edits before cleanup, and adds DOS11.ARC from the cached 3.4 distribution.
 It applies the compiler batch-mode fix and the single `runtime.patch`,
 then builds all libraries using the wrappers with
-`AZTEC42_ROOT="$root/archive/aztec42"`. This override selects the toolchain
+`AZTEC43_ROOT="$root/archive/aztec43"`. This override selects the toolchain
 root consistently for compiler, assembler, linker, and object/library tools;
-normal wrapper use still defaults to `share/aztec42`.
+normal wrapper use still defaults to `share/aztec43`.
 Startup extraction is included in this fetcher and runs against the build tree.
 
-Only `bin/`, `include/`, and `lib/` are published into `share/aztec42`.
+Only `bin/`, `include/`, and `lib/` are published into `share/aztec43`.
 The explicitly excluded tools are listed in the patch recipe; remaining
 development/interop tools are retained. The final directory has no source
 tree, compiler backup, or build markers. A failed build leaves the existing
 installation in place. `clear_tools` removes the installed share tree but
 preserves the archive build tree for offline reinstallation.
 `cross_aztec52_upgrade` is unchanged and remains outside the default flow.
-There are only two active Aztec fetchers: `cross_aztec34` and `cross_aztec42`.
+There are only two active Aztec fetchers: `cross_aztec34` and `cross_aztec43`.
 Both are sourced by `fetch_tools`, have no command-line interface, and
 include their own startup extraction. There is no separate build/startup fetcher.
 The rebuild command and regression targets are in the
-[Aztec patch recipe](src/aztec42-patch/README.md).
+[Aztec patch recipe](src/aztec43-patch/README.md).
 
 ---
 
@@ -301,9 +301,9 @@ directory (`CCTEMP`).
 
 ```sh
 #!/bin/sh
-prog=`basename $0 | sed -e 's/aztec42_//g'`.exe
+prog=`basename $0 | sed -e 's/aztec43_//g'`.exe
 emu2=`dirname $0`/emu2
-EMU2_DRIVE_D="`dirname $0`/../share/aztec42"
+EMU2_DRIVE_D="`dirname $0`/../share/aztec43"
 export EMU2_DRIVE_D
 if [ -z "$TMPDIR" ]; then
     TMPDIR="/tmp/emu2-`id -u`"
@@ -317,7 +317,7 @@ export EMU2_PROGNAME
   CCTEMP="E:\\TEMP\\"
 ```
 
-Examples: [`bin/aztec42_cc`](bin/aztec42_cc), [`bin/aztec34_cc`](bin/aztec34_cc).
+Examples: [`bin/aztec43_cc`](bin/aztec43_cc), [`bin/aztec34_cc`](bin/aztec34_cc).
 
 ---
 

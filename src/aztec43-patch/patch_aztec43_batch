@@ -25,7 +25,7 @@ patch_byte()
     | dd of="${file}" bs=1 seek="${offset}" conv=notrunc 2> /dev/null
 }
 
-infile="./aztec42/bin/cc.exe"
+infile="./aztec43/bin/cc.exe"
 backup="${infile}.bak"
 
 if [ ! -f "${infile}" ]; then

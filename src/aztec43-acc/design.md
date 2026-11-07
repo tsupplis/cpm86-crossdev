@@ -1,12 +1,12 @@
 # acc: design
 
 Portable driver for the Aztec C86 4.10d toolchain (labelled 4.3 by
-`azdefs.h`). Replaces the `c.exe` driver and the `aztec42_cc`/`aztec42_link`
+`azdefs.h`). Replaces the `c.exe` driver and the `aztec43_cc`/`aztec43_link`
 wrappers; keeps the Aztec compiler, assembler, linker and runtime.
 
 | Document | Content |
 | --- | --- |
-| [acc.md](../../docs/aztec42/acc.md) | user reference: options, modes, defaults, macros, limits |
+| [acc.md](../../docs/aztec43/acc.md) | user reference: options, modes, defaults, macros, limits |
 | this file | architecture, contracts, decisions, evidence |
 | [plan.md](plan.md) | execution history (phases P0-P7, decisions D1-D6) |
 
@@ -31,7 +31,7 @@ wrappers; keeps the Aztec compiler, assembler, linker and runtime.
 | DOS build | Unix `acc -target=dos2 -DACC_DOS`, objects in `obj/dos`; any Aztec `WARNING` fails |
 | Native DOS bootstrap | `build.bat <aztec-root>` (cc/ln directly; not run by `make`) |
 | Installed layout | `<root>/bin/acc`, `<root>/bin/acc.exe`, `<root>/include/azdefs.h` |
-| Installer | `make install INSTALL_ROOT=<root>`, run by the [fetcher](../fetch/cross_aztec42) |
+| Installer | `make install INSTALL_ROOT=<root>`, run by the [fetcher](../fetch/cross_aztec43) |
 | Launcher | `bin/aztec43_acc` adds `-toolroot`; it adds no policy |
 
 Portability rules: C89, 16-bit `int`/`size_t`, 64 KB data, no large stack
@@ -218,8 +218,8 @@ limits, logging) are kept. On DOS, host paths are guest paths.
 
 | Concern | Owner | Detail |
 | --- | --- | --- |
-| Target, model, CPU, float flags; startup, runtime, math libraries | `profile.c` | docs/aztec42/acc.md "Link target", "Defaults" |
-| Raw `-Wc`/`-Wa`/`-Wl` options | `raw.c` | docs/aztec42/acc.md "Backend options" |
+| Target, model, CPU, float flags; startup, runtime, math libraries | `profile.c` | docs/aztec43/acc.md "Link target", "Defaults" |
+| Raw `-Wc`/`-Wa`/`-Wl` options | `raw.c` | docs/aztec43/acc.md "Backend options" |
 | Always emitted | `plan.c` | `cc -b` (no pause), `cc -n` unless `-g` |
 | On request | `plan.c` | `-squeeze`: `sqz.exe OBJ` (in place) after each `cc`/`as` command |
 | Never emitted | | `cc -3` (K&R), `cc +ej` (unsupported by v4.10d), `ln -N`, `as -ZAP`, foreign ABI modes |

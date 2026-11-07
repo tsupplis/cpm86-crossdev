@@ -1,7 +1,7 @@
 BIN := $(abspath ../../bin)
 ACC := $(abspath ../../bin/aztec43_acc)
-ACCROOT := $(abspath ../../share/aztec42)
-LIBDIR := ../../share/aztec42/lib
+ACCROOT := $(abspath ../../share/aztec43)
+LIBDIR := ../../share/aztec43/lib
 LIB := $(LIBDIR)/c86.lib
 
 # The compiler driver reuses fixed DOS temporary filenames.
@@ -15,7 +15,7 @@ check: regress.cmd legacy.o status-check header-check link-check response-check 
 regress.cmd: regress.o $(LIB) $(LIBDIR)/m.lib
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 regress.o -lm -o $@
 
-regress.o: regress.c $(wildcard ../../share/aztec42/include/*.h)
+regress.o: regress.c $(wildcard ../../share/aztec43/include/*.h)
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 clean:
@@ -39,7 +39,7 @@ status-check: exit31.cmd exit32.cmd
 	done
 	@output=$$("$(BIN)/emu2" exit32.cmd negative) && printf '%s\n' "$$output" | tr -d '\r' | grep -qx VF
 
-legacy.o: legacy.c $(wildcard ../../share/aztec42/include/*.h)
+legacy.o: legacy.c $(wildcard ../../share/aztec43/include/*.h)
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 .PHONY: dos-check
