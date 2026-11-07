@@ -1,6 +1,3 @@
-AS=aztec34_as
-CC=aztec34_cc
-AR=aztec34_lib
 CFLAGS=-I. +F +0 -D__CPM86__
 DCFLAGS=-I. +F +0 -D__DOS__
 STRIP=aztec34_sqz
@@ -8,8 +5,8 @@ LDFLAGS=-lc86
 DLDFLAGS=-ld11
 MLDFLAGS=-lm -lc86
 DMLDFLAGS=-lm -ld11
-LD=aztec34_link
-ACC_DRIVER=aztec43_acc
+CC=aztec43_acc
+LD=aztec43_acc
 LINK86=pcdev_linkcmd
 RASM86=pcdev_rasm86
 ASM86=cpm86_asm86
@@ -87,7 +84,7 @@ binaries: $(8086_CMDS) $(8080_CMDS)
 
 ovraza.cmd: ovrmain.o
 	rm -f ovraza.cmd ovraza.rsm
-	$(ACC_DRIVER) -target=cpm86 \
+	$(CC) -target=cpm86 \
 	    -overlay-root=1020,a00 ovrmain.o -o ovraza.cmd
 	$(CMDINFO) ovraza.cmd
 
@@ -95,48 +92,48 @@ ovraza.rsm: ovraza.cmd
 	@test -s $@
 
 ovrmain.o: ovrmain.c
-	$(ACC_DRIVER) -target=cpm86 -c $<
+	$(CC) -target=cpm86 -c $<
 
 ovrfunc1.ovr: ovrfunc1.o ovraza.rsm
-	$(ACC_DRIVER) -target=cpm86 \
+	$(CC) -target=cpm86 \
 	    -overlay=ovraza.rsm $< -o $@
 
 ovrfunc1.o: ovrfunc1.c
-	$(ACC_DRIVER) -target=cpm86 -c $<
+	$(CC) -target=cpm86 -c $<
 
 ovrfunc2.ovr: ovrfunc2.o ovraza.rsm
-	$(ACC_DRIVER) -target=cpm86 \
+	$(CC) -target=cpm86 \
 	    -overlay=ovraza.rsm $< -o $@
 
 ovrfunc2.o: ovrfunc2.c
-	$(ACC_DRIVER) -target=cpm86 -c $<
+	$(CC) -target=cpm86 -c $<
 
 # DOS 2 build of the overlay example: ovrmain.c loads ovrfnd1/ovrfnd2
 # when compiled with -target=dos2 (__MSDOS__).
 ovrazd.exe: ovrmaind.o
 	rm -f ovrazd.exe ovrazd.rsm
-	$(ACC_DRIVER) \
+	$(CC) \
 	    -overlay-root=1020,a00 ovrmaind.o -o ovrazd.exe
 
 ovrazd.rsm: ovrazd.exe
 	@test -s $@
 
 ovrmaind.o: ovrmain.c
-	$(ACC_DRIVER) -target=dos2 -c $< -o $@
+	$(CC) -target=dos2 -c $< -o $@
 
 ovrfnd1.ovr: ovrfnd1.o ovrazd.rsm
-	$(ACC_DRIVER) -target=dos2 \
+	$(CC) -target=dos2 \
 	    -overlay=ovrazd.rsm $< -o $@
 
 ovrfnd1.o: ovrfunc1.c
-	$(ACC_DRIVER) -target=dos2 -c $< -o $@
+	$(CC) -target=dos2 -c $< -o $@
 
 ovrfnd2.ovr: ovrfnd2.o ovrazd.rsm
-	$(ACC_DRIVER) -target=dos2 \
+	$(CC) -target=dos2 \
 	    -overlay=ovrazd.rsm $< -o $@
 
 ovrfnd2.o: ovrfunc2.c
-	$(ACC_DRIVER) -target=dos2 -c $< -o $@
+	$(CC) -target=dos2 -c $< -o $@
 
 hellocba.int: hellocba.bas
 	$(CBAS86) $<
@@ -249,25 +246,25 @@ hellob.cmd: hellob.h86
 	$(CMDINFO) $@
   
 helloazd.exe: helloaza.c
-	$(ACC_DRIVER) -target=dos1 $< -o $@
+	$(LD) -target=dos1 $< -o $@
 
 helloaza.cmd: helloaza.c
-	$(ACC_DRIVER) -target=cpm86 $< -o $@
+	$(LD) -target=cpm86 $< -o $@
 	$(CMDINFO) $@
 
 mathazd.exe: mathazc.c
-	$(ACC_DRIVER) -target=dos1 $< -lm -o $@
+	$(LD) -target=dos1 $< -lm -o $@
 
 mathazc.cmd: mathazc.c
-	$(ACC_DRIVER) -target=cpm86 $< -lm -o $@
+	$(LD) -target=cpm86 $< -lm -o $@
 	$(CMDINFO) $@
 
 helloaz7.cmd: helloaz7.c
-	$(ACC_DRIVER) -target=cpm86 $< -lm -o $@
+	$(LD) -target=cpm86 $< -lm -o $@
 	$(CMDINFO) $@
 
 helloazc.cmd: helloazc.c
-	$(ACC_DRIVER) -target=cpm86 $< -o $@
+	$(LD) -target=cpm86 $< -o $@
 	$(CMDINFO) $@
 
 hellof77.cmd: hellof77.obj
@@ -390,7 +387,6 @@ hellocbl.int: hellocbl.cbl
 
 %.o: %.c
 	$(CC) $(CFLAGS) $<
-	$(STRIP) $@
 
 %.obj: %.f77
 	$(F77) $<
