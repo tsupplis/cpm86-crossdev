@@ -59,6 +59,7 @@ fi
 (cd "$build" && "$root/src/aztec43-patch/apply_patches")
 export AZTEC43_ROOT="$build"
 echo INF: Building Aztec 4.3 ...
+PATH="$root/src/aztec43-patch":$PATH
 refresh_startups=
 if [ ! -f "$build/built" ]; then
     chmod u+x "$build/src/build"

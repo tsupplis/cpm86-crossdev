@@ -1713,9 +1713,9 @@ index fe7d6ca..0340dd9 100644
  
 -CC=cc
 -AS=as
-+CC=aztec42_cc
-+AS=aztec42_as
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++SQZ=pre_sqz
  MODEL=
  AMODEL=0
  
@@ -2674,9 +2674,9 @@ index 0000000..b6323a6
 +open.o read.o rename.o sbrk.o stkover.o unlink.o write.o lseek.o \
 +fcbinit.o access.o os.o errno.o 
 +
-+CC=aztec42_cc
-+AS=aztec42_as
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++SQZ=pre_sqz
 +MODEL=
 +AMODEL=0
 +
@@ -2930,9 +2930,9 @@ index 1d79bc0..cfa3c4f 100644
  
 -CC=cc
 -AS=as
-+CC=aztec42_cc
-+AS=aztec42_as
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++SQZ=pre_sqz
  MODEL=
  AMODEL=0
  
@@ -3088,10 +3088,10 @@ index 3aaac92..5fe6614 100644
  
 -CC=cc
 -AS=as
-+CC=aztec42_cc
-+AS=aztec42_as
-+LIB=aztec42_lib
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++LIB=aztec43_lib
++SQZ=pre_sqz
  MODEL=
  AMODEL=0
  
@@ -3274,8 +3274,8 @@ index a6fbade..77feace 100644
 --- a/before/src/makefile
 +++ b/after/src/makefile
 @@ -1,3 +1,6 @@
-+LIB=aztec42_lib
-+ORD=aztec42_ord
++LIB=aztec43_lib
++ORD=aztec43_ord
 +DIR=
  MODEL=
  AMODEL=0
@@ -3972,9 +3972,9 @@ index 5fbe219..95fd6b3 100644
  
 -CC=cc
 -AS=as
-+CC=aztec42_cc
-+AS=aztec42_as
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++SQZ=pre_sqz
  MODEL=
  AMODEL=0
  
@@ -4174,9 +4174,9 @@ index f31da2d..3b28175 100644
  
 -CC=cc
 -AS=as
-+CC=aztec42_cc
-+AS=aztec42_as
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++SQZ=pre_sqz
  MODEL=
  AMODEL=0
 -DIR=
@@ -4655,9 +4655,9 @@ index 9d5d357..61da3e8 100644
  
 -CC=cc
 -AS=as
-+CC=aztec42_cc
-+AS=aztec42_as
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++SQZ=pre_sqz
  MODEL=
  AMODEL=0
  
@@ -5290,10 +5290,10 @@ index deba9f1..eae1ed0 100644
 +OBJ2=scr_inve.o scr_ldel.o \
 +	scr_lins.o scr_curs.o scr_loc.o scr_putc.o scr_call.o
 +
-+CC=aztec42_cc
-+AS=aztec42_as
-+LIB=aztec42_lib
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++LIB=aztec43_lib
++SQZ=pre_sqz
  MODEL=
  AMODEL=0
  
@@ -5860,9 +5860,9 @@ index 48a68bf..611cbed 100644
  
 -CC=cc
 -AS=as
-+CC=aztec42_cc
-+AS=aztec42_as
-+SQZ=aztec42_sqz
++CC=pre_cc
++AS=pre_as
++SQZ=pre_sqz
  MODEL=
  AMODEL=0
  

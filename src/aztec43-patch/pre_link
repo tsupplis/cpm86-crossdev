@@ -1,0 +1,76 @@
+#!/bin/sh
+prog=ln.exe
+emu2=`dirname $0`/../../bin/emu2
+EMU2_DRIVE_D="${AZTEC43_ROOT:-$(dirname "$0")/../../share/aztec43}"
+EMU2_APPEND="D:\\LIB"
+export EMU2_DRIVE_D
+if [ -z "$TMPDIR" ]; then
+    TMPDIR="/tmp/emu2-`id -u`"
+fi
+mkdir -p "$TMPDIR/AZTEC/TEMP"
+EMU2_DRIVE_E="$TMPDIR/AZTEC"
+export EMU2_DRIVE_E
+EMU2_PROGNAME="D:\\bin\\$prog"
+export EMU2_PROGNAME
+
+# Force the matching C runtime startup ($begin -> Croot_ -> main -> exit) into
+# every link.  Aztec's ln only pulls library members on demand, so a program
+# that does not reference libc (e.g. `int main(void){ return 0; }`) gets NO
+# startup and falls off the end of main into garbage -> crash.  Prepending the
+# startup object guarantees it is linked (command-line objects are always kept),
+# makes $begin the entry point, and sidesteps the single-pass backward-reference
+# problem between the begin/croot library modules.
+#
+# The right startup depends on target + memory model, which is implied by the C
+# library being linked, so we select it from the -l<lib> argument:
+#     -lc86         CP/M-86       begin86.o   (small; the only CP/M-86 model)
+#     -lc / -lcl    MS-DOS small / large: sbegin.o / lbegin.o
+#     -lclc / -lcld MS-DOS mixed models: beginlc.o / beginld.o
+# Overrides: AZTEC_STARTUP=<obj-in-lib> forces a specific startup;
+#            AZTEC_NOSTARTUP=1 restores the old raw-ln behaviour.
+# Scan response-file tokens without evaluating them as shell commands.
+# Keep the original arguments intact for ln; the last target library wins.
+response_startup() {
+    [ -r "$1" ] || return 0
+    awk '{
+        for (i = 1; i <= NF; ++i) {
+            sub(/\r$/, "", $i)
+            if ($i == "-lc86") s = "begin86.o"
+            else if ($i == "-ld11") s = "begin11.o"
+            else if ($i == "-lc") s = "sbegin.o"
+            else if ($i == "-lcl") s = "lbegin.o"
+            else if ($i == "-lclc") s = "beginlc.o"
+            else if ($i == "-lcld") s = "beginld.o"
+        }
+    } END { if (s != "") print s }' "$1"
+}
+startup=
+response_next=
+for a in "$@"; do
+    if [ -n "$response_next" ]; then
+        selected=$(response_startup "$a")
+        [ -z "$selected" ] || startup=$selected
+        response_next=
+        continue
+    fi
+    case "$a" in
+        -f)         response_next=1 ;;
+        -f?*)       selected=$(response_startup "${a#-f}")
+                    [ -z "$selected" ] || startup=$selected ;;
+        -lc86)      startup=begin86.o ;;
+        -ld11)      startup=begin11.o ;;
+        -lcl)       startup=lbegin.o ;;
+        -lc)        startup=sbegin.o ;;
+        -lclc)      startup=beginlc.o ;;
+        -lcld)      startup=beginld.o ;;
+    esac
+done
+[ -n "$AZTEC_STARTUP" ] && startup=$AZTEC_STARTUP
+[ -n "$AZTEC_NOSTARTUP" ] && startup=
+
+startobj=
+if [ -n "$startup" ] && [ -f "$EMU2_DRIVE_D/lib/$startup" ]; then
+    startobj="D:\\lib\\$startup"
+fi
+
+"$emu2" "$EMU2_DRIVE_D/bin/$prog" $startobj "$@" -- PATH=D:\\BIN CLIB=D:\\LIB\\ CCTEMP="E:\\TEMP\\"
