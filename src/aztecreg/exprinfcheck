@@ -7,15 +7,17 @@ work=$(mktemp -d "${TMPDIR:-/tmp}/azexprinf.XXXXXX")
 trap 'rm -rf "$work"' EXIT HUP INT TERM
 cp "$expr"/*.c "$expr"/*.h "$work/"
 cd "$work"
+acc() { "$bin/aztec43_acc" -emu="$bin/emu2" "$@"; }
 for target in ${EXPR_TARGETS:-c86}; do
     case $target in
-        clc) model=lc;; cld) model=ld;;
-        cl) model=l;; *) model=;;
+        c86) opts=-target=cpm86; out=smoke.cmd;;
+        d11) opts=-target=dos1; out=smoke.com;;
+        c) opts=-target=dos2; out=smoke.exe;;
+        clc) opts="-target=dos2 -mcmodel=medium"; out=smoke.exe;;
+        cld) opts="-target=dos2 -mcmodel=compact"; out=smoke.exe;;
+        cl) opts="-target=dos2 -mcmodel=large"; out=smoke.exe;;
     esac
-    case $target in c86) out=smoke.cmd;; d11) out=smoke.com;; *) out=smoke.exe;; esac
-    "$bin/aztec42_cc" +"$model" +F +0 -I. -DREQUIRE_INFINITY -o smoke.o smoke.c
-    "$bin/aztec42_cc" +"$model" +F +0 -I. -o tinyexpr.o tinyexpr.c
-    "$bin/aztec42_link" -o "$out" smoke.o tinyexpr.o -lm"$model" -l"$target"
+    acc $opts -I. -DREQUIRE_INFINITY -o "$out" smoke.c tinyexpr.c -lm
     output=$("$bin/emu2" "$out")
     printf '%s\n' "$output"
     printf '%s\n' "$output" | grep -q 'ALL TESTS PASSED'
@@ -23,8 +25,7 @@ for target in ${EXPR_TARGETS:-c86}; do
     printf '%s\n' "$output" | grep -Eq 'INFs[[:space:]]+pass:[1-9][0-9]*[[:space:]]+fail: 0'
     # The other programs exercised by expr's make test target.
     for demo in expl expl2 expl3 reg; do
-        "$bin/aztec42_cc" +"$model" +F +0 -I. -DREQUIRE_INFINITY -o demo.o "$demo.c"
-        "$bin/aztec42_link" -o "$out" demo.o tinyexpr.o -lm"$model" -l"$target"
+        acc $opts -I. -DREQUIRE_INFINITY -o "$out" "$demo.c" tinyexpr.c -lm
         if [ "$demo" = expl2 ]; then
             output=$("$bin/emu2" "$out" '45+sqrt(34)')
         else

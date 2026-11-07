@@ -5,24 +5,28 @@ bin=$1
 source=$(pwd)/linkone.c
 work=$(mktemp -d "${TMPDIR:-/tmp}/azlink.XXXXXX")
 trap 'rm -rf "$work"' EXIT HUP INT TERM
+acc() { "$bin/aztec43_acc" -emu="$bin/emu2" "$@"; }
 cp "$source" "$work/one.c"
 cd "$work"
 for target in c86 d11 c clc cld cl; do
-    case $target in clc) model=lc;; cld) model=ld;; cl) model=l;; *) model=;; esac
+    case $target in
+        c86) opts=-target=cpm86; out=one.cmd;;
+        d11) opts=-target=dos1; out=one.com;;
+        c) opts=-target=dos2; out=one.exe;;
+        clc) opts="-target=dos2 -mcmodel=medium"; out=one.exe;;
+        cld) opts="-target=dos2 -mcmodel=compact"; out=one.exe;;
+        cl) opts="-target=dos2 -mcmodel=large"; out=one.exe;;
+    esac
     last=35
     case $target in c86) last=33;; d11) last=33;; esac
     n=0
     while [ "$n" -le "$last" ]; do
         echo "LINK CASE: $target $n"
-        "$bin/aztec42_cc" +"$model" +0 -DCASE="$n" -o one.o one.c
         if [ "$n" -lt 29 ] || [ "$n" -gt 31 ]; then
-            "$bin/aztec42_link" -o one.exe one.o -l"$target"
+            acc $opts -DCASE="$n" -o "$out" one.c
         else
-            for math in m m87s m87; do
-                if [ "$math" = m87 ]; then
-                    "$bin/aztec42_cc" +"$model" +0 +e -DCASE="$n" -o one.o one.c
-                fi
-                "$bin/aztec42_link" -o one.exe one.o -l"$math$model" -l"$target"
+            for float in soft auto 8087; do
+                acc $opts -mfloat="$float" -DCASE="$n" -o "$out" one.c -lm
             done
         fi
         n=$((n+1))
@@ -30,28 +34,25 @@ for target in c86 d11 c clc cld cl; do
     if [ "$target" = c86 ]; then
         for n in 38 39; do
             echo "LINK CASE: $target $n"
-            "$bin/aztec42_cc" +"$model" +0 -DCASE="$n" -o one.o one.c
             if [ "$n" = 38 ]; then
-                "$bin/aztec42_link" -o one.exe one.o -lm"$model" -l"$target"
+                acc $opts -DCASE="$n" -o "$out" one.c -lm
             else
-                "$bin/aztec42_link" -o one.exe one.o -l"$target"
+                acc $opts -DCASE="$n" -o "$out" one.c
             fi
         done
     else
         for n in 36 37 38 39; do
             echo "LINK CASE: $target $n"
-            "$bin/aztec42_cc" +"$model" +0 -DCASE="$n" -o one.o one.c
             if [ "$n" = 38 ]; then
-                "$bin/aztec42_link" -o one.exe one.o -lm"$model" -l"$target"
+                acc $opts -DCASE="$n" -o "$out" one.c -lm
             else
-                "$bin/aztec42_link" -o one.exe one.o -l"$target"
+                acc $opts -DCASE="$n" -o "$out" one.c
             fi
         done
     fi
     for n in 40 41 42 43; do
         echo "LINK CASE: $target $n"
-        "$bin/aztec42_cc" +"$model" +0 -DCASE="$n" -o one.o one.c
-        "$bin/aztec42_link" -o one.exe one.o -l"$target"
+        acc $opts -DCASE="$n" -o "$out" one.c
     done
     echo "ISOLATED LINKS PASS: $target"
 done

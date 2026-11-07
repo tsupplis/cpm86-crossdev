@@ -81,10 +81,6 @@ EXPR_SOURCE ?= $(abspath ../../../cpm86-ports/expr)
 expr-inf-check:
 	sh exprinfcheck "$(BIN)" "$(EXPR_SOURCE)"
 
-.PHONY: truncate-check
-truncate-check:
-	sh truncatecheck "$(BIN)"
-
 DOS11_SOURCE ?= $(HOME)/Projects/DOS/pcdos11-hacking
 .PHONY: truncate-pce-check
 truncate-pce-check:

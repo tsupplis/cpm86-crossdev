@@ -4,11 +4,9 @@ bin=$1
 source=$(pwd)
 work=$(mktemp -d "${TMPDIR:-/tmp}/azclose.XXXXXX")
 trap 'rm -rf "$work"' EXIT HUP INT TERM
-cp "$source/closefail.c" "$source/closefail.asm" "$work/"
+cp "$source/closec.c" "$source/closeinj.asm" "$work/"
 cd "$work"
-"$bin/aztec42_cc" +0 -o test.o closefail.c
-"$bin/aztec42_as" -o inject.o closefail.asm
-"$bin/aztec42_link" -o test.cmd test.o inject.o -lc86
+"$bin/aztec43_acc" -emu="$bin/emu2" -target=cpm86 -o test.cmd closec.c closeinj.asm
 output=$("$bin/emu2" test.cmd)
 printf '%s\n' "$output"
 printf '%s\n' "$output" | tr -d '\r' | grep -qx 'CLOSE ERROR PASS'

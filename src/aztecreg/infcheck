@@ -8,26 +8,26 @@ work=$(mktemp -d "${TMPDIR:-/tmp}/azinf.XXXXXX")
 trap 'rm -rf "$work"' EXIT HUP INT TERM
 cp "$source/inf.c" "$source/regress.c" "$work/"
 cd "$work"
+acc() { "$bin/aztec43_acc" -emu="$bin/emu2" "$@"; }
 for target in c86 d11 c clc cld cl; do
     case $target in
-        clc) model=lc;;
-        cld) model=ld;;
-        cl) model=l;;
-        *) model=;;
+        c86) opts=-target=cpm86; out=run.cmd;;
+        d11) opts=-target=dos1; out=run.com;;
+        c) opts=-target=dos2; out=run.exe;;
+        clc) opts="-target=dos2 -mcmodel=medium"; out=run.exe;;
+        cld) opts="-target=dos2 -mcmodel=compact"; out=run.exe;;
+        cl) opts="-target=dos2 -mcmodel=large"; out=run.exe;;
     esac
-    case $target in c86) out=run.cmd;; d11) out=run.com;; *) out=run.exe;; esac
     flags=
     [ "$require" != --unordered ] || flags=-DREQUIRE_UNORDERED
-    "$bin/aztec42_cc" +"$model" +0 $flags -o test.o inf.c
-    "$bin/aztec42_link" -o "$out" test.o -lm"$model" -l"$target"
+    acc $opts $flags -o "$out" inf.c -lm
     output=$("$bin/emu2" "$out")
     printf '%s\n' "$output"
     printf '%s\n' "$output" | tr -d '\r' | grep -qx 'INF CORE PASS'
     if printf '%s\n' "$output" | grep -q 'FAIL'; then exit 1; fi
     flags=
     [ "$target" = c86 ] || flags=-DDOS_TIME
-    "$bin/aztec42_cc" +"$model" +0 $flags -o regress.o regress.c
-    "$bin/aztec42_link" -o "$out" regress.o -lm"$model" -l"$target"
+    acc $opts $flags -o "$out" regress.c -lm
     output=$("$bin/emu2" "$out")
     printf '%s\n' "$output" | tr -d '\r' | grep -qx 'AZTEC PASS'
     printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ATEXIT PASS'
