@@ -68,7 +68,7 @@ A cleaned‑up distribution and kernel are available at https://github.com/tsupp
 
 | Tool              | Version                           | Description |
 |------------------:|:----------------------------------|:------------|
-| Aztec C           | 4.2/4.10d                         | **Primary compiler**; almost‑ANSI C89; `c86.lib` patched & improved, `d11.lib` for DOS 1.1 ([manual](docs/aztec42/acc.md)) |
+| Aztec C           | 4.3/4.10d                         | **Primary compiler**; almost‑ANSI C89; `c86.lib` patched & improved, `d11.lib` for DOS 1.1 ([manual](docs/aztec43/acc.md)) |
 | Aztec C           | 3.4/3.40a                         | K&R/Legacy/"C86" C; `c86.lib` patched, patched preprocessor, otherwise as‑is |
 | DR C              | 1.11                              | CP/M‑86 C compiler; passes `drc860`–`drc862`, runtime `clearl/clears.l86`    |
 | MSC               | 5.1                               | Microsoft C compiler for DOS                                                 |
@@ -558,15 +558,15 @@ cmdinfo hellocvt.cmd
 
 ### C Programs
 
-**Aztec C 4.2 is the primary compiler of this toolkit.** It supports
+**Aztec C 4.3 is the primary compiler of this toolkit.** It supports
 almost‑ANSI C89, targets CP/M‑86 and DOS 1.1/2.x (small to large models, 8087,
 overlays), and its runtime and CP/M‑86 library are actively improved. Use
 `aztec34` only when strict K&R compatibility is required or for legacy builds.
 
 | Reference | |
 |:----------|:-|
-| [`acc` manual](docs/aztec42/acc.md) | the unified driver: options, defaults, scenarios, limits |
-| [C library reference](docs/aztec42/clib-ref.md) | what changed in the 4.2 library, ANSI C89 conformance table |
+| [`acc` manual](docs/aztec43/acc.md) | the unified driver: options, defaults, scenarios, limits |
+| [C library reference](docs/aztec43/clib-ref.md) | what changed in the 4.3 library, ANSI C89 conformance table |
 | [Patch recipe](src/aztec42-patch/README.md) | how the runtime is patched and rebuilt |
 | Aztec C86 4.10 manual (`aztecc-4.10.pdf`) | the original compiler, library and tools manual, from the [Aztec Museum](https://www.aztecmuseum.ca/intro.htm#intro) documentation |
 
@@ -633,7 +633,7 @@ builds and installs the native `acc` and DOS `acc.exe` into
 `make -C src/aztec42-acc install`. The launcher runs the `acc` installed in
 the selected Aztec root and accepts `-toolroot=path` or uses
 `AZTEC42_ROOT` (defaulting to `share/aztec42` relative to the repository).
-Usage and scenarios are in the [`acc` manual](docs/aztec42/acc.md).
+Usage and scenarios are in the [`acc` manual](docs/aztec4333cc.md).
 The `aztec42_cc` and `aztec42_link` commands remain available for workflows
 not yet migrated.
 

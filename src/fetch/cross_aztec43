@@ -7,7 +7,7 @@ mkdir -p "$root/archive" "$root/share"
 work=$(mktemp -d "$root/archive/aztec42-work.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 
-echo INF: Preparing Aztec 4.2 build tree ...
+echo INF: Preparing Aztec 4.3 build tree ...
 if [ ! -d "$build" ]; then
     if [ -d "$installed/src" ]; then
         # Import sources, header edits, original binaries, and patch/build state.
@@ -49,16 +49,16 @@ if [ ! -f "$build/unpacked" ] && [ ! -f "$build/src/dos11.arc" ]; then
     mv "$work/dos11.arc" "$build/src/dos11.arc"
 fi
 if [ ! -f "$build/bin/cc.exe.bak" ]; then
-    (cd "$root/archive" && sh "$root/src/aztec42-patch/patch_aztec42_batch")
+    (cd "$root/archive" && sh "$root/src/aztec43-patch/patch_aztec43_batch")
 fi
 
-echo INF: Unpacking and patching Aztec 4.2 ...
+echo INF: Unpacking and patching Aztec 4.3 ...
 if [ ! -f "$build/unpacked" ]; then
-    (cd "$build" && "$root/src/aztec42-patch/unpack")
+    (cd "$build" && "$root/src/aztec43-patch/unpack")
 fi
-(cd "$build" && "$root/src/aztec42-patch/apply_patches")
+(cd "$build" && "$root/src/aztec43-patch/apply_patches")
 export AZTEC42_ROOT="$build"
-echo INF: Building Aztec 4.2 ...
+echo INF: Building Aztec 4.3 ...
 refresh_startups=
 if [ ! -f "$build/built" ]; then
     chmod u+x "$build/src/build"
@@ -86,7 +86,7 @@ extract_startup cld.lib lbegin beginld.o
 if [ -n "$refresh_startups" ]; then touch "$build/built"; fi
 (cd "$root/src/tools" && "${MAKE:-make}")
 
-echo INF: Installing Aztec 4.2 runtime tools ...
+echo INF: Installing Aztec 4.3 runtime tools ...
 mkdir -p "$installed/bin" "$installed/include" "$installed/lib"
 cp -R "$build/bin/." "$installed/bin/"
 cp -R "$build/include/." "$installed/include/"
@@ -104,4 +104,4 @@ rm -f "$installed/built" "$installed/unpacked" "$installed/tools_built" \
       "$installed/patched-runtime"
 
 echo INF: Building and installing acc driver ...
-"${MAKE:-make}" -C "$root/src/aztec42-acc" install INSTALL_ROOT="$installed"
+"${MAKE:-make}" -C "$root/src/aztec43-acc" install INSTALL_ROOT="$installed"

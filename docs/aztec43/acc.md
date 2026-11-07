@@ -1,6 +1,6 @@
 # acc
 
-Aztec C 4.2 compiler driver. Compiles, assembles and links for CP/M-86
+Aztec C 4.3 compiler driver. Compiles, assembles and links for CP/M-86
 and DOS. Runs on Unix (Aztec tools under emu2) and on DOS 2.x.
 
 ```
@@ -19,7 +19,7 @@ Programs run directly under `emu2` on Unix: `emu2 hello.cmd`.
 | DOS 1.1 program | `acc -target=dos1 -o hello.exe hello.c` |
 | Several sources, one step | `acc -o app.cmd -Iinc -DVERSION=3 main.c util.c` |
 | Compile, then link | `acc -c main.c util.c` then `acc -o app.cmd main.o util.o` |
-| Your own library (`aztec42_lib util.lib util.o`) | `acc -o app.cmd main.c -Llib -lutil` |
+| Your own library (`aztec43_lib util.lib util.o`) | `acc -o app.cmd main.c -Llib -lutil` |
 | Math (`-lm`) | `acc -o calc.cmd calc.c -lm` |
 | Large model, DOS only | `acc -mcmodel=large -o big.exe hello.c` |
 | Architecture: `i8086` (default), `i80186`, `i80286`; defines `__i186__`, `__i286__` | `acc -march=i80286 -o hello.cmd hello.c` |

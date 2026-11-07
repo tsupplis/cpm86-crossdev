@@ -1,4 +1,4 @@
-# Aztec C86 4.2 C library: changes and ANSI C89 conformance
+# Aztec C86 4.3 C library: changes and ANSI C89 conformance
 
 Baseline: Aztec C86 4.10d runtime as shipped in `AztecC86.zip`.
 Delta: [`runtime.patch`](../../src/aztec42-patch/runtime.patch)
@@ -191,6 +191,6 @@ Ctrl-C delivery needs a real console and was not tested. `raise`, `sysint`, `bdo
 | PCE, CP/M-86 1.1 (BDOS 22h) | `time`, `clock`, `ctime`, `localtime`, `gmtime`, `mktime`, `difftime`, `strftime` against the system-data clock: all checks pass. emu2 (BDOS 31h, `T_GET`) passes the same program |
 | `cpmtime-check` | The CP/M clock conversions, run on DOS from the `c86` library: every day from 1978 to 2107 decoded from a BDOS stamp and packed, compared with `mktime`; the 1.1 date string; invalid stamps and dates |
 | `inf-check`, `expr-inf-check` | Infinity and NaN; the `expr` suite (11,298 checks) |
-| `truncate-check`, `truncate-pce-check` | Resize on DOS 1.1 and 2, under emu2 and PCE |
+| `truncate-pce-check` | Resize on the DOS 1.1 kernel under PCE |
 | `response-check` | Library selection from LF and CRLF response files |
 | `close-check` | CP/M close failure propagation |

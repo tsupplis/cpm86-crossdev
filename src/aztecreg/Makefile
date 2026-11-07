@@ -25,7 +25,7 @@ status.o: status.c
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 -c -o $@ $<
 
 probe31.o probe32.o: probe%.o: probe.asm
-	$(BIN)/aztec42_as -dVERSION=0$*h -o $@ $<
+	$(ACC) -toolroot=$(ACCROOT) -c -DVERSION=$$((0x$*)) -o $@ $<
 
 exit31.cmd exit32.cmd: exit%.cmd: status.o probe%.o $(LIB)
 	$(ACC) -toolroot=$(ACCROOT) -target=cpm86 status.o probe$*.o -o $@

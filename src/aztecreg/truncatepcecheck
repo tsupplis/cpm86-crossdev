@@ -24,8 +24,7 @@ s=s.replace('driver      = "sdl:lowpass=0"','driver      = "null"')
 (work/'autoexec.bat').write_bytes(b'TEST\r\nPCEEXIT\r\n')
 PY
 cd "$work"
-"$bin/aztec42_cc" -DPCE_REPORT +0 -o test.o test.c
-"$bin/aztec42_link" -o test.com test.o -ld11
+"$bin/aztec43_acc" -emu="$bin/emu2" -target=dos1 -DPCE_REPORT -o test.com test.c
 for file in autoexec.bat pceexit.com test.com; do
     mcopy -o -i boot.img "$file" ::
 done

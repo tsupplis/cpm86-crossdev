@@ -9,17 +9,25 @@ cat > main.c <<'C'
 #include <stdio.h>
 int main(void) { puts("RESPONSE PASS"); return 0; }
 C
+acc() { "$bin/aztec43_acc" -emu="$bin/emu2" "$@"; }
 for target in c86 d11 c clc cld cl; do
-    case $target in clc) model=lc;; cld) model=ld;; cl) model=l;; *) model=;; esac
-    case $target in c86) out=main.cmd;; d11) out=main.com;; *) out=main.exe;; esac
-    "$bin/aztec42_cc" +"$model" +0 -o main.o main.c
+    case $target in
+        c86) opts=-target=cpm86; out=main.cmd;;
+        d11) opts=-target=dos1; out=main.com;;
+        c) opts=-target=dos2; out=main.exe;;
+        clc) opts="-target=dos2 -mcmodel=medium"; out=main.exe;;
+        cld) opts="-target=dos2 -mcmodel=compact"; out=main.exe;;
+        cl) opts="-target=dos2 -mcmodel=large"; out=main.exe;;
+    esac
+    acc $opts -c -o main.o main.c
     for ending in lf crlf; do
+        rm -f "$out"
         if [ "$ending" = lf ]; then
-            printf '%s\n' "-o $out main.o -l$target" > link.inp
+            printf '%s\n' main.o > link.inp
         else
-            printf '%s\r\n' "-o $out" 'main.o' "-l$target" > link.inp
+            printf '%s\r\n' main.o > link.inp
         fi
-        "$bin/aztec42_link" -f link.inp
+        acc $opts -o "$out" link.inp
         output=$("$bin/emu2" "$out")
         printf '%s\n' "$output" | tr -d '\r' | grep -qx 'RESPONSE PASS'
     done
