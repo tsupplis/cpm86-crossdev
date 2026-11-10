@@ -1,4 +1,4 @@
-ROOT := ../..
+ROOT := ../../..
 DOS200_INPUT ?= ../cdos-2.0/turbo.com
 DOS200_OUTPUT ?= dospc200.com
 DOS302_INPUT ?= ../dos-3.0/turbo.com

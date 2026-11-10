@@ -1,2 +1,5 @@
 *.com
 *.cmd
+tests/c86
+tests/dos
+tests/dms

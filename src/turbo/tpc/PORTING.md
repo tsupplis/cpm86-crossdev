@@ -118,7 +118,7 @@ file turbo-87.com
 shasum -a 256 turbo-87.com
 ndisasm -b 16 -o 0x100 turbo-87.com > dos87.dis
 
-../../bin/cmdinfo turbo-87.cmd
+../../../bin/cmdinfo turbo-87.cmd
 shasum -a 256 turbo-87.cmd
 ```
 

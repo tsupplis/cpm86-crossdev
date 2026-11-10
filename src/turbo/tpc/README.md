@@ -5,20 +5,20 @@ single compile-and-exit invocation.
 
 | Platform | Original | Patch source | Compiler |
 |---|---|---|---|
-| DOS, Turbo Pascal 2.00B | `turbo200.com` | `dospc200.asm` | `dospc200.com` |
-| DOS, Turbo Pascal 3.02A | `turbo302.com` | `dospc302.asm` | `dospc302.com` |
-| DOS terminal variant, Turbo Pascal 3.01A | `turms301.com` | `dmspc301.asm` | `dmspc301.com` |
-| CP/M-86, Turbo Pascal 3.01A | `turbo301.cmd` | `c86pc301.asm` | `c86pc301.cmd` |
+| DOS, Turbo Pascal 2.00B | `../cdos-2.0/turbo.com` | `dospc200.asm` | `dospc200.com` |
+| DOS, Turbo Pascal 3.02A | `../dos-3.0/turbo.com` | `dospc302.asm` | `dospc302.com` |
+| DOS terminal variant, Turbo Pascal 3.01A | `../dosms-3.0/turbo.com` | `dmspc301.asm` | `dmspc301.com` |
+| CP/M-86, Turbo Pascal 3.01A | `../cpm86-3.0/turbo.cmd` | `c86pc301.asm` | `c86pc301.cmd` |
 
 ```sh
 make
 make check
-../../bin/emu2 dospc200.com -cc example.pas
-../../bin/emu2 dospc302.com -cc example.pas
-../../bin/emu2 dospc302.com -ch -sc 0100 -sd 0100 -mi 0400 -ma A000 example.pas
-../../bin/emu2 dmspc301.com -cc example.pas
-../../bin/emu2 c86pc301.cmd -cc example.pas
-../../bin/emu2 c86pc301.cmd -ch -sc 0100 -sd 0100 -mi 0400 -ma A000 example.pas
+../../../bin/emu2 dospc200.com -cc example.pas
+../../../bin/emu2 dospc302.com -cc example.pas
+../../../bin/emu2 dospc302.com -ch -sc 0100 -sd 0100 -mi 0400 -ma A000 example.pas
+../../../bin/emu2 dmspc301.com -cc example.pas
+../../../bin/emu2 c86pc301.cmd -cc example.pas
+../../../bin/emu2 c86pc301.cmd -ch -sc 0100 -sd 0100 -mi 0400 -ma A000 example.pas
 ```
 
 | Option | Meaning |
