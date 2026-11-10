@@ -706,10 +706,10 @@ Sources and includes must use **CRLF** line endings. `.pas` may be omitted.
 CP/M-86 filenames use 8.3 format, optionally prefixed by `A:`-`P:`;
 directories and wildcards are not accepted.
 
-DOS 3.02 returns 0 on success, 1 on compiler/I/O error and 2 on argument error.
-DOS 2.00B and CP/M-86 report failures with `TPC: compilation failed` or
-`TPC: invalid arguments`; host status alone does not establish success.
-See [TPC details](src/turbo/tpc/README.md) for builds, tests and compatibility limits.
+Turbo DOS 3.02 returns 0 on success, 1 on compiler/I/O error and 2 on argument error. Turbo DOS 2.00B and CP/M-86 report failures with `TPC: compilation failed` or `TPC: invalid arguments` but no return code; host status alone does not establish success.
+
+Beware that Turbo DOS 2.00B is not console friendly, it is not possible to redirect the console from a turbo pascal 2.0 application or the compiler. It should be used only because of its support for dos 1.1.
+
 
 ### Misc Languages
 
