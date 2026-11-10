@@ -74,7 +74,7 @@ A cleaned‑up distribution and kernel are available at https://github.com/tsupp
 | DR Fortran‑77     | 4.0                               | CP/M‑86; compiler `f77.cmd`+`codegen.cmd`, runtime `f32s/l.obj`, `8087.sim`  |
 | Ratfor            | 1.05                              | Ratfor→F77 pre-processor for DR Fortran‑77; invoked via `drfcpm_fc -e`       |
 | Pascal MT+        | 3.3                               | CP/M‑86; compiler `mt+86.cmd`, linker `linkmt.cmd`, assembler `asmt86.cmd`   |
-| Turbo Pascal      | 2.01                              | Last DOS Borland release for DOS FCB; compiler `turbo.com`, installer `tinst.com`    |
+| Turbo Pascal      | 2.00B                             | DOS FCB compiler; IDE `turbo.com`, CLI `tpc.com`, installer `tinst.com`    |
 | Turbo Pascal      | 3.02                              | Last DOS Borland release; compiler `turbo.com`, installer `tinst.com`    |
 | Turbo Pascal      | 3.01                              | Last CP/M‑86 Borland release; compiler `turbo.cmd`, installer `tinst.cmd`    |
 | PolyPascal‑86     | 3.11                              | Integrated editor+compiler; small/BCD/8087 variants (`ppas`, `ppbs`, `pp87`) |
@@ -259,9 +259,9 @@ All the tools are wrapped in the bin directory for direct usage:
 | Fortran                   | drfcpm_fc     | f77.cmd          | DR Fortran‑77 4.0 compiler                             |
 | Fortran                   | drfcpm_link   | linkcmd.exe      | DR Fortran‑77 4.0 linker                               |
 | Lisp                      | cpm86_xlisp   | xlisp.cmd        | XLISP 1.1 interpreter (built from source)              |
-| Pascal                    | cpm86_tp3     | turbo.com        | Turbo Pascal 3.01 (CP/M‑86)                            |
-| Pascal                    | pcdev_tp2     | turbo.com        | Turbo Pascal 2.01 (DOS)                                |
-| Pascal                    | pcdev_tp3     | turbo.com        | Turbo Pascal 3.02 (DOS)                                |
+| Pascal                    | cpm86_tp3     | turbo.cmd / tpc.cmd | Turbo Pascal 3.01 (CP/M‑86); IDE without arguments, CLI otherwise |
+| Pascal                    | pcdev_tp2     | turbo.com / tpc.com | Turbo Pascal 2.00 (DOS); IDE without arguments, CLI otherwise |
+| Pascal                    | pcdev_tp3     | turbo.com / tpc.com | Turbo Pascal 3.02 (DOS); IDE without arguments, CLI otherwise |
 | Pascal                    | drpmtcpm_asm  | asmt86.cmd       | Pascal MT+ 3.3 assembler                               |
 | Pascal                    | drpmtcpm_link | linkmt.cmd       | Pascal MT+ 3.3 linker                                  |
 | Pascal                    | drpmtcpm_pc   | mt+86.cmd        | Pascal MT+ 3.3 compiler                                |
@@ -658,6 +658,58 @@ cpm86_gencmd hello80.h86
 cmdinfo hello80.cmd
 </pre></td></tr>
 </table>
+
+### Turbo Pascal Programs
+
+Without arguments, the wrappers open the original IDE. With arguments, they
+invoke the command-line compiler; compilation does not execute the program.
+
+| Compiler | Compile standalone program | Output |
+|---|---|---|
+| Turbo Pascal 2.00B, DOS FCB | `pcdev_tp2 -cc hello.pas` | `hello.com` |
+| Turbo Pascal 3.02A, DOS | `pcdev_tp3 -cc hello.pas` | `hello.com` |
+| Turbo Pascal 3.01A, CP/M-86 | `cpm86_tp3 -cc hello.pas` | `hello.cmd` |
+
+| Option | Meaning |
+|---|---|
+| `-cc` | Standalone COM/CMD (default) |
+| `-ch` | CHN overlay; load through Pascal `Chain`, not directly |
+| `-sc HEX` | Minimum code paragraphs, excluding runtime |
+| `-sd HEX` | Minimum data paragraphs, excluding runtime data |
+| `-mi HEX` | Minimum free-memory paragraphs (default `0400`) |
+| `-ma HEX` | Maximum free-memory paragraphs (default `A000`) |
+| `-h` | Version and usage |
+
+Sizes use 1-4 hexadecimal digits; one paragraph is 16 bytes.
+For `-sc`/`-sd`, `0` selects the size required by the program.
+`-mi` must not exceed `-ma`.
+
+| Wrapper | Maximum `-sc` | Maximum `-sd` |
+|---|---|---|
+| `pcdev_tp2` | `0D7D` | `0FE7` |
+| `pcdev_tp3` | `0D2B` | `0FDB` |
+| `cpm86_tp3` | `0D88` | `0FD3` |
+
+```sh
+cpm86_tp3 hello.pas
+pcdev_tp3 -ch -sc 0100 -sd 0100 -mi 0400 -ma A000 child.pas
+cpm86_tp3 -cc -mi 0400 -ma A000 hello.pas
+```
+
+The examples build `hellotp.pas` for both platforms:
+
+```sh
+make -C examples hellotpc.cmd hellotpd.com
+```
+
+Sources and includes must use **CRLF** line endings. `.pas` may be omitted.
+CP/M-86 filenames use 8.3 format, optionally prefixed by `A:`-`P:`;
+directories and wildcards are not accepted.
+
+DOS 3.02 returns 0 on success, 1 on compiler/I/O error and 2 on argument error.
+DOS 2.00B and CP/M-86 report failures with `TPC: compilation failed` or
+`TPC: invalid arguments`; host status alone does not establish success.
+See [TPC details](src/turbo/tpc/README.md) for builds, tests and compatibility limits.
 
 ### Misc Languages
 

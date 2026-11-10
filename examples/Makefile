@@ -41,6 +41,8 @@ F77LINK=drfcpm_link
 RATFOR=drfcpm_fc -e
 PMT=drpmtcpm_pc
 PMTLINK=drpmtcpm_link
+TPC=cpm86_tp3
+TPD=pcdev_tp3
 XLISP=cpm86_xlisp
 PLI=drplicpm_pc
 PLILINK=drplicpm_link
@@ -71,7 +73,7 @@ PLI_CMDS=hellopli.cmd upxpli.cmd
 COBOL_CMDS=hellocbl.int
 F77_CMDS=hellof77.cmd hellopmt.cmd upxpli.cmd
 RATFOR_CMDS=hellortf.cmd
-PASCAL_CMDS=hellopmt.cmd
+PASCAL_CMDS=hellopmt.cmd hellotpc.cmd hellotpd.com
 
 8086_CMDS=$(RASM86_CMDS) $(ASM86_CMDS) $(ASM86_CMDS) $(ASM_CMDS) \
     $(AZTEC_CMDS) $(DRC_CMDS) $(MSC_CMDS) $(BASIC_CMDS) \
@@ -321,6 +323,19 @@ hellopmt.r86: hellopmt.pas
 hellopmt.cmd: hellopmt.r86
 	$(PMTLINK) $@=$(basename $<),p:paslib/s
 	$(CMDINFO) $@
+
+hellotpc.cmd: hellotp.pas
+	rm -f hellotp.cmd
+	$(TPC) -cc $<
+	test -s hellotp.cmd
+	mv hellotp.cmd $@
+	$(CMDINFO) $@
+
+hellotpd.com: hellotp.pas
+	rm -f hellotp.com
+	$(TPD) -cc $<
+	test -s hellotp.com
+	mv hellotp.com $@
 
 helloplm.cmd: helloplm.obj scd.obj
 	$(LINK86) $@=scd,helloplm '[data[ori[0]]'
