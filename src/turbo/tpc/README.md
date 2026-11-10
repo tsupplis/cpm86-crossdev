@@ -21,6 +21,12 @@ make check
 ../../../bin/emu2 c86pc301.cmd -ch -sc 0100 -sd 0100 -mi 0400 -ma A000 example.pas
 ```
 
+Installed wrappers `pcdev_tp2`, `pcdev_tp3` and `cpm86_tp3` open the
+original IDE without arguments and invoke `tpc.com`/`tpc.cmd` in their
+respective share directories otherwise. `make check-wrappers` checks dispatch,
+argument/status forwarding and compilation using the installed compilers.
+Run `make install` first when those compilers are not installed.
+
 | Option | Meaning |
 |---|---|
 | `-cc` | Generate COM on DOS or CMD on CP/M-86 (default); do not execute |
@@ -98,6 +104,10 @@ The CP/M CLI suite is `check-cmd.sh`. Test filenames are lowercase.
 The dedicated runtime fixtures exercise includes, procedures, heap allocation,
 integer/real arithmetic and file I/O. CHN tests verify shared variable
 preservation and that `Chain` does not return to its caller.
+The separate `redirect.pas` fixture tests `{$G512,P512,D-}` and redirected
+standard input/output only on DOS 3.02 and the MS-DOS terminal variant.
+Shared fixtures omit these MS-DOS handle directives for DOS 2.00B/CP/M-86
+compatibility.
 
 ### Retained test output
 
@@ -126,7 +136,7 @@ markers before execution. They do not delete results afterward. `make clean`
 removes the patched compilers only; test results remain available.
 
 Pascal sources and includes must use CRLF line endings; the check scripts
-convert the shared fixtures when staging them. The standalone runtime fixture
+normalize LF or CRLF shared fixtures to CRLF when staging them. The standalone runtime fixture
 also needs `input.txt` containing `17` and writes `COM=11457;REAL=10` to
 `comtest.txt`; it does not print that result on the console.
 

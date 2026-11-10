@@ -12,7 +12,7 @@ EMU ?= $(abspath $(ROOT)/bin/emu2)
 TEST_OUTPUT := $(CURDIR)/tests
 
 .DELETE_ON_ERROR:
-.PHONY: all dos dms c86 check check-dos check-dms check-c86 check-cmd check-images check-com check-chain clean
+.PHONY: all dos dms c86 check check-dos check-dms check-c86 check-cmd check-images check-com check-chain check-wrappers clean
 
 all: dos dms c86
 dos: dos200 dos302
@@ -45,7 +45,7 @@ check-$(2)-images: $(2)
 	sh $$(SHFLAGS) check-image-tests.sh "$$(CURDIR)/check-image.sh" $(2) "$$(abspath $$($(1)_INPUT))" "$$(abspath $$($(1)_OUTPUT))" "$$(TEST_OUTPUT)/$(4)/image-negative"
 
 check-$(2)-com: $(2)
-	sh $$(SHFLAGS) check-com.sh "$$(EMU)" "$$(abspath $$($(1)_OUTPUT))" $(5) "$$(CURDIR)/tests" "$$(TEST_OUTPUT)/$(4)/$(5)"
+	sh $$(SHFLAGS) check-com.sh "$$(EMU)" "$$(abspath $$($(1)_OUTPUT))" $(5) "$$(CURDIR)/tests" "$$(TEST_OUTPUT)/$(4)/$(5)" $(2)
 
 check-$(2)-chain: $(2)
 	sh $$(SHFLAGS) check-chain.sh "$$(EMU)" "$$(abspath $$($(1)_OUTPUT))" $(5) "$$(CURDIR)/tests" "$$(TEST_OUTPUT)/$(4)/chain"
@@ -68,5 +68,13 @@ check-dms301-cli: dms301
 check-c86301-cli: c86301
 	sh $(SHFLAGS) check-cmd.sh "$(EMU)" "$(abspath $(C86301_OUTPUT))" "$(abspath $(C86301_INPUT))" "$(TEST_OUTPUT)/c86/301/cli"
 
+check-wrappers:
+	sh $(SHFLAGS) check-wrappers.sh "$(abspath $(ROOT))" "$(TEST_OUTPUT)/wrappers"
+
 clean:
 	rm -f "$(DOS200_OUTPUT)" "$(DOS302_OUTPUT)" "$(DMS301_OUTPUT)" "$(C86301_OUTPUT)"
+
+install: all
+	cp c86pc301.cmd $(ROOT)/share/tp3cpm86/tpc.cmd
+	cp dospc302.com $(ROOT)/share/tp3dos/tpc.com
+	cp dospc200.com $(ROOT)/share/tp2dos/tpc.com

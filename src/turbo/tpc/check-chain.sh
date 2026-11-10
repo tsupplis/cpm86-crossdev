@@ -9,9 +9,9 @@ work=$5
 mkdir -p "$work"
 cd "$work"
 rm -f "launch.$extension" chain.chn before.txt chain.txt return.txt
-awk '{ printf "%s\r\n", $0 }' "$fixtures/launch.pas" > launch.pas
-awk '{ printf "%s\r\n", $0 }' "$fixtures/chain.pas" > chain.pas
-awk '{ printf "%s\r\n", $0 }' "$fixtures/shared.inc" > shared.inc
+awk '{ sub(/\r$/, ""); printf "%s\r\n", $0 }' "$fixtures/launch.pas" > launch.pas
+awk '{ sub(/\r$/, ""); printf "%s\r\n", $0 }' "$fixtures/chain.pas" > chain.pas
+awk '{ sub(/\r$/, ""); printf "%s\r\n", $0 }' "$fixtures/shared.inc" > shared.inc
 "$emu" "$compiler" -ch chain.pas > compile-chain.log 2>&1 || { cat compile-chain.log; exit 1; }
 if grep -Eq 'TPC: (compilation failed|invalid arguments)' compile-chain.log; then
     cat compile-chain.log

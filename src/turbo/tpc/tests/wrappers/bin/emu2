@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+test "$1" = "$EMU2_DRIVE_D/$EXPECTED_PROGRAM"
+test "$EMU2_PROGNAME" = "D:$EXPECTED_PROGRAM"
+shift
+if test "$EXPECTED_PROGRAM" = turbo.com || test "$EXPECTED_PROGRAM" = turbo.cmd; then
+    test "$#" -eq 2
+else
+    test "$#" -eq 5
+    test "$1" = -cc
+    test "$2" = 'source name.pas'
+    test "$3" = ''
+    shift 3
+fi
+test "$1" = --
+test "$2" = 'PATH=D:\'
+test "${EMU2_APPEND:-${EMU2_CPM_APPEND:-}}" = D:
+exit "$EXPECTED_STATUS"

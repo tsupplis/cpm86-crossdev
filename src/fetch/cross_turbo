@@ -16,3 +16,4 @@ if [ ! -f tp3cpm86/turbo.cmd ]; then
     mkdir -p "$root/share/tp3cpm86"
     cp "$root/src/turbo/cpm86-3.0"/* tp3cpm86
 fi
+(cd "$root/src/turbo/tpc";PATH="$root/bin:$PATH" "${MAKE:-make}" install)
