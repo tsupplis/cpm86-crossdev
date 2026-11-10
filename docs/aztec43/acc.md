@@ -136,6 +136,32 @@ use `=`. Repeated scalar options: last wins.
 Other suffixes are errors. There is no tiny model: a `.com` program is a
 small-model, single-segment program.
 
+## Floating point
+
+| `-mfloat=` | `cc` | `-lm` links | Runs on |
+| --- | --- | --- | --- |
+| `soft` | none | `m` | software only |
+| `auto` | none | `m87s` | startup probes for an 8087 and falls back to software |
+| `8087` | `+e` | `m87` | inline 8087 code; the CP/M-86 startup exits with a message when none answers |
+
+`-lm` is chosen by `-mfloat` and `-mcmodel`; without `-lm` no math library is linked.
+
+A CP/M-86 `.cmd` also records the coprocessor in its header flag byte (7Fh).
+`ln` leaves it clear, so `acc` sets it in the private workspace after a
+successful link, before publishing:
+
+| `-mfloat=` | Flag bits | Value | Meaning |
+| --- | --- | --- | --- |
+| `soft` | none | `00` | the program does not use the 8087 |
+| `auto` | 5 | `20` | allocate the 8087 to the program only if present |
+| `8087` | 5 and 6 | `60` | allocate the 8087 to the program even if absent |
+
+An explicit `-lm87s` or `-lm87` sets the same bits as `auto` or `8087`, whatever
+`-mfloat` says; the bits of several sources are combined.
+
+Only link mode with a `.cmd` output changes the header; DOS programs have
+none. `-###` shows it as `flags: "PRODUCT" 0xNN`. Check the result with `cmdinfo`.
+
 ## Predefined macros
 
 | Macro | Defined when |
@@ -263,6 +289,7 @@ On stderr, one record per line, words double-quoted:
 | `acc: plan float=.. optimize=.. debug=..` | resolved settings |
 | `tool: "PROGRAM" "ARG" ...` | one per backend command |
 | `response: "FILE" "LINE" ...` | linker response file |
+| `flags: "PRODUCT" 0xNN` | CP/M-86 header flag bits set in the linked product before it is published |
 | `publish: "PRODUCT" -> "OUTPUT"` | one per published output |
 
 Guest drives: `C:` invocation directory, `D:` tool root, `E:` workspace.

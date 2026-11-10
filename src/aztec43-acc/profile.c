@@ -174,6 +174,26 @@ const char *profile_math(float_backend_t floating, model_t model)
     return maths[floating][model];
 }
 
+/* Header flags of a CP/M-86 .cmd for the floating backend; see profile.h. */
+int profile_cmd_flags(target_t target, float_backend_t floating)
+{
+    if (target != TARGET_CPM86)
+        return 0;
+    if (floating == FLOAT_8087)
+        return 0x60;
+    return floating == FLOAT_AUTO ? 0x20 : 0;
+}
+
+/* Header flags implied by linking math library NAME explicitly. */
+int profile_library_cmd_flags(target_t target, const char *name)
+{
+    if (target != TARGET_CPM86)
+        return 0;
+    if (path_equal(name, "m87"))
+        return 0x60;
+    return path_equal(name, "m87s") ? 0x20 : 0;
+}
+
 /* Compared as DOS file names: -lC86 and -lc86 name the same library. */
 int profile_is_runtime(const char *name)
 {

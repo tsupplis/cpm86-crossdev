@@ -28,6 +28,7 @@ typedef struct command {
     char *response_file;        /* guest path of that file, or 0 */
     char *product;              /* guest path the tool must create */
     char *source;               /* user-facing input, for diagnostics */
+    int header_flags;           /* CP/M-86 header bits to set in the product */
     struct command *next;
 } command_t;
 

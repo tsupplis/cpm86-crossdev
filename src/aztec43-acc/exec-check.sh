@@ -104,6 +104,19 @@ for model in small medium compact large; do
     grep -Ei '^[[:space:]]*f(ld|st|mul|sub|add|div)' hard.asm >/dev/null
 done
 
+# CP/M-86 header flag byte (7Fh): bit 5 for the sensing library, bits 5 and 6
+# for inline 8087 code, nothing for software floating point.
+for case in soft:00 auto:20 8087:60; do
+    floating=${case%%:*}
+    run_acc -target=cpm86 -mfloat="$floating" math.c -lm -o flags.cmd
+    test "$(dd if=flags.cmd bs=1 skip=127 count=1 2>/dev/null | od -An -tx1 | tr -d ' ')" = "${case##*:}"
+done
+# An explicit math library implies the same bits as -mfloat does for -lm.
+for case in m87s:20 m87:60; do
+    run_acc -target=cpm86 math.c -l"${case%%:*}" -o flags.cmd
+    test "$(dd if=flags.cmd bs=1 skip=127 count=1 2>/dev/null | od -An -tx1 | tr -d ' ')" = "${case##*:}"
+done
+
 # Explicit assembly, verified by building (emu2 cannot run 8087 code).
 # acc passes as -186 for -march=i80186 and i80286, as documented; as v4.10d
 # turns out to accept 80186 instructions either way (probed), so the

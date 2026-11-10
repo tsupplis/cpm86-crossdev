@@ -33,6 +33,7 @@
 
 
 
+
 @case link-default-name
 -###
 -toolroot=@ROOT@
@@ -43,6 +44,93 @@ acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-cpm86-soft
+-###
+-toolroot=@ROOT@
+-target=cpm86
+-mfloat=soft
+main.o
+-lm
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft optimize=default debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\m.lib" "D:\\lib\\c86.lib"
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-cpm86-auto
+-###
+-toolroot=@ROOT@
+-target=cpm86
+-mfloat=auto
+main.o
+-lm
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=auto optimize=default debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\m87s.lib" "D:\\lib\\c86.lib"
+flags: "E:\\u0001.cmd" 0x20
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-cpm86-8087
+-###
+-toolroot=@ROOT@
+-target=cpm86
+-mfloat=8087
+main.o
+-lm
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=8087 optimize=default debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\m87.lib" "D:\\lib\\c86.lib"
+flags: "E:\\u0001.cmd" 0x60
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-cpm86-lib-m87s
+-###
+-toolroot=@ROOT@
+-target=cpm86
+main.o
+-lm87s
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft optimize=default debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\m87s.lib" "D:\\lib\\c86.lib"
+flags: "E:\\u0001.cmd" 0x20
+publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
+[exit 0]
+@end
+
+@case link-cpm86-lib-m87
+-###
+-toolroot=@ROOT@
+-target=cpm86
+main.o
+-lm87
+@out
+acc: plan stage=link target=cpm86 model=small cpu=i8086
+acc: plan float=soft optimize=default debug=off
+acc: E: is a symbolic private workspace; no files are created
+tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
+response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "D:\\lib\\begin86.o" "C:\\main.o" "D:\\lib\\m87.lib" "D:\\lib\\c86.lib"
+flags: "E:\\u0001.cmd" 0x60
 publish: "E:\\u0001.cmd" -> "C:\\a.cmd"
 [exit 0]
 @end

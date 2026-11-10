@@ -832,6 +832,8 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
     cmd->source = copy_text(output);
     if (cmd->product == 0 || cmd->source == 0)
         return 0;
+    if (path_equal(suffix, ".cmd"))
+        cmd->header_flags = profile_cmd_flags(plan->target, r->floating);
     if (overlay_root &&
         (!add_word(&cmd->arguments, "+c") ||
          !add_word(&cmd->arguments, overlay_code) ||
@@ -874,6 +876,8 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
                 /* The runtime is implied by the profile and linked last. */
                 if (profile_is_runtime(name))
                     return fail("select the target/model instead of an explicit stock C runtime", name);
+                if (path_equal(suffix, ".cmd"))
+                    cmd->header_flags |= profile_library_cmd_flags(plan->target, name);
                 if (!user_library(ctx, name, path))
                     return 0;
             }

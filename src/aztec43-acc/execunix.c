@@ -16,6 +16,7 @@
 #include "request.h"
 #include "plan.h"
 #include "path.h"
+#include "cmdhdr.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -510,7 +511,9 @@ int execute_plan(const request_t *request, const plan_t *plan)
         status = launch(plan, cmd, work, emulator, clib);
         if (status != 0)
             break;
-        if (!owned_path(product, work, cmd->product) || !verify_product(product)) {
+        if (!owned_path(product, work, cmd->product) || !verify_product(product) ||
+            (cmd->header_flags != 0 &&
+             !cmdhdr_set_flags(product, cmd->header_flags))) {
             status = 1;
             break;
         }

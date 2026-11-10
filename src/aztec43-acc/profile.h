@@ -85,6 +85,22 @@ const char *profile_startup(target_t target, model_t model);
 const char *profile_runtime(target_t target, model_t model);
 const char *profile_math(float_backend_t floating, model_t model);
 
+/*
+ * CP/M-86 command header flag bits (byte 7Fh) that FLOATING needs, or 0.
+ * Bit 5 (0x20) allocates the 8087 to the program if one is present, which
+ * the sensing math library (auto) uses.  Bit 6 (0x40) allocates it even if
+ * absent, as the inline 8087 code (8087) requires.  Only a cpm86 program
+ * has such a header.
+ */
+int profile_cmd_flags(target_t target, float_backend_t floating);
+
+/*
+ * The same bits for an explicit -lNAME: 0x60 for m87 (inline 8087 math),
+ * 0x20 for m87s (sensing math), else 0.  The -lm shorthand is covered by
+ * profile_cmd_flags through -mfloat.
+ */
+int profile_library_cmd_flags(target_t target, const char *name);
+
 /* Non-zero if -lNAME names a stock C runtime (selected by the profile). */
 int profile_is_runtime(const char *name);
 

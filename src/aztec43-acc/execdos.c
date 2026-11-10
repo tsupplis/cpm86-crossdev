@@ -11,6 +11,7 @@
 #include "acc.h"
 #include "request.h"
 #include "plan.h"
+#include "cmdhdr.h"
 #include <dos.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -578,7 +579,9 @@ int execute_plan(const request_t *request, const plan_t *plan)
         if (status != 0)
             break;
         if (!dos_product(product, work, cmd->product) ||
-            !dos_verify_product(product)) {
+            !dos_verify_product(product) ||
+            (cmd->header_flags != 0 &&
+             !cmdhdr_set_flags(product, cmd->header_flags))) {
             status = 1;
             break;
         }
