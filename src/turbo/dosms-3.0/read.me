@@ -1,0 +1,260 @@
+
+                  Welcome to TURBO PASCAL Version 3.0!
+                  ------------------------------------
+
+    In  spite  of all efforts,  some errors have found their way into
+    the new TURBO 3.0 manual.   This file contains all necessary cor-
+    rections  and  additions,  and we apologize for any inconvenience
+    this may cause you.
+
+    At  the  end  of this file,  you will find a summary  of the  new
+    features introduced in version 3.0 and a list of additional files
+    present on your TURBO disk.
+
+
+              *******************************************
+              *                                         *
+              *   Need help  with TURBO?  Please  see   *
+              *   Appendix N in your Reference Manual   *
+              *   for answers to common questions.      *
+              *                                         *
+              *******************************************
+
+
+                         -------------------
+
+                             CORRECTIONS
+                             -----------
+
+
+Page 253 - MOV AL,[BP-1]
+------------------------
+     The correct statement is:  MOV AL,[BP+4]
+
+
+Page 293 - TURBO-BCD will compile and run any program
+-----------------------------------------------------
+     Well - almost. The Real functions Sin, Cos, ArcTan, Ln, Exp,
+     and Sqrt and the pre-declared constant Pi are not  available
+     in  TURBOBCD.
+
+
+
+                         -------------------
+
+
+                              OMISSIONS
+                              ---------
+
+
+
+User Written Error Handlers
+---------------------------
+     In  Turbo Pascal 3.00 you may write your own error  handler,
+     which  is  called in case of an I/O or Run-time  error.  The
+     procedure must have the following header:
+
+          procedure Error(ErrNo, ErrAddr: Integer);
+
+     The  name of the  procedure  and its  parameters  are  unim-
+     portant,  as  long   as  it  is a procedure with  two  value
+     parameters  of  type Integer.
+
+     The value passed in ErrNo is the error type and number.  The
+     most significant byte,  i.e. "Hi(ErrNo)", contains the error
+     type,  and  the least significant byte,   i.e.  "Lo(ErrNo)",
+     contains the error number (see Appendix F or G in the  Turbo
+     Pascal Manual).
+
+     The following error types are defined:
+
+          0   User Break (Ctrl-C).
+          1   I/O error.
+          2   Run-time error.
+
+     In  case  of  a user interrupt (Ctrl-C),   the low  byte  of
+     "ErrNo" is always 1.  "ErrAddr" contains the address (offset
+     in Code Segment for 16 bit versions) of the error.
+
+     To  activate the error handler,   assign its offset  address
+     to  the standard variable "ErrorPtr", i.e.
+
+          ErrorPtr:=Ofs(Error);  { 16 bit }  or
+          ErrorPtr:=Addr(Error); {  8 bit }
+
+     There are no limits to what an error handler may  do.  Typi-
+     cally  it will close all open files,   output an error  mes-
+     sage, and call the Halt  standard procedure to terminate the
+     program.   If  an  error handler returns,   i.e.  if it does
+     not  call  Halt,   or  if an error occurs  within  an  error
+     handler,   Turbo Pascal will itself output the error message
+     and terminate the program.
+
+
+
+
+                         -------------------
+
+
+                OVERVIEW OF NEW FEATURES OF TURBO 3.0
+                -------------------------------------
+
+A program that was written using TURBO 2.0 may behave differently
+using TURBO 3.0:
+
+    - TURBO no longer does a ClrScr when your program first begins.
+    - TURBO no longer does a  GoToXY(1, 25) when your program terminates.
+    - The use of file handles now necessitates closing all files  -- even
+      if they were not modified.    You should also place a  "FILES = 20"
+      statement in your CONFIG.SYS file.   Note that DOS always uses five
+      file handles  (standard input,  output, error,  auxillary, standard
+      printer).   Please refer to your DOS technical reference manual for
+      more information about DOS file handles.
+    - The handling of some logical  devices has been  changed to  conform
+      with standard Pascal and with TURBO's handling of other files:
+
+        1.  A read statement using the logical device TRM is now buffered
+            and terminates with a <CR>.
+        2.  The KBD device is not buffered.  For this reason,  look-ahead
+            functions (EOF, EOLN, readln) used on the KBD device will al-
+            ways "wait" for a key to be pressed.
+
+TINST Installation
+------------------
+
+     TINST now allows you to install a pathname which is used by TURBO
+     when loading the error message file (TURBO.MSG).
+
+     IBM PC Implementation only
+     --------------------------
+        In the screen installation, after choosing your display type, the
+        following question will appear:
+
+           Does your screen blink when the text scrolls? (Y/N):
+
+        If the screen is "snowy" in the TURBO editor,  answer "Y" to
+        this question.
+
+
+Chain and Execute
+-----------------
+     Heap preserved during Chain (MS/PC-DOS & CP/M-86).
+
+     Chain  and Execute no longer set a flag in the command  line
+     parameter.
+
+
+Inline
+------
+     A constant identifier used in an INLINE statement does  not
+     always generate two bytes of code.
+
+Files
+-----
+     Append procedure (MS/PC-DOS).
+     Full DOS path-name supported (MS/PC-DOS).
+     I/O re-direction (MS/PC-DOS).
+     New FIB formats.
+     Optional parameter on text file declaration sets buffer size
+     (MS/PC-DOS & CP/M-86).
+     Optional  parameter  on Reset/ReWrite sets record  size  for
+     untyped files (MS/PC-DOS).
+     Optional 4th parameter on Blockread/Write sets block size.
+     Read and ReadLn work with array of char (MS/PC-DOS & CP/M-86).
+     Seek procedure may take Real argument (MS/PC-DOS).
+     SeekEoln function.
+     SeekEof function.
+     Truncate procedure (MS/PC-DOS).
+
+Misc.
+-----
+     ChDir procedure (MS/PC-DOS).
+     Command line parameters on Options menu (MS/PC-DOS and CP/M-86).
+     Delay procedure independent of processor speed (PC-DOS).
+     Exit procedure.
+     Extended  graphics procedures & functions  (see page 309  in
+     manual for overview).
+     GetDir procedure (MS/PC-DOS).
+     MkDir procedure (MS/PC-DOS).
+     Multiple EXTERNAL subprograms in one file (MS/PC-DOS & CP/M-86).
+     Optional parameter on Halt to return error code (PC/MS-DOS).
+     OvrPath procedure (MS/PC-DOS).
+     OvrDrive procedure (CP/M).
+     ParamCount function.
+     ParamStr function.
+     RmDir procedure (MS/PC-DOS).
+     Runs overlays in Memory mode (MS/PC-DOS & CP/M-86)
+     Turtlegraphics  procedures,  functions,  and constants  (see
+     page 309-310 in manual for overview).
+
+
+Overlays
+--------
+     Overlays can be run in Memory mode (MS/PC-DOS & CP/M-86).
+
+     Overlay  files  are  opened and closed every time  they  are
+     accessed.  Therefore,  there is never a need to specifically
+     close  an  overlay file.
+
+     The  Y compiler directive is no longer  supported.  Instead,
+     the   OvrPath (MS-DOS) or OvrDrive (CP/M)  standard   proce-
+     dures   may  be  used to specify the drive and  subdirectory
+     in which overlay files reside.
+
+
+                         -------------------
+
+
+                      TURBO PASCAL Version 3.0
+
+                        Additional File List
+
+     In addition to the list  of files  mentioned in  Chapter 1 of
+     your TURBO Reference Manual, the following files are included
+     on your TURBO disk:
+
+     ACCESS3  BOX    - for TOOLBOX users only: ACCESS.BOX update
+
+     Sample programs
+     ---------------
+     LISTER   PAS    - simple program to list your Pascal source
+     CMDLIN   PAS    - get parameters from the command line
+     DIRECT   PAS    - demonstrates TURBO directory procedures
+
+     INTRPTCL DOC    - get the time from DOS
+     DOSFCALL DOC    - get the date from DOS
+     EXTERNAL DOC    - sample program using externals
+
+     CALC     PAS    - sample spreadsheet program
+     CALC     HLP    - spreadsheet help file
+     CALCMAIN PAS    - extra program for compiling spreadsheet if ne-
+                       cessary (please see note inside  CALCMAIN.PAS)
+
+     IBM PC Implementation of TURBO only
+     -----------------------------------
+     TURTLE   PAS    - demonstrates Turtlegraphics
+     ART      PAS    - sample graphics program
+     COLOR    PAS    - sample color program
+     SOUND    PAS    - sample sound program
+     WINDOW   PAS    - demonstrates windowing
+
+     Special versions of TURBO
+     -------------------------
+     These files will only be present on your disk if you have TURBO
+     with one (or both) of our extended real number packages.
+
+     TURBO with 8087 Support
+     -----------------------
+     TURBO-87 COM    - TURBO PASCAL compiler with 8087 support
+     HILB     PAS    - demonstrates increased speed and precision of
+                       TURBO-87
+     TEST     PAS    - demonstrates increased speed and precision of
+                       TURBO-87
+
+     TURBO with BCD Reals
+     --------------------
+     TURBOBCD COM    - TURBO PASCAL compiler with BCD reals
+     BCD      PAS    - demonstrates increased precision of TURBOBCD
+
+     --------------------------------------------------------------
+

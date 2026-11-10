@@ -126,6 +126,6 @@
 205 Color display 40x25
 206 b/w   display 80x25
 207 b/w   display 40x25
-208 Does your screen blink when the text scrolls
+208 Does your screen blink when the text scrools
 210 MSG file path and name (eg. A:\TURBO.MSG)
 
