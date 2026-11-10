@@ -1,4 +1,4 @@
-# Porting the Turbo command-line patches
+# Porting the Turbo compiler and editor patches
 
 ## Scope and confidence
 
@@ -6,7 +6,7 @@ These are version-specific binary patches, not a generic Turbo executable
 format. Do not apply a patch to another release, an installed/customized
 image, or an 8087 variant by merely changing its filename or SHA-256.
 
-The current patches were located by tracing startup and the IDE dispatch
+The compiler patches were located by tracing startup and the IDE dispatch
 table: the editor handler supplies the replacement space, while the compile
 handler and generated-runtime area are retained. The validation has two
 independent parts:
@@ -98,6 +98,52 @@ be assembled with that copy length.
 The editor replacement windows are allocation limits, not claims that all
 their bytes were changed. Only the assembled driver and its data replace
 bytes; the remaining image is copied unchanged.
+
+## Standalone editor patch map
+
+These patches start from the original IDE, not a TPC output. They reuse
+startup/banner/menu space and preserve the native editor and key tables.
+All ranges below are half-open code addresses.
+
+| Purpose | DOS 2.00B | CP/M-86 3.01A |
+|---|---|---|
+| Startup hook | `28E4h -> 2A4Dh` | `285Bh -> 29FBh` |
+| Menu/error-unwind hook | `29FEh -> 2A5Fh` | `299Bh -> 2ADFh` |
+| Driver allocation | `[28E7h,29FEh)`, `[2A4Dh,2B1Fh)` | `[29FBh,2C89h)` |
+| Error-prompt call hook | `2D0Eh -> 2A8Ah` | `2CB4h -> 2B1Eh` |
+| Missing-file hook | `2EDCh -> 2E32h` | Native callback `2E71h`, selected in DS |
+| Native loader / editor entry | `2DFDh` / `39A9h` | `2DA0h` / `398Ah` |
+| Preserved editor region | `[391Fh,5122h)` | `[38F2h,5189h)` |
+| Native save prompt | `2F1Ch` | `2EABh` |
+| Saved menu stack pointer in DS | `0190h` | `02CEh` |
+| Dirty flag / save-in-progress flag in DS | `01F8h` / `0245h` | `0380h` / `038Ch` |
+| Termination | `INT 20h` | Terminal reset `018Ah`, BDOS 0 |
+
+The three-byte hook windows and driver allocations are the complete editor
+allowlist in `check-image.sh`; every other byte must match the original.
+This includes runtime, configuration, file helpers, DOS `00 00` at `02FCh`,
+and the CP/M CMD header/data group. Hook opcode and destination checks are
+exact: update the reviewed map and guard together if driver layout changes.
+
+Both menu hooks reset SP using the native saved stack pointer. Save errors
+mark a flag only while the native save-in-progress flag is set; the original
+ESC prompt and close/delete/backup recovery execute before the menu hook
+re-enters the retained editor with the dirty buffer. Do not replace the error
+prompt with immediate OS termination: that skips recovery and loses edits.
+The output callback is restored before re-entry because errors may originate
+inside the editor as well as during quit-time saving.
+
+Filename parsing enters the native parser after its hardcoded PAS setup
+(`3092h` on DOS, `3019h` on CP/M), passing spaces in CL/DX as the default
+extension. Thus extensionless arguments remain extensionless; explicit
+extensions are retained. The compiler patches still default to PAS.
+
+Console tests use a controlling PTY with paced input, not redirected stdin
+or emu2's scripted keyboard queue. This avoids transport-dependent hangs and
+dropped/misordered keys without modifying the emulator or editor.
+Tests cover 60 KB edits, oversized loads and an unwritable-directory save,
+but do not simulate actual full media. Native execution and TINST validation
+remain manual; byte preservation is not a full reachability proof.
 
 ## 1. Inventory the candidate
 

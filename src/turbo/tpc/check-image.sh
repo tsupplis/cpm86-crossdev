@@ -6,8 +6,27 @@ original=$2
 patched=$3
 work=$4
 mkdir -p "$work"
+editor_targets=''
 
 case "$variant" in
+    dos-editor200)
+        size=36480
+        bias=-256
+        hooks='0x28e4 0x29fe 0x2d0e 0x2edc'
+        start=$((0x2a4d))
+        end=$((0x2b1f))
+        allowed="$((0x28e7 + bias)):$((0x29fe + bias))"
+        editor_targets='0x2a4d 0x2a5f 0x2a8a 0x2e32'
+        ;;
+    c86-editor301)
+        size=37760
+        bias=128
+        hooks='0x285b 0x299b 0x2cb4'
+        start=$((0x29fb))
+        end=$((0x2c89))
+        allowed=''
+        editor_targets='0x29fb 0x2adf 0x2b1e'
+        ;;
     dos200)
         size=36480
         bias=-256
@@ -80,11 +99,22 @@ for address in $hooks; do
     offset=$((address + bias))
     bytes=$(od -An -tu1 -j "$offset" -N 3 "$patched")
     set -- $bytes
-    test "$1" -eq 233
+    opcode=233
+    case "$variant:$address" in
+        dos-editor200:0x2d0e|c86-editor301:0x2cb4) opcode=232 ;;
+    esac
+    test "$1" -eq "$opcode"
     displacement=$(($2 + 256 * $3))
     target=$(((address + 3 + displacement) % 65536))
+    if test -n "$editor_targets"; then
+        set -- $editor_targets
+        test "$target" -eq "$(($1))"
+        shift
+        editor_targets="$*"
+        continue
+    fi
     if test "$target" -lt "$start" || test "$target" -ge "$end"; then
-        echo "Hook $address jumps outside the CLI replacement window" >&2
+        echo "Hook $address jumps outside the replacement window" >&2
         exit 1
     fi
     if test "$first_hook" -eq 1; then

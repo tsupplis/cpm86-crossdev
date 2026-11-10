@@ -661,6 +661,12 @@ cmdinfo hello80.cmd
 
 ### Turbo Pascal Programs
 
+Separate [standalone editors](src/turbo/tpc/README.md#standalone-editors)
+are available as `dospe200.com` and `c86pe301.cmd`. Each takes one literal
+8.3 filename (no default extension), preserves native editing/save behavior,
+and returns to the OS with `Ctrl-K`, then `D`. Build with
+`make -C src/turbo/tpc editors`; existing compiler wrappers are unchanged.
+
 Without arguments, the wrappers open the original IDE. With arguments, they
 invoke the command-line compiler; compilation does not execute the program.
 

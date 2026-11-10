@@ -1,7 +1,7 @@
-# Turbo Pascal command-line patch
+# Turbo Pascal compiler and editor patches
 
-The originals are unchanged. Each patch replaces IDE interaction with a
-single compile-and-exit invocation.
+The originals are unchanged. Compiler patches provide compile-and-exit
+invocation; separate editor patches retain the native editor.
 
 | Platform | Original | Patch source | Compiler |
 |---|---|---|---|
@@ -26,6 +26,57 @@ original IDE without arguments and invoke `tpc.com`/`tpc.cmd` in their
 respective share directories otherwise. `make check-wrappers` checks dispatch,
 argument/status forwarding and compilation using the installed compilers.
 Run `make install` first when those compilers are not installed.
+
+## Standalone editors
+
+The editor variants are built from the **original IDE images**, never the
+TPC compiler outputs: TPC reuses editor code space and cannot supply an editor.
+Editor patches preserve the original editor and installer configuration.
+They accept one filename, enter editing directly, and exit to the OS instead
+of returning to the IDE menu.
+
+| Platform | Original | Patch source | Editor |
+|---|---|---|---|
+| DOS 2.00B | `../cdos-2.0/turbo.com` | `dospe200.asm` | `dospe200.com` |
+| CP/M-86 3.01A | `../cpm86-3.0/turbo.cmd` | `c86pe301.asm` | `c86pe301.cmd` |
+
+```sh
+make editors
+../../../bin/emu2 dospe200.com example.pas
+../../../bin/emu2 c86pe301.cmd example.pas
+```
+
+`DOS_EDITOR200_INPUT`/`DOS_EDITOR200_OUTPUT` and
+`C86_EDITOR301_INPUT`/`C86_EDITOR301_OUTPUT` override their paths; exact-input
+hash guards remain in effect. Existing compiler wrappers are unchanged:
+they still select the original IDE with no arguments, or TPC with arguments.
+The editor variants are separate executables, not additional compiler modes.
+
+| Editor behavior | Contract |
+|---|---|
+| Argument | Exactly one literal 8.3 filename; no default extension |
+| Drive | Optional `A:`-`O:` on DOS, `A:`-`P:` on CP/M-86 |
+| Paths/wildcards | Not accepted |
+| Missing file | Named empty buffer; no disk file until saved |
+| Exit | Original `Ctrl-K`, then `D`; modified buffers prompt Save (Y/N) |
+| Save/backup | Original routines and `.BAK` behavior |
+| Failed save | Original error/ESC recovery, then return to the dirty buffer |
+| File format | Original text/EOF conventions; no newline normalization added |
+
+`make check-editors` runs 21 real-console cases per editor and the image
+guards. Tests require Python 3 (standard-library PTY support) and an unprivileged
+POSIX host for the write-protection case. Coverage includes 60 KB editing,
+oversized-file rejection, backups, discard and failed-save buffer retention.
+Each image guard rejects nine deliberate corruptions, including editor,
+helper-boundary, configuration/data, hook and length changes.
+
+Native DOS/CP/M execution, actual disk-full media, terminal behavior and a
+TINST installation round-trip require manual validation. Configuration bytes
+are preserved, but that alone does not prove installer compatibility.
+Build from the supplied pristine image before applying TINST; customized
+inputs are intentionally rejected by the build hash guard.
+
+## Compiler command line
 
 | Option | Meaning |
 |---|---|
@@ -76,7 +127,11 @@ No extraction, group resizing or relocation changes are required.
 
 | Target | Action |
 |---|---|
-| `make` | Build all four compilers |
+| `make` | Build all four compilers and both editors |
+| `make editors` | Build DOS 2.00B and CP/M-86 3.01A editors |
+| `make dos-editor200` / `make c86-editor301` | Build one editor |
+| `make check-editors` | Run both editor console and image-protection suites |
+| `make check-editor-images` | Check both editor images and corruption rejection |
 | `make dos` / `make dms` / `make c86` | Build all versions for one platform variant |
 | `make dos200` / `make dos302` / `make dms301` / `make c86301` | Build one version |
 | `make check` | Run all version-specific test suites |
@@ -86,7 +141,7 @@ No extraction, group resizing or relocation changes are required.
 | `make check-images` | Check protected bytes, hook targets and image-guard rejection cases |
 | `make check-com` | Compile and execute COM/CMD runtime fixtures for every version |
 | `make check-chain` | Execute COM/CMD launchers chaining to CHN; verify shared data |
-| `make clean` | Remove patched compilers, not originals |
+| `make clean` | Remove patched compilers and editors, not originals |
 
 Inputs and outputs are independently overridable with `DOS200_INPUT`,
 `DOS200_OUTPUT`, `DOS302_INPUT`, `DOS302_OUTPUT`, `DMS301_INPUT`,
@@ -121,6 +176,8 @@ Every check retains generated files and logs below `tests/dos/200/`,
 | `chain` | Launcher, CHN, shared include, results and separate build/run logs |
 | `image` | Byte-difference listing for the pristine and patched images |
 | `image-negative` | Deliberately corrupted guard-test images and rejection logs |
+| `editor` | Console logs, keyboard input, edited files and backups |
+| `editor-image`, `editor-image-negative` | Editor differences and guard-rejection cases |
 
 `check-chain.sh` is shared because both platforms exercise the same Pascal
 `Chain` contract. The Makefile runs it separately with each OS/version compiler and
@@ -133,7 +190,7 @@ The images under `image-negative/` are intentionally invalid; do not run them.
 
 Checks overwrite their own named outputs on each run and remove stale runtime
 markers before execution. They do not delete results afterward. `make clean`
-removes the patched compilers only; test results remain available.
+removes the patched compilers and editors only; test results remain available.
 
 Pascal sources and includes must use CRLF line endings; the check scripts
 normalize LF or CRLF shared fixtures to CRLF when staging them. The standalone runtime fixture
