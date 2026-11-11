@@ -567,6 +567,12 @@ int execute_plan(const request_t *request, const plan_t *plan)
             status = 1;
             break;
         }
+        if (cmd->align_product != 0 &&
+            (!owned_path(product, work, cmd->align_product) ||
+             !verify_product(product) || !cmdhdr_align_rsm(product))) {
+            status = 1;
+            break;
+        }
     }
     for (i = 0; status == 0 && !interrupted && i < plan->outputs.count; ++i) {
         if (!owned_path(product, work, plan->products.items[i]) ||

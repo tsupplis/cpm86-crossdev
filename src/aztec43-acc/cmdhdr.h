@@ -15,4 +15,13 @@
  */
 int cmdhdr_set_flags(const char *path, int flags);
 
+/*
+ * Make the data origin of the overlay symbol table PATH (.rsm) even: header
+ * words at 0Ch (data size) and 0Eh (udata size), little endian.  When their
+ * sum is odd the udata size is incremented, so overlays start their data on
+ * a word boundary.  Fails (0, after a diagnostic) if PATH is unreadable, too
+ * short, or its udata size cannot grow.
+ */
+int cmdhdr_align_rsm(const char *path);
+
 #endif

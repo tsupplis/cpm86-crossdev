@@ -70,3 +70,8 @@ cannot open command file	host I/O or resource failure; not reproducible determin
 cannot set command file flags	host I/O or resource failure; not reproducible deterministically
 not a CP/M-86 command file	ln always writes a valid header; only a corrupted product can trigger it
 cannot capture backend output	host I/O or resource failure; not reproducible deterministically
+cannot open symbol table	host I/O or resource failure; not reproducible deterministically
+cannot align the overlay symbol table	host I/O or resource failure; not reproducible deterministically
+cannot close symbol table	host I/O or resource failure; not reproducible deterministically
+not an overlay symbol table	ln always writes a full header; only a corrupted product can trigger it
+overlay data origin cannot be aligned	needs a 64 KB udata size, which no 64 KB data segment can reach

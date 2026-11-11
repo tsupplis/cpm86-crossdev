@@ -338,6 +338,20 @@ cp "$examples/ovrmain.c" "$examples/ovrfunc1.c" "$examples/ovrfunc2.c" overlays/
 )
 assert_clean
 
+# The data origin of an overlay symbol table (data + udata sizes at 0Ch and
+# 0Eh of the .rsm) must be even: an odd one gets one more udata byte.
+mkdir rsmalign
+(
+    cd rsmalign
+    for decl in 'char b[1];' 'char b[1]; char c[1]; char d[1];' 'char b[3]; char c;'; do
+        printf '%s\nint main(void) { return b[0]; }\n' "$decl" > odd.c
+        run_acc -target=cpm86 -overlay-root=0,0 odd.c -o odd.cmd
+        sum=$(od -An -tu2 -j12 -N4 odd.rsm | awk 'NR == 1 { print $1 + $2 }')
+        test $((sum % 2)) -eq 0
+    done
+)
+assert_clean
+
 # Executor failures: a tool that "succeeds" without its product, and a
 # workspace parent that does not exist.  Previous outputs must survive.
 printf '#!/bin/sh\nexit 0\n' > noop

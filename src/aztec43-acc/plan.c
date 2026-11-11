@@ -835,6 +835,14 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
     cmd->source = copy_text(output);
     if (cmd->product == 0 || cmd->source == 0)
         return 0;
+    /* ln -r leaves an odd data origin in the .rsm; acc makes it even. */
+    if (overlay_root) {
+        strcpy(table, product);
+        strcpy(strrchr(table, '.'), ".rsm");
+        cmd->align_product = copy_text(table);
+        if (cmd->align_product == 0)
+            return 0;
+    }
     if (path_equal(suffix, ".cmd"))
         cmd->header_flags = profile_cmd_flags(plan->target, r->floating);
     if (overlay_root &&
@@ -1021,6 +1029,7 @@ void free_plan(plan_t *plan)
         free(cmd->response_file);
         free(cmd->product);
         free(cmd->source);
+        free(cmd->align_product);
         free(cmd);
     }
     free_words(&plan->outputs);

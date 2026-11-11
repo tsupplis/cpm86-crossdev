@@ -10,6 +10,7 @@
  *   tool: "PROGRAM" "ARG" ...             one line per backend command
  *   response: "FILE" "LINE" ...           linker response file, if any
  *   flags: "PRODUCT" 0xNN                 CP/M-86 header bits set after ln
+ *   align: "PRODUCT"                      .rsm data origin made even after ln
  *   publish: "PRODUCT" -> "OUTPUT"        one line per published output
  *
  * Every word is double-quoted, with '"' and '\' escaped by a backslash
@@ -76,6 +77,11 @@ void print_plan(const request_t *r, const plan_t *plan)
             fputs("response: ", stderr);
             quoted(cmd->response_file);
             quoted_words(&cmd->response, 1);
+            fputc('\n', stderr);
+        }
+        if (cmd->align_product != 0) {
+            fputs("align: ", stderr);
+            quoted(cmd->align_product);
             fputc('\n', stderr);
         }
         if (cmd->header_flags != 0) {

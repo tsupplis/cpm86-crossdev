@@ -29,6 +29,8 @@ typedef struct command {
     char *product;              /* guest path the tool must create */
     char *source;               /* user-facing input, for diagnostics */
     int header_flags;           /* CP/M-86 header bits to set in the product */
+    char *align_product;        /* guest path of the .rsm to align after the
+                                   tool ends (owned), or 0 */
     const char *banner;         /* printed on the tool's behalf before it runs
                                    (static text, not owned), or 0 */
     struct command *next;

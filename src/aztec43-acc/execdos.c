@@ -589,6 +589,12 @@ int execute_plan(const request_t *request, const plan_t *plan)
             status = 1;
             break;
         }
+        if (cmd->align_product != 0 &&
+            (!dos_product(product, work, cmd->align_product) ||
+             !dos_verify_product(product) || !cmdhdr_align_rsm(product))) {
+            status = 1;
+            break;
+        }
     }
     if (status == 0 && interrupted) {
         fail("interrupted", 0);

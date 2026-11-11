@@ -478,6 +478,7 @@ acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.cmd" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\c86.lib"
+align: "E:\\u0001.rsm"
 publish: "E:\\u0001.cmd" -> "C:\\ovraza.cmd"
 publish: "E:\\u0001.rsm" -> "C:\\ovraza.rsm"
 [exit 0]
@@ -768,6 +769,7 @@ acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\c.lib"
+align: "E:\\u0001.rsm"
 publish: "E:\\u0001.exe" -> "C:\\root.exe"
 publish: "E:\\u0001.rsm" -> "C:\\root.rsm"
 [exit 0]
@@ -787,6 +789,7 @@ acc: plan float=soft optimize=default debug=off
 acc: E: is a symbolic private workspace; no files are created
 tool: "D:\\bin\\ln.exe" "-f" "E:\\u0002.rsp"
 response: "E:\\u0002.rsp" "-o" "E:\\u0001.exe" "+c" "1020" "+d" "a00" "-r" "C:\\main.o" "D:\\lib\\ovld.o" "D:\\lib\\d11.lib"
+align: "E:\\u0001.rsm"
 publish: "E:\\u0001.exe" -> "C:\\root.exe"
 publish: "E:\\u0001.rsm" -> "C:\\root.rsm"
 [exit 0]
