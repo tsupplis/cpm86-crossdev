@@ -141,7 +141,7 @@ No guarantees are made for any component. Use each at your own risk subject to t
 | NASM | BSD‑2‑Clause | [nasm.us](https://www.nasm.us) |
 | hexcom.c (Jeffrey H. Johnson) | MIT‑0 | [source](https://github.com/johnsonjh/tpzasm/blob/master/src/hexcom.c) |
 | ansi2kr (Masaki Oba) | BSD‑2‑Clause | [nabeta.tk](http://www.nabeta.tk) |
-| ARC86 (Reimer Mellin; CP/M‑86 port by D. J. Weatherall) | Public domain source; private non-commercial use only for the CP/M‑86 modifications | [86arkive.zip](http://cpmarchives.classiccmp.org/cpm/mirrors/www.seanet.com/~klaw/86arkive.zip) (stored in `src/freetools`) |
+| ARC86 (SEA) | GPL v2 | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports)  |
 | LU86 (from Stephen C. Hemminger's lar; CP/M‑86 port by Bill Bolton, with fixes from the lar ports by T. Bonfield, R. McVay and P.H. Mack) | Public domain / Abandonware | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (`lbr`) |
 | SQ/USQ (Richard Greenlaw, with Dick Greenlaw, Chuck Forsberg and W. Earnest) | Public domain / Abandonware | [cpm86‑ports](https://github.com/tsupplis/cpm86-ports) (`xsq`) |
 | mlbr (Mark Ogden) | GPL‑2.0 | [GitHub](https://github.com/ogdenpm/mlbr?tab=GPL-2.0-1-ov-file) |

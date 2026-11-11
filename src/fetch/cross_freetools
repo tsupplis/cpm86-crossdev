@@ -1,9 +1,0 @@
-#!/bin/sh
-
-set -e
-
-echo INF: Checking CP/M-86 free tools ...
-if [ ! -f "$root/share/cpm/arc86.cmd" ]; then
-    mkdir -p "$root/share/cpm"
-    cp "$root/src/freetools/arc86.cmd" "$root/share/cpm/arc86.cmd"
-fi

@@ -42,6 +42,9 @@ rm -rf "$root/bin/cmdinfo" "$root/bin/bin2cmd" "$root/bin/exe2cmd"  "$root/bin/c
 printf 'INF: cleaning src/tools ...\n'
 (cd "$root/src/tools" && "${MAKE:-make}" clean)
 
+printf 'INF: cleaning src/aztec43-acc ...\n'
+(cd "$root/src/aztec43-acc" && "${MAKE:-make}" clean)
+
 printf 'INF: removing share trees ...\n'
 rm -rf "$root/share/pcdev" "$root/share/emu" "$root/share/aztec"?? \
        "$root/share/cpm"   "$root/share/cb86"* \
