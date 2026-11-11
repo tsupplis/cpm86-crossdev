@@ -52,7 +52,11 @@ printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
 run_acc -c -squeeze main.c -o squeezed.o
 test -s squeezed.o
 test "$(wc -c < squeezed.o)" -lt "$(wc -c < main.o)"
-run_acc -squeeze main.c -o squeezed.cmd
+output=$(run_acc -squeeze main.c -o squeezed.cmd)
+printf '%s\n' "$output" | tr -d '\r' |
+    grep -qx 'Aztec SQZ v4.10d 10-25-88 (C) 1982-1988 by Manx Software Systems, Inc.'
+output=$(run_acc -c main.c -o plain.o)
+if printf '%s\n' "$output" | grep -q 'Aztec SQZ'; then exit 1; fi
 output=$("$emu" squeezed.cmd)
 printf '%s\n' "$output" | tr -d '\r' | grep -qx 'ACC EXEC PASS'
 

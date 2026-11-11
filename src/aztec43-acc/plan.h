@@ -29,6 +29,8 @@ typedef struct command {
     char *product;              /* guest path the tool must create */
     char *source;               /* user-facing input, for diagnostics */
     int header_flags;           /* CP/M-86 header bits to set in the product */
+    const char *banner;         /* printed on the tool's behalf before it runs
+                                   (static text, not owned), or 0 */
     struct command *next;
 } command_t;
 

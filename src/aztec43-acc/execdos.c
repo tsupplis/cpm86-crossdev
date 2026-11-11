@@ -575,6 +575,10 @@ int execute_plan(const request_t *request, const plan_t *plan)
             status = 1;
             break;
         }
+        if (cmd->banner != 0) {
+            puts(cmd->banner);
+            fflush(stdout);
+        }
         status = dos_launch(cmd, plan, child_env, work);
         if (status != 0)
             break;

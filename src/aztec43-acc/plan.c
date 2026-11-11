@@ -620,6 +620,9 @@ static int squeeze_product(plan_t *plan, const plan_context_t *ctx,
         return 0;
     cmd->product = copy_text(product);
     cmd->source = copy_text(input);
+    /* sqz is silent, unlike cc, cgen, as and ln. */
+    cmd->banner = "Aztec SQZ v4.10d 10-25-88 (C) 1982-1988 by Manx Software "
+                  "Systems, Inc.";
     return cmd->product != 0 && cmd->source != 0 &&
         add_word(&cmd->arguments, product);
 }
