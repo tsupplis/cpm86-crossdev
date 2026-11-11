@@ -226,6 +226,23 @@ static void on_signal(int number)
     interrupted = number;
 }
 
+/* Copy the file PATH to stdout, then remove it. */
+static void relay_output(const char *path)
+{
+    char buffer[4096];
+    FILE *stream;
+    size_t size;
+
+    stream = fopen(path, "rb");
+    if (stream != 0) {
+        while ((size = fread(buffer, 1, sizeof(buffer), stream)) != 0)
+            fwrite(buffer, 1, size, stdout);
+        fclose(stream);
+        fflush(stdout);
+    }
+    unlink(path);
+}
+
 /*
  * Run CMD under EMULATOR and wait for it.  The child environment is the
  * inherited one without emu2 drive settings, plus C: = invocation
@@ -254,6 +271,8 @@ static int launch(const plan_t *plan, const command_t *cmd, const char *work,
     int result;
     pid_t pid;
     pid_t waited;
+    char captured[ACC_PATH];
+    int capture;
 
     name = strrchr(cmd->arguments.items[0], '\\');
     if (name == 0) {
@@ -297,23 +316,50 @@ static int launch(const plan_t *plan, const command_t *cmd, const char *work,
     arguments[k++] = clib;
     arguments[k++] = "CCTEMP=E:\\";
     arguments[k] = NULL;
+    /*
+     * The emulated linker fails when its standard output is a terminal.
+     * Give the child a file instead and relay it once the child is done.
+     */
+    capture = -1;
+    captured[0] = '\0';
+    if (isatty(STDOUT_FILENO)) {
+        fflush(stdout);
+        if (!join(captured, work, "stdout.txt")) {
+            free(environment);
+            return 1;
+        }
+        capture = open(captured, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+        if (capture == -1) {
+            free(environment);
+            io_error("cannot capture backend output", captured);
+            return 1;
+        }
+    }
     pid = fork();
     if (pid == -1) {
         free(environment);
+        if (capture != -1)
+            close(capture);
         io_error("cannot fork emulator", emulator);
         return 1;
     }
     if (pid == 0) {
+        if (capture != -1 && dup2(capture, STDOUT_FILENO) == -1)
+            _exit(127);
         execve(emulator, arguments, environment);
         io_error("cannot execute emulator", emulator);
         _exit(127);
     }
     free(environment);
+    if (capture != -1)
+        close(capture);
     do {
         if (interrupted && kill(pid, interrupted) != 0 && errno != ESRCH)
             io_error("cannot interrupt emulator", emulator);
         waited = waitpid(pid, &status, 0);
     } while (waited == -1 && errno == EINTR);
+    if (capture != -1)
+        relay_output(captured);
     if (waited == -1) {
         io_error("cannot wait for emulator", emulator);
         return 1;

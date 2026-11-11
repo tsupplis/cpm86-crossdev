@@ -69,3 +69,4 @@ cannot close command file	host I/O or resource failure; not reproducible determi
 cannot open command file	host I/O or resource failure; not reproducible deterministically
 cannot set command file flags	host I/O or resource failure; not reproducible deterministically
 not a CP/M-86 command file	ln always writes a valid header; only a corrupted product can trigger it
+cannot capture backend output	host I/O or resource failure; not reproducible deterministically

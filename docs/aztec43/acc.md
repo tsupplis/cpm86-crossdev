@@ -279,6 +279,15 @@ failure and interruption unless `-save-temps` is given.
 `CCTEMP=/tmp/sc/mytmp acc -save-temps -o st.cmd hello.c` retains the
 workspace as `/tmp/sc/mytmp/acc.4OJZfB`.
 
+### Terminal output (Unix)
+
+The emulated linker fails (status 10) on a link of about twenty objects when
+its standard output is a terminal, and succeeds when it is redirected. When
+`acc`'s own standard output is a terminal, it therefore gives each backend a
+file, `E:\..\stdout.txt` in the workspace, instead, and copies it to its
+standard output when the backend ends. The backend's messages appear when it
+finishes, not while it runs. With a pipe or a redirect nothing changes.
+
 ## Plan output (`-###`, `-v`)
 
 On stderr, one record per line, words double-quoted:

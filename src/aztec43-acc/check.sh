@@ -207,8 +207,23 @@ else
     printf '%s\n' "$output" | grep -Fi '"D:\\bin\\cc.exe"' >/dev/null
     ln main.c alias.o
     expect_error 'output aliases an input' "$@" -### -toolroot="$root" -c main.c -o alias.o
+    # A link in the last component is kept (the host follows it); a link
+    # in a directory component is resolved and must stay inside C: or D:.
     ln -s /etc/hosts away.c
-    expect_error 'path lies outside' "$@" -### -toolroot="$root" -c away.c
+    output=$("$@" -### -toolroot="$root" -c away.c 2>&1)
+    printf '%s\n' "$output" | grep -F '"C:\\away.c"' >/dev/null
+    outside=$(mktemp -d "${TMPDIR:-/tmp}/acc-outside.XXXXXX")
+    printf 'int x;\n' > "$outside/real.c"
+    ln -s "$outside" awaydir
+    expect_error 'path lies outside' "$@" -### -toolroot="$root" -c awaydir/real.c
+    # A symbolic link to a library, as a positional input and through -L/-l.
+    printf 'library placeholder\n' > "$outside/real.lib"
+    ln -s "$outside/real.lib" linked.lib
+    output=$("$@" -### -toolroot="$root" -target=cpm86 -L. -llinked -o linked.cmd main.c 2>&1)
+    printf '%s\n' "$output" | grep -F '"C:\\linked.lib"' >/dev/null
+    output=$("$@" -### -toolroot="$root" -target=cpm86 linked.lib -o linked.cmd main.c 2>&1)
+    printf '%s\n' "$output" | grep -F '"C:\\linked.lib"' >/dev/null
+    rm -rf "$outside"
     cp main.c 'bad\name.c'
     expect_error 'cannot be represented safely in DOS' "$@" -### -toolroot="$root" -c 'bad\name.c'
 

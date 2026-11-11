@@ -498,5 +498,30 @@ cp main.c raw/
     test -s debug.dbg
     pass debug.cmd
 )
+# The emulated linker fails when its standard output is a terminal, so acc
+# gives the backend a file and relays it.  Many objects, run under a pty.
+if command -v script >/dev/null 2>&1; then
+    mkdir tty
+    (
+        cd tty
+        objects=
+        for part in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+            printf 'int part%s(void) { return %s; }\n' "$part" "$part" > "part$part.c"
+            run_acc -c "part$part.c"
+            objects="$objects part$part.o"
+        done
+        printf 'int main(void) { return 0; }\n' > main.c
+        run_acc -c main.c
+        # acc's stdout must stay the terminal: script records it in tty.log.
+        line="\"$acc\" -toolroot=\"$root\" -emu=\"$emu\" -target=cpm86 -o tty.cmd main.o $objects"
+        if script -q /dev/null true >/dev/null 2>&1; then
+            script -q tty.log sh -c "$line" >/dev/null 2>&1
+        else
+            script -q -c "$line" tty.log >/dev/null 2>&1
+        fi
+        test -s tty.cmd
+        tr -d '\r' < tty.log | grep -q 'Aztec C Linker'
+    )
+fi
 assert_clean
 printf 'ACC EXEC CHECK PASS\n'

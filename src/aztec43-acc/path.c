@@ -264,13 +264,51 @@ static const char *within(const char *path, const char *root)
 }
 #endif
 
+#ifndef ACC_DOS
+/*
+ * Like path_canonical for a path that is going to be named to the emulated
+ * tools, except that a symbolic link in the last component is kept: the
+ * tools open C:\NAME and the host follows the link itself.  The directory
+ * part is still fully resolved, so a link to a directory cannot lead out of
+ * the invocation directory or the tool root.
+ */
+static int canonical_guest(char *out, const char *host)
+{
+    char parent[ACC_PATH];
+    struct stat status;
+    char *resolved;
+    char *slash;
+    int ok;
+
+    if (lstat(host, &status) != 0 || !S_ISLNK(status.st_mode))
+        return path_canonical(out, host, 1);
+    if (strlen(host) >= sizeof(parent))
+        return fail("path is too long", host);
+    strcpy(parent, host);
+    slash = strrchr(parent, '/');
+    if (slash == 0) {
+        resolved = realpath(".", NULL);
+    } else {
+        *slash = '\0';
+        resolved = realpath(parent[0] == '\0' ? "/" : parent, NULL);
+    }
+    if (resolved == 0)
+        return fail("cannot resolve path", host);
+    ok = strlen(resolved) < ACC_PATH &&
+        path_join(out, resolved, slash == 0 ? host : slash + 1);
+    free(resolved);
+    return ok ? 1 : fail("resolved path is too long", host);
+}
+#endif
+
 /*
  * Translate host path HOST into the guest path the backend tools will see,
  * in OUT (ACC_PATH bytes).
  *
  * Unix: a path inside the tool root becomes D:\..., inside the invocation
  * directory C:\...; when one contains the other the deeper anchor wins.
- * Paths elsewhere cannot be reached by the emulated tools and are refused.
+ * Paths elsewhere cannot be reached by the emulated tools and are refused;
+ * a symbolic link in the last component is not followed (see canonical_guest).
  * DOS: the canonical host path is already the guest path.
  *
  * The result is then checked component by component against what DOS can
@@ -290,12 +328,14 @@ int path_guest(const path_map_t *map, const char *host, char *out)
     size_t ext;
     int dot;
 
+#ifdef ACC_DOS
     if (!path_canonical(resolved, host, 1))
         return 0;
-#ifdef ACC_DOS
     (void)map;
     strcpy(out, resolved);
 #else
+    if (!canonical_guest(resolved, host))
+        return 0;
     relative = within(resolved, map->root);
     if (relative != 0 && strlen(map->root) >= strlen(map->cwd)) {
         strcpy(out, "D:\\");
