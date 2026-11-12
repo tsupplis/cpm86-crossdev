@@ -536,7 +536,7 @@ cmdinfo hellocvt.cmd
 <tr><td>MS Basic 5.21 (CP/M‑80, via tnylpo)</td><td><pre>cpm_mbasic hellomsb.bas</pre></td></tr>
 <tr><td>MS Basic 4.51 "Old Basic" (CP/M‑80, via tnylpo)</td><td><pre>cpm_obasic hellomsb.bas</pre></td></tr>
 <tr><td>TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)</td><td><pre>cpm_tdlbasic hellomsb.bas</pre></td></tr>
-<tr><td>DR Personal Basic 1.2N</td><td><pre>cpm86_basic hellopba.bas '[R]'</pre>Omit <code>[R]</code> to load only. <code>[R</code> is also accepted. With no arguments, opens the interactive prompt. With <code>[R]</code>, <code>END</code> or the last program line exits BASIC. Enter <code>SYSTEM</code> to exit an interactive session.</td></tr>
+<tr><td>DR Personal Basic 1.2N</td><td><pre>cpm86_basic hellopba.bas '[R]'</pre>Omit <code>[R]</code> to load only. <code>[R</code> is also accepted. With no arguments, opens the interactive prompt. With <code>[R]</code>, the startup banner is hidden and <code>END</code> or the last program line exits BASIC. Enter <code>SYSTEM</code> to exit an interactive session.</td></tr>
 </table>
 
 ### C Programs

@@ -24,6 +24,7 @@ for offset, expected, entry in (
     (0x2f37, '8b9db200', 6),
     (0x2e37, 'e99401', 9),
     (0x2b40, '8b9d3402', 12),
+    (0x2aec, '8d1e1a04', 15),
 ):
     old = bytes.fromhex(expected)
     assert code[offset:offset+len(old)] == old

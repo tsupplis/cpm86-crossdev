@@ -8,6 +8,7 @@ org 0bf60h
     jmp near finish_end
     jmp near finish_last
     jmp near prompt
+    jmp near banner
 initialize:
     push ax
     push cx
@@ -175,6 +176,14 @@ prompt:
     mov byte [cs:pending],0
     mov bx,[di+234h]            ; Displaced command-dispatch instruction.
     jmp 02b44h
+; Skip only the startup banner formatter for a valid [R] request.
+banner:
+    cmp byte [cs:autorun],0
+    jne .quiet
+    lea bx,[041ah]             ; Displaced banner separator address.
+    jmp 02af0h
+.quiet:
+    jmp 02b07h                 ; Continue interpreter initialization.
 pending db 0
 autorun db 0
 cursor dw 0

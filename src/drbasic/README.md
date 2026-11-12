@@ -24,7 +24,8 @@ Use a single CP/M filename, optionally prefixed by a drive, with no spaces,
 quotes or wildcard characters. BASIC supplies the default `.BAS` extension.
 The argument parser bounds filenames to 14 characters and rejects extra
 arguments. Detailed filename and file-format validation remains with BASIC.
-No arguments opens the normal interactive interpreter.
+No arguments opens the normal interactive interpreter. The startup banner is
+hidden for `[R]` runs and shown for interactive and load-only startup.
 
 ## Build and check
 
@@ -41,11 +42,11 @@ patching. Source files use 8.3-compatible names.
 
 ## Patch layout
 
-The code group grows from 48,992 to 49,456 bytes, including 16-byte alignment.
+The code group grows from 48,992 to 49,488 bytes, including 16-byte alignment.
 Its image length and minimum allocation are updated together. Data and extra
 group descriptors retain their original allocations.
 
-Five code hooks use offsets relative to the code group:
+Six code hooks use offsets relative to the code group:
 
 - `00C2h`, three bytes, initializes the startup command from the runtime's
   preserved command tail and performs the displaced instruction.
@@ -57,6 +58,8 @@ Five code hooks use offsets relative to the code group:
 - `2B40h`, four bytes, clears startup run mode when dispatching later
   interactive commands, including commands entered at the break prompt.
 
+- `2AECh`, four bytes, skips the startup banner formatter for `[R]` runs.
+
 The appended code begins at `BF60h`. It stores its private command and cursor
 in the code group and disables injection before returning the final carriage
 return. Program `INPUT` and subsequent interpreter commands then read the
@@ -65,7 +68,7 @@ at `0254h`.
 
 The banner changes to `1.2N` by consuming one preceding padding space,
 keeping the string and data group lengths fixed. All original code bytes
-outside the five hook sites remain identical.
+outside the six hook sites remain identical.
 
 Tests execute the built interpreter under `emu2` and cover load-only startup,
 both run-option forms, missing and malformed files, invalid arguments,

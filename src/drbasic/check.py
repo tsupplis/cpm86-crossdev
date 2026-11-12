@@ -16,7 +16,7 @@ assert patched[128+code_size+2368:] == original[128+48992+2368:]
 old_data = original[128+48992:128+48992+2368]
 assert patched[128+code_size:128+code_size+2368] == old_data.replace(b' Version 1.2\n', b'Version 1.2N\n')
 for offset in range(48992):
-    if offset not in range(0xc2, 0xc5) and offset not in range(0x24f, 0x254) and offset not in range(0x2f37, 0x2f3b) and offset not in range(0x2e37, 0x2e3a) and offset not in range(0x2b40, 0x2b44):
+    if offset not in range(0xc2, 0xc5) and offset not in range(0x24f, 0x254) and offset not in range(0x2f37, 0x2f3b) and offset not in range(0x2e37, 0x2e3a) and offset not in range(0x2b40, 0x2b44) and offset not in range(0x2aec, 0x2af0):
         assert patched[128+offset] == original[128+offset], hex(offset)
 
 with tempfile.TemporaryDirectory(prefix='drbasic-check-') as directory:
@@ -31,7 +31,12 @@ with tempfile.TemporaryDirectory(prefix='drbasic-check-') as directory:
                                 input=keyboard.encode(), capture_output=True, cwd=work, timeout=10)
         assert result.returncode == 0, (args, result.stderr)
         output = result.stdout.decode('latin1')
-        assert 'Version 1.2N' in output
+        quiet = len(args) == 2 and args[1].upper() in ('[R', '[R]')
+        if quiet:
+            assert 'Personal Basic' not in output and 'Copyright' not in output
+            assert 'Serial No.' not in output and '-----' not in output
+        else:
+            assert 'Version 1.2N' in output
         return output
     assert 'EXECUTED' in run([], 'PRINT "EXECUTED"\rSYSTEM\r')
     output = run(['hello.bas'])
