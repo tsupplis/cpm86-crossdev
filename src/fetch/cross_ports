@@ -15,8 +15,8 @@ if [ ! -f "$root/share/cpm86/arc86.cmd" ]; then
     trap 'rm -rf "$tmp"' EXIT
     cp -RL "$root/archive/cpm86-ports/arc"/* "$tmp/"
     PATH="$root/bin:$PATH" "${MAKE:-make}" -C "$tmp" all
-    mkdir -p "$root/share/cpm86/"
-    cp "$tmp/arc86.cmd" "$root/share/cpm86/"
+    mkdir -p "$root/share/cpm/"
+    cp "$tmp/arc86.cmd" "$root/share/cpm/"
     rm -rf "$tmp"
     trap - EXIT
 fi
