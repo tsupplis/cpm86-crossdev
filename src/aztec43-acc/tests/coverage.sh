@@ -1,5 +1,5 @@
 #!/bin/sh
-# Coverage gate: fails unless the test corpus exercises
+# Test inventory lint: checks that the test corpus mentions
 #   - every option parsed by args.c (including -o -I -D -L -l),
 #   - every value of -target, -mcmodel, -march and -mfloat,
 #   - every allow-listed raw backend option of raw.c,
@@ -8,8 +8,8 @@
 # except diagnostics listed in tests/coverage-exempt.txt, which must state
 # why no deterministic test can trigger them.
 #
-# The corpus is tests/plan/*.cases plus the shell suites; a diagnostic is
-# covered when its text appears there.  Usage: coverage.sh SOURCE_DIR
+# The corpus is tests/plan/*.cases plus the shell suites. This checks text
+# presence only. Behavioral coverage comes from the suites themselves.  Usage: coverage.sh SOURCE_DIR
 set -eu
 src=$1
 corpus=$(mktemp "${TMPDIR:-/tmp}/acc-coverage.XXXXXX")

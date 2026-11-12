@@ -196,6 +196,31 @@ FAKE_STATUS=0 expect_error 1 -emu=./fake -c main.c
 printf '%s\n' "$output" | grep -F 'did not create its output' >/dev/null
 assert_clean
 rm called
+# A missing sidecar and a later commit failure both preserve the old output.
+cat > partial <<'SH'
+#!/bin/sh
+printf 'new executable\n' > "$EMU2_DRIVE_E/u0001.exe"
+if [ "${COMMIT_FAIL:-0}" = 1 ]; then
+    printf 'new debug data\n' > "$EMU2_DRIVE_E/u0001.dbg"
+    mkdir batch.dbg
+fi
+SH
+chmod +x partial
+printf 'test object\n' > batch.o
+printf 'old executable\n' > batch.exe
+printf 'old debug data\n' > batch.dbg
+expect_error 1 -emu=./partial -g batch.o -o batch.exe
+printf '%s\n' "$output" | grep -F 'did not create its output' >/dev/null
+grep -qx 'old executable' batch.exe
+grep -qx 'old debug data' batch.dbg
+rm batch.dbg
+COMMIT_FAIL=1 expect_error 1 -emu=./partial -g batch.o -o batch.exe
+printf '%s\n' "$output" | grep -F 'previous output is not a regular file' >/dev/null
+grep -qx 'old executable' batch.exe
+test -d batch.dbg
+test -z "$(find . -name '.acc.*' -print)"
+assert_clean
+
 long=$(printf '%0140d' 0)
 expect_error 1 -emu=./fake -c -DLONG="$long" main.c
 printf '%s\n' "$output" | grep -F 'command line too long' >/dev/null

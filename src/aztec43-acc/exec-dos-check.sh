@@ -35,6 +35,28 @@ dos_acc -target=dos2 objects.inp -o fromlist.exe
 test -s fromlist.exe
 "$emu" "$work/fromlist.exe"
 
+# A real E: path must survive both argv and linker response serialization.
+mkdir ext tmpdir
+cp main.c ext/main.c
+(
+    export EMU2_DRIVE_E=$work/ext
+    dos_acc -target=dos2 -c 'E:\main.c' -o 'E:\main.o'
+    test -s ext/main.o
+    dos_acc -target=dos2 'E:\main.o' -o frome.exe
+    test -s frome.exe
+)
+
+# The symbolic plan fits, but a longer workspace pushes the child over 126.
+value=$(printf '%050d' 0)
+dos_acc -### -c "-DX=$value" main.c >tail-plan.log 2>&1
+status=0
+"$emu" "$acc" -toolroot='D:\' -c "-DX=$value" main.c \
+    -- 'CCTEMP=C:\tmpdir' >tail.log 2>&1 || status=$?
+test "$status" -eq 1
+grep -F 'translated DOS command line too long' tail.log >/dev/null
+if grep -F 'Aztec C86 Pass1' tail.log; then exit 1; fi
+test -z "$(ls -A tmpdir)"
+
 cp hello.exe preserved.exe
 status=0
 "$emu" "$acc" -toolroot='D:\' -target=dos2 bad.c -o hello.exe \

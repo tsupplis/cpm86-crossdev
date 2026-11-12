@@ -20,11 +20,13 @@ cc +0 +c -b -n -DACC_DOS -o print.o print.c
 if errorlevel 1 goto failed
 cc +0 +c -b -n -DACC_DOS -o cmdhdr.o cmdhdr.c
 if errorlevel 1 goto failed
+cc +0 +c -b -n -DACC_DOS -o publish.o publish.c
+if errorlevel 1 goto failed
 cc +0 +c -b -n -DACC_DOS -o execdos.o execdos.c
 if errorlevel 1 goto failed
 lb %1\lib\c.lib -x sbegin
 if errorlevel 1 goto failed
-ln -o acc.exe sbegin.o acc.o words.o args.o profile.o raw.o path.o plan.o print.o cmdhdr.o execdos.o -lc
+ln -o acc.exe sbegin.o acc.o words.o args.o profile.o raw.o path.o plan.o print.o cmdhdr.o publish.o execdos.o -lc
 if errorlevel 1 goto failed
 echo ACC BUILD PASS
 goto end

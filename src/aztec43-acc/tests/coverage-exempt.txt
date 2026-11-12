@@ -27,7 +27,6 @@ cannot preserve previous output	host I/O or resource failure; not reproducible d
 cannot publish output	host I/O or resource failure; not reproducible deterministically
 cannot read completed output	host I/O or resource failure; not reproducible deterministically
 cannot read workspace directory	host I/O or resource failure; not reproducible deterministically
-cannot remove previous output backup	host I/O or resource failure; not reproducible deterministically
 cannot remove private workspace	host I/O or resource failure; not reproducible deterministically
 cannot remove staged output	host I/O or resource failure; not reproducible deterministically
 cannot remove workspace directory	host I/O or resource failure; not reproducible deterministically
@@ -75,3 +74,5 @@ cannot align the overlay symbol table	host I/O or resource failure; not reproduc
 cannot close symbol table	host I/O or resource failure; not reproducible deterministically
 not an overlay symbol table	ln always writes a full header; only a corrupted product can trigger it
 overlay data origin cannot be aligned	needs a 64 KB udata size, which no 64 KB data segment can reach
+cannot inspect previous output	host metadata error before commit
+translated DOS argument contains whitespace	defensive check for unrepresentable workspace arguments

@@ -25,6 +25,7 @@ typedef struct command {
     word_list_t arguments;      /* tool path, then its arguments */
     word_list_t response;       /* if non-empty: tool path, then the lines
                                    of the response file */
+    unsigned char workspace_arg[ACC_LIMIT]; /* applies to response when present */
     char *response_file;        /* guest path of that file, or 0 */
     char *product;              /* guest path the tool must create */
     char *source;               /* user-facing input, for diagnostics */

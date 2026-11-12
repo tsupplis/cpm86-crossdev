@@ -26,11 +26,6 @@
 #include <unistd.h>
 #endif
 
-/*
- * Longest command tail DOS passes to a child, in bytes, excluding the
- * terminating CR.  Aztec's fexecv silently truncates longer tails.
- */
-#define DOS_TAIL_LIMIT 126
 
 /* What a positional input is, from its suffix ("-lNAME" names a library). */
 typedef enum {
@@ -197,6 +192,18 @@ static command_t *tool_command(plan_t *plan, const plan_context_t *ctx, const ch
         !path_join(path, bindir, name) || !path_guest(&ctx->map, path, guest))
         return NULL;
     return command(plan, guest);
+}
+
+/* Mark workspace arguments explicitly: DOS can also have a real E: drive. */
+static int workspace_arg(command_t *cmd, const char *path)
+{
+    int index;
+
+    index = cmd->arguments.count;
+    if (!add_word(&cmd->arguments, path))
+        return 0;
+    cmd->workspace_arg[index] = 1;
+    return 1;
 }
 
 /* Append PREFIX immediately followed by VALUE as one argument. */
@@ -624,7 +631,7 @@ static int squeeze_product(plan_t *plan, const plan_context_t *ctx,
     cmd->banner = "Aztec SQZ v4.10d 10-25-88 (C) 1982-1988 by Manx Software "
                   "Systems, Inc.";
     return cmd->product != 0 && cmd->source != 0 &&
-        add_word(&cmd->arguments, product);
+        workspace_arg(cmd, product);
 }
 
 /*
@@ -701,7 +708,7 @@ static int compile_input(const request_t *r, plan_context_t *ctx, plan_t *plan,
         if (!mapped(args, ctx, "-I", ctx->includes.items[i]))
             return 0;
     }
-    if (!add_word(args, "-o") || !add_word(args, product) ||
+    if (!add_word(args, "-o") || !workspace_arg(cmd, product) ||
         !mapped(args, ctx, "", input))
         return 0;
     if (r->squeeze && !squeeze_product(plan, ctx, product, input))
@@ -829,7 +836,7 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
     }
     cmd = tool_command(plan, ctx, "ln.exe");
     if (cmd == 0 || !add_word(&cmd->arguments, "-o") ||
-        !add_word(&cmd->arguments, product))
+        !workspace_arg(cmd, product))
         return 0;
     cmd->product = copy_text(product);
     cmd->source = copy_text(output);
@@ -875,7 +882,7 @@ static int link_inputs(const request_t *r, plan_context_t *ctx, plan_t *plan)
         name = ctx->inputs.items[i];
         kind = classify(name);
         if (is_source(kind)) {
-            if (!add_word(&cmd->arguments, ctx->objects.items[object++]))
+            if (!workspace_arg(cmd, ctx->objects.items[object++]))
                 return 0;
         } else if (kind == INPUT_LIBNAME) {
             name += 2;
@@ -932,7 +939,7 @@ static int serialize_commands(plan_t *plan)
     char message[128];
     command_t *cmd;
     const unsigned char *p;
-    size_t length;
+    unsigned long length;
     int i;
 
     for (cmd = plan->first; cmd != 0; cmd = cmd->next) {
@@ -947,10 +954,10 @@ static int serialize_commands(plan_t *plan)
             length += strlen(cmd->arguments.items[i]) + 1;
         }
         if (!path_equal(path_basename(cmd->arguments.items[0]), "ln.exe")) {
-            if (length > DOS_TAIL_LIMIT) {
-                sprintf(message, "compiler command line too long (%u > %d bytes; "
-                        "reduce -I/-D or shorten paths)", (unsigned)length,
-                        DOS_TAIL_LIMIT);
+            if (length > ACC_DOS_TAIL) {
+                sprintf(message, "compiler command line too long (%lu > %d bytes; "
+                        "reduce -I/-D or shorten paths)", length,
+                        ACC_DOS_TAIL);
                 return fail(message, cmd->source);
             }
             continue;

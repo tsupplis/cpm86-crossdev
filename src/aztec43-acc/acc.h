@@ -23,6 +23,9 @@
 /* Maximum length of a path or argument, terminator included. */
 #define ACC_PATH 1024
 
+/* Maximum DOS child command tail, excluding the terminating CR. */
+#define ACC_DOS_TAIL 126
+
 /* An ordered list of heap-allocated strings, owned by the list. */
 typedef struct {
     char *items[ACC_LIMIT];

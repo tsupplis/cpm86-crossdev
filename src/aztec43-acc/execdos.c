@@ -11,6 +11,7 @@
 #include "acc.h"
 #include "request.h"
 #include "plan.h"
+#include "publish.h"
 #include "cmdhdr.h"
 #include <dos.h>
 #include <fcntl.h>
@@ -20,7 +21,7 @@
 #include <string.h>
 
 /* Longest DOS command tail: DOS and emu2 silently drop what follows. */
-#define DOS_TAIL_MAX 126
+
 
 /* Size of a DOS path buffer: 63 characters plus the terminator. */
 #define ACC_DOS_PATH 64
@@ -248,7 +249,7 @@ static int response_file(const command_t *cmd, const char *work)
     if (stream == 0)
         return dos_error("cannot create linker response file", path);
     for (i = 1; i < cmd->response.count; ++i) {
-        if (strncmp(cmd->response.items[i], "E:\\", 3) == 0) {
+        if (cmd->workspace_arg[i]) {
             if (!owned_path(argument, work, cmd->response.items[i])) {
                 fclose(stream);
                 return 0;
@@ -302,7 +303,7 @@ static int dos_launch(const command_t *cmd, const plan_t *plan, unsigned envseg,
     arguments[0] = tool;
     translated_count = 0;
     for (i = 1; i < cmd->arguments.count; ++i) {
-        if (strncmp(cmd->arguments.items[i], "E:\\", 3) == 0) {
+        if (cmd->response.count == 0 && cmd->workspace_arg[i]) {
             if (translated_count >= ACC_LIMIT) {
                 while (translated_count > 0)
                     free(translated[--translated_count]);
@@ -335,6 +336,25 @@ static int dos_launch(const command_t *cmd, const plan_t *plan, unsigned envseg,
         arguments[3] = NULL;
     } else {
         arguments[cmd->arguments.count] = NULL;
+    }
+    {
+        unsigned long length;
+
+        length = 0;
+        for (i = 1; arguments[i] != 0; ++i) {
+            if (strpbrk(arguments[i], " \t\r\n") != 0) {
+                fail("translated DOS argument contains whitespace", arguments[i]);
+                break;
+            }
+            length += strlen(arguments[i]) + 1;
+        }
+        if (arguments[i] != 0 || length > ACC_DOS_TAIL) {
+            if (arguments[i] == 0)
+                fail("translated DOS command line too long", cmd->source);
+            while (translated_count > 0)
+                free(translated[--translated_count]);
+            return 1;
+        }
     }
     psp = (unsigned far *)dos_far(_PSP, 0);
     oldenv = psp[0x2c / 2];
@@ -382,50 +402,60 @@ static int dos_verify_product(const char *path)
     return 1;
 }
 
-/*
- * Copy SOURCE to DESTINATION safely.  The copy is staged under a unique
- * name beside DESTINATION; an existing DESTINATION is renamed to a backup
- * first and restored if the final rename fails, because DOS rename cannot
- * replace a file.  On failure the previous DESTINATION is preserved.
- */
-static int dos_publish(const char *source, const char *destination)
+/* Aztec mktemp can exhaust a template when two files coexist in the
+ * same clock tick. Vary the prefix to stage a whole batch in one directory. */
+static int publication_name(char *out, const char *destination,
+                            const char *suffix)
 {
     char parent[ACC_DOS_PATH];
-    char staged[ACC_DOS_PATH];
-    char backup[ACC_DOS_PATH];
-    char pattern[ACC_DOS_PATH];
-    char buffer[512];
+    char pattern[13];
     char *slash;
-    int in;
-    int out;
-    int amount;
-    int wrote;
-    int offset;
-    int had_old;
-    int ok;
+    unsigned i;
 
     strcpy(parent, destination);
     slash = strrchr(parent, '\\');
     if (slash == 0)
         return fail("planned output has no DOS directory", destination);
     *slash = '\0';
+    for (i = 0; i < 256; ++i) {
+        sprintf(pattern, "%02XXXXXXX.%s", i, suffix);
+        if (!dos_join(out, parent, pattern))
+            return 0;
+        if (mktemp(out) != 0 && *out != '\0')
+            return 1;
+    }
+    return fail("cannot reserve DOS publication name", destination);
+}
+
+/* Copy a verified product to a new file beside its destination. */
+static int stage_output(char *staged, const char *work, const char *guest,
+                        const char *destination)
+{
+    char source[ACC_DOS_PATH];
+    char pattern[ACC_DOS_PATH];
+    char buffer[512];
+    int in;
+    int out;
+    int amount;
+    int wrote;
+    int offset;
+    int ok;
+
+    if (!owned_path(source, work, guest) || !dos_verify_product(source))
+        return 0;
     in = open(source, O_RDONLY);
     if (in == -1)
         return dos_error("cannot open completed output", source);
-    if (!dos_join(pattern, parent, "AXXXXXX.TMP")) {
+    if (!publication_name(pattern, destination, "TMP")) {
         close(in);
         return 0;
     }
-    if (mktemp(pattern) == 0 || *pattern == '\0') {
-        close(in);
-        return fail("cannot reserve DOS publication name", destination);
-    }
-    strcpy(staged, pattern);
-    out = open(staged, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    out = open(pattern, O_WRONLY | O_CREAT | O_EXCL, 0666);
     if (out == -1) {
         close(in);
-        return dos_error("cannot create staged output", staged);
+        return dos_error("cannot create staged output", pattern);
     }
+    strcpy(staged, pattern);
     ok = 1;
     while ((amount = read(in, buffer, sizeof(buffer))) > 0) {
         offset = 0;
@@ -442,32 +472,55 @@ static int dos_publish(const char *source, const char *destination)
     }
     if (amount < 0)
         ok = 0;
-    if (close(in) != 0 || close(out) != 0)
+    if (close(in) != 0)
         ok = 0;
-    if (!ok) {
-        unlink(staged);
-        return dos_error("cannot copy completed output", destination);
-    }
-    had_old = access(destination, 0) == 0;
-    if (had_old) {
-        if (!dos_join(pattern, parent, "AXXXXXX.BAK") ||
-            mktemp(pattern) == 0 || *pattern == '\0' ||
-            rename(destination, pattern) != 0) {
-            unlink(staged);
-            return dos_error("cannot preserve previous output", destination);
-        }
-        strcpy(backup, pattern);
-    }
-    if (rename(staged, destination) != 0) {
-        if (had_old && rename(backup, destination) != 0)
-            fprintf(stderr, "acc: cannot restore previous output: %s\n", destination);
-        unlink(staged);
-        return dos_error("cannot publish output", destination);
-    }
-    if (had_old && unlink(backup) != 0)
-        return dos_error("cannot remove previous output backup", backup);
+    if (close(out) != 0)
+        ok = 0;
+    return ok || dos_error("cannot copy completed output", destination);
+}
+
+static int backup_output(char *backup, const char *destination)
+{
+    char pattern[ACC_DOS_PATH];
+    struct stat status;
+
+    if (access(destination, 0) != 0)
+        return 1;
+    if (stat(destination, &status) != 0 || (status.st_attr & ST_DIRECT) != 0)
+        return fail("previous output is not a regular file", destination);
+    if (!publication_name(pattern, destination, "BAK") ||
+        rename(destination, pattern) != 0)
+        return dos_error("cannot preserve previous output", destination);
+    strcpy(backup, pattern);
     return 1;
 }
+
+static int move_output(const char *from, const char *to)
+{
+    return rename(from, to) == 0 || dos_error("cannot publish output", to);
+}
+
+static int remove_output(const char *path)
+{
+    return unlink(path) == 0 || dos_error("cannot remove staged output", path);
+}
+
+static int restore_output(const char *backup, const char *dest, int installed)
+{
+    if (installed && !remove_output(dest))
+        return 0;
+    return move_output(backup, dest);
+}
+
+static int publication_cancelled(void)
+{
+    return interrupted != 0;
+}
+
+static const publish_ops_t publication = {
+    stage_output, backup_output, move_output, restore_output, remove_output,
+    publication_cancelled
+};
 
 /*
  * Remove every file in workspace WORK, then WORK itself.  Enumerating the
@@ -522,7 +575,7 @@ int host_command_line_ok(void)
     unsigned char far *psp;
 
     psp = (unsigned char far *)dos_far(_PSP, 0);
-    if (psp[0x80] >= DOS_TAIL_MAX)
+    if (psp[0x80] >= ACC_DOS_TAIL)
         return fail("command line fills the DOS limit (126 bytes) and may be "
                     "truncated; list link inputs in a .inp file", 0);
     return 1;
@@ -544,7 +597,6 @@ int execute_plan(const request_t *request, const plan_t *plan)
     char work[ACC_DOS_PATH];
     char product[ACC_DOS_PATH];
     int status;
-    int i;
     int environment_ready;
     void (*previous)(int);
 
@@ -600,12 +652,8 @@ int execute_plan(const request_t *request, const plan_t *plan)
         fail("interrupted", 0);
         status = 1;
     }
-    for (i = 0; status == 0 && i < plan->outputs.count; ++i) {
-        if (!dos_product(product, work, plan->products.items[i]) ||
-            !dos_verify_product(product) ||
-            !dos_publish(product, plan->host_outputs.items[i]))
-            status = 1;
-    }
+    if (status == 0 && !publish_outputs(plan, work, &publication))
+        status = 1;
     if (request->save_temps)
         fprintf(stderr, "acc: workspace retained: %s\n", work);
     else if (!dos_cleanup(work) && status == 0)

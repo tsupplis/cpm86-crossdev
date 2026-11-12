@@ -15,6 +15,7 @@
 #include "acc.h"
 #include "request.h"
 #include "plan.h"
+#include "publish.h"
 #include "path.h"
 #include "cmdhdr.h"
 #include <stdlib.h>
@@ -389,14 +390,11 @@ static int verify_product(const char *path)
     return 1;
 }
 
-/*
- * Copy SOURCE to DESTINATION atomically: write a temporary file beside
- * DESTINATION (so it works across filesystems), then rename it over the
- * destination.  On failure the previous DESTINATION is preserved.
- */
-static int publish(const char *source, const char *destination)
+/* Copy a verified product to a new file beside its destination. */
+static int stage_output(char *staged, const char *work, const char *guest,
+                        const char *destination)
 {
-    char staged[ACC_PATH];
+    char source[ACC_PATH];
     char parent[ACC_PATH];
     char buffer[16384];
     char *slash;
@@ -408,7 +406,8 @@ static int publish(const char *source, const char *destination)
     int output;
     int ok;
 
-    staged[0] = '\0';
+    if (!owned_path(source, work, guest) || !verify_product(source))
+        return 0;
     input = -1;
     output = -1;
     ok = 0;
@@ -477,21 +476,67 @@ static int publish(const char *source, const char *destination)
     output = -1;
     if (interrupted)
         goto done;
-    if (rename(staged, destination) != 0) {
-        io_error("cannot publish output", destination);
-        goto done;
-    }
-    staged[0] = '\0';
     ok = 1;
 done:
     if (input != -1 && close(input) != 0)
         ok = io_error("cannot close completed output", source);
     if (output != -1 && close(output) != 0)
         ok = io_error("cannot close staged output", destination);
-    if (staged[0] != '\0' && unlink(staged) != 0)
-        ok = io_error("cannot remove staged output", staged);
     return ok;
 }
+
+static int backup_output(char *backup, const char *destination)
+{
+    struct stat status;
+    char path[ACC_PATH];
+    char *slash;
+    int fd;
+
+    if (lstat(destination, &status) != 0)
+        return errno == ENOENT ||
+            io_error("cannot inspect previous output", destination);
+    if (!S_ISREG(status.st_mode))
+        return fail("previous output is not a regular file", destination);
+    strcpy(path, destination);
+    slash = strrchr(path, '/');
+    if (slash == 0 || strlen(path) - strlen(slash) + 13 >= sizeof(path))
+        return fail("host path is too long", destination);
+    strcpy(slash + 1, ".acc.XXXXXX");
+    fd = mkstemp(path);
+    if (fd == -1)
+        return io_error("cannot preserve previous output", destination);
+    close(fd);
+    if (unlink(path) != 0 || link(destination, path) != 0)
+        return io_error("cannot preserve previous output", destination);
+    strcpy(backup, path);
+    return 1;
+}
+
+static int move_output(const char *from, const char *to)
+{
+    return rename(from, to) == 0 || io_error("cannot publish output", to);
+}
+
+static int remove_output(const char *path)
+{
+    return unlink(path) == 0 || io_error("cannot remove staged output", path);
+}
+
+static int restore_output(const char *backup, const char *dest, int installed)
+{
+    /* When the original was never replaced, both names are the same inode. */
+    return installed ? move_output(backup, dest) : remove_output(backup);
+}
+
+static int publication_cancelled(void)
+{
+    return interrupted != 0;
+}
+
+static const publish_ops_t publication = {
+    stage_output, backup_output, move_output, restore_output, remove_output,
+    publication_cancelled
+};
 
 /* Unix passes argv intact: there is no command tail to truncate. */
 int host_command_line_ok(void)
@@ -518,7 +563,6 @@ int execute_plan(const request_t *request, const plan_t *plan)
     char *emulator;
     int installed;
     int status;
-    int i;
 
     emulator = emulator_path(request->emulator == 0 ? "emu2" : request->emulator);
     if (emulator == 0)
@@ -574,12 +618,8 @@ int execute_plan(const request_t *request, const plan_t *plan)
             break;
         }
     }
-    for (i = 0; status == 0 && !interrupted && i < plan->outputs.count; ++i) {
-        if (!owned_path(product, work, plan->products.items[i]) ||
-            !verify_product(product) ||
-            !publish(product, plan->host_outputs.items[i]))
-            status = 1;
-    }
+    if (status == 0 && !interrupted && !publish_outputs(plan, work, &publication))
+        status = 1;
 done:
     if (work[0] != '\0') {
         if (request->save_temps)
