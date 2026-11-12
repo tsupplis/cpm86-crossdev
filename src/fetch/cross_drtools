@@ -34,7 +34,8 @@ fi
 echo INF: Checking Personal Basic 86 1.2 ...
 if [ ! -f "$root/share/cpm/basic.cmd" ]; then
     mkdir -p "$root/share/cpm"
-    cp "$root/src/drtools/basic.cmd" "$root/share/cpm/basic.cmd"
+    (cd "$root/src/drbasic" && "${MAKE:-make}")
+    cp "$root/src/drbasic/basic.cmd" "$root/share/cpm/basic.cmd"
 fi
 echo INF: Checking CBasic 86 1.4 ...
 if [ ! -f "$root/share/cpm/cbas86.cmd" ] || \
