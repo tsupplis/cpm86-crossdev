@@ -49,8 +49,10 @@ app.cmd: main.o util.o
 
 - `-o` names the output only with a single source; with several it is an error.
 - Two sources with the same base name collide: error.
-- Outputs are published only after every command succeeds; a failure leaves
-  existing files untouched.
+- After all commands succeed, every output is verified and staged before any
+  destination is replaced. If replacement fails partway through, acc rolls
+  back the earlier replacements. If restoration itself fails, acc reports
+  the retained backup path. Run builds that share output paths sequentially.
 - In link mode sources are compiled first; their objects stay in the
   private workspace and are not published.
 
@@ -253,7 +255,7 @@ discover it: set `-toolroot` or `ACCROOT`.
 | Entries per list (inputs, `-I`, `-D`, `-L`) | 128 |
 | Include areas | 7, plus the current directory |
 | DOS path | 63 characters, 8.3 names, no aliasing |
-| `cc`, `as` command | 126 bytes of arguments; longer is an error |
+| Backend command tail | 126 bytes of arguments; longer is an error. On DOS this includes the expanded workspace path. |
 | `ln` command | unlimited: always passed through a response file |
 | `acc.exe` command line (DOS) | 125 characters; a full 126-character DOS tail is refused as possibly truncated: use `.inp` |
 
@@ -301,4 +303,7 @@ On stderr, one record per line, words double-quoted:
 | `flags: "PRODUCT" 0xNN` | CP/M-86 header flag bits set in the linked product before it is published |
 | `publish: "PRODUCT" -> "OUTPUT"` | one per published output |
 
-Guest drives: `C:` invocation directory, `D:` tool root, `E:` workspace.
+On Unix the guest drives are `C:` for the invocation directory, `D:` for
+the tool root, and `E:` for the workspace. On native DOS the plan shows
+actual drives for user and tool paths. Workspace references are rendered
+as symbolic `E:` paths and resolved before execution.
