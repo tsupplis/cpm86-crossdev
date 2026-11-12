@@ -121,5 +121,8 @@ src/ansi2kr/ansi2kr
 src/ansi2kr/*.cmd
 src/ansi2kr/*.obj
 
+src/drbasic/basic.cmd
+
 docs/**/*.cmd
 docs/**/*-plan.md
+

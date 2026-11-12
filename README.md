@@ -43,7 +43,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 |-----------:|:------------------------------------------------------------------------------|
 | C          | Aztec C 4.3 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C (5.1 and 1.04) |
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
-| Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
+| Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2N, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.01A, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0 (Ratfor pre-processor integrated)                           |
 | COBOL      | Micro Focus Level II COBOL V2.1                                               |
@@ -81,7 +81,7 @@ A cleaned‑up distribution and kernel are available at https://github.com/tsupp
 | DR CBASIC         | 2.0 (CP/M‑86) / 2.1 (DOS)         | Compiled BASIC; compiler `cb86.exe`, linker `link86.exe`                     |
 | DR CBASIC         | 1.4 (CP/M‑86)                     | Compiled BASIC; compiler `cbas86.cmd`, runtime `crun86.cmd`                  |
 | M2CBASIC          | 1.4                               | MS BASIC → CBASIC source converter; translator + runtime libs                |
-| DR Personal Basic | 1.2                               | Interactive CP/M‑86 BASIC interpreter                                        |
+| DR Personal Basic | 1.2N                              | CP/M‑86 BASIC interpreter with filename loading and optional `[R]` execution                                        |
 | MS Basic          | 5.50 (CP/M‑86 / DOS)              | Reconstructed from GW Basic ([cpm86‑msbasic](https://github.com/tsupplis/cpm86-msbasic)) |
 | MS Basic          | 5.21 (CP/M‑80) / 4.51 "Old Basic" | Run via `tnylpo`                                                             |
 | TDL BASIC         | 3.05                              | Z‑80 CP/M‑80 BASIC; run via `tnylpo`                                         |
@@ -223,7 +223,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Basic                     | cpm_mbasic    | mbasic.com       | Microsoft Basic 5.21 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_obasic    | obasic.com       | Microsoft Basic 4.51 (8080 CP/M‑80, via tnylpo)        |
 | Basic                     | cpm_tdlbasic  | tdlbasic.com     | TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)              |
-| Basic                     | cpm86_basic   | basic.cmd        | DR Personal Basic 1.2 (via cpm86)                      |
+| Basic                     | cpm86_basic   | basic.cmd        | DR Personal Basic 1.2N (via emu2)                      |
 | Basic                     | cpm86_mbasic  | mbasic86.cmd     | Microsoft Basic 5.22 (CP/M‑86, via emu2)               |
 | Basic                     | cpm86_cbas    | cbas86.cmd         | DR CBASIC compiler for CP/M‑86 (1.4)                         |
 | Basic                     | cpm86_crun    | crun86.cmd         | DR CBASIC compiler for CP/M‑86 (1.4)                         |
@@ -536,7 +536,7 @@ cmdinfo hellocvt.cmd
 <tr><td>MS Basic 5.21 (CP/M‑80, via tnylpo)</td><td><pre>cpm_mbasic hellomsb.bas</pre></td></tr>
 <tr><td>MS Basic 4.51 "Old Basic" (CP/M‑80, via tnylpo)</td><td><pre>cpm_obasic hellomsb.bas</pre></td></tr>
 <tr><td>TDL BASIC 3.05 (Z‑80 CP/M‑80, via tnylpo)</td><td><pre>cpm_tdlbasic hellomsb.bas</pre></td></tr>
-<tr><td>DR Personal Basic 1.2 (interactive)</td><td><pre>cpm86_basic</pre></td></tr>
+<tr><td>DR Personal Basic 1.2N</td><td><pre>cpm86_basic hellopba.bas '[R]'</pre>Omit <code>[R]</code> to load only. <code>[R</code> is also accepted. With no arguments, opens the interactive prompt. With <code>[R]</code>, <code>END</code> or the last program line exits BASIC. Enter <code>SYSTEM</code> to exit an interactive session.</td></tr>
 </table>
 
 ### C Programs
