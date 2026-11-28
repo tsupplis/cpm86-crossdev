@@ -43,7 +43,7 @@ This project was developed for myself in a nerdy spirit and for a lot of fun. Ju
 |-----------:|:------------------------------------------------------------------------------|
 | C          | Aztec C 4.3 (almost ANSI), DR C 1.11 (ansi2kr integrated), Microsoft C (5.1 and 1.04) |
 | Assembler  | SCP ASM, RASM‑86, ASM‑86 1.1, ASM‑86 3.2, MASM 1.1, MASM 5.10, NASM 3.02, CP/M‑80 ASM |
-| Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2N, MS Basic 5.21/5.50, GW Basic 3.23, TDL BASIC 3.05 |
+| Basic      | DR CBASIC 1.4 / 2.0, DR Personal Basic 1.2N, MS Basic 5.21/5.50, GW Basic 4.01N, TDL BASIC 3.05 |
 | Pascal     | Pascal MT+ 3.3, Turbo Pascal 3.01A, PolyPascal‑86 3.11                         |
 | Fortran‑77 | DR Fortran‑77 4.0 (Ratfor pre-processor integrated)                           |
 | COBOL      | Micro Focus Level II COBOL V2.1                                               |
@@ -233,7 +233,7 @@ All the tools are wrapped in the bin directory for direct usage:
 | Basic                     | drcbdos_link  | linkexe.exe      | DR CBASIC linker for DOS                               |
 | Basic                     | m2cb_cvt      | m2cbasic.cmd     | M2CBASIC 1.4 MBASIC to CBASIC converter                |
 | Basic                     | pcdev_mbasic  | mbasic86.com     | Microsoft Basic 5.50 (DOS, via emu2)                   |
-| Basic                     | pcdev_gwbasic  | gwbasic.exe     | Microsoft GW Basic 3.23 (DOS, via emu2)                   |
+| Basic                     | pcdev_gwbasic  | gwbasic.exe     | Microsoft GW Basic 4.01N (DOS, via emu2)                   |
 | C                         | ansi2kr       | (native)         | ANSI C to K&R C converter (native)                     |
 | C                         | aztec43_acc   | (native)         | Unified Aztec C compiler/linker driver (v4.3)          |
 | C                         | aztec43_lib   | lb.exe           | Aztec C lib (v4.3)                                     |
@@ -344,6 +344,7 @@ export PATH="$(pwd -P)"/bin
 | DR Personal Basic 1.2                             | [datamuseum.dk](https://datamuseum.dk/wiki/Bits:30002879) (stored in `src/drtools/basic.cmd`)                                    |
 | MS Basic 5.21 (CP/M‑80)                           | repository (local copy)                                                                                                          |
 | MS Basic 5.50 (CP/M‑86 / DOS)                     | [cpm86‑msbasic](https://github.com/tsupplis/cpm86-msbasic) (GitHub)                                                              |
+| GW-Basic 4.01N (DOS)                     | [gwbasic](https://github.com/tsupplis/msdos40-kernel) (GitHub)                                                              |
 | MASM, LINK, ASM, EXE2BIN, HEX2BIN, MS Basic 80    | [MS‑DOS](https://github.com/microsoft/MS-DOS) (GitHub) + repository                                                              |
 | cmdtools (cmdinfo, cmdmod, bin2cmd, exe2cmd)      | [cpm86‑cmdtools](https://github.com/tsupplis/cpm86-cmdtools) (GitHub, built natively)                                            |
 | NASM                                              | [nasm.us snapshots](https://nasm.us/pub/nasm/snapshots/)                                                                         |
